@@ -925,63 +925,28 @@
                 formRow.classList.add('hidden');
             }
         }
+        // HÀM XỬ LÝ YÊU CẦU AI TÙY CHỈNH CỦA USER (ĐÃ ĐƯỢC NÂNG CẤP) function askCustomAI() { const promptInput = document.getElementById('ai-custom-prompt'); const responseBox = document.getElementById('ai-custom-response'); const promptText = promptInput.value.trim().toLowerCase(); if (!promptText) { alert("Vui lòng nhập câu hỏi hoặc yêu cầu phân tích vào ô trống!"); promptInput.focus(); return; } // Hiện khung response với trạng thái loading responseBox.classList.remove('hidden'); responseBox.innerHTML = `
+AI đang truy xuất dữ liệu tổng để phân tích chi tiết...
+`; // Giả lập thời gian AI "suy nghĩ" (1.5 giây) setTimeout(() => { let answer = ""; // --- KỊCH BẢN 1: HỎI VỀ KHU VỰC CÓ DPSC CAO/NHIỀU NHẤT --- if (promptText.includes("khu vực") && (promptText.includes("cao") || promptText.includes("nhiều") || promptText.includes("chi tiết"))) { let kvTồn = {}; let totalTồn = 0; // Lọc và đếm số ca chưa xử lý của từng khu vực allFetchedData.forEach(row => { let lyDo = (row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim(); let maKv = (row['MA_KV'] || 'Chưa XĐ').trim(); if (!lyDo) { kvTồn[maKv] = (kvTồn[maKv] || 0) + 1; totalTồn++; } }); // Sắp xếp khu vực từ cao xuống thấp let sortedKv = Object.entries(kvTồn).sort((a, b) => b[1] - a[1]); if(sortedKv.length === 0) { answer = "Tuyệt vời! Hiện tại toàn trung tâm không còn ca DPSC nào tồn đọng."; } else { answer = `📊 Phân tích chi tiết Khu vực tồn đọng:
+Hệ thống ghi nhận tổng cộng ${totalTồn} ca chưa được cập nhật kết quả chạm. Dưới đây là Top 3 khu vực đang "nóng" nhất cần được Giám đốc TTVT chú ý:
 
-        // HÀM XỬ LÝ YÊU CẦU AI TÙY CHỈNH CỦA USER
-        function askCustomAI() {
-            const promptInput = document.getElementById('ai-custom-prompt');
-            const responseBox = document.getElementById('ai-custom-response');
-            const promptText = promptInput.value.trim().toLowerCase();
+`; answer += `
+`; sortedKv.slice(0, 3).forEach((item, index) => { answer += `
+Top ${index + 1}: Khu vực ${item[0]} đang tồn ${item[1]} ca.
+`; }); answer += `
+`; answer += `💡 Đề xuất khẩn: Ưu tiên dồn lực lượng chăm sóc khách hàng hoặc điều phối kỹ thuật viên địa bàn hỗ trợ gấp cho Khu vực ${sortedKv[0][0]} để giải phóng số lượng tồn này trước ngày 25.`; } } // --- KỊCH BẢN 2: HỎI VỀ NHÂN VIÊN --- else if (promptText.includes("nhân viên") || promptText.includes("ai")) { let nvTồn = {}; allFetchedData.forEach(row => { let lyDo = (row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim(); let tenNv = (row['TEN_NV'] || 'Chưa phân công').trim(); if (!lyDo) { nvTồn[tenNv] = (nvTồn[tenNv] || 0) + 1; } }); let sortedNv = Object.entries(nvTồn).sort((a, b) => b[1] - a[1]); answer = `👥 Phân tích theo Nhân sự:
+Dưới đây là danh sách các nhân viên đang cầm nhiều ca DPSC cần chạm nhất:
 
-            if (!promptText) {
-                alert("Vui lòng nhập câu hỏi hoặc yêu cầu phân tích vào ô trống!");
-                promptInput.focus();
-                return;
-            }
+`; sortedNv.slice(0, 3).forEach((item, index) => { answer += `- Nhân viên ${item[0]}: Còn ${item[1]} ca chưa chạm.
+`; }); answer += `
+💡 Đề xuất: Leader cần xuất danh sách chi tiết gửi riêng cho 3 cá nhân này và đôn đốc tiến độ gọi điện/đến nhà khách hàng.`; } // --- KỊCH BẢN 3: HỎI VỀ LÝ DO RỜI MẠNG CHUNG --- else if (promptText.includes("lý do") || promptText.includes("nguyên nhân")) { let reasons = {}; let totalDaXl = 0; allFetchedData.forEach(row => { let lyDo = (row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim(); if (lyDo) { reasons[lyDo] = (reasons[lyDo] || 0) + 1; totalDaXl++; } }); let sortedReasons = Object.entries(reasons).sort((a, b) => b[1] - a[1]); if(totalDaXl === 0) { answer = "Chưa có dữ liệu thuê bao nào được cập nhật kết quả để phân tích lý do."; } else { let topReason = sortedReasons[0]; let pct = Math.round((topReason[1] / totalDaXl) * 100); answer = `🔍 Phân tích chi tiết Lý do rời mạng:
+Trong ${totalDaXl} ca đã khảo sát, nguyên nhân nhức nhối nhất hiện nay là "${topReason[0]}" (chiếm tới ${pct}% với ${topReason[1]} ca).
 
-            // Hiện khung response với trạng thái loading
-            responseBox.classList.remove('hidden');
-            responseBox.innerHTML = `
-                <div class="flex items-center space-x-2 text-indigo-500 font-medium">
-                    <i class="fa-solid fa-circle-notch fa-spin text-lg"></i>
-                    <span>AI đang phân tích dữ liệu theo yêu cầu của bạn...</span>
-                </div>
-            `;
+`; answer += `💡 Đề xuất phòng ngừa: Nếu nguyên nhân là chuyển mạng, kỹ thuật cần đo lại suy hao. Nếu do cước, cần đẩy mạnh bán các gói Home Combo giá tốt để khóa chặt khách hàng.`; } } // --- CÁC KỊCH BẢN TỪ KHÓA ĐƠN LẺ CŨ --- else if (promptText.includes("tah001")) { answer = "Phân tích Khu vực TAH001: Dựa trên dữ liệu, khu vực TAH001 đang gặp vấn đề chủ yếu với lý do 'Khách hàng rời địa phương'. Đề xuất: Nhân viên địa bàn cần khảo sát lại biến động dân cư tại khu vực này để có đánh giá chính xác hơn, tránh việc gắn mã lý do chung chung. Có thể tư vấn thủ tục dời trạm thay vì thanh lý."; } else if (promptText.includes("cước") || promptText.includes("giá")) { answer = "Phân tích về Cước phí: Nhóm khách hàng rời mạng do 'Vấn đề về cước' thường rất nhạy cảm về giá và dễ bị đối thủ chèo kéo. Đề xuất kịch bản CSKH: Lập tức sử dụng các gói tích hợp giá rẻ để giữ chân. Nếu KH sắp hết hạn đóng trước, xin ý kiến Lãnh đạo tặng thêm 1 tháng sử dụng hoặc giảm giá thiết bị để gia hạn thành công."; } else if (promptText.includes("chuyển mạng") || promptText.includes("đối thủ")) { answer = "Phân tích rủi ro Chuyển mạng: Đây là mức độ rủi ro BÁO ĐỘNG ĐỎ. Khách hàng thường chuyển mạng do mạng yếu, modem cũ hoặc giá đối thủ rẻ hơn. Giải pháp khẩn cấp: Cử ngay tổ Kỹ thuật xuống tận nhà kiểm tra cáp, đo suy hao, hỗ trợ đổi Modem 2 băng tần miễn phí và cam kết chất lượng trực tiếp với KH."; } // --- MẶC ĐỊNH (Tự động đếm số tổng nếu hỏi linh tinh) --- else { const total = allFetchedData.length; const pending = allFetchedData.filter(row => !(row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim()).length; answer = `Hệ thống AI chưa hiểu rõ ý bạn: Câu hỏi ("${promptInput.value}") hơi nằm ngoài phạm vi dữ liệu hiện tại.
 
-            // Giả lập thời gian AI "suy nghĩ" (1.5 giây) để tạo cảm giác thực tế
-            setTimeout(() => {
-                let answer = "";
-                
-                // Thuật toán giả lập AI: Quét từ khóa để trả lời
-                if (promptText.includes("tah001")) {
-                    answer = "<b>Phân tích Khu vực TAH001:</b> Dựa trên dữ liệu, khu vực TAH001 đang gặp vấn đề chủ yếu với lý do 'Khách hàng rời địa phương'. <b>Đề xuất:</b> Nhân viên địa bàn cần khảo sát lại biến động dân cư tại khu vực này để có đánh giá chính xác hơn, tránh việc gắn mã lý do chung chung. Có thể tư vấn thủ tục dời trạm thay vì thanh lý.";
-                } else if (promptText.includes("tah002")) {
-                    answer = "<b>Phân tích Khu vực TAH002:</b> TAH002 có tiến độ xử lý khá tốt. Tuy nhiên, tỷ lệ khách phàn nàn 'Vấn đề về cước' đang nhỉnh hơn các khu vực khác. <b>Đề xuất:</b> Tập trung rà soát các gói cước cũ đang áp dụng tại TAH002, chủ động gọi điện tư vấn nâng cấp băng thông hoặc chuyển sang Home Combo/Home Net để tối ưu chi phí cho khách.";
-                } else if (promptText.includes("cước") || promptText.includes("giá")) {
-                    answer = "<b>Phân tích về Cước phí:</b> Nhóm khách hàng rời mạng do 'Vấn đề về cước' thường rất nhạy cảm về giá và dễ bị đối thủ chèo kéo. <b>Đề xuất kịch bản CSKH:</b> Lập tức sử dụng các gói tích hợp giá rẻ để giữ chân. Nếu KH sắp hết hạn đóng trước, xin ý kiến Lãnh đạo tặng thêm 1 tháng sử dụng hoặc giảm giá thiết bị để gia hạn thành công.";
-                } else if (promptText.includes("chuyển mạng") || promptText.includes("đối thủ")) {
-                    answer = "<b>Phân tích rủi ro Chuyển mạng:</b> Đây là mức độ rủi ro <span class='text-red-500 font-bold'>BÁO ĐỘNG ĐỎ</span>. Khách hàng thường chuyển mạng do mạng yếu, modem cũ hoặc giá đối thủ rẻ hơn. <b>Giải pháp khẩn cấp:</b> Cử ngay tổ Kỹ thuật xuống tận nhà kiểm tra cáp, đo suy hao, hỗ trợ đổi Modem 2 băng tần miễn phí và cam kết chất lượng trực tiếp với KH.";
-                } else if (promptText.includes("nhân viên") || promptText.includes("đội")) {
-                    answer = "<b>Đánh giá công tác cập nhật:</b> Hệ thống ghi nhận một số nhân viên có thói quen nhập lý do 'Lý do khác' khá nhiều. <b>Đề xuất:</b> Cần quán triệt lại quy trình nhập liệu. Nhân viên phải ghi chú bằng chữ thật rõ nguyên nhân thực sự (Ví dụ: 'Khách đi định cư', 'Cửa hàng phá sản'...) để Trung tâm có cơ sở dữ liệu vạch ra chiến lược đúng đắn.";
-                } else {
-                    // Trả lời tổng quan nếu không có từ khóa cụ thể
-                    const total = allFetchedData.length;
-                    const pending = allFetchedData.filter(row => !(row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim()).length;
-                    answer = `<b>Góc nhìn tổng quan:</b> Hệ thống đang quản lý tổng cộng ${total} thuê bao, trong đó còn <b>${pending} ca chưa cập nhật kết quả chạm</b>. Yêu cầu ("<i>${promptInput.value}</i>") của bạn đã được tiếp nhận. <b>Đề xuất chung:</b> Ưu tiên đôn đốc các Đội/Khu vực xử lý dứt điểm các ca tồn đọng này trước ngày 25, đặc biệt tập trung cứu vãn nhóm 'Tạm dừng' để ngăn họ chuyển thành 'Thanh lý'.`;
-                }
-
-                // Render kết quả ra màn hình với Avatar AI
-                responseBox.innerHTML = `
-                    <div class="flex items-start">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-3 shrink-0 mt-0.5 border border-indigo-200">
-                            <i class="fa-solid fa-robot"></i>
-                        </div>
-                        <div>
-                            ${answer}
-                        </div>
-                    </div>
-                `;
-            }, 1500); // Đợi 1.5s
-        }
+Tuy nhiên, dưới đây là Tổng quan tiến độ mới nhất: Hệ thống đang quản lý tổng cộng ${total} thuê bao, trong đó còn ${pending} ca chưa cập nhật kết quả chạm. Bạn có thể hỏi các câu chi tiết hơn như: "Khu vực nào dpsc cao nhất", "Nhân viên nào tồn nhiều", hoặc "Phân tích lý do rời mạng".`; } // Render kết quả ra màn hình với Avatar AI responseBox.innerHTML = `
+${answer}
+`; }, 1500); }
 
         function fillInput(text) {
             const textarea = document.getElementById('aiInput');
