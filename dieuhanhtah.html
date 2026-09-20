@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điều hành nội bộ - Viễn Thông Tân An Hội</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; 
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        
+        /* Sidebar active menu styling */
+        .sidebar-item.active { background-color: #e0f2fe; }
+        .sidebar-item.active .icon-box { background-color: #3b82f6; color: white; border-color: transparent; }
+        .sidebar-item.active .title-text { color: #1e40af; }
+        .sidebar-item.active .sub-text { color: #2563eb; }
+
+        .sidebar-item:not(.active) .icon-box { background-color: #f3f4f6; color: #6b7280; }
+        .sidebar-item:not(.active):hover .icon-box { background-color: white; border-color: #e5e7eb; }
+        
+        .focus-ring:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        
+        /* Progress Bar Animation */
+        @keyframes fillProgress {
+            from { width: 0; }
+        }
+        .animate-progress {
+            animation: fillProgress 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 py-3 px-6 flex justify-between items-center shrink-0 z-10 relative shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-sm">V</div>
+            <div>
+                <h1 class="text-base font-bold text-gray-900 leading-tight">Viễn Thông Tân An Hội</h1>
+                <p class="text-xs text-gray-500">Cổng điều hành nội bộ</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-3 border-r border-gray-200 pr-4">
+                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold text-sm">KD</div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-800">Tài khoản Demo</p>
+                    <p class="text-xs text-gray-500">Demo • Cập nhật • Toàn Trung tâm</p>
+                </div>
+            </div>
+            <button class="text-gray-600 hover:text-gray-900 text-sm font-medium flex items-center space-x-1 px-2 py-1 rounded hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>
+                <span>Đăng xuất</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col overflow-y-auto shrink-0 z-0">
+            <div class="p-4">
+                <!-- Section 1 -->
+                <div class="mb-6">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Chăm sóc thuê bao</h2>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="#" onclick="switchView('view-dpsc')" id="nav-dpsc" class="sidebar-item active flex items-start p-2 rounded-lg transition-colors group">
+                                <div class="icon-box w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0 shadow-sm border border-transparent transition-colors">
+                                    <i class="fa-regular fa-clock"></i>
+                                </div>
+                                <div>
+                                    <span class="title-text block text-sm font-semibold text-gray-700">Chạm DPSC</span>
+                                    <span class="sub-text block text-xs text-gray-500">Cập nhật kết quả chạm</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="switchView('view-bao-cao')" id="nav-bao-cao" class="sidebar-item flex items-start p-2 rounded-lg transition-colors group">
+                                <div class="icon-box w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0 border border-transparent transition-colors">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                                <div>
+                                    <span class="title-text block text-sm font-semibold text-gray-700">Báo cáo chạm DPSC</span>
+                                    <span class="sub-text block text-xs text-gray-500">Tiến độ và sản lượng</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Section 2 -->
+                <div class="mb-6">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Tư vấn bán hàng</h2>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="#" onclick="switchView('view-tu-van')" id="nav-tu-van" class="sidebar-item flex items-start p-2 rounded-lg transition-colors group">
+                                <div class="icon-box w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0 border border-transparent transition-colors">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </div>
+                                <div>
+                                    <span class="title-text block text-sm font-semibold text-gray-700">Tra cứu gói cước</span>
+                                    <span class="sub-text block text-xs text-gray-500">Gợi ý và so sánh gói</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Section 3 -->
+                <div class="mb-6">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Điều hành</h2>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="#" class="sidebar-item flex items-start p-2 rounded-lg transition-colors group">
+                                <div class="icon-box w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0 border border-transparent transition-colors">
+                                    <i class="fa-solid fa-arrow-trend-up"></i>
+                                </div>
+                                <div>
+                                    <span class="title-text block text-sm font-semibold text-gray-700">Phát triển mới</span>
+                                    <span class="sub-text block text-xs text-gray-500">Sản lượng và tồn CCDV</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-auto p-4 border-t border-gray-100">
+                <p class="text-xs text-gray-500 italic">
+                    Hệ thống tự động lưu vết các lần cập nhật của User.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-8 relative">
+            
+            <!-- ========================================== -->
+            <!-- VIEW 1: CHẠM DPSC                          -->
+            <!-- ========================================== -->
+            <div id="view-dpsc" class="max-w-7xl mx-auto space-y-6 block">
+                
+                <!-- Page Header -->
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-1">Chăm sóc thuê bao</h3>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2">Chạm DPSC</h2>
+                        <p class="text-gray-500">Danh sách thuê bao thanh lý, tạm dừng trong tháng cần chạm và cập nhật kết quả.</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-50 transition shadow-sm">
+                            <i class="fa-solid fa-download mr-1"></i> Xuất Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters & Search -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap gap-4 items-center justify-between">
+                    <div class="flex flex-1 flex-wrap gap-4 items-center">
+                        
+                        <!-- BƯỚC 1: CHỌN MÃ KHU VỰC (MA_KV) -->
+                        <div class="relative w-full md:w-48">
+                            <select id="filter-makv" class="block w-full pl-3 pr-10 py-2 border border-blue-400 rounded-lg text-sm focus-ring bg-blue-50 appearance-none font-bold text-blue-800 shadow-sm cursor-pointer">
+                                <option value="">1. Chọn MA_KV</option>
+                                <!-- Các option sẽ được JS tự động đổ vào -->
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                <i class="fa-solid fa-chevron-down text-blue-500 text-xs"></i>
+                            </div>
+                        </div>
+
+                        <!-- BƯỚC 2: CHỌN MÃ THUÊ BAO (MA_TB) -->
+                        <div class="relative w-full md:w-72">
+                            <select id="filter-matb" class="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus-ring bg-white appearance-none font-semibold text-gray-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed cursor-pointer" disabled>
+                                <option value="">2. Chọn MA_TB</option>
+                                <!-- Các option MA_TB sẽ tự hiện khi chọn MA_KV -->
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                <i class="fa-solid fa-chevron-down text-gray-400 text-xs"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="text-sm text-gray-500 font-medium" id="total-records">
+                        Đang tải dữ liệu...
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto relative min-h-[200px]">
+                        <!-- Loading Overlay -->
+                        <div id="loading-overlay" class="absolute inset-0 bg-white/80 z-10 flex items-center justify-center">
+                            <div class="flex flex-col items-center">
+                                <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-600 mb-2"></i>
+                                <span class="text-sm text-gray-600 font-medium">Đang đồng bộ Google Sheets...</span>
+                            </div>
+                        </div>
+
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold tracking-wider">
+                                    <th class="p-4 w-1/4">Thuê bao & Dịch vụ</th>
+                                    <th class="p-4 w-1/4">Khách hàng & Liên hệ</th>
+                                    <th class="p-4 w-1/3">Địa chỉ lắp đặt</th>
+                                    <th class="p-4 text-right">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="text-sm divide-y divide-gray-100">
+                                <!-- Dữ liệu sẽ được Javascript tự động đổ vào đây từ Google Sheets -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VIEW 2: BÁO CÁO DPSC                       -->
+            <!-- ========================================== -->
+            <div id="view-bao-cao" class="max-w-7xl mx-auto space-y-6 hidden">
+                <!-- Page Header -->
+                <div>
+                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-1">Chăm sóc thuê bao</h3>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Báo cáo chạm DPSC</h2>
+                    <p class="text-gray-500">Phân tích tiến độ, thống kê lý do rời mạng và đề xuất giải pháp.</p>
+                </div>
+
+                <!-- Tổng quan KPI -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Tổng thuê bao -->
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-center">
+                        <p class="text-xs font-bold text-gray-500 uppercase mb-1">Tổng Cần Chạm</p>
+                        <h3 class="text-3xl font-bold text-gray-900" id="bc-tong-tb">0</h3>
+                    </div>
+                    <!-- Đã xử lý -->
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-center">
+                        <p class="text-xs font-bold text-green-600 uppercase mb-1">Đã Cập Nhật</p>
+                        <div class="flex items-end space-x-2">
+                            <h3 class="text-3xl font-bold text-green-600" id="bc-da-xl">0</h3>
+                            <span class="text-sm font-bold text-gray-400 mb-1" id="bc-da-xl-pct">(0%)</span>
+                        </div>
+                    </div>
+                    <!-- Tồn đọng -->
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-center">
+                        <p class="text-xs font-bold text-orange-500 uppercase mb-1">Tồn Chưa Chạm</p>
+                        <h3 class="text-3xl font-bold text-orange-500" id="bc-chua-xl">0</h3>
+                    </div>
+                    <!-- Refresh Button -->
+                    <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors" onclick="calculateReport()">
+                        <div class="text-center text-blue-600">
+                            <i class="fa-solid fa-rotate-right text-2xl mb-1"></i>
+                            <p class="text-xs font-bold uppercase">Làm mới số liệu</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thống kê Tỷ lệ Lý do Toàn TTVT -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-sm font-bold text-gray-800 uppercase mb-4">Tỷ lệ các lý do DPSC - Toàn TTVT Tân An Hội</h3>
+                    <div id="bc-lydo-toan-ttvt" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                        <!-- Dữ liệu JS render -->
+                    </div>
+                </div>
+
+                <!-- Bảng chi tiết theo KV & Nhân Viên -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+                    <div class="p-4 border-b border-gray-100 bg-gray-50">
+                        <h3 class="text-sm font-bold text-gray-800 uppercase">1. Thống kê tỷ lệ lý do theo Khu vực (MA_KV) & Nhân viên</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="bg-white border-b border-gray-200 text-[11px] uppercase text-gray-500 font-bold tracking-wider">
+                                    <th class="p-3">Khu Vực</th>
+                                    <th class="p-3">Nhân Viên</th>
+                                    <th class="p-3 text-center">Tổng</th>
+                                    <th class="p-3 text-center">Đã Xử Lý</th>
+                                    <th class="p-3 text-center text-blue-600">Cước</th>
+                                    <th class="p-3 text-center text-blue-600">Hẹn KP</th>
+                                    <th class="p-3 text-center text-blue-600">Rời ĐP</th>
+                                    <th class="p-3 text-center text-blue-600">Chuyển Mạng</th>
+                                    <th class="p-3 text-center text-blue-600">Trả MB</th>
+                                    <th class="p-3 text-center text-blue-600">Không Nhu Cầu</th>
+                                    <th class="p-3 text-center text-blue-600">Khác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-kv-body" class="text-xs divide-y divide-gray-100">
+                                <!-- JS sẽ đổ dữ liệu báo cáo vào đây -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bảng chi tiết theo DOIVT -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+                    <div class="p-4 border-b border-gray-100 bg-gray-50">
+                        <h3 class="text-sm font-bold text-gray-800 uppercase">2. Thống kê tỷ lệ lý do theo Đội Viễn Thông (DOIVT)</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="bg-white border-b border-gray-200 text-[11px] uppercase text-gray-500 font-bold tracking-wider">
+                                    <th class="p-3">Tên Đội VT</th>
+                                    <th class="p-3 text-center">Tổng</th>
+                                    <th class="p-3 text-center">Đã Xử Lý</th>
+                                    <th class="p-3 text-center text-blue-600">Cước</th>
+                                    <th class="p-3 text-center text-blue-600">Hẹn KP</th>
+                                    <th class="p-3 text-center text-blue-600">Rời ĐP</th>
+                                    <th class="p-3 text-center text-blue-600">Chuyển Mạng</th>
+                                    <th class="p-3 text-center text-blue-600">Trả MB</th>
+                                    <th class="p-3 text-center text-blue-600">Không Nhu Cầu</th>
+                                    <th class="p-3 text-center text-blue-600">Khác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-doi-body" class="text-xs divide-y divide-gray-100">
+                                <!-- JS sẽ đổ dữ liệu báo cáo vào đây -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- AI Analysis Card -->
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl shadow-sm border border-indigo-100 overflow-hidden mt-6 relative">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500 opacity-5 rounded-bl-full pointer-events-none"></div>
+                    <div class="p-5 border-b border-indigo-100/50 flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center mr-4 text-lg shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-indigo-900">AI Phân Tích & Đề Xuất</h3>
+                            <p class="text-sm text-indigo-700/70 mt-0.5">Hệ thống tự động phân tích dữ liệu DPSC thời gian thực.</p>
+                        </div>
+                    </div>
+                    <div class="p-6 text-sm text-gray-700 leading-relaxed space-y-4" id="ai-analysis-content">
+                        <!-- AI Analysis Output -->
+                        <div class="flex items-center space-x-2 text-indigo-400">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i>
+                            <span>Đang phân tích dữ liệu...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-white/60 border-t border-indigo-100/50 rounded-b-xl">
+                        <h4 class="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-2"><i class="fa-regular fa-comment-dots mr-1"></i> Trò chuyện với AI</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="ai-custom-prompt" class="flex-1 bg-white border border-indigo-200 rounded-lg px-4 py-2 text-sm text-gray-700 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-colors shadow-sm" placeholder="Ví dụ: Phân tích giúp tôi khu vực TAH001..." onkeypress="if(event.key === 'Enter') askCustomAI()">
+                            <button onclick="askCustomAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm whitespace-nowrap flex items-center">
+                                <i class="fa-solid fa-paper-plane mr-2"></i> Gửi
+                            </button>
+                        </div>
+                        <div id="ai-custom-response" class="mt-4 p-4 bg-white border border-indigo-100 rounded-lg shadow-sm text-sm text-gray-700 leading-relaxed hidden">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VIEW 3: TRA CỨU GÓI CƯỚC (VIEW CŨ)         -->
+            <!-- ========================================== -->
+            <div id="view-tu-van" class="max-w-6xl mx-auto space-y-6 hidden">
+                <!-- Page Header -->
+                <div>
+                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-1">Tư vấn bán hàng</h3>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Tra cứu và chọn gói cước</h2>
+                    <p class="text-gray-500">Gợi ý theo nhu cầu, ngân sách và so sánh chi tiết.</p>
+                </div>
+
+                <!-- AI Assistant Area -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-5 border-b border-gray-100 flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-4 text-xl">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Trợ lý AI chọn gói cước và dịch vụ</h3>
+                            <p class="text-sm text-gray-500 mt-0.5">Mô tả nhu cầu của khách hàng bằng tiếng Việt.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-5 bg-gray-50">
+                        <div class="relative">
+                            <textarea id="aiInput" rows="3" class="w-full bg-white border border-gray-300 rounded-xl p-4 text-gray-700 text-sm resize-none focus-ring" placeholder="Ví dụ: Ngân sách 300.000đ/tháng, cần lắp mới Internet 500 Mbps và MyTV."></textarea>
+                            <div class="absolute bottom-4 right-4 flex space-x-2">
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center shadow-sm">
+                                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Tư vấn
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 flex items-center flex-wrap gap-3">
+                            <span class="text-sm font-semibold text-gray-600">Gợi ý nhanh:</span>
+                            <button class="bg-white border hover:bg-blue-50 text-gray-700 text-sm py-1 px-3 rounded-full transition-colors" onclick="document.getElementById('aiInput').value='300K/tháng, cần MyTV.'; document.getElementById('aiInput').focus();">300K • MyTV</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbx0JFgGzBrc2L_g1YcW4v1-GaQwmdSisGlQ9UqGqUjwkTXV9WezzpGQjJNuG3fXACQ/exec"; 
+
+        let allFetchedData = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if(API_URL === "") {
+                document.getElementById('loading-overlay').innerHTML = `<div class="text-red-500 p-4 text-center font-bold">LỖI: Chưa cấu hình link API_URL.</div>`;
+            } else {
+                fetchData();
+            }
+
+            document.getElementById('filter-makv').addEventListener('change', handleMaKvChange);
+            document.getElementById('filter-matb').addEventListener('change', applyFilters);
+        });
+
+        function fetchData() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            const script = document.createElement('script');
+            script.src = API_URL + "?callback=handleData"; 
+            document.body.appendChild(script);
+        }
+
+        function handleData(data) {
+            if (!Array.isArray(data)) {
+                console.error("Dữ liệu lỗi:", data);
+                const loi = data.error ? data.error : JSON.stringify(data);
+                document.getElementById('loading-overlay').innerHTML = `
+                    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-5 rounded-lg shadow-lg max-w-md mx-auto mt-10">
+                        <p class="font-bold text-lg mb-2"><i class="fa-solid fa-triangle-exclamation"></i> LỖI TỪ GOOGLE APPS SCRIPT:</p>
+                        <p class="text-sm font-medium">${loi}</p>
+                    </div>`;
+                return;
+            }
+
+            allFetchedData = data; 
+            populateMaKvDropdown(data); 
+            applyFilters();
+            calculateReport(); // Tính toán báo cáo ngay khi có dữ liệu
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        function populateMaKvDropdown(data) {
+            const select = document.getElementById('filter-makv');
+            const currentSelected = select.value;
+            const pendingData = data.filter(row => !(row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim());
+            const uniqueMaKv = [...new Set(pendingData.map(item => item['MA_KV']).filter(Boolean))].sort();
+            
+            select.innerHTML = '<option value="">1. Chọn MA_KV</option>';
+            uniqueMaKv.forEach(kv => {
+                const option = document.createElement('option');
+                option.value = kv;
+                option.textContent = `Khu vực: ${kv}`;
+                if(kv === currentSelected) option.selected = true;
+                select.appendChild(option);
+            });
+            
+            handleMaKvChange();
+        }
+
+        function handleMaKvChange() {
+            const selectedKv = document.getElementById('filter-makv').value;
+            const selectTb = document.getElementById('filter-matb');
+            const currentSelectedTb = selectTb.value;
+
+            if (!selectedKv) {
+                selectTb.innerHTML = '<option value="">2. Chọn MA_TB</option>';
+                selectTb.disabled = true;
+                applyFilters();
+                return;
+            }
+
+            selectTb.disabled = false;
+            selectTb.innerHTML = '<option value="">-- Tất cả MA_TB trong khu vực --</option>';
+
+            const pendingTbInKv = allFetchedData.filter(row => {
+                const lyDo = row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '';
+                return row['MA_KV'] === selectedKv && lyDo.trim() === '';
+            });
+
+            pendingTbInKv.forEach(row => {
+                const option = document.createElement('option');
+                option.value = row['MA_TB'];
+                option.textContent = `${row['MA_TB']} - ${row['TEN_TB']}`;
+                if(row['MA_TB'] === currentSelectedTb) option.selected = true;
+                selectTb.appendChild(option);
+            });
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const selectedKv = document.getElementById('filter-makv').value;
+            const selectedTb = document.getElementById('filter-matb').value;
+
+            const filteredData = allFetchedData.filter(row => {
+                const lyDo = row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '';
+                if (lyDo.trim() !== '') return false;
+
+                const maKv = row['MA_KV'] || '';
+                if (selectedKv !== '' && maKv !== selectedKv) return false;
+
+                const maTb = row['MA_TB'] || '';
+                if (selectedTb !== '' && maTb !== selectedTb) return false;
+
+                return true; 
+            });
+
+            renderTable(filteredData);
+            document.getElementById('total-records').innerHTML = `Đang hiện: <span class="text-blue-600 font-bold">${filteredData.length}</span> thuê bao chưa xử lý`;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = ''; 
+
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500">Không có dữ liệu phù hợp.</td></tr>`;
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const maTb = row['MA_TB'] || '';
+                const loaiHinh = row['LOAIHINH_TB'] || '';
+                const trangThai = row['TRANGTHAI_TB'] || '';
+                const tenKh = row['TEN_TB'] || '';
+                const sdt = row['SDT_THANHTOAN'] || '';
+                const diaChi = row['DIACHI_LD'] || '';
+                const tenNv = row['TEN_NV'] || '';
+                const doiVt = row['DOIVT'] || '';
+                const lyDoCu = row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '';
+                const ghiChuCu = row['GHI CHÚ'] || row['GHI CHU'] || row['GHI_CHU'] || '';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-blue-50/50 transition-colors group bg-white';
+                tr.innerHTML = `
+                    <td class="p-4 align-top">
+                        <div class="font-bold text-gray-900 text-base mb-1">${maTb}</div>
+                        <div class="flex flex-col gap-1 items-start">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">${loaiHinh}</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">${trangThai}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 align-top">
+                        <div class="font-bold text-gray-800 text-sm mb-2 uppercase">${tenKh}</div>
+                        <div class="text-sm font-bold text-gray-900 bg-gray-50 inline-flex items-center px-2 py-1 rounded border border-gray-200">
+                            <i class="fa-solid fa-phone text-blue-500 mr-2"></i> ${sdt}
+                        </div>
+                    </td>
+                    <td class="p-4 align-top">
+                        <div class="text-sm text-gray-700 mb-2 leading-relaxed"><i class="fa-solid fa-location-dot text-red-400 mr-1"></i> ${diaChi}</div>
+                        <div class="text-xs text-gray-400"><i class="fa-solid fa-user-gear mr-1"></i> ${tenNv} - ${doiVt}</div>
+                    </td>
+                    <td class="p-4 text-right align-middle">
+                        <button onclick="toggleUpdateForm('form-${index}')" class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 px-3 py-2 rounded text-xs font-bold transition-colors">
+                            Cập nhật
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                const formTr = document.createElement('tr');
+                formTr.id = `form-${index}`;
+                formTr.className = 'hidden bg-blue-50/30 border-b-2 border-blue-100';
+                formTr.innerHTML = `
+                    <td colspan="4" class="p-4">
+                        <div class="bg-white border border-blue-200 p-4 rounded-xl shadow-sm">
+                            <h4 class="font-bold text-gray-800 text-sm mb-3">Cập nhật: <span class="text-blue-600">${maTb}</span> - ${tenKh}</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Lý do (Chọn từ danh sách) <span class="text-red-500">*</span></label>
+                                    <select id="ly-do-${maTb}" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus-ring bg-gray-50">
+                                        <option value="">-- Chọn lý do --</option>
+                                        <option value="VẤN ĐỀ VỀ CƯỚC" ${lyDoCu === 'VẤN ĐỀ VỀ CƯỚC' ? 'selected' : ''}>VẤN ĐỀ VỀ CƯỚC</option>
+                                        <option value="HẸN NGÀY KHÔI PHỤC" ${lyDoCu === 'HẸN NGÀY KHÔI PHỤC' ? 'selected' : ''}>HẸN NGÀY KHÔI PHỤC</option>
+                                        <option value="KH RỜI ĐỊA PHƯƠNG" ${lyDoCu === 'KH RỜI ĐỊA PHƯƠNG' ? 'selected' : ''}>KH RỜI ĐỊA PHƯƠNG</option>
+                                        <option value="KH CHUYỂN MẠNG KHÁC" ${lyDoCu === 'KH CHUYỂN MẠNG KHÁC' ? 'selected' : ''}>KH CHUYỂN MẠNG KHÁC</option>
+                                        <option value="KH TRẢ MẶT BẰNG" ${lyDoCu === 'KH TRẢ MẶT BẰNG' ? 'selected' : ''}>KH TRẢ MẶT BẰNG</option>
+                                        <option value="KHÔNG CÒN NHU CẦU" ${lyDoCu === 'KHÔNG CÒN NHU CẦU' ? 'selected' : ''}>KHÔNG CÒN NHU CẦU</option>
+                                        <option value="LÝ DO KHÁC" ${lyDoCu === 'LÝ DO KHÁC' ? 'selected' : ''}>LÝ DO KHÁC</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1">Ghi chú thêm</label>
+                                    <input type="text" id="ghi-chu-${maTb}" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus-ring" placeholder="Nhập ghi chú chi tiết..." value="${ghiChuCu}">
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-end space-x-2">
+                                <button onclick="toggleUpdateForm('form-${index}')" class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Hủy</button>
+                                <button onclick="saveUpdateToSheet('${index}', '${maTb}')" id="btn-save-${maTb}" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Lưu lên Google Sheets
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(formTr);
+            });
+        }
+
+        // HÀM TÍNH TOÁN VÀ HIỂN THỊ BÁO CÁO
+        function calculateReport() {
+            if (!allFetchedData || allFetchedData.length === 0) return;
+
+            let tongTB = 0;
+            let daXuLy = 0;
+            let chuaXuLy = 0;
+            
+            // Các lý do chuẩn
+            const LY_DO_LIST = [
+                "VẤN ĐỀ VỀ CƯỚC", "HẸN NGÀY KHÔI PHỤC", "KH RỜI ĐỊA PHƯƠNG", 
+                "KH CHUYỂN MẠNG KHÁC", "KH TRẢ MẶT BẰNG", "KHÔNG CÒN NHU CẦU", "LÝ DO KHÁC"
+            ];
+
+            // Thống kê toàn TTVT
+            let overallReasons = {};
+            LY_DO_LIST.forEach(r => overallReasons[r] = 0);
+
+            // Thống kê theo KV và Đội
+            const kvStats = {}; 
+            const doiStats = {};
+
+            // 1. Phân tích dữ liệu
+            allFetchedData.forEach(row => {
+                const maKv = (row['MA_KV'] || 'Chưa XĐ').trim();
+                const tenNv = (row['TEN_NV'] || 'Chưa phân công').trim();
+                const doiVt = (row['DOIVT'] || 'Chưa có đội').trim();
+                const lyDoRaw = (row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim();
+                
+                // Chuẩn hóa lý do (nếu gõ sai thì đưa vào Khác)
+                let lyDo = '';
+                if(lyDoRaw !== '') {
+                    lyDo = LY_DO_LIST.includes(lyDoRaw) ? lyDoRaw : "LÝ DO KHÁC";
+                }
+
+                tongTB++;
+
+                // Khởi tạo Object KV
+                if (!kvStats[maKv]) {
+                    kvStats[maKv] = { tong: 0, daXl: 0, nv: new Set(), reasons: {} };
+                    LY_DO_LIST.forEach(r => kvStats[maKv].reasons[r] = 0);
+                }
+                
+                // Khởi tạo Object Đội
+                if (!doiStats[doiVt]) {
+                    doiStats[doiVt] = { tong: 0, daXl: 0, reasons: {} };
+                    LY_DO_LIST.forEach(r => doiStats[doiVt].reasons[r] = 0);
+                }
+
+                // Cộng dồn
+                kvStats[maKv].tong++;
+                kvStats[maKv].nv.add(tenNv);
+                doiStats[doiVt].tong++;
+
+                if (lyDo !== '') {
+                    daXuLy++;
+                    overallReasons[lyDo]++;
+                    
+                    kvStats[maKv].daXl++;
+                    kvStats[maKv].reasons[lyDo]++;
+                    
+                    doiStats[doiVt].daXl++;
+                    doiStats[doiVt].reasons[lyDo]++;
+                } else {
+                    chuaXuLy++;
+                }
+            });
+
+            // 2. Cập nhật thẻ KPI Tổng quan
+            document.getElementById('bc-tong-tb').textContent = tongTB;
+            document.getElementById('bc-da-xl').textContent = daXuLy;
+            document.getElementById('bc-chua-xl').textContent = chuaXuLy;
+            const ptHoanThanh = tongTB > 0 ? Math.round((daXuLy/tongTB)*100) : 0;
+            document.getElementById('bc-da-xl-pct').textContent = `(${ptHoanThanh}%)`;
+
+            // Hàm hỗ trợ render cell phần trăm
+            const renderPctCell = (count, totalDaXl) => {
+                if(totalDaXl === 0 || count === 0) return `<td class="p-3 text-center text-gray-400">-</td>`;
+                const pct = Math.round((count / totalDaXl) * 100);
+                return `<td class="p-3 text-center"><div class="font-bold text-gray-700">${count}</div><div class="text-[10px] text-gray-400">${pct}%</div></td>`;
+            };
+
+            // 3. Render Tỷ lệ Lý do Toàn TTVT
+            const overallContainer = document.getElementById('bc-lydo-toan-ttvt');
+            overallContainer.innerHTML = '';
+            LY_DO_LIST.forEach(lyDo => {
+                const count = overallReasons[lyDo];
+                const pct = daXuLy > 0 ? Math.round((count / daXuLy) * 100) : 0;
+                
+                // Đổi tên cho ngắn gọn hiển thị
+                let shortName = lyDo;
+                if(lyDo === "VẤN ĐỀ VỀ CƯỚC") shortName = "Cước";
+                if(lyDo === "HẸN NGÀY KHÔI PHỤC") shortName = "Hẹn KP";
+                if(lyDo === "KHÔNG CÒN NHU CẦU") shortName = "Không NC";
+
+                overallContainer.innerHTML += `
+                    <div class="bg-gray-50 border border-gray-100 rounded-lg p-3 text-center">
+                        <div class="text-[10px] font-bold text-gray-500 mb-1 h-6 flex items-center justify-center">${shortName}</div>
+                        <div class="text-xl font-bold text-blue-600 mb-1">${count}</div>
+                        <div class="text-xs font-semibold text-gray-400 bg-white rounded-full mx-auto w-12 border border-gray-200">${pct}%</div>
+                    </div>
+                `;
+            });
+
+            // 4. Render Bảng Khu Vực
+            const kvBody = document.getElementById('report-kv-body');
+            kvBody.innerHTML = '';
+            Object.keys(kvStats).sort().forEach(kv => {
+                const s = kvStats[kv];
+                const nvList = Array.from(s.nv).join(', ');
+                const pctXl = s.tong > 0 ? Math.round((s.daXl / s.tong) * 100) : 0;
+                
+                kvBody.innerHTML += `
+                    <tr class="hover:bg-blue-50/30 transition-colors border-b border-gray-50">
+                        <td class="p-3 font-bold text-blue-700">${kv}</td>
+                        <td class="p-3 text-gray-600 max-w-[150px] truncate" title="${nvList}">${nvList}</td>
+                        <td class="p-3 text-center font-bold text-gray-800 bg-gray-50">${s.tong}</td>
+                        <td class="p-3 text-center font-bold text-green-600 bg-gray-50">${s.daXl} <span class="text-[10px] text-gray-400 font-normal">(${pctXl}%)</span></td>
+                        ${LY_DO_LIST.map(r => renderPctCell(s.reasons[r], s.daXl)).join('')}
+                    </tr>
+                `;
+            });
+            
+            // THÊM DÒNG: Tổng toàn trung tâm cho bảng Khu Vực
+            const ptHoanThanhToanTrungTam = tongTB > 0 ? Math.round((daXuLy / tongTB) * 100) : 0;
+            kvBody.innerHTML += `
+                <tr class="bg-blue-100/40 border-t-2 border-blue-300">
+                    <td colspan="2" class="p-3 font-bold text-blue-900 uppercase text-right">Tổng Toàn Trung Tâm:</td>
+                    <td class="p-3 text-center font-bold text-blue-900 bg-blue-50/50">${tongTB}</td>
+                    <td class="p-3 text-center font-bold text-green-700 bg-blue-50/50">${daXuLy} <span class="text-[10px] text-gray-600 font-normal">(${ptHoanThanhToanTrungTam}%)</span></td>
+                    ${LY_DO_LIST.map(r => renderPctCell(overallReasons[r], daXuLy)).join('')}
+                </tr>
+            `;
+
+            // 5. Render Bảng Đội VT
+            const doiBody = document.getElementById('report-doi-body');
+            doiBody.innerHTML = '';
+            Object.keys(doiStats).sort().forEach(doi => {
+                const s = doiStats[doi];
+                const pctXl = s.tong > 0 ? Math.round((s.daXl / s.tong) * 100) : 0;
+                
+                doiBody.innerHTML += `
+                    <tr class="hover:bg-blue-50/30 transition-colors border-b border-gray-50">
+                        <td class="p-3 font-bold text-gray-800">${doi}</td>
+                        <td class="p-3 text-center font-bold text-gray-800 bg-gray-50">${s.tong}</td>
+                        <td class="p-3 text-center font-bold text-green-600 bg-gray-50">${s.daXl} <span class="text-[10px] text-gray-400 font-normal">(${pctXl}%)</span></td>
+                        ${LY_DO_LIST.map(r => renderPctCell(s.reasons[r], s.daXl)).join('')}
+                    </tr>
+                `;
+            });
+
+            // THÊM DÒNG: Tổng toàn trung tâm cho bảng Đội VT
+            doiBody.innerHTML += `
+                <tr class="bg-blue-100/40 border-t-2 border-blue-300">
+                    <td class="p-3 font-bold text-blue-900 uppercase text-right">Tổng Toàn Trung Tâm:</td>
+                    <td class="p-3 text-center font-bold text-blue-900 bg-blue-50/50">${tongTB}</td>
+                    <td class="p-3 text-center font-bold text-green-700 bg-blue-50/50">${daXuLy} <span class="text-[10px] text-gray-600 font-normal">(${ptHoanThanhToanTrungTam}%)</span></td>
+                    ${LY_DO_LIST.map(r => renderPctCell(overallReasons[r], daXuLy)).join('')}
+                </tr>
+            `;
+
+            // 6. AUTO-GENERATE AI ANALYSIS
+            generateAIAnalysis(tongTB, daXuLy, overallReasons, kvStats, doiStats, LY_DO_LIST);
+        }
+
+        // HÀM TẠO NỘI DUNG AI PHÂN TÍCH TỰ ĐỘNG
+        function generateAIAnalysis(tongTB, daXuLy, overallReasons, kvStats, doiStats, LY_DO_LIST) {
+            const aiBox = document.getElementById('ai-analysis-content');
+            
+            if (tongTB === 0) {
+                aiBox.innerHTML = `<p>Chưa có dữ liệu thuê bao để phân tích.</p>`;
+                return;
+            }
+            if (daXuLy === 0) {
+                aiBox.innerHTML = `<p>Hiện tại chưa có ca nào được cập nhật kết quả chạm nên chưa thể phân tích nguyên nhân rời mạng.</p>`;
+                return;
+            }
+
+            // Tìm Top Lý do
+            let topReason = '';
+            let maxReasonCount = -1;
+            LY_DO_LIST.forEach(r => {
+                if (overallReasons[r] > maxReasonCount) {
+                    maxReasonCount = overallReasons[r];
+                    topReason = r;
+                }
+            });
+            const topReasonPct = Math.round((maxReasonCount / daXuLy) * 100);
+
+            // Tìm KV có DPSC tồn nhiều nhất
+            let maxTồnKV = '';
+            let maxTồnCount = -1;
+            Object.keys(kvStats).forEach(kv => {
+                const ton = kvStats[kv].tong - kvStats[kv].daXl;
+                if (ton > maxTồnCount) {
+                    maxTồnCount = ton;
+                    maxTồnKV = kv;
+                }
+            });
+
+            // Tạo đoạn văn bản
+            let analysisHTML = `
+                <div class="mb-3">
+                    <strong class="text-indigo-900 block mb-1"><i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i> 1. Cảnh báo tiến độ:</strong>
+                    Tính đến hiện tại, Khu vực <b>${maxTồnKV}</b> đang có số lượng thuê bao chưa chạm cao nhất (<b>${maxTồnCount}</b> ca). Cần ưu tiên phân công nhân sự tại khu vực này để tăng tốc độ xử lý trước khi hết tháng.
+                </div>
+                <div class="mb-3">
+                    <strong class="text-indigo-900 block mb-1"><i class="fa-solid fa-magnifying-glass-chart text-blue-500 mr-2"></i> 2. Phân tích nguyên nhân rời mạng:</strong>
+                    Trong số ${daXuLy} ca đã xử lý, nguyên nhân lớn nhất khiến khách hàng tạm ngưng/thanh lý là do <b>"${topReason}"</b>, chiếm tới <b>${topReasonPct}%</b> tổng số ca. 
+                </div>
+                <div>
+                    <strong class="text-indigo-900 block mb-1"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> 3. Đề xuất giải pháp (Dựa trên lý do chính):</strong>
+            `;
+
+            // Logic đề xuất dựa trên Lý do lớn nhất
+            if (topReason === "KHÔNG CÒN NHU CẦU") {
+                analysisHTML += `Khách hàng báo "Không còn nhu cầu" chiếm tỷ trọng lớn. Đề nghị nhân viên tư vấn khai thác sâu hơn lý do thực sự (do kinh tế, chuyển nhà, hay chất lượng). Có thể giới thiệu các gói cước giá rẻ hơn hoặc tạm đóng cước bảo lưu thay vì thanh lý hẳn.`;
+            } else if (topReason === "KH CHUYỂN MẠNG KHÁC") {
+                analysisHTML += `Tỷ lệ chuyển mạng khác đang cao! Cần rà soát ngay chất lượng mạng lưới tại các khu vực có khách hàng rời đi. Giao chỉ tiêu cho Tổ Kỹ thuật kiểm tra cáp, đồng thời tung ngay các gói khuyến mãi nâng băng thông giữ chân KH.`;
+            } else if (topReason === "VẤN ĐỀ VỀ CƯỚC") {
+                analysisHTML += `Vấn đề về cước phí đang là rào cản. Đề xuất rà soát lại các trường hợp đang dùng gói cước cũ giá cao, chủ động gọi điện tư vấn chuyển đổi sang các gói tích hợp Home/Fiber mới tiết kiệm hơn để giữ chân khách hàng.`;
+            } else if (topReason === "HẸN NGÀY KHÔI PHỤC") {
+                analysisHTML += `Nhiều khách hàng đang có nhu cầu khôi phục lại. Cần thiết lập hệ thống nhắc lịch (Google Calendar) tự động báo cho nhân viên đúng ngày khách hẹn để gọi điện xác nhận, tránh việc khách hàng bị trôi lịch và quên gia hạn.`;
+            } else {
+                analysisHTML += `Cần yêu cầu nhân viên nhập ghi chú chi tiết hơn cho các trường hợp này để có cơ sở dữ liệu phân tích chính xác cho tháng sau. Phân loại lại tập khách hàng theo mức cước để có chính sách CSKH phù hợp.`;
+            }
+            
+            analysisHTML += `</div>`;
+            aiBox.innerHTML = analysisHTML;
+        }
+
+        // HÀM GỬI DỮ LIỆU ĐÃ SỬA ĐỂ BỎ QUA KIỂM TRA CORS
+        function saveUpdateToSheet(formIndex, maTb) {
+            const btnSave = document.getElementById(`btn-save-${maTb}`);
+            const lyDo = document.getElementById(`ly-do-${maTb}`).value;
+            const ghiChu = document.getElementById(`ghi-chu-${maTb}`).value;
+            
+            if(!lyDo) {
+                alert("Vui lòng chọn Lý do từ danh sách!");
+                return;
+            }
+
+            const dataToSend = {
+                MA_TB: maTb,
+                LY_DO: lyDo,
+                GHI_CHU: ghiChu
+            };
+
+            const originalText = btnSave.innerHTML;
+            btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang lưu...';
+            btnSave.disabled = true;
+            btnSave.classList.replace('bg-blue-600', 'bg-gray-400');
+
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 
+                    "Content-Type": "text/plain;charset=utf-8" 
+                },
+                body: JSON.stringify(dataToSend)
+            })
+            .then(() => {
+                toggleUpdateForm(`form-${formIndex}`);
+                fetchData(); // Sẽ tải lại dữ liệu và tự động cập nhật báo cáo
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                alert("Lỗi mạng khi lưu dữ liệu!");
+            })
+            .finally(() => {
+                btnSave.innerHTML = originalText;
+                btnSave.disabled = false;
+                btnSave.classList.replace('bg-gray-400', 'bg-blue-600');
+            });
+        }
+
+        function switchView(viewId) {
+            // Ẩn tất cả các view an toàn (có kiểm tra tồn tại)
+            const views = ['view-dpsc', 'view-bao-cao', 'view-tu-van'];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            
+            // Bỏ active tất cả menu
+            const navItems = document.querySelectorAll('.sidebar-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            // Hiện view được chọn một cách an toàn
+            const targetView = document.getElementById(viewId);
+            if (targetView) targetView.classList.remove('hidden');
+            
+            // Set active cho menu tương ứng an toàn
+            if(viewId === 'view-dpsc') {
+                const nav = document.getElementById('nav-dpsc');
+                if (nav) nav.classList.add('active');
+            } else if (viewId === 'view-bao-cao') {
+                const nav = document.getElementById('nav-bao-cao');
+                if (nav) nav.classList.add('active');
+                calculateReport(); // Gọi tính toán lại báo cáo khi mở view
+            } else if (viewId === 'view-tu-van') {
+                const nav = document.getElementById('nav-tu-van');
+                if (nav) nav.classList.add('active');
+            }
+        }
+
+        function toggleUpdateForm(formId) {
+            const formRow = document.getElementById(formId);
+            if (formRow.classList.contains('hidden')) {
+                formRow.classList.remove('hidden');
+            } else {
+                formRow.classList.add('hidden');
+            }
+        }
+        // HÀM XỬ LÝ YÊU CẦU AI TÙY CHỈNH CỦA USER (ĐÃ ĐƯỢC NÂNG CẤP) function askCustomAI() { const promptInput = document.getElementById('ai-custom-prompt'); const responseBox = document.getElementById('ai-custom-response'); const promptText = promptInput.value.trim().toLowerCase(); if (!promptText) { alert("Vui lòng nhập câu hỏi hoặc yêu cầu phân tích vào ô trống!"); promptInput.focus(); return; } // Hiện khung response với trạng thái loading responseBox.classList.remove('hidden'); responseBox.innerHTML = `
+AI đang truy xuất dữ liệu tổng để phân tích chi tiết...
+`; // Giả lập thời gian AI "suy nghĩ" (1.5 giây) setTimeout(() => { let answer = ""; // --- KỊCH BẢN 1: HỎI VỀ KHU VỰC CÓ DPSC CAO/NHIỀU NHẤT --- if (promptText.includes("khu vực") && (promptText.includes("cao") || promptText.includes("nhiều") || promptText.includes("chi tiết"))) { let kvTồn = {}; let totalTồn = 0; // Lọc và đếm số ca chưa xử lý của từng khu vực allFetchedData.forEach(row => { let lyDo = (row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim(); let maKv = (row['MA_KV'] || 'Chưa XĐ').trim(); if (!lyDo) { kvTồn[maKv] = (kvTồn[maKv] || 0) + 1; totalTồn++; } }); // Sắp xếp khu vực từ cao xuống thấp let sortedKv = Object.entries(kvTồn).sort((a, b) => b[1] - a[1]); if(sortedKv.length === 0) { answer = "Tuyệt vời! Hiện tại toàn trung tâm không còn ca DPSC nào tồn đọng."; } else { answer = `📊 Phân tích chi tiết Khu vực tồn đọng:
+Hệ thống ghi nhận tổng cộng ${totalTồn} ca chưa được cập nhật kết quả chạm. Dưới đây là Top 3 khu vực đang "nóng" nhất cần được Giám đốc TTVT chú ý:
+
+`; answer += `
+`; sortedKv.slice(0, 3).forEach((item, index) => { answer += `
+Top ${index + 1}: Khu vực ${item[0]} đang tồn ${item[1]} ca.
+`; }); answer += `
+`; answer += `💡 Đề xuất khẩn: Ưu tiên dồn lực lượng chăm sóc khách hàng hoặc điều phối kỹ thuật viên địa bàn hỗ trợ gấp cho Khu vực ${sortedKv[0][0]} để giải phóng số lượng tồn này trước ngày 25.`; } } // --- KỊCH BẢN 2: HỎI VỀ NHÂN VIÊN --- else if (promptText.includes("nhân viên") || promptText.includes("ai")) { let nvTồn = {}; allFetchedData.forEach(row => { let lyDo = (row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim(); let tenNv = (row['TEN_NV'] || 'Chưa phân công').trim(); if (!lyDo) { nvTồn[tenNv] = (nvTồn[tenNv] || 0) + 1; } }); let sortedNv = Object.entries(nvTồn).sort((a, b) => b[1] - a[1]); answer = `👥 Phân tích theo Nhân sự:
+Dưới đây là danh sách các nhân viên đang cầm nhiều ca DPSC cần chạm nhất:
+
+`; sortedNv.slice(0, 3).forEach((item, index) => { answer += `- Nhân viên ${item[0]}: Còn ${item[1]} ca chưa chạm.
+`; }); answer += `
+💡 Đề xuất: Leader cần xuất danh sách chi tiết gửi riêng cho 3 cá nhân này và đôn đốc tiến độ gọi điện/đến nhà khách hàng.`; } // --- KỊCH BẢN 3: HỎI VỀ LÝ DO RỜI MẠNG CHUNG --- else if (promptText.includes("lý do") || promptText.includes("nguyên nhân")) { let reasons = {}; let totalDaXl = 0; allFetchedData.forEach(row => { let lyDo = (row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim(); if (lyDo) { reasons[lyDo] = (reasons[lyDo] || 0) + 1; totalDaXl++; } }); let sortedReasons = Object.entries(reasons).sort((a, b) => b[1] - a[1]); if(totalDaXl === 0) { answer = "Chưa có dữ liệu thuê bao nào được cập nhật kết quả để phân tích lý do."; } else { let topReason = sortedReasons[0]; let pct = Math.round((topReason[1] / totalDaXl) * 100); answer = `🔍 Phân tích chi tiết Lý do rời mạng:
+Trong ${totalDaXl} ca đã khảo sát, nguyên nhân nhức nhối nhất hiện nay là "${topReason[0]}" (chiếm tới ${pct}% với ${topReason[1]} ca).
+
+`; answer += `💡 Đề xuất phòng ngừa: Nếu nguyên nhân là chuyển mạng, kỹ thuật cần đo lại suy hao. Nếu do cước, cần đẩy mạnh bán các gói Home Combo giá tốt để khóa chặt khách hàng.`; } } // --- CÁC KỊCH BẢN TỪ KHÓA ĐƠN LẺ CŨ --- else if (promptText.includes("tah001")) { answer = "Phân tích Khu vực TAH001: Dựa trên dữ liệu, khu vực TAH001 đang gặp vấn đề chủ yếu với lý do 'Khách hàng rời địa phương'. Đề xuất: Nhân viên địa bàn cần khảo sát lại biến động dân cư tại khu vực này để có đánh giá chính xác hơn, tránh việc gắn mã lý do chung chung. Có thể tư vấn thủ tục dời trạm thay vì thanh lý."; } else if (promptText.includes("cước") || promptText.includes("giá")) { answer = "Phân tích về Cước phí: Nhóm khách hàng rời mạng do 'Vấn đề về cước' thường rất nhạy cảm về giá và dễ bị đối thủ chèo kéo. Đề xuất kịch bản CSKH: Lập tức sử dụng các gói tích hợp giá rẻ để giữ chân. Nếu KH sắp hết hạn đóng trước, xin ý kiến Lãnh đạo tặng thêm 1 tháng sử dụng hoặc giảm giá thiết bị để gia hạn thành công."; } else if (promptText.includes("chuyển mạng") || promptText.includes("đối thủ")) { answer = "Phân tích rủi ro Chuyển mạng: Đây là mức độ rủi ro BÁO ĐỘNG ĐỎ. Khách hàng thường chuyển mạng do mạng yếu, modem cũ hoặc giá đối thủ rẻ hơn. Giải pháp khẩn cấp: Cử ngay tổ Kỹ thuật xuống tận nhà kiểm tra cáp, đo suy hao, hỗ trợ đổi Modem 2 băng tần miễn phí và cam kết chất lượng trực tiếp với KH."; } // --- MẶC ĐỊNH (Tự động đếm số tổng nếu hỏi linh tinh) --- else { const total = allFetchedData.length; const pending = allFetchedData.filter(row => !(row['LÝ DO'] || row['LY DO'] || row['LY_DO'] || '').trim()).length; answer = `Hệ thống AI chưa hiểu rõ ý bạn: Câu hỏi ("${promptInput.value}") hơi nằm ngoài phạm vi dữ liệu hiện tại.
+
+Tuy nhiên, dưới đây là Tổng quan tiến độ mới nhất: Hệ thống đang quản lý tổng cộng ${total} thuê bao, trong đó còn ${pending} ca chưa cập nhật kết quả chạm. Bạn có thể hỏi các câu chi tiết hơn như: "Khu vực nào dpsc cao nhất", "Nhân viên nào tồn nhiều", hoặc "Phân tích lý do rời mạng".`; } // Render kết quả ra màn hình với Avatar AI responseBox.innerHTML = `
+${answer}
+`; }, 1500); }
+
+        function fillInput(text) {
+            const textarea = document.getElementById('aiInput');
+            if (textarea) {
+                textarea.value = text;
+                textarea.focus();
+            }
+        }
+        
+        // Tab functionality for Package view
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        if (tabBtns.length > 0) {
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        }
+
+        // Kích hoạt View mặc định
+        switchView('view-dpsc'); 
+    </script>
+</body>
+</html>
