@@ -180,6 +180,18 @@
                                 </div>
                             </a>
                         </li>
+<!-- NEW MENU ITEM: DANH SÁCH GIA HẠN -->
+                        <li>
+                            <a href="#" onclick="switchView('view-ds-gia-han')" id="nav-ds-gia-han" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
+                                <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
+                                    <i class="fa-solid fa-file-contract"></i>
+                                </div>
+                                <div class="pt-0.5">
+                                    <span class="title-text block text-[13px] font-semibold text-gray-600 leading-none mb-1">Danh sách gia hạn</span>
+                                    <span class="sub-text block text-[11px] text-gray-400 leading-tight">DS thuê bao cần xử lý</span>
+                                </div>
+                            </a>
+                        </li>
 <!-- NEW MENU ITEM: DANH SÁCH THAY MODEM -->
                         <li>
                             <a href="#" onclick="switchView('view-thay-modem')" id="nav-thay-modem" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
@@ -350,6 +362,17 @@
                             <h3 class="text-lg font-bold text-gray-900 mb-1">Danh Sách Thu Cước</h3>
                             <p class="text-sm text-gray-500 mb-2">Quản lý và trích xuất danh sách thuê bao "Cần phải thu" theo nhân viên.</p>
                             <span class="text-emerald-600 text-sm font-semibold flex items-center group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
+                        </div>
+                    </div>
+<!-- Nút Danh Sách Gia Hạn (Card) -->
+                    <div onclick="switchView('view-ds-gia-han')" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-teal-500 hover:shadow-md transition-all cursor-pointer group flex items-start flex-col sm:flex-row border-l-4 border-l-teal-500">
+                        <div class="w-14 h-14 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center text-2xl mb-4 sm:mb-0 sm:mr-4 shrink-0 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-file-contract"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">Danh Sách Gia Hạn</h3>
+                            <p class="text-sm text-gray-500 mb-2">Theo dõi và cập nhật trạng thái các thuê bao gia hạn "Cần xử lý".</p>
+                            <span class="text-teal-600 text-sm font-semibold flex items-center group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
                         </div>
                     </div>
 <!-- Nút Danh sách Thay Modem -->
@@ -607,6 +630,85 @@
                     
                     <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 text-right text-xs text-gray-500 font-medium rounded-b-xl" data-html2canvas-ignore="true">
                         Hiển thị <span id="dsTotalRenderedCount" class="font-bold text-gray-800">0</span> kết quả
+                    </div>
+                </div>
+            </div>
+<!-- ================= NEW VIEW: DANH SÁCH GIA HẠN ================= -->
+            <div id="view-ds-gia-han" class="max-w-7xl mx-auto space-y-6 hidden animate-fade-in pb-10">
+                <div class="flex flex-col md:flex-row md:items-center justify-between bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                    <div>
+                        <button onclick="switchView('view-dashboard')" class="mb-3 text-slate-500 hover:text-teal-600 flex items-center text-sm font-semibold transition-colors">
+                            <i class="fa-solid fa-arrow-left mr-1.5"></i> Quay lại Dashboard
+                        </button>
+                        <div class="flex items-center text-teal-600 text-xs font-bold mb-1 uppercase tracking-wider">
+                            <i class="fa-solid fa-file-contract mr-2"></i> Chăm sóc thuê bao
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800">Danh sách Gia Hạn</h2>
+                        <p class="text-slate-500 text-sm mt-1">Danh sách các thuê bao có trạng thái <span class="font-semibold text-rose-500">Cần xử lý</span>.</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex items-center bg-slate-50 border border-slate-200 rounded-lg p-3">
+                        <div id="dsGiaHanStatus" class="text-sm text-amber-600 flex items-center font-medium">
+                            <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Đang tải dữ liệu...
+                        </div>
+                        <div class="w-px h-8 bg-slate-200 mx-4"></div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500 font-medium">Tổng số</div>
+                            <div class="text-xl font-bold text-rose-600" id="dsGiaHanTotalCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col" id="dsGiaHanExportArea">
+                    <div class="p-4 border-b border-gray-200 flex flex-wrap gap-4 items-center justify-between bg-gray-50 rounded-t-xl" data-html2canvas-ignore="true">
+                        <div class="flex items-center gap-2 font-bold text-gray-700 uppercase tracking-wide text-sm">
+                            <i class="fas fa-list-ul text-teal-500"></i> Danh sách chi tiết
+                        </div>
+                        
+                        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                            <div class="relative flex-1 lg:w-64">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400 text-xs"></i>
+                                </div>
+                                <input type="text" id="dsGiaHanSearchInput" onkeyup="applyDsGiaHanFilters()" placeholder="Tìm kiếm tên, mã TB, SDT..." 
+                                    class="py-2 pl-9 pr-3 text-sm font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-full shadow-sm">
+                            </div>
+                            <select id="dsGiaHanFilterMaKV" onchange="applyDsGiaHanFilters()" class="py-2 pl-3 pr-8 text-sm font-medium border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 appearance-none bg-white shadow-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                                <option value="">Tất cả Mã KV</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center gap-2 ml-auto lg:ml-0">
+                            <button onclick="loadDsGiaHanData()" class="px-3 py-2 bg-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-300 transition shadow-sm" title="Làm mới">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <div class="h-6 w-px bg-gray-300 mx-1"></div>
+                            <button onclick="exportDsGiaHanToImage()" class="px-3 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 text-sm font-bold rounded-lg hover:bg-indigo-100 transition flex items-center gap-1 shadow-sm">
+                                <i class="fas fa-camera"></i> Chụp Ảnh
+                            </button>
+                            <button onclick="exportDsGiaHanToExcel()" class="px-3 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 text-sm font-bold rounded-lg hover:bg-emerald-100 transition flex items-center gap-1 shadow-sm">
+                                <i class="fas fa-file-excel"></i> Xuất Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[700px] overflow-y-auto">
+                        <table class="w-full text-left whitespace-nowrap border-collapse">
+                            <thead class="bg-gray-50 sticky-th z-10 shadow-sm border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-center text-[11px] font-bold text-gray-500 uppercase tracking-wider w-12">STT</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider w-24">MA_KV</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider w-32">MA_TB</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider min-w-[200px]">TEN_KH</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider min-w-[250px]">DIACHI_KH</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider w-28">SDT_KH</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider w-28">LOAIHINH_TB</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider w-28">NGAY_KTDC</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider w-32">ĐVT</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-100 text-sm" id="dsGiaHanTableBody">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1881,11 +1983,15 @@
         const API_CSTC_URL = 'https://script.google.com/macros/s/AKfycbyGYcKq-j_q1R-aq7af4n6Q3PHSqTu1Wm60vNs2D92_GPjRemRbXlbSBjzelA7ziPio/exec'; 
 // --- API DS THU CƯỚC ---
         const API_URL_DS_THU_CUOC = 'https://script.google.com/macros/s/AKfycbwT5aPWM1mzD74uPADCH0s35Pq1N3tf1DEwJQ8o2cvvq5VEzb_pmcQkoBk5e--OIRg/exec';
-        // --- THÊM DÒNG NÀY VÀO ĐỂ KHAI BÁO LINK API MODEM ---
+ /// --- API DS GIA HẠN (MỚI TÍCH HỢP) ---
+        const API_DS_GIA_HAN_URL = 'https://script.google.com/macros/s/AKfycbwIEu6hQlnIeiAk3v5xEILWI0n8J9-0DK0ke0FGxbszKWKOe1DqDbKrzXECofdDKXoQ/exec';
         const API_MODEM_URL = 'https://script.google.com/macros/s/AKfycbxFqUbo6Fnj2ekL-a6VMIGow19mQeeN1um4h-kaSX04kaANsKWqXcf-lZ3sI3YdgzuZ/exec';
         let dsThuCuocAllData = [];
         let dsThuCuocFilteredData = [];
         let isDsThuCuocLoaded = false;
+let dsGiaHanAllData = [];
+        let dsGiaHanFilteredData = [];
+        let isDsGiaHanLoaded = false;
         const dsCurrencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
         // ================= Biến toàn cục =================
         let allFetchedData = []; 
@@ -4646,11 +4752,228 @@ const fallbackMockData = {
             ws['!cols'] = [ {wch: 15}, {wch: 15}, {wch: 30}, {wch: 40}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 15} ];
             const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "DanhSachThuCuoc"); XLSX.writeFile(wb, `Danh_Sach_Thu_Cuoc_${new Date().getTime()}.xlsx`);
         }
+ /* ======================================================== */
+        /* LOGIC: DANH SÁCH GIA HẠN MỚI                             */
+        /* ======================================================== */
+        async function loadDsGiaHanData() {
+            const statusEl = document.getElementById('dsGiaHanStatus');
+            document.getElementById('global-loading').classList.remove('hidden');
+
+            try {
+                const response = await fetch(API_DS_GIA_HAN_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                
+                if (result && result.error) {
+                    throw new Error(result.error);
+                }
+
+                processDsGiaHanData(result);
+                isDsGiaHanLoaded = true;
+                statusEl.innerHTML = `<i class="fa-solid fa-check-circle"></i> Đã đồng bộ dữ liệu`;
+                statusEl.className = 'flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 font-bold';
+            } catch (error) {
+                console.error('Lỗi lấy DS Gia hạn:', error);
+                statusEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Lỗi tải dữ liệu`;
+                statusEl.className = 'flex items-center gap-2 text-sm text-red-600 bg-red-50 px-3 py-1.5 rounded-full border border-red-100 font-bold';
+                
+                const tbody = document.getElementById('dsGiaHanTableBody');
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center bg-red-50 text-red-600 font-medium border-y border-red-100">Lỗi tải dữ liệu: ${error.message}</td></tr>`;
+            } finally {
+                document.getElementById('global-loading').classList.add('hidden');
+            }
+        }
+
+        function processDsGiaHanData(data) {
+            let processedData = data.filter(row => {
+                let tongQuan = (row['TONG QUAN'] || row['TONG_QUAN'] || '').toString().trim();
+                return !tongQuan.includes('1.Thành công');
+            });
+
+            processedData.sort((a, b) => {
+                let tenA = (a['TEN_KH'] || '').toString().toLowerCase();
+                let tenB = (b['TEN_KH'] || '').toString().toLowerCase();
+                return tenA.localeCompare(tenB);
+            });
+
+            dsGiaHanAllData = processedData;
+            dsGiaHanFilteredData = [...dsGiaHanAllData];
+
+            populateDsGiaHanFilterOptions();
+            renderDsGiaHanTable();
+        }
+
+        function populateDsGiaHanFilterOptions() {
+            const uniqueMaKV = [...new Set(dsGiaHanAllData.map(item => item['MA_KV']).filter(Boolean))].sort();
+            const filterMaKV = document.getElementById('dsGiaHanFilterMaKV');
+            filterMaKV.innerHTML = '<option value="">Tất cả Mã KV</option>';
+            uniqueMaKV.forEach(makv => {
+                filterMaKV.innerHTML += `<option value="${makv}">${makv}</option>`;
+            });
+        }
+
+        function applyDsGiaHanFilters() {
+            const searchTerm = document.getElementById('dsGiaHanSearchInput').value.toLowerCase().trim();
+            const selectedMakv = document.getElementById('dsGiaHanFilterMaKV').value;
+
+            dsGiaHanFilteredData = dsGiaHanAllData.filter(row => {
+                const matchMakv = selectedMakv === "" || row['MA_KV'] === selectedMakv;
+                let matchSearch = true;
+                if (searchTerm !== "") {
+                    const rowValuesStr = Object.values(row).join(' ').toLowerCase();
+                    matchSearch = rowValuesStr.includes(searchTerm);
+                }
+                return matchMakv && matchSearch;
+            });
+
+            renderDsGiaHanTable();
+        }
+
+        function renderDsGiaHanTable() {
+            const tbody = document.getElementById('dsGiaHanTableBody');
+            tbody.innerHTML = '';
+            
+            document.getElementById('dsGiaHanTotalCount').innerText = dsGiaHanFilteredData.length;
+
+            if (dsGiaHanFilteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-gray-500 py-8">Không tìm thấy dữ liệu phù hợp</td></tr>`;
+                return;
+            }
+
+            const formatDate = (dateStr) => {
+                if (!dateStr) return '';
+                try {
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return dateStr; 
+                    return d.toLocaleDateString('vi-VN');
+                } catch { return dateStr; }
+            };
+
+            let htmlString = '';
+            dsGiaHanFilteredData.forEach((row, index) => {
+                const ma_kv = row['MA_KV'] || '';
+                const ma_tb = row['MA_TB'] || '';
+                const ten_kh = row['TEN_KH'] || '';
+                const diachi_kh = row['DIACHI_KH'] || '';
+                const sdt_kh = row['SDT_KH'] || '';
+                const loaihinh_tb = row['LOAIHINH_TB'] || '';
+                const ngay_ktdc = formatDate(row['NGAY_KTDC'] || row['NGAY_KTDC '] || ''); 
+                const dvt = row['ĐVT'] || row['DVT'] || '';
+
+                let loaiHinhHTML = loaihinh_tb;
+                if(loaihinh_tb !== '') {
+                    loaiHinhHTML = `<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px] font-bold border border-slate-200">${loaihinh_tb}</span>`;
+                }
+
+                htmlString += `
+                    <tr class="hover:bg-blue-50/50 transition-colors border-b border-gray-50">
+                        <td class="px-4 py-3 text-gray-500 font-medium text-center w-12">${index + 1}</td>
+                        <td class="px-4 py-3 text-gray-700 font-medium">${ma_kv}</td>
+                        <td class="px-4 py-3 font-bold text-blue-600">${ma_tb}</td>
+                        <td class="px-4 py-3 font-bold text-gray-800 whitespace-normal min-w-[200px]">${ten_kh}</td>
+                        <td class="px-4 py-3 text-gray-600 text-xs whitespace-normal min-w-[250px]" title="${diachi_kh}">
+                            <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i> ${diachi_kh}
+                        </td>
+                        <td class="px-4 py-3 text-indigo-700 font-medium">${sdt_kh}</td>
+                        <td class="px-4 py-3">${loaiHinhHTML}</td>
+                        <td class="px-4 py-3 text-gray-600 font-medium">${ngay_ktdc}</td>
+                        <td class="px-4 py-3 text-gray-700 font-medium">${dvt}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = htmlString;
+        }
+
+        function exportDsGiaHanToExcel() {
+            if (dsGiaHanFilteredData.length === 0) {
+                Swal.fire("Thông báo", "Không có dữ liệu để xuất!", "info");
+                return;
+            }
+            
+            const formatDate = (dateStr) => {
+                if (!dateStr) return '';
+                try {
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return dateStr; 
+                    return d.toLocaleDateString('vi-VN');
+                } catch { return dateStr; }
+            };
+
+            const excelData = [
+                ["MA_KV", "MA_TB", "TEN_KH", "DIACHI_KH", "SDT_KH", "LOAIHINH_TB", "NGAY_KTDC", "ĐVT"]
+            ];
+
+            dsGiaHanFilteredData.forEach(row => {
+                excelData.push([
+                    row['MA_KV'] || '',
+                    row['MA_TB'] || '',
+                    row['TEN_KH'] || '',
+                    row['DIACHI_KH'] || '',
+                    row['SDT_KH'] || '',
+                    row['LOAIHINH_TB'] || '',
+                    formatDate(row['NGAY_KTDC'] || row['NGAY_KTDC '] || ''),
+                    row['ĐVT'] || row['DVT'] || ''
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            ws['!cols'] = [{wch: 10}, {wch: 15}, {wch: 25}, {wch: 45}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 20}];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "DanhSachGiaHan");
+            XLSX.writeFile(wb, `DanhSachGiaHan_${new Date().getTime()}.xlsx`);
+        }
+
+        function exportDsGiaHanToImage() {
+            document.getElementById('global-loading').classList.remove('hidden');
+            const exportArea = document.getElementById('dsGiaHanExportArea');
+            const scrollContainer = exportArea.querySelector('.overflow-x-auto');
+            
+            const originalAreaWidth = exportArea.style.width;
+            const originalMaxHeight = scrollContainer ? scrollContainer.style.maxHeight : '';
+            const originalOverflow = scrollContainer ? scrollContainer.style.overflow : '';
+
+            exportArea.style.width = 'max-content';
+            if (scrollContainer) {
+                scrollContainer.style.maxHeight = 'none';
+                scrollContainer.style.overflow = 'visible';
+            }
+
+            html2canvas(exportArea, { 
+                scale: 2, 
+                useCORS: true, 
+                backgroundColor: '#ffffff',
+                windowWidth: exportArea.scrollWidth,
+                windowHeight: exportArea.scrollHeight
+            }).then(canvas => {
+                exportArea.style.width = originalAreaWidth;
+                if (scrollContainer) {
+                    scrollContainer.style.maxHeight = originalMaxHeight;
+                    scrollContainer.style.overflow = originalOverflow;
+                }
+
+                // --- PHẦN BỊ THIẾU ĐÃ ĐƯỢC BỔ SUNG ---
+                const link = document.createElement('a'); 
+                link.download = `Danh_Sach_Gia_Han_${new Date().getTime()}.png`; 
+                link.href = canvas.toDataURL("image/png"); 
+                link.click();
+                document.getElementById('global-loading').classList.add('hidden');
+            }).catch(err => {
+                exportArea.style.width = originalAreaWidth;
+                if (scrollContainer) {
+                    scrollContainer.style.maxHeight = originalMaxHeight;
+                    scrollContainer.style.overflow = originalOverflow;
+                }
+                console.error("Lỗi chụp ảnh:", err); 
+                Swal.fire("Lỗi", "Có lỗi xảy ra khi chụp ảnh.", "error"); 
+                document.getElementById('global-loading').classList.add('hidden');
+            });
+        }
         function switchView(viewId) {
             const views = [
                 'view-dashboard', 'view-dpsc-file1', 'view-dpsc', 'view-bao-cao', 'view-gia-han', 
                 'view-tyle-dpsc', 'view-npsc', 'view-tyle-npsc', 'view-thu-cuoc', 'view-tiep-thi',
-                'view-cstc', 'view-ds-thu-cuoc', 'view-thay-modem', 'view-tra-cuu'
+                'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-tra-cuu'
             ];
             
             views.forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
@@ -4679,9 +5002,12 @@ const fallbackMockData = {
             } else if (viewId === 'view-cstc') {
                 document.getElementById('nav-cstc').classList.add('active');
                 if(!isCstcLoaded) loadCstcData();
-	    } else if (viewId === 'view-ds-thu-cuoc') {
+	        } else if (viewId === 'view-ds-thu-cuoc') {
                 document.getElementById('nav-ds-thu-cuoc').classList.add('active');
                 if(!isDsThuCuocLoaded) loadDsThuCuocData();
+            } else if (viewId === 'view-ds-gia-han') {
+                document.getElementById('nav-ds-gia-han').classList.add('active');
+                if(!isDsGiaHanLoaded) loadDsGiaHanData();
             } else if (viewId === 'view-thay-modem') {
                 document.getElementById('nav-thay-modem').classList.add('active');
                 if(!isModemLoaded) loadModemData();
