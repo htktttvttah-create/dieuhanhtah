@@ -35,15 +35,22 @@
             </div>
 
             <!-- Thống kê theo Nhân viên -->
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm h-32 overflow-y-auto">
-                <h3 class="font-bold text-gray-800 mb-2 border-b border-gray-200 pb-1 sticky top-0 bg-gray-50 z-10">TIẾN ĐỘ NHÂN VIÊN</h3>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm h-32 overflow-y-auto relative">
+                <div class="flex justify-between items-center border-b border-gray-200 mb-2 pb-1 sticky top-0 bg-gray-50 z-10">
+                    <h3 class="font-bold text-gray-800">TIẾN ĐỘ NHÂN VIÊN</h3>
+                    <!-- NÚT XUẤT EXCEL BÁO CÁO -->
+                    <button onclick="exportProgressToExcel()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded shadow flex items-center transition-colors text-xs cursor-pointer">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Tải Excel
+                    </button>
+                </div>
                 <div id="nvReportContainer" class="space-y-2">
                     <div class="text-gray-500 text-xs italic">Đang tải dữ liệu báo cáo...</div>
                 </div>
             </div>
         </div>
 
-        <!-- BỘ LỌC & NÚT XUẤT EXCEL -->
+        <!-- BỘ LỌC & NÚT XUẤT EXCEL (DỮ LIỆU) -->
         <div class="mb-4 flex flex-wrap items-center justify-between bg-blue-50 p-3 rounded border border-blue-100">
             <div class="flex items-center mb-2 sm:mb-0">
                 <label for="filterNV" class="block font-medium text-gray-700 mr-3">Lọc theo Tên NV:</label>
@@ -54,7 +61,7 @@
             </div>
             <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-4 rounded shadow flex items-center transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Tải Excel
+                Tải Excel (Bảng dữ liệu dưới)
             </button>
         </div>
 
@@ -68,7 +75,7 @@
                         <th class="px-2 py-2 text-left font-semibold text-gray-700 w-48">Địa chỉ chi tiết</th>
                         <th class="px-2 py-2 text-left font-semibold text-gray-700 w-32">Nhà mạng</th>
                         <th class="px-2 py-2 text-left font-semibold text-red-600">Ấp/Khu vực (*)</th>
-                        <!-- SĐT KH bỏ bắt buộc (không màu đỏ, không dấu sao) -->
+                        <!-- SĐT KH bỏ bắt buộc -->
                         <th class="px-2 py-2 text-left font-semibold text-gray-700">SĐT KH</th>
                         <th class="px-2 py-2 text-left font-semibold text-red-600">Trạng thái chạm (*)</th>
                         <th class="px-2 py-2 text-left font-semibold text-red-600">Kết quả thuyết phục (*)</th>
@@ -133,7 +140,7 @@
             progressTotalEl.innerText = percentTotal + '%';
             if(percentTotal === 100) progressTotalEl.classList.replace('bg-green-500', 'bg-blue-600');
 
-            // Chi tiết Nhân viên (Có Xong và Tồn)
+            // Chi tiết Nhân viên
             const nvContainer = document.getElementById('nvReportContainer');
             nvContainer.innerHTML = ''; 
             
@@ -232,9 +239,8 @@
                     allData = result.data;
                     pendingData = allData.filter(row => !isRowCompleted(row));
                     
-                    // Lọc và Sắp xếp Tên NV theo bảng chữ cái ABC
                     let uniqueNV = [...new Set(allData.map(item => item.Tên_NV).filter(Boolean))];
-                    uniqueNV.sort((a, b) => a.localeCompare(b, 'vi')); // Sắp xếp tiếng Việt
+                    uniqueNV.sort((a, b) => a.localeCompare(b, 'vi'));
 
                     const nvSelect = document.getElementById('filterNV');
                     nvSelect.innerHTML = '<option value="">-- Chọn tất cả --</option>' + uniqueNV.map(nv => `<option value="${nv}">${nv}</option>`).join('');
@@ -271,7 +277,6 @@
                 Ghi_chú_chi_tiết: getVal(`ghichu_${renderIndex}`).trim()
             };
 
-            // ĐÃ BỎ payload.SĐT_KH KHỎI ĐIỀU KIỆN BẮT BUỘC NHẬP DƯỚI ĐÂY
             if(!payload.Ấp_Khu_vực || !payload.Trạng_thái_chạm || !payload.Kết_quả_thuyết_phục || !payload.Hành_động_tiếp_theo) {
                 alert("Vui lòng điền đủ các trường bắt buộc (*) màu đỏ!");
                 return;
@@ -324,7 +329,7 @@
             }
         }
 
-        // --- XUẤT EXCEL (Dữ liệu bảng hiện tại) ---
+        // --- 1. XUẤT EXCEL (Dữ liệu bảng hiện tại) ---
         function exportToExcel() {
             if (pendingData.length === 0) {
                 alert("Không có dữ liệu để xuất!");
@@ -334,7 +339,6 @@
             const selectedNV = document.getElementById('filterNV').value;
             const dataToExport = selectedNV === "" ? pendingData : pendingData.filter(row => row.Tên_NV === selectedNV);
 
-            // Xử lý dữ liệu sang format tiếng Việt đẹp cho Excel
             const wsData = dataToExport.map(row => ({
                 "Ngày giao": row.Ngày_giao,
                 "Nhân viên": row.Tên_NV,
@@ -351,20 +355,79 @@
             }));
 
             const worksheet = XLSX.utils.json_to_sheet(wsData);
-            
-            // Chỉnh độ rộng cột tự động cho Excel dễ nhìn
             const wscols = [ {wch:12}, {wch:20}, {wch:10}, {wch:40}, {wch:25}, {wch:15}, {wch:12}, {wch:25}, {wch:30}, {wch:30}, {wch:15}, {wch:30} ];
             worksheet['!cols'] = wscols;
 
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "KhachHang_ChoXuLy");
             
-            // Đặt tên file có nhân viên nếu có lọc
             let fileName = selectedNV ? `DS_KH_${selectedNV.replace(/\s+/g, '_')}.xlsx` : `DS_KhachHang_ChoXuLy.xlsx`;
             XLSX.writeFile(workbook, fileName);
+        }
+
+        // --- 2. XUẤT EXCEL (Báo cáo Tiến độ Nhân viên) ---
+        function exportProgressToExcel() {
+            if (allData.length === 0) {
+                alert("Không có dữ liệu báo cáo!");
+                return;
+            }
+
+            let reportByNV = {};
+            let totalKH = allData.length;
+            let totalDone = 0;
+
+            allData.forEach(row => {
+                const nv = row.Tên_NV;
+                if (nv) {
+                    if (!reportByNV[nv]) { reportByNV[nv] = { total: 0, done: 0 }; }
+                    reportByNV[nv].total++;
+                    if (isRowCompleted(row)) {
+                        reportByNV[nv].done++;
+                        totalDone++;
+                    }
+                }
+            });
+
+            // Sắp xếp
+            const sortedNV = Object.keys(reportByNV).sort((a, b) => {
+                return (reportByNV[b].done / reportByNV[b].total) - (reportByNV[a].done / reportByNV[a].total);
+            });
+
+            // Tạo data cho Excel
+            const wsData = sortedNV.map(nv => {
+                const stat = reportByNV[nv];
+                const percent = stat.total > 0 ? Math.round((stat.done / stat.total) * 100) : 0;
+                return {
+                    "Tên nhân viên": nv,
+                    "Tổng KH": stat.total,
+                    "Đã xong": stat.done,
+                    "Còn tồn": stat.total - stat.done,
+                    "Tỷ lệ hoàn thành (%)": percent + "%"
+                };
+            });
+
+            // Dòng tổng cộng
+            const percentTotal = totalKH > 0 ? Math.round((totalDone / totalKH) * 100) : 0;
+            wsData.push({
+                "Tên nhân viên": "TỔNG CỘNG",
+                "Tổng KH": totalKH,
+                "Đã xong": totalDone,
+                "Còn tồn": totalKH - totalDone,
+                "Tỷ lệ hoàn thành (%)": percentTotal + "%"
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(wsData);
+            const wscols = [ {wch:25}, {wch:10}, {wch:10}, {wch:10}, {wch:20} ];
+            worksheet['!cols'] = wscols;
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "BaoCaoTienDo");
+            
+            XLSX.writeFile(workbook, `BaoCao_TienDo_NhanVien.xlsx`);
         }
 
         window.onload = loadData;
     </script>
 </body>
 </html>
+```eof
