@@ -22,16 +22,10 @@
     <div class="w-[98%] mx-auto bg-white p-4 rounded-lg shadow">
         <h2 class="text-xl font-bold text-blue-700 mb-4 text-center">CẬP NHẬT TRẠNG THÁI KHÁCH HÀNG NHÀ MẠNG KHÁC</h2>
 
-        <!-- THÔNG BÁO LỖI (Sẽ hiện ra nếu API tịt ngòi) -->
+        <!-- THÔNG BÁO LỖI -->
         <div id="errorMessage" class="hidden mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
             <p class="font-bold">Đã xảy ra lỗi khi tải dữ liệu!</p>
             <p id="errorText" class="text-sm mt-1"></p>
-            <p class="text-sm mt-2 font-medium">👉 Cách khắc phục:</p>
-            <ul class="list-disc ml-5 text-sm">
-                <li>Kiểm tra lại Link API xem đã chính xác chưa.</li>
-                <li>Đảm bảo Apps Script đã được Deploy với quyền truy cập là <b>"Bất kỳ ai" (Anyone)</b>.</li>
-                <li>Thử copy Link API mở trực tiếp trên một tab mới xem có hiện dữ liệu không.</li>
-            </ul>
         </div>
 
         <!-- VÙNG BÁO CÁO TIẾN ĐỘ -->
@@ -77,4 +71,21 @@
             </button>
         </div>
 
-        <!-- BẢNG DỮ LI
+        <!-- BẢNG DỮ LIỆU -->
+        <div class="table-container border border-gray-300 rounded relative min-h-[200px]">
+            <!-- Nền loading mờ ảo -->
+            <div id="loadingOverlay" class="absolute inset-0 bg-white/70 flex items-center justify-center z-10 hidden">
+                <div class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-lg animate-pulse flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Đang xử lý dữ liệu...
+                </div>
+            </div>
+
+            <table class="min-w-max w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[90px]">Ngày giao</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[60px]">Số nhà</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[200px]">Địa chỉ chi tiết</th>
+                        <th class="px-2 py-2 text-left font-semibold text-blue-700 min-w-[220px]">Gốc Tập KH</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[130px]">Nh
