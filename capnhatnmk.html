@@ -5,22 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cập Nhật Thông Tin NMK</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Thư viện SheetJS để xuất file Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        .table-container { max-height: 65vh; overflow-y: auto; }
+        /* Tối ưu thanh cuộn cả dọc và ngang */
+        .table-container { max-height: 70vh; overflow: auto; }
         thead th { position: sticky; top: 0; background-color: #f3f4f6; z-index: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .input-error { border-color: #ef4444; background-color: #fef2f2; }
         .fade-out { opacity: 0; transition: opacity 0.5s ease-out; }
+        /* Style cho thanh cuộn đẹp hơn trên máy tính */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
     </style>
 </head>
-<body class="bg-gray-100 p-4 font-sans text-sm">
+<body class="bg-gray-100 p-2 md:p-4 font-sans text-sm">
 
-    <div class="max-w-[1500px] mx-auto bg-white p-4 rounded-lg shadow">
+    <!-- Mở rộng max-w-[98%] để tận dụng màn hình to -->
+    <div class="w-[98%] mx-auto bg-white p-4 rounded-lg shadow">
         <h2 class="text-xl font-bold text-blue-700 mb-4 text-center">CẬP NHẬT TRẠNG THÁI KHÁCH HÀNG NHÀ MẠNG KHÁC</h2>
 
         <!-- VÙNG BÁO CÁO TIẾN ĐỘ -->
-        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="mb-6 grid grid-cols-1 xl:grid-cols-2 gap-4">
             <!-- Thống kê Tổng -->
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
                 <h3 class="font-bold text-blue-800 mb-2 border-b border-blue-200 pb-1">TIẾN ĐỘ TỔNG THỂ</h3>
@@ -38,7 +44,6 @@
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm h-32 overflow-y-auto relative">
                 <div class="flex justify-between items-center border-b border-gray-200 mb-2 pb-1 sticky top-0 bg-gray-50 z-10">
                     <h3 class="font-bold text-gray-800">TIẾN ĐỘ NHÂN VIÊN</h3>
-                    <!-- NÚT XUẤT EXCEL BÁO CÁO -->
                     <button onclick="exportProgressToExcel()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded shadow flex items-center transition-colors text-xs cursor-pointer">
                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         Tải Excel
@@ -54,35 +59,37 @@
         <div class="mb-4 flex flex-wrap items-center justify-between bg-blue-50 p-3 rounded border border-blue-100">
             <div class="flex items-center mb-2 sm:mb-0">
                 <label for="filterNV" class="block font-medium text-gray-700 mr-3">Lọc theo Tên NV:</label>
-                <select id="filterNV" class="block w-64 py-1.5 px-3 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                <select id="filterNV" class="block w-64 py-1.5 px-3 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 bg-white">
                     <option value="">-- Tải danh sách nhân viên... --</option>
                 </select>
-                <span class="ml-4 text-xs text-gray-500 italic hidden xl:inline">* Các dòng đã cập nhật sẽ tự động ẩn khỏi danh sách.</span>
+                <span class="ml-4 text-xs text-gray-500 italic hidden 2xl:inline">* Các dòng đã cập nhật sẽ tự động ẩn khỏi danh sách. Kéo thanh cuộn ngang để xem hết cột.</span>
             </div>
             <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-4 rounded shadow flex items-center transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Tải Excel (Bảng dữ liệu dưới)
+                Tải Excel (Bảng dữ liệu)
             </button>
         </div>
 
         <!-- BẢNG DỮ LIỆU -->
         <div class="table-container border border-gray-300 rounded">
-            <table class="min-w-full divide-y divide-gray-200">
+            <!-- Đặt min-w-max để bảng có thể rộng hơn màn hình, ép thanh cuộn ngang xuất hiện -->
+            <table class="min-w-max w-full divide-y divide-gray-200">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="px-2 py-2 text-left font-semibold text-gray-700 w-24">Ngày giao</th>
-                        <th class="px-2 py-2 text-left font-semibold text-gray-700 w-20">Số nhà</th>
-                        <th class="px-2 py-2 text-left font-semibold text-gray-700 w-48">Địa chỉ chi tiết</th>
-                        <th class="px-2 py-2 text-left font-semibold text-gray-700 w-32">Nhà mạng</th>
-                        <th class="px-2 py-2 text-left font-semibold text-red-600">Ấp/Khu vực (*)</th>
-                        <!-- SĐT KH bỏ bắt buộc -->
-                        <th class="px-2 py-2 text-left font-semibold text-gray-700">SĐT KH</th>
-                        <th class="px-2 py-2 text-left font-semibold text-red-600">Trạng thái chạm (*)</th>
-                        <th class="px-2 py-2 text-left font-semibold text-red-600">Kết quả thuyết phục (*)</th>
-                        <th class="px-2 py-2 text-left font-semibold text-red-600">Hành động tiếp theo (*)</th>
-                        <th class="px-2 py-2 text-left font-semibold text-gray-700">Ngày hẹn QL</th>
-                        <th class="px-2 py-2 text-left font-semibold text-gray-700">Ghi chú</th>
-                        <th class="px-2 py-2 text-center font-semibold text-gray-700 w-20">Thao tác</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[90px]">Ngày giao</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[60px]">Số nhà</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[200px]">Địa chỉ chi tiết</th>
+                        <!-- Cột mới Gốc Tập KH -->
+                        <th class="px-2 py-2 text-left font-semibold text-blue-700 min-w-[220px]">Gốc Tập KH</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[130px]">Nhà mạng</th>
+                        <th class="px-2 py-2 text-left font-semibold text-red-600 min-w-[130px]">Ấp/Khu vực (*)</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[120px]">SĐT KH</th>
+                        <th class="px-2 py-2 text-left font-semibold text-red-600 min-w-[150px]">Trạng thái chạm (*)</th>
+                        <th class="px-2 py-2 text-left font-semibold text-red-600 min-w-[160px]">Kết quả thuyết phục (*)</th>
+                        <th class="px-2 py-2 text-left font-semibold text-red-600 min-w-[160px]">Hành động tiếp theo (*)</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[130px]">Ngày hẹn QL</th>
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700 min-w-[150px]">Ghi chú</th>
+                        <th class="px-2 py-2 text-center font-semibold text-gray-700 min-w-[80px]">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
@@ -129,7 +136,6 @@
                 }
             });
 
-            // Tổng thể
             const percentTotal = totalKH > 0 ? Math.round((totalDone / totalKH) * 100) : 0;
             document.getElementById('totalKH').innerText = totalKH;
             document.getElementById('totalDone').innerText = totalDone;
@@ -140,7 +146,6 @@
             progressTotalEl.innerText = percentTotal + '%';
             if(percentTotal === 100) progressTotalEl.classList.replace('bg-green-500', 'bg-blue-600');
 
-            // Chi tiết Nhân viên
             const nvContainer = document.getElementById('nvReportContainer');
             nvContainer.innerHTML = ''; 
             
@@ -178,7 +183,7 @@
             tbody.innerHTML = ''; 
 
             if(dataToRender.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="12" class="px-4 py-8 text-center text-gray-500 font-bold">Không có dữ liệu chờ xử lý!</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="13" class="px-4 py-8 text-center text-gray-500 font-bold">Không có dữ liệu chờ xử lý!</td></tr>';
                 return;
             }
 
@@ -188,38 +193,41 @@
                 tr.id = rowId;
                 tr.className = "hover:bg-blue-50 transition-opacity duration-500";
                 
+                // whitespace-normal để cho phép văn bản tự xuống dòng không bị ẩn
                 const htmlReadonly = `
-                    <td class="px-2 py-2 text-gray-900">${row.Ngày_giao || ''}</td>
+                    <td class="px-2 py-2 text-gray-900 whitespace-nowrap">${row.Ngày_giao || ''}</td>
                     <td class="px-2 py-2 text-gray-900">${row.Số_nhà_tách || ''}</td>
-                    <td class="px-2 py-2 text-gray-900 truncate max-w-[200px]" title="${row.Địa_chỉ_chi_tiết || ''}">${row.Địa_chỉ_chi_tiết || ''}</td>
-                    <td class="px-2 py-2 text-gray-900">${row.Nhà_mạng || ''}</td>
+                    <td class="px-2 py-2 text-gray-900 whitespace-normal min-w-[200px] leading-relaxed">${row.Địa_chỉ_chi_tiết || ''}</td>
+                    <td class="px-2 py-2 text-gray-700 text-xs whitespace-normal min-w-[220px] leading-relaxed bg-blue-50">${row.Gốc_Tập_KH || ''}</td>
+                    <td class="px-2 py-2 text-gray-900 whitespace-normal min-w-[130px]">${row.Nhà_mạng || ''}</td>
                 `;
 
+                // Thêm class w-full để input/select fill đầy min-w của cột
                 const htmlInput = `
-                    <td class="px-1 py-1"><input type="text" id="ap_${renderIndex}" value="${row.Ấp_Khu_vực || ''}" class="w-full border border-gray-300 rounded p-1 focus:ring-blue-500 focus:border-blue-500"></td>
-                    <td class="px-1 py-1"><input type="text" id="sdt_${renderIndex}" value="${row.SĐT_KH || ''}" class="w-full border border-gray-300 rounded p-1 focus:ring-blue-500 focus:border-blue-500"></td>
+                    <td class="px-1 py-1"><input type="text" id="ap_${renderIndex}" value="${row.Ấp_Khu_vực || ''}" class="w-full border border-gray-300 rounded p-1.5 focus:ring-blue-500 focus:border-blue-500"></td>
+                    <td class="px-1 py-1"><input type="text" id="sdt_${renderIndex}" value="${row.SĐT_KH || ''}" class="w-full border border-gray-300 rounded p-1.5 focus:ring-blue-500 focus:border-blue-500"></td>
                     <td class="px-1 py-1">
-                        <select id="tt_${renderIndex}" class="w-full border border-gray-300 rounded p-1 focus:ring-blue-500 focus:border-blue-500">
+                        <select id="tt_${renderIndex}" class="w-full border border-gray-300 rounded p-1.5 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">- Chọn -</option>
                             ${optionsTrangThai.map(opt => `<option value="${opt}" ${row.Trạng_thái_chạm === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                         </select>
                     </td>
                     <td class="px-1 py-1">
-                        <select id="kq_${renderIndex}" class="w-full border border-gray-300 rounded p-1 focus:ring-blue-500 focus:border-blue-500">
+                        <select id="kq_${renderIndex}" class="w-full border border-gray-300 rounded p-1.5 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">- Chọn -</option>
                             ${optionsKetQua.map(opt => `<option value="${opt}" ${row.Kết_quả_thuyết_phục === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                         </select>
                     </td>
                     <td class="px-1 py-1">
-                        <select id="hd_${renderIndex}" class="w-full border border-gray-300 rounded p-1 focus:ring-blue-500 focus:border-blue-500">
+                        <select id="hd_${renderIndex}" class="w-full border border-gray-300 rounded p-1.5 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">- Chọn -</option>
                             ${optionsHanhDong.map(opt => `<option value="${opt}" ${row.Hành_động_tiếp_theo === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                         </select>
                     </td>
-                    <td class="px-1 py-1"><input type="date" id="ngayhen_${renderIndex}" value="${row.Ngày_hẹn_quay_lại ? row.Ngày_hẹn_quay_lại.split('T')[0] : ''}" class="w-full border border-gray-300 rounded p-1 focus:ring-blue-500 focus:border-blue-500"></td>
-                    <td class="px-1 py-1"><input type="text" id="ghichu_${renderIndex}" value="${row.Ghi_chú_chi_tiết || ''}" class="w-full border border-gray-300 rounded p-1 focus:ring-blue-500 focus:border-blue-500"></td>
+                    <td class="px-1 py-1"><input type="date" id="ngayhen_${renderIndex}" value="${row.Ngày_hẹn_quay_lại ? row.Ngày_hẹn_quay_lại.split('T')[0] : ''}" class="w-full border border-gray-300 rounded p-1.5 focus:ring-blue-500 focus:border-blue-500 text-xs"></td>
+                    <td class="px-1 py-1"><input type="text" id="ghichu_${renderIndex}" value="${row.Ghi_chú_chi_tiết || ''}" class="w-full border border-gray-300 rounded p-1.5 focus:ring-blue-500 focus:border-blue-500"></td>
                     <td class="px-1 py-1 text-center">
-                        <button onclick="saveRow(${renderIndex}, this, '${row.Địa_chỉ_chi_tiết}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded shadow cursor-pointer">Lưu</button>
+                        <button onclick="saveRow(${renderIndex}, this, '${row.Địa_chỉ_chi_tiết}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-3 rounded shadow cursor-pointer text-xs w-full">Lưu</button>
                     </td>
                 `;
 
@@ -329,7 +337,7 @@
             }
         }
 
-        // --- 1. XUẤT EXCEL (Dữ liệu bảng hiện tại) ---
+        // --- XUẤT EXCEL (Dữ liệu bảng hiện tại) ---
         function exportToExcel() {
             if (pendingData.length === 0) {
                 alert("Không có dữ liệu để xuất!");
@@ -339,11 +347,13 @@
             const selectedNV = document.getElementById('filterNV').value;
             const dataToExport = selectedNV === "" ? pendingData : pendingData.filter(row => row.Tên_NV === selectedNV);
 
+            // Bổ sung Gốc Tập KH vào file xuất
             const wsData = dataToExport.map(row => ({
                 "Ngày giao": row.Ngày_giao,
                 "Nhân viên": row.Tên_NV,
                 "Số nhà": row.Số_nhà_tách,
                 "Địa chỉ chi tiết": row.Địa_chỉ_chi_tiết,
+                "Gốc Tập KH": row.Gốc_Tập_KH || "",
                 "Nhà mạng": row.Nhà_mạng,
                 "Ấp/Khu vực": row.Ấp_Khu_vực || "",
                 "SĐT KH": row.SĐT_KH || "",
@@ -355,79 +365,3 @@
             }));
 
             const worksheet = XLSX.utils.json_to_sheet(wsData);
-            const wscols = [ {wch:12}, {wch:20}, {wch:10}, {wch:40}, {wch:25}, {wch:15}, {wch:12}, {wch:25}, {wch:30}, {wch:30}, {wch:15}, {wch:30} ];
-            worksheet['!cols'] = wscols;
-
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "KhachHang_ChoXuLy");
-            
-            let fileName = selectedNV ? `DS_KH_${selectedNV.replace(/\s+/g, '_')}.xlsx` : `DS_KhachHang_ChoXuLy.xlsx`;
-            XLSX.writeFile(workbook, fileName);
-        }
-
-        // --- 2. XUẤT EXCEL (Báo cáo Tiến độ Nhân viên) ---
-        function exportProgressToExcel() {
-            if (allData.length === 0) {
-                alert("Không có dữ liệu báo cáo!");
-                return;
-            }
-
-            let reportByNV = {};
-            let totalKH = allData.length;
-            let totalDone = 0;
-
-            allData.forEach(row => {
-                const nv = row.Tên_NV;
-                if (nv) {
-                    if (!reportByNV[nv]) { reportByNV[nv] = { total: 0, done: 0 }; }
-                    reportByNV[nv].total++;
-                    if (isRowCompleted(row)) {
-                        reportByNV[nv].done++;
-                        totalDone++;
-                    }
-                }
-            });
-
-            // Sắp xếp
-            const sortedNV = Object.keys(reportByNV).sort((a, b) => {
-                return (reportByNV[b].done / reportByNV[b].total) - (reportByNV[a].done / reportByNV[a].total);
-            });
-
-            // Tạo data cho Excel
-            const wsData = sortedNV.map(nv => {
-                const stat = reportByNV[nv];
-                const percent = stat.total > 0 ? Math.round((stat.done / stat.total) * 100) : 0;
-                return {
-                    "Tên nhân viên": nv,
-                    "Tổng KH": stat.total,
-                    "Đã xong": stat.done,
-                    "Còn tồn": stat.total - stat.done,
-                    "Tỷ lệ hoàn thành (%)": percent + "%"
-                };
-            });
-
-            // Dòng tổng cộng
-            const percentTotal = totalKH > 0 ? Math.round((totalDone / totalKH) * 100) : 0;
-            wsData.push({
-                "Tên nhân viên": "TỔNG CỘNG",
-                "Tổng KH": totalKH,
-                "Đã xong": totalDone,
-                "Còn tồn": totalKH - totalDone,
-                "Tỷ lệ hoàn thành (%)": percentTotal + "%"
-            });
-
-            const worksheet = XLSX.utils.json_to_sheet(wsData);
-            const wscols = [ {wch:25}, {wch:10}, {wch:10}, {wch:10}, {wch:20} ];
-            worksheet['!cols'] = wscols;
-
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "BaoCaoTienDo");
-            
-            XLSX.writeFile(workbook, `BaoCao_TienDo_NhanVien.xlsx`);
-        }
-
-        window.onload = loadData;
-    </script>
-</body>
-</html>
-```eof
