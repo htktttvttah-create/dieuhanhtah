@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cập Nhật Thông Tin NMK</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thư viện SheetJS để xuất file Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         .table-container { max-height: 65vh; overflow-y: auto; }
         thead th { position: sticky; top: 0; background-color: #f3f4f6; z-index: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .input-error { border-color: #ef4444; background-color: #fef2f2; }
-        /* Hiệu ứng mờ dần rồi biến mất */
         .fade-out { opacity: 0; transition: opacity 0.5s ease-out; }
     </style>
 </head>
@@ -24,34 +25,40 @@
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
                 <h3 class="font-bold text-blue-800 mb-2 border-b border-blue-200 pb-1">TIẾN ĐỘ TỔNG THỂ</h3>
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-gray-700">Tổng khách hàng: <span id="totalKH" class="font-bold">0</span></span>
-                    <span class="text-gray-700">Đã cập nhật: <span id="totalDone" class="font-bold text-green-600">0</span></span>
-                    <span class="text-gray-700">Còn lại: <span id="totalLeft" class="font-bold text-red-500">0</span></span>
+                    <span class="text-gray-700">Tổng KH: <span id="totalKH" class="font-bold">0</span></span>
+                    <span class="text-gray-700">Đã xong: <span id="totalDone" class="font-bold text-green-600">0</span></span>
+                    <span class="text-gray-700">Còn tồn: <span id="totalLeft" class="font-bold text-red-500">0</span></span>
                 </div>
-                <!-- Thanh tiến trình (Progress Bar) -->
                 <div class="w-full bg-gray-200 rounded-full h-4 mt-2 border border-gray-300">
                     <div id="progressTotal" class="bg-green-500 h-3.5 rounded-full text-xs font-medium text-white text-center p-0.5 leading-none transition-all duration-500" style="width: 0%">0%</div>
                 </div>
             </div>
 
-            <!-- Thống kê theo Nhân viên (Dạng thanh cuộn nếu nhiều NV) -->
+            <!-- Thống kê theo Nhân viên -->
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm h-32 overflow-y-auto">
                 <h3 class="font-bold text-gray-800 mb-2 border-b border-gray-200 pb-1 sticky top-0 bg-gray-50 z-10">TIẾN ĐỘ NHÂN VIÊN</h3>
                 <div id="nvReportContainer" class="space-y-2">
-                    <!-- Dữ liệu tiến độ NV sẽ đổ vào đây -->
                     <div class="text-gray-500 text-xs italic">Đang tải dữ liệu báo cáo...</div>
                 </div>
             </div>
         </div>
 
-        <div class="mb-4 flex items-center bg-blue-50 p-3 rounded border border-blue-100">
-            <label for="filterNV" class="block font-medium text-gray-700 mr-3">Lọc theo Tên NV:</label>
-            <select id="filterNV" class="block w-64 py-1.5 px-3 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
-                <option value="">-- Tải danh sách nhân viên... --</option>
-            </select>
-            <span class="ml-4 text-xs text-gray-500 italic">* Các dòng đã cập nhật sẽ tự động bị ẩn khỏi danh sách dưới đây.</span>
+        <!-- BỘ LỌC & NÚT XUẤT EXCEL -->
+        <div class="mb-4 flex flex-wrap items-center justify-between bg-blue-50 p-3 rounded border border-blue-100">
+            <div class="flex items-center mb-2 sm:mb-0">
+                <label for="filterNV" class="block font-medium text-gray-700 mr-3">Lọc theo Tên NV:</label>
+                <select id="filterNV" class="block w-64 py-1.5 px-3 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">-- Tải danh sách nhân viên... --</option>
+                </select>
+                <span class="ml-4 text-xs text-gray-500 italic hidden xl:inline">* Các dòng đã cập nhật sẽ tự động ẩn khỏi danh sách.</span>
+            </div>
+            <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-4 rounded shadow flex items-center transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Tải Excel
+            </button>
         </div>
 
+        <!-- BẢNG DỮ LIỆU -->
         <div class="table-container border border-gray-300 rounded">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-100">
@@ -61,7 +68,8 @@
                         <th class="px-2 py-2 text-left font-semibold text-gray-700 w-48">Địa chỉ chi tiết</th>
                         <th class="px-2 py-2 text-left font-semibold text-gray-700 w-32">Nhà mạng</th>
                         <th class="px-2 py-2 text-left font-semibold text-red-600">Ấp/Khu vực (*)</th>
-                        <th class="px-2 py-2 text-left font-semibold text-red-600">SĐT KH (*)</th>
+                        <!-- SĐT KH bỏ bắt buộc (không màu đỏ, không dấu sao) -->
+                        <th class="px-2 py-2 text-left font-semibold text-gray-700">SĐT KH</th>
                         <th class="px-2 py-2 text-left font-semibold text-red-600">Trạng thái chạm (*)</th>
                         <th class="px-2 py-2 text-left font-semibold text-red-600">Kết quả thuyết phục (*)</th>
                         <th class="px-2 py-2 text-left font-semibold text-red-600">Hành động tiếp theo (*)</th>
@@ -80,7 +88,7 @@
     </div>
 
     <script>
-        // === DÁN LINK WEB APP CỦA BẠN VÀO ĐÂY ===
+        // === GIỮ NGUYÊN LINK WEB APP CỦA BẠN ===
         const API_URL = 'https://script.google.com/macros/s/AKfycbw_koWjLPH02ENXb8Sen724B3KyR9c9mEMN68vqsYGraCKLKkFu2aMI40_ujaAzjuMr/exec'; 
 
         const optionsTrangThai = ["Chưa chạm", "Đã gặp trực tiếp", "Gặp người nhà", "Không gặp - nhà đóng cửa", "Không gặp - hẹn lại", "Từ chối tiếp xúc"];
@@ -88,14 +96,13 @@
         const optionsHanhDong = ["Quay lại sau khi hết cước", "Lên phiếu lắp đặt ngay", "Tiếp tục chăm sóc - gọi điện", "Tiếp tục chăm sóc - ghé lại", "Hẹn khảo sát / đo tín hiệu", "Chuyển CSKH / Kỹ thuật hỗ trợ", "Đã hoàn thành - đóng case", "Không tiềm năng - loại khỏi list"];
 
         let allData = [];
-        let pendingData = []; // Mảng chỉ chứa những KH CHƯA có Hành động tiếp theo
+        let pendingData = []; 
 
-        // Hàm đánh giá xem dòng này đã làm chưa (kiểm tra Hành động tiếp theo)
         function isRowCompleted(row) {
             return row.Hành_động_tiếp_theo && row.Hành_động_tiếp_theo.trim() !== "";
         }
 
-        // --- HÀM TÍNH TOÁN VÀ VẼ BÁO CÁO TIẾN ĐỘ ---
+        // --- HÀM BÁO CÁO TIẾN ĐỘ ---
         function renderProgressReport() {
             if (allData.length === 0) return;
 
@@ -103,15 +110,11 @@
             let totalDone = 0;
             let reportByNV = {};
 
-            // Khởi tạo object báo cáo cho từng nhân viên
             allData.forEach(row => {
                 const nv = row.Tên_NV;
                 if (nv) {
-                    if (!reportByNV[nv]) {
-                        reportByNV[nv] = { total: 0, done: 0 };
-                    }
+                    if (!reportByNV[nv]) { reportByNV[nv] = { total: 0, done: 0 }; }
                     reportByNV[nv].total++;
-                    
                     if (isRowCompleted(row)) {
                         reportByNV[nv].done++;
                         totalDone++;
@@ -119,7 +122,7 @@
                 }
             });
 
-            // 1. Vẽ báo cáo Tổng thể
+            // Tổng thể
             const percentTotal = totalKH > 0 ? Math.round((totalDone / totalKH) * 100) : 0;
             document.getElementById('totalKH').innerText = totalKH;
             document.getElementById('totalDone').innerText = totalDone;
@@ -128,17 +131,12 @@
             const progressTotalEl = document.getElementById('progressTotal');
             progressTotalEl.style.width = percentTotal + '%';
             progressTotalEl.innerText = percentTotal + '%';
-            
-            // Đổi màu thanh tổng thể nếu hoàn thành 100%
-            if(percentTotal === 100) {
-                progressTotalEl.classList.replace('bg-green-500', 'bg-blue-600');
-            }
+            if(percentTotal === 100) progressTotalEl.classList.replace('bg-green-500', 'bg-blue-600');
 
-            // 2. Vẽ báo cáo theo Nhân viên
+            // Chi tiết Nhân viên (Có Xong và Tồn)
             const nvContainer = document.getElementById('nvReportContainer');
-            nvContainer.innerHTML = ''; // Xóa dữ liệu cũ
+            nvContainer.innerHTML = ''; 
             
-            // Sắp xếp nhân viên theo tỷ lệ hoàn thành (tùy chọn)
             const sortedNV = Object.keys(reportByNV).sort((a, b) => {
                 return (reportByNV[b].done / reportByNV[b].total) - (reportByNV[a].done / reportByNV[a].total);
             });
@@ -146,17 +144,20 @@
             sortedNV.forEach(nv => {
                 const stat = reportByNV[nv];
                 const percent = stat.total > 0 ? Math.round((stat.done / stat.total) * 100) : 0;
+                const left = stat.total - stat.done;
                 
                 const html = `
                     <div class="flex items-center text-xs">
                         <div class="w-32 truncate font-medium text-gray-700" title="${nv}">${nv}</div>
                         <div class="flex-grow mx-2">
                             <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="bg-green-400 h-3 rounded-full" style="width: ${percent}%"></div>
+                                <div class="bg-green-400 h-3 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
                             </div>
                         </div>
-                        <div class="w-20 text-right whitespace-nowrap">
-                            <span class="font-bold ${percent === 100 ? 'text-blue-600' : 'text-gray-700'}">${stat.done}/${stat.total}</span> (${percent}%)
+                        <div class="w-40 text-right whitespace-nowrap">
+                            <span class="font-bold text-green-600">Xong: ${stat.done}</span> <span class="text-gray-300">|</span> 
+                            <span class="font-bold text-red-500">Tồn: ${left}</span> 
+                            <span class="text-gray-500 font-medium ml-1">(${percent}%)</span>
                         </div>
                     </div>
                 `;
@@ -164,20 +165,18 @@
             });
         }
 
-        // --- HÀM RENDER BẢNG DỮ LIỆU CHƯA LÀM ---
+        // --- HÀM RENDER BẢNG CHƯA XỬ LÝ ---
         function renderTable(dataToRender) {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = ''; 
 
             if(dataToRender.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="12" class="px-4 py-8 text-center text-gray-500 font-bold">Không có dữ liệu chờ xử lý hoặc đã hoàn thành hết!</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" class="px-4 py-8 text-center text-gray-500 font-bold">Không có dữ liệu chờ xử lý!</td></tr>';
                 return;
             }
 
             dataToRender.forEach((row, renderIndex) => {
-                // Tạo một ID duy nhất cho hàng để tạo hiệu ứng biến mất (Dùng Địa_chỉ_chi_tiết làm key phụ)
                 const rowId = `row_${renderIndex}`;
-
                 const tr = document.createElement('tr');
                 tr.id = rowId;
                 tr.className = "hover:bg-blue-50 transition-opacity duration-500";
@@ -222,6 +221,7 @@
             });
         }
 
+        // --- TẢI DỮ LIỆU BAN ĐẦU ---
         async function loadData() {
             document.getElementById('loadingMessage').classList.remove('hidden');
             try {
@@ -230,19 +230,16 @@
                 
                 if(result.status === 'success') {
                     allData = result.data;
-                    
-                    // Lọc ra các dòng CHƯA LÀM (chưa có kết quả "Hành động tiếp theo")
                     pendingData = allData.filter(row => !isRowCompleted(row));
                     
-                    // Tạo Dropdown Nhân viên
+                    // Lọc và Sắp xếp Tên NV theo bảng chữ cái ABC
+                    let uniqueNV = [...new Set(allData.map(item => item.Tên_NV).filter(Boolean))];
+                    uniqueNV.sort((a, b) => a.localeCompare(b, 'vi')); // Sắp xếp tiếng Việt
+
                     const nvSelect = document.getElementById('filterNV');
-                    const uniqueNV = [...new Set(allData.map(item => item.Tên_NV).filter(Boolean))];
                     nvSelect.innerHTML = '<option value="">-- Chọn tất cả --</option>' + uniqueNV.map(nv => `<option value="${nv}">${nv}</option>`).join('');
 
-                    // Cập nhật Báo cáo
                     renderProgressReport();
-                    
-                    // Vẽ bảng (Chỉ hiển thị dòng chưa làm)
                     renderTable(pendingData);
                 } else {
                     alert("Lỗi từ máy chủ: " + result.message);
@@ -258,12 +255,9 @@
             renderTable(selectedNV === "" ? pendingData : pendingData.filter(row => row.Tên_NV === selectedNV));
         });
 
+        // --- LƯU DỮ LIỆU ---
         async function saveRow(renderIndex, btnElement, diaChi) {
             const getVal = (id) => document.getElementById(id).value;
-            
-            // Tìm dữ liệu gốc dựa trên renderIndex của mảng hiện tại đang hiển thị
-            // Nhưng để chắc chắn, ta dùng Địa chỉ chi tiết để đảm bảo payload gửi đi chuẩn xác
-            const rowData = pendingData[renderIndex];
             
             const payload = {
                 action: "update",
@@ -277,8 +271,9 @@
                 Ghi_chú_chi_tiết: getVal(`ghichu_${renderIndex}`).trim()
             };
 
-            if(!payload.Ấp_Khu_vực || !payload.SĐT_KH || !payload.Trạng_thái_chạm || !payload.Kết_quả_thuyết_phục || !payload.Hành_động_tiếp_theo) {
-                alert("Vui lòng điền đủ các trường bắt buộc (*)");
+            // ĐÃ BỎ payload.SĐT_KH KHỎI ĐIỀU KIỆN BẮT BUỘC NHẬP DƯỚI ĐÂY
+            if(!payload.Ấp_Khu_vực || !payload.Trạng_thái_chạm || !payload.Kết_quả_thuyết_phục || !payload.Hành_động_tiếp_theo) {
+                alert("Vui lòng điền đủ các trường bắt buộc (*) màu đỏ!");
                 return;
             }
 
@@ -297,7 +292,6 @@
                     btnElement.innerText = "OK";
                     btnElement.classList.replace("bg-blue-600", "bg-green-600");
                     
-                    // Cập nhật lại data mảng gốc allData
                     const realIndex = allData.findIndex(r => r.Địa_chỉ_chi_tiết === diaChi);
                     if(realIndex > -1) {
                         allData[realIndex].Ấp_Khu_vực = payload.Ấp_Khu_vực;
@@ -309,19 +303,15 @@
                         allData[realIndex].Ghi_chú_chi_tiết = payload.Ghi_chú_chi_tiết;
                     }
 
-                    // Cập nhật Báo cáo ngay lập tức
                     renderProgressReport();
 
-                    // Hiệu ứng mờ dần và xóa dòng (Delay 1 giây để user kịp nhìn thấy chữ OK)
                     const rowElement = document.getElementById(`row_${renderIndex}`);
                     setTimeout(() => {
                         rowElement.style.opacity = '0';
                         setTimeout(() => {
-                            rowElement.remove(); // Xóa khỏi HTML
-                            
-                            // Cập nhật lại mảng pendingData để các filter sau không bị lỗi
+                            rowElement.remove(); 
                             pendingData = allData.filter(row => !isRowCompleted(row));
-                        }, 500); // 0.5s cho hiệu ứng fade out
+                        }, 500); 
                     }, 800);
                     
                 } else {
@@ -332,6 +322,46 @@
                 alert("Lỗi mạng!");
                 btnElement.innerText = "Lưu"; btnElement.disabled = false;
             }
+        }
+
+        // --- XUẤT EXCEL (Dữ liệu bảng hiện tại) ---
+        function exportToExcel() {
+            if (pendingData.length === 0) {
+                alert("Không có dữ liệu để xuất!");
+                return;
+            }
+
+            const selectedNV = document.getElementById('filterNV').value;
+            const dataToExport = selectedNV === "" ? pendingData : pendingData.filter(row => row.Tên_NV === selectedNV);
+
+            // Xử lý dữ liệu sang format tiếng Việt đẹp cho Excel
+            const wsData = dataToExport.map(row => ({
+                "Ngày giao": row.Ngày_giao,
+                "Nhân viên": row.Tên_NV,
+                "Số nhà": row.Số_nhà_tách,
+                "Địa chỉ chi tiết": row.Địa_chỉ_chi_tiết,
+                "Nhà mạng": row.Nhà_mạng,
+                "Ấp/Khu vực": row.Ấp_Khu_vực || "",
+                "SĐT KH": row.SĐT_KH || "",
+                "Trạng thái chạm": row.Trạng_thái_chạm || "",
+                "Kết quả thuyết phục": row.Kết_quả_thuyết_phục || "",
+                "Hành động tiếp theo": row.Hành_động_tiếp_theo || "",
+                "Ngày hẹn QL": row.Ngày_hẹn_quay_lại ? row.Ngày_hẹn_quay_lại.split('T')[0] : "",
+                "Ghi chú": row.Ghi_chú_chi_tiết || ""
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(wsData);
+            
+            // Chỉnh độ rộng cột tự động cho Excel dễ nhìn
+            const wscols = [ {wch:12}, {wch:20}, {wch:10}, {wch:40}, {wch:25}, {wch:15}, {wch:12}, {wch:25}, {wch:30}, {wch:30}, {wch:15}, {wch:30} ];
+            worksheet['!cols'] = wscols;
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "KhachHang_ChoXuLy");
+            
+            // Đặt tên file có nhân viên nếu có lọc
+            let fileName = selectedNV ? `DS_KH_${selectedNV.replace(/\s+/g, '_')}.xlsx` : `DS_KhachHang_ChoXuLy.xlsx`;
+            XLSX.writeFile(workbook, fileName);
         }
 
         window.onload = loadData;
