@@ -115,7 +115,7 @@
 <div id="app"></div>
 <script>
 // ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbx37cMX53oBN2Q6LRUisFcVtnPhqvGrcKLB7vbXNHQN_5OYyqBBEOaW1_wIxgX9V1tUtQ/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbyP1zCmQnZUFMDwlAPZ3Tjs95Jd8TQKJpmCOqjlLvnlCHNbz9svJkjzNGfnkr7JyKesRw/exec'; 
 
 const $app = document.getElementById('app');
 let token = localStorage.getItem('token');
@@ -307,7 +307,7 @@ function processAndRender(myTasks, canAct, allTasks = []) {
     }
   });
 
-  // 3. Vẽ Dashboard (5 Bộ lọc riêng biệt)
+  // 3. Vẽ Dashboard (Đã đổi vị trí Sắp tới hạn lên trước Quá hạn)
   dbEl.innerHTML = `
     <div class="dashboard">
       <div class="stat-card stat-all ${currentFilter === 'all' ? 'active-filter' : ''}" data-filter="all">
@@ -318,14 +318,19 @@ function processAndRender(myTasks, canAct, allTasks = []) {
         <h4>📋 Chưa xong <span class="hint">Lọc</span></h4>
         <div class="num">${pending}</div>
       </div>
-      <div class="stat-card stat-overdue ${currentFilter === 'overdue' ? 'active-filter' : ''}" data-filter="overdue">
-        <h4>⚠️ Quá hạn <span class="hint">Lọc</span></h4>
-        <div class="num">${overdue}</div>
-      </div>
+      
+      <!-- THẺ SẮP TỚI HẠN (Nằm trước Quá hạn) -->
       <div class="stat-card ${currentFilter === 'warning' ? 'active-filter' : ''}" style="border-left: 4px solid #f97316" data-filter="warning">
         <h4>⏳ Sắp tới hạn <span class="hint">Lọc</span></h4>
         <div class="num" style="color:#f97316">${warning}</div>
       </div>
+      
+      <!-- THẺ QUÁ HẠN -->
+      <div class="stat-card stat-overdue ${currentFilter === 'overdue' ? 'active-filter' : ''}" data-filter="overdue">
+        <h4>⚠️ Quá hạn <span class="hint">Lọc</span></h4>
+        <div class="num">${overdue}</div>
+      </div>
+      
       <div class="stat-card stat-done ${currentFilter === 'done' ? 'active-filter' : ''}" data-filter="done">
         <h4>✅ Đã xong <span class="hint">Lọc</span></h4>
         <div class="num">${done}</div>
