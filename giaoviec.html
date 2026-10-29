@@ -115,13 +115,12 @@
 <div id="app"></div>
 <script>
 // ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbyP1zCmQnZUFMDwlAPZ3Tjs95Jd8TQKJpmCOqjlLvnlCHNbz9svJkjzNGfnkr7JyKesRw/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbzB_zoDgifkcNWo-hhuEg6OA9FfHZ5BSyOvM9cR0oDPh6AV1I5jXUTK3M3nOszAoGe1uw/exec'; 
 
 const $app = document.getElementById('app');
 let token = localStorage.getItem('token');
 let me = JSON.parse(localStorage.getItem('me') || 'null');
 
-// Mặc định hiển thị tất cả
 let currentFilter = 'all'; 
 
 const fmt = (s) => s && s !== '' ? new Date(s).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'}) : '';
@@ -182,15 +181,15 @@ async function renderMain() {
 }
 
 function getDeadlineInfo(deadlineStr, status) {
-  if (!deadlineStr || status === 'done') return { isOverdue: false, isWarning: false, text: '' };
+  if (!deadlineStr || status === 'done') return { isOverdue: false, isWarning: false, text: '', daysLeft: null };
   const today = new Date(); today.setHours(0,0,0,0);
   const deadline = new Date(deadlineStr); deadline.setHours(0,0,0,0);
   const diffDays = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   
-  if (diffDays < 0) return { isOverdue: true, isWarning: false, text: 'Quá hạn ' + Math.abs(diffDays) + ' ngày' };
-  if (diffDays === 0) return { isOverdue: false, isWarning: true, text: 'Hạn chót hôm nay' };
-  if (diffDays <= 2) return { isOverdue: false, isWarning: true, text: 'Còn ' + diffDays + ' ngày' };
-  return { isOverdue: false, isWarning: false, text: '' };
+  if (diffDays < 0) return { isOverdue: true, isWarning: false, text: 'Quá hạn ' + Math.abs(diffDays) + ' ngày', daysLeft: diffDays };
+  if (diffDays === 0) return { isOverdue: false, isWarning: true, text: 'Hạn chót hôm nay', daysLeft: diffDays };
+  if (diffDays <= 2) return { isOverdue: false, isWarning: true, text: 'Còn ' + diffDays + ' ngày', daysLeft: diffDays };
+  return { isOverdue: false, isWarning: false, text: '', daysLeft: diffDays };
 }
 
 async function renderDirector() {
@@ -307,7 +306,7 @@ function processAndRender(myTasks, canAct, allTasks = []) {
     }
   });
 
-  // 3. Vẽ Dashboard (Đã đổi vị trí Sắp tới hạn lên trước Quá hạn)
+  // 3. Vẽ Dashboard
   dbEl.innerHTML = `
     <div class="dashboard">
       <div class="stat-card stat-all ${currentFilter === 'all' ? 'active-filter' : ''}" data-filter="all">
@@ -318,31 +317,25 @@ function processAndRender(myTasks, canAct, allTasks = []) {
         <h4>📋 Chưa xong <span class="hint">Lọc</span></h4>
         <div class="num">${pending}</div>
       </div>
-      
-      <!-- THẺ SẮP TỚI HẠN (Nằm trước Quá hạn) -->
       <div class="stat-card ${currentFilter === 'warning' ? 'active-filter' : ''}" style="border-left: 4px solid #f97316" data-filter="warning">
         <h4>⏳ Sắp tới hạn <span class="hint">Lọc</span></h4>
         <div class="num" style="color:#f97316">${warning}</div>
       </div>
-      
-      <!-- THẺ QUÁ HẠN -->
       <div class="stat-card stat-overdue ${currentFilter === 'overdue' ? 'active-filter' : ''}" data-filter="overdue">
         <h4>⚠️ Quá hạn <span class="hint">Lọc</span></h4>
         <div class="num">${overdue}</div>
       </div>
-      
       <div class="stat-card stat-done ${currentFilter === 'done' ? 'active-filter' : ''}" data-filter="done">
         <h4>✅ Đã xong <span class="hint">Lọc</span></h4>
         <div class="num">${done}</div>
       </div>
     </div>`;
 
-  // Gắn sự kiện click cho các thẻ thống kê
   dbEl.querySelectorAll('.stat-card').forEach(card => {
     card.onclick = () => {
       const newFilter = card.dataset.filter;
       if (currentFilter === newFilter) {
-        currentFilter = 'all'; // Bấm lại thì reset về Tất cả
+        currentFilter = 'all'; 
       } else {
         currentFilter = newFilter;
       }
@@ -429,6 +422,19 @@ function processAndRender(myTasks, canAct, allTasks = []) {
       </div>`;
     }).join('');
 
+    // Logic tạo ghi chú đếm ngược
+    let countdownHtml = '';
+    if (g.deadline && dl.daysLeft !== null) {
+       if (dl.daysLeft < 0) {
+           countdownHtml = `<span style="color:#ef4444; font-weight:600; font-size:13px;">(Trễ ${Math.abs(dl.daysLeft)} ngày)</span>`;
+       } else if (dl.daysLeft === 0) {
+           countdownHtml = `<span style="color:#f97316; font-weight:600; font-size:13px;">(Hạn chót hôm nay)</span>`;
+       } else {
+           const color = dl.daysLeft <= 2 ? '#f97316' : '#3b82f6';
+           countdownHtml = `<span style="color:${color}; font-weight:600; font-size:13px;">(Còn ${dl.daysLeft} ngày)</span>`;
+       }
+    }
+
     return `<div class="${cardClass}">
       <div class="task-header">
         <div class="task-title">${g.title}</div>
@@ -439,7 +445,7 @@ function processAndRender(myTasks, canAct, allTasks = []) {
       </div>
       <div class="task-meta">
         <span>✍️ Giao: ${g.assigner}</span>
-        ${g.deadline ? `<span>📅 Hạn chót: <b style="color:#ef4444">${fmtDate(g.deadline)}</b></span>` : ''}
+        ${g.deadline ? `<span>📅 Hạn chót: <b style="color:#ef4444">${fmtDate(g.deadline)}</b> ${countdownHtml}</span>` : ''}
       </div>
       ${g.desc ? `<div class="task-desc">${g.desc}</div>` : ''}
       
