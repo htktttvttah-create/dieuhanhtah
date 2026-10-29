@@ -82,6 +82,19 @@
         .carousel-scroll::-webkit-scrollbar-thumb:hover { background: #2563eb; }
         .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    
+        /* --- CSS cho Trợ lý gói cước (đồng bộ Google Sheet) --- */
+        .chat-bg { background-color: #eef2f9; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; }
+        .scroll-thin::-webkit-scrollbar { height: 6px; width: 8px; }
+        .scroll-thin::-webkit-scrollbar-track { background: transparent; }
+        .scroll-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+        .scroll-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .chip-scroll { scrollbar-width: none; }
+        .chip-scroll::-webkit-scrollbar { display: none; }
+        .animate-fade-in-up { animation: fadeInUp .32s cubic-bezier(.16,1,.3,1) both; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     </style>
     </style>
         <style id="bc-modem-css">
@@ -6115,434 +6128,1352 @@ async function fetchWithFallback(url, mockKey) {
     </script>
 
 <!-- ================= BỘ NÃO AI TRỢ LÝ TRA CỨU GÓI CƯỚC (REACT) ================= -->
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+    <script>
+    /* ================= DỮ LIỆU GÓI CƯỚC + ENGINE (sinh từ Google Sheet) ================= */
+    (function () {
+const SHEET_DATA = {"source":"https://docs.google.com/spreadsheets/d/1RTNWBqlfNylCoO_K4AYuDMw-jZistMBZsF7CxC8zBG8/edit?usp=sharing","generatedAt":"29/10/2026 16:00","tables":[{"key":"fiber_canhan","short":"Fiber cá nhân","icon":"fa-house-signal","color":"blue","audience":"personal","title":"BẢNG GIÁ CƯỚC DỊCH VỤ FIBER INTERNET CÁ NHÂN VNPT HỒ CHÍ MINH","notes":["Giá trên đã bao gồm 10% thuế VAT","Tivi không sử dụng được App: trang bị thêm Box cộng 50.000đ/tháng"],"packages":[{"id":"F1_home_1_b","table":"fiber_canhan","name":"HOME 1_B","speed":"300 MB","speedMbps":300,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":195000,"unit":"month","periods":[],"components":["fiber"],"note":null,"audience":"personal"},{"id":"F1_home_1_b_m1","table":"fiber_canhan","name":"HOME 1_B + 1 Mesh 6","speed":"300 MB","speedMbps":300,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":215000,"unit":"month","periods":[],"components":["fiber","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_1_b_m2","table":"fiber_canhan","name":"HOME 1_B + 2 Mesh 6","speed":"300 MB","speedMbps":300,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":220000,"unit":"month","periods":[],"components":["fiber","mesh"],"note":"Trang bị kèm 2 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_2","table":"fiber_canhan","name":"HOME 2","speed":"500 MB * ULM","speedMbps":500,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":235000,"unit":"month","periods":[],"components":["fiber"],"note":null,"audience":"personal"},{"id":"F1_home_2_m1","table":"fiber_canhan","name":"HOME 2 + 1 Mesh 6","speed":"500 MB * ULM","speedMbps":500,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":240000,"unit":"month","periods":[],"components":["fiber","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_2_m2","table":"fiber_canhan","name":"HOME 2 + 2 Mesh 6","speed":"500 MB * ULM","speedMbps":500,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":245000,"unit":"month","periods":[],"components":["fiber","mesh"],"note":"Trang bị kèm 2 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_3","table":"fiber_canhan","name":"HOME 3","speed":"1000 MB","speedMbps":1000,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":290000,"unit":"month","periods":[],"components":["fiber"],"note":null,"audience":"personal"},{"id":"F1_home_3_m1","table":"fiber_canhan","name":"HOME 3 + 1 Mesh 6","speed":"1000 MB","speedMbps":1000,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":310000,"unit":"month","periods":[],"components":["fiber","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_3_m2","table":"fiber_canhan","name":"HOME 3 + 2 Mesh 6","speed":"1000 MB","speedMbps":1000,"service":"INTERNET RIÊNG LẺ","quantity":null,"ip":null,"intCommit":null,"price":335000,"unit":"month","periods":[],"components":["fiber","mesh"],"note":"Trang bị kèm 2 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_tv1","table":"fiber_canhan","name":"HOME TV1","speed":"300 MB","speedMbps":300,"service":"CHỌN 1 TRONG 4; MyTV FLEXI 1; MyTV FLEXI 2; MyTV FLIM; MyTV FLIM +","quantity":null,"ip":null,"intCommit":null,"price":215000,"unit":"month","periods":[],"components":["fiber","mytv"],"note":null,"audience":"personal"},{"id":"F1_home_tv1_m1","table":"fiber_canhan","name":"HOME TV1 + 1 Mesh 6","speed":"300 MB","speedMbps":300,"service":"CHỌN 1 TRONG 4; MyTV FLEXI 1; MyTV FLEXI 2; MyTV FLIM; MyTV FLIM +","quantity":null,"ip":null,"intCommit":null,"price":230000,"unit":"month","periods":[],"components":["fiber","mytv","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_tv2","table":"fiber_canhan","name":"HOME TV2","speed":"500 MB","speedMbps":500,"service":"CHỌN 1 TRONG 4; MyTV FLEXI 1; MyTV FLEXI 2; MyTV FLIM; MyTV FLIM +","quantity":null,"ip":null,"intCommit":null,"price":240000,"unit":"month","periods":[],"components":["fiber","mytv"],"note":null,"audience":"personal"},{"id":"F1_home_tv2_m1","table":"fiber_canhan","name":"HOME TV2 + 1 Mesh 6","speed":"500 MB","speedMbps":500,"service":"CHỌN 1 TRONG 4; MyTV FLEXI 1; MyTV FLEXI 2; MyTV FLIM; MyTV FLIM +","quantity":null,"ip":null,"intCommit":null,"price":250000,"unit":"month","periods":[],"components":["fiber","mytv","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_tv2_m2","table":"fiber_canhan","name":"HOME TV2 + 2 Mesh 6","speed":"500 MB","speedMbps":500,"service":"CHỌN 1 TRONG 4; MyTV FLEXI 1; MyTV FLEXI 2; MyTV FLIM; MyTV FLIM +","quantity":null,"ip":null,"intCommit":null,"price":265000,"unit":"month","periods":[],"components":["fiber","mytv","mesh"],"note":"Trang bị kèm 2 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_tv3","table":"fiber_canhan","name":"HOME TV3","speed":"1000 MB","speedMbps":1000,"service":"CHỌN 1 TRONG 4; MyTV FLEXI 1; MyTV FLEXI 2; MyTV FLIM; MyTV FLIM +","quantity":null,"ip":null,"intCommit":null,"price":310000,"unit":"month","periods":[],"components":["fiber","mytv"],"note":null,"audience":"personal"},{"id":"F1_home_tv3_m1","table":"fiber_canhan","name":"HOME TV3 + 1 Mesh 6","speed":"1000 MB","speedMbps":1000,"service":"CHỌN 1 TRONG 4; MyTV FLEXI 1; MyTV FLEXI 2; MyTV FLIM; MyTV FLIM +","quantity":null,"ip":null,"intCommit":null,"price":330000,"unit":"month","periods":[],"components":["fiber","mytv","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_tv3_m2","table":"fiber_canhan","name":"HOME TV3 + 2 Mesh 6","speed":"1000 MB","speedMbps":1000,"service":"CHỌN 1 TRONG 4; MyTV FLEXI 1; MyTV FLEXI 2; MyTV FLIM; MyTV FLIM +","quantity":null,"ip":null,"intCommit":null,"price":355000,"unit":"month","periods":[],"components":["fiber","mytv","mesh"],"note":"Trang bị kèm 2 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_tv_vip_1","table":"fiber_canhan","name":"HOME TV VIP 1","speed":"300 MB","speedMbps":300,"service":"MyTV VIP","quantity":null,"ip":null,"intCommit":null,"price":240000,"unit":"month","periods":[],"components":["fiber","mytv"],"note":null,"audience":"personal"},{"id":"F1_home_tv_vip_1_m1","table":"fiber_canhan","name":"HOME TV VIP 1 + 1 Mesh 6","speed":"300 MB","speedMbps":300,"service":"MyTV VIP","quantity":null,"ip":null,"intCommit":null,"price":270000,"unit":"month","periods":[],"components":["fiber","mytv","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_tv_vip_3","table":"fiber_canhan","name":"HOME TV VIP 3","speed":"1000 MB","speedMbps":1000,"service":"MyTV VIP","quantity":null,"ip":null,"intCommit":null,"price":null,"unit":"month","periods":[],"components":["fiber","mytv"],"note":null,"audience":"personal"},{"id":"F1_home_tv_vip_3_m1","table":"fiber_canhan","name":"HOME TV VIP 3 + 1 Mesh 6","speed":"1000 MB","speedMbps":1000,"service":"MyTV VIP","quantity":null,"ip":null,"intCommit":null,"price":360000,"unit":"month","periods":[],"components":["fiber","mytv","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_cam_1","table":"fiber_canhan","name":"HOME CAM 1","speed":"300 MB","speedMbps":300,"service":"1 CAMERA INDOOR; + CLOUD 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":215000,"unit":"month","periods":[],"components":["fiber","cam"],"note":null,"audience":"personal"},{"id":"F1_home_cam_1_m1","table":"fiber_canhan","name":"HOME CAM 1 + 1 Mesh 6","speed":"300 MB","speedMbps":300,"service":"1 CAMERA INDOOR; + CLOUD 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":230000,"unit":"month","periods":[],"components":["fiber","cam","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_cam_2","table":"fiber_canhan","name":"HOME CAM 2","speed":"500 MB * ULM","speedMbps":500,"service":"1 CAMERA INDOOR; + CLOUD 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":240000,"unit":"month","periods":[],"components":["fiber","cam"],"note":null,"audience":"personal"},{"id":"F1_home_cam_2_m1","table":"fiber_canhan","name":"HOME CAM 2 + 1 Mesh 6","speed":"500 MB * ULM","speedMbps":500,"service":"1 CAMERA INDOOR; + CLOUD 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":250000,"unit":"month","periods":[],"components":["fiber","cam","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_cam_2_m2","table":"fiber_canhan","name":"HOME CAM 2 + 2 Mesh 6","speed":"500 MB * ULM","speedMbps":500,"service":"1 CAMERA INDOOR; + CLOUD 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":265000,"unit":"month","periods":[],"components":["fiber","cam","mesh"],"note":"Trang bị kèm 2 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_cam_3","table":"fiber_canhan","name":"HOME CAM 3","speed":"1000 MB","speedMbps":1000,"service":"1 CAMERA INDOOR; + CLOUD 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":310000,"unit":"month","periods":[],"components":["fiber","cam"],"note":null,"audience":"personal"},{"id":"F1_home_cam_3_m1","table":"fiber_canhan","name":"HOME CAM 3 + 1 Mesh 6","speed":"1000 MB","speedMbps":1000,"service":"1 CAMERA INDOOR; + CLOUD 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":330000,"unit":"month","periods":[],"components":["fiber","cam","mesh"],"note":"Trang bị kèm 1 Wifi Mesh 6","audience":"personal"},{"id":"F1_home_cam_3_m2","table":"fiber_canhan","name":"HOME CAM 3 + 2 Mesh 6","speed":"1000 MB","speedMbps":1000,"service":"1 CAMERA INDOOR; + CLOUD 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":355000,"unit":"month","periods":[],"components":["fiber","cam","mesh"],"note":"Trang bị kèm 2 Wifi Mesh 6","audience":"personal"}]},{"key":"fiber_doanhnghiep","short":"Fiber doanh nghiệp","icon":"fa-building","color":"violet","audience":"business","title":"BẢNG GIÁ CƯỚC INTERNET FIBER CÁP QUANG — GÓI CƯỚC DOANH NGHIỆP (CÔNG TY)","notes":["Giá trên đã bao gồm 10% thuế VAT","TT 6 tháng tặng 1 tháng — TT 12 tháng tặng 2 tháng, miễn phí lắp đặt"],"packages":[{"id":"F2_fiber_eco1","table":"fiber_doanhnghiep","name":"Fiber Eco1","speed":"150 Mbps","speedMbps":150,"service":"Cam kết quốc tế 3 Mbps","quantity":null,"ip":"IP Động","intCommit":3,"price":352000,"unit":"month","periods":[{"label":"6 tháng","price":1686000},{"label":"12 tháng","price":3372000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_eco2","table":"fiber_doanhnghiep","name":"Fiber Eco2","speed":"250 Mbps","speedMbps":250,"service":"Cam kết quốc tế 4 Mbps","quantity":null,"ip":"IP Động","intCommit":4,"price":418000,"unit":"month","periods":[{"label":"6 tháng","price":2006400},{"label":"12 tháng","price":4012800}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_eco3","table":"fiber_doanhnghiep","name":"Fiber Eco3","speed":"300 Mbps","speedMbps":300,"service":"Cam kết quốc tế 6 Mbps","quantity":null,"ip":"IP Động","intCommit":6,"price":858000,"unit":"month","periods":[{"label":"6 tháng","price":4118400},{"label":"12 tháng","price":8236800}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_xtra2","table":"fiber_doanhnghiep","name":"Fiber Xtra2","speed":"400 Mbps","speedMbps":400,"service":"Cam kết quốc tế 20 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":20,"price":550000,"unit":"month","periods":[{"label":"6 tháng","price":2475000},{"label":"12 tháng","price":4950000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_xtra3","table":"fiber_doanhnghiep","name":"Fiber Xtra3","speed":"600 Mbps","speedMbps":600,"service":"Cam kết quốc tế 24 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":24,"price":1760000,"unit":"month","periods":[{"label":"6 tháng","price":7920000},{"label":"12 tháng","price":15840000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_xtra4","table":"fiber_doanhnghiep","name":"Fiber Xtra4","speed":"800 Mbps","speedMbps":800,"service":"Cam kết quốc tế 30 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":30,"price":5500000,"unit":"month","periods":[{"label":"6 tháng","price":24750000},{"label":"12 tháng","price":49500000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_xtra5","table":"fiber_doanhnghiep","name":"Fiber Xtra5","speed":"1000 Mbps","speedMbps":1000,"service":"Cam kết quốc tế 35 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":35,"price":8800000,"unit":"month","periods":[{"label":"6 tháng","price":39600000},{"label":"12 tháng","price":79200000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_xtra6","table":"fiber_doanhnghiep","name":"Fiber Xtra6","speed":"2000 Mbps","speedMbps":2000,"service":"Cam kết quốc tế 50 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":50,"price":16500000,"unit":"month","periods":[{"label":"6 tháng","price":74250000},{"label":"12 tháng","price":148500000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_s1","table":"fiber_doanhnghiep","name":"Fiber S1","speed":"500 Mbps","speedMbps":500,"service":"Cam kết quốc tế 2 Mbps","quantity":null,"ip":"IP Động","intCommit":2,"price":418000,"unit":"month","periods":[{"label":"6 tháng","price":2131800},{"label":"12 tháng","price":4263600}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_s2","table":"fiber_doanhnghiep","name":"Fiber S2","speed":"800 Mbps","speedMbps":800,"service":"Cam kết quốc tế 6 Mbps","quantity":null,"ip":"IP Động","intCommit":6,"price":660000,"unit":"month","periods":[{"label":"6 tháng","price":3366000},{"label":"12 tháng","price":6732000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_s3","table":"fiber_doanhnghiep","name":"Fiber S3","speed":"1000 Mbps","speedMbps":1000,"service":"Cam kết quốc tế 12 Mbps","quantity":null,"ip":"IP Động","intCommit":12,"price":814000,"unit":"month","periods":[{"label":"6 tháng","price":4151400},{"label":"12 tháng","price":8302800}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_eco4","table":"fiber_doanhnghiep","name":"Fiber Eco4","speed":"400 Mbps","speedMbps":400,"service":"Cam kết quốc tế 8 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":8,"price":1100000,"unit":"month","periods":[{"label":"6 tháng","price":5280000},{"label":"12 tháng","price":10560000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_eco5","table":"fiber_doanhnghiep","name":"Fiber Eco5","speed":"500 Mbps","speedMbps":500,"service":"Cam kết quốc tế 16 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":16,"price":3520000,"unit":"month","periods":[{"label":"6 tháng","price":14784000},{"label":"12 tháng","price":29568000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_4","table":"fiber_doanhnghiep","name":"Fiber 4","speed":"400 Mbps","speedMbps":400,"service":"Cam kết quốc tế 12 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":12,"price":2200000,"unit":"month","periods":[{"label":"6 tháng","price":10560000},{"label":"12 tháng","price":21120000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_5","table":"fiber_doanhnghiep","name":"Fiber 5","speed":"500 Mbps","speedMbps":500,"service":"Cam kết quốc tế 24 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":24,"price":5500000,"unit":"month","periods":[{"label":"6 tháng","price":23100000},{"label":"12 tháng","price":46200000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_6","table":"fiber_doanhnghiep","name":"Fiber 6","speed":"600 Mbps","speedMbps":600,"service":"Cam kết quốc tế 32 Mbps","quantity":null,"ip":"IP Wan Tĩnh","intCommit":32,"price":9900000,"unit":"month","periods":[{"label":"6 tháng","price":41580000},{"label":"12 tháng","price":83160000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_7","table":"fiber_doanhnghiep","name":"Fiber 7","speed":"800 Mbps","speedMbps":800,"service":"Cam kết quốc tế 55 Mbps","quantity":null,"ip":"IP Wan Tĩnh; 1 Block 08 Lan Tĩnh","intCommit":55,"price":17600000,"unit":"month","periods":[{"label":"6 tháng","price":73920000},{"label":"12 tháng","price":147840000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_8","table":"fiber_doanhnghiep","name":"Fiber 8","speed":"1000 Mbps","speedMbps":1000,"service":"Cam kết quốc tế 80 Mbps","quantity":null,"ip":"IP Wan Tĩnh; 1 Block 08 Lan Tĩnh","intCommit":80,"price":27500000,"unit":"month","periods":[{"label":"6 tháng","price":115500000},{"label":"12 tháng","price":231000000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_vip_6","table":"fiber_doanhnghiep","name":"Fiber VIP 6","speed":"600 Mbps","speedMbps":600,"service":"Cam kết quốc tế 45 Mbps","quantity":null,"ip":"IP Wan Tĩnh; 1 Block 08 Lan Tĩnh","intCommit":45,"price":13200000,"unit":"month","periods":[{"label":"6 tháng","price":55440000},{"label":"12 tháng","price":110880000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_vip_7","table":"fiber_doanhnghiep","name":"Fiber VIP 7","speed":"800 Mbps","speedMbps":800,"service":"Cam kết quốc tế 65 Mbps","quantity":null,"ip":"IP Wan Tĩnh; 1 Block 08 Lan Tĩnh","intCommit":65,"price":22000000,"unit":"month","periods":[{"label":"6 tháng","price":92400000},{"label":"12 tháng","price":184800000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_vip_8","table":"fiber_doanhnghiep","name":"Fiber VIP 8","speed":"1000 Mbps","speedMbps":1000,"service":"Cam kết quốc tế 100 Mbps","quantity":null,"ip":"IP Wan Tĩnh; 1 Block 08 Lan Tĩnh","intCommit":100,"price":33000000,"unit":"month","periods":[{"label":"6 tháng","price":138600000},{"label":"12 tháng","price":277200000}],"components":["fiber"],"note":null,"audience":"business"},{"id":"F2_fiber_vip_9","table":"fiber_doanhnghiep","name":"Fiber VIP 9","speed":"2000 Mbps","speedMbps":2000,"service":"Cam kết quốc tế 200 Mbps","quantity":null,"ip":"IP Wan Tĩnh; 1 Block 08 Lan Tĩnh","intCommit":200,"price":60500000,"unit":"month","periods":[{"label":"6 tháng","price":254100000},{"label":"12 tháng","price":508200000}],"components":["fiber"],"note":null,"audience":"business"}]},{"key":"mytv_box","short":"MyTV Box","icon":"fa-tv","color":"indigo","audience":"personal","title":"BẢNG GIÁ CƯỚC HOME INTERNET & TRUYỀN HÌNH MYTV — TRANG BỊ ĐẦU THU (BOX)","notes":["Giá trên đã bao gồm 10% thuế VAT","Tặng tài khoản GreenNet — chặn web độc hại","Áp dụng gói truyền hình nâng cao 180 kênh"],"packages":[{"id":"F3_home_tv1","table":"mytv_box","name":"Home TV1","speed":"300 Mpbs","speedMbps":300,"service":"MYTV NÂNG CAO PLUS; 170 KÊNH TRONG NƯỚC; 2 KÊNH SpoTV, VTV Cab; GALAXY CAO CẤP; VOD KHÔNG QUẢNG CÁO","quantity":null,"ip":null,"intCommit":null,"price":265000,"unit":"month","periods":[{"label":"6 tháng","price":1590000},{"label":"12 tháng","price":3180000}],"components":["fiber","mytv"],"note":"Trang bị đầu thu (Box) MyTV","audience":"personal"},{"id":"F3_home_tv1_mesh","table":"mytv_box","name":"Home TV1 MESH","speed":"300 Mpbs TRANG BỊ KÈM 1 Wifi MESH 6","speedMbps":300,"service":"MYTV NÂNG CAO PLUS; 170 KÊNH TRONG NƯỚC; 2 KÊNH SpoTV, VTV Cab; GALAXY CAO CẤP; VOD KHÔNG QUẢNG CÁO","quantity":null,"ip":null,"intCommit":null,"price":290000,"unit":"month","periods":[{"label":"6 tháng","price":1740000},{"label":"12 tháng","price":3480000}],"components":["fiber","mesh","mytv"],"note":"Trang bị đầu thu (Box) MyTV","audience":"personal"},{"id":"F3_home_tv2","table":"mytv_box","name":"Home TV2","speed":"500 Mpbs","speedMbps":500,"service":"MYTV NÂNG CAO PLUS; 170 KÊNH TRONG NƯỚC; 2 KÊNH SpoTV, VTV Cab; GALAXY CAO CẤP; VOD KHÔNG QUẢNG CÁO","quantity":null,"ip":null,"intCommit":null,"price":290000,"unit":"month","periods":[{"label":"6 tháng","price":1740000},{"label":"12 tháng","price":3480000}],"components":["fiber","mytv"],"note":"Trang bị đầu thu (Box) MyTV","audience":"personal"},{"id":"F3_home_tv2_mesh","table":"mytv_box","name":"Home TV2 MESH","speed":"500 Mpbs TRANG BỊ KÈM 1 Wifi MESH 6","speedMbps":500,"service":"MYTV NÂNG CAO PLUS; 170 KÊNH TRONG NƯỚC; 2 KÊNH SpoTV, VTV Cab; GALAXY CAO CẤP; VOD KHÔNG QUẢNG CÁO","quantity":null,"ip":null,"intCommit":null,"price":340000,"unit":"month","periods":[{"label":"6 tháng","price":2040000},{"label":"12 tháng","price":4080000}],"components":["fiber","mesh","mytv"],"note":"Trang bị đầu thu (Box) MyTV","audience":"personal"},{"id":"F3_home_tv3","table":"mytv_box","name":"Home TV3","speed":"1000 Mpbs TRANG BỊ KÈM 1 Wifi MESH 6","speedMbps":1000,"service":"MYTV NÂNG CAO PLUS; 170 KÊNH TRONG NƯỚC; 2 KÊNH SpoTV, VTV Cab; GALAXY CAO CẤP; VOD KHÔNG QUẢNG CÁO","quantity":null,"ip":null,"intCommit":null,"price":360000,"unit":"month","periods":[{"label":"6 tháng","price":2160000},{"label":"12 tháng","price":4320000}],"components":["fiber","mesh","mytv"],"note":"Trang bị đầu thu (Box) MyTV","audience":"personal"}]},{"key":"mua_luon","short":"Mua luôn thiết bị","icon":"fa-box-open","color":"rose","audience":"both","title":"BẢNG GIÁ CƯỚC MUA LUÔN (MUA 1 LẦN): CAMERA, WIFI MESH 6","notes":["Giá bán đã bao gồm VAT","Thanh toán 1 lần, không phí duy trì hàng tháng"],"packages":[{"id":"HW_camera_in_door","table":"mua_luon","name":"CAMERA IN- DOOR","speed":null,"speedMbps":null,"service":"Độ phân giải 2K,Ghi hình & xem lại video, đảm bảo an toàn và bảo mật dữ liệu; Đàm thoại 2 chiều trực tiếp, âm thanh to và rõ ràng,quay quét 360ᵒ; Xem lại video (playback): Lưu trữ video theo khung giờ, ngày/tháng/năm.; Tính năng thông minh: Phát hiện chuyển động, phát hiện người và gửi cảnh báo đến người dùng.; Tính năng Onvif giúp kết nối với đầu ghi NVR; Tính năng nhìn ban đêm,chống ngược sáng WDR","quantity":null,"ip":null,"intCommit":null,"price":789000,"unit":"once","periods":[],"components":["cam"],"note":"(tặng kèm thẻ nhớ 64Gb)","audience":"both"},{"id":"HW_camera_out_door","table":"mua_luon","name":"CAMERA OUT-DOOR","speed":null,"speedMbps":null,"service":"Xem Live view trực tiếp: Độ phân giải 2K, hình ảnh chân thực trong mọi điều kiện.; Ghi hình liên tục và theo sự kiện: Lưu trữ trên thẻ nhớ (tối đa 256GB) và Cloud.; Xem lại video (playback): Lưu trữ video theo khung giờ, ngày/tháng/năm.; Đàm thoại 2 chiều trực tiếp: Âm thanh to và rõ ràng.; Tính năng nhìn ban đêm (night vision): Quan sát đối tượng trong điều kiện thiếu sáng với khoảng cách lên đến 30m.; Chống ngược sáng WDR: Quan sát tốt các khung hình có sự chênh lệch giữa vùng tối và sáng.; Tính năng thông minh: Phát hiện chuyển động, phát hiện người và gửi cảnh báo đến người dùng.; Hỗ trợ kết nối với đầu ghi NVR qua tính năng Onvif.","quantity":null,"ip":null,"intCommit":null,"price":990000,"unit":"once","periods":[],"components":["cam"],"note":"(tặng kèm thẻ nhớ 64Gb)","audience":"both"},{"id":"HW_wifi_mesh_6","table":"mua_luon","name":"WIFI MESH 6","speed":null,"speedMbps":null,"service":"Tốc độ lên tới 3000 Mbps trên cả 2 băng tần 2.4 và 5GHz; Hỗ trợ tốc độ lên tới 1Gbps, giảm tới 50% độ trễ; Kết nối đồng thời lên đến 100 thiết bị với Wifi Mesh 6; Phủ sóng xuyên tường, xuyên tầng trong không gian lên đến 200m2; Hỗ trợ cấu hình kết nối repeater đối với modem wifi các nhà mạng khác.","quantity":null,"ip":null,"intCommit":null,"price":699000,"unit":"once","periods":[],"components":["mesh"],"note":null,"audience":"both"}]},{"key":"home_cam","short":"Home Cam","icon":"fa-video","color":"amber","audience":"personal","title":"BẢNG GIÁ CƯỚC HOME CAM","notes":["Giá gói đã bao gồm 10% thuế VAT","Camera Indoor + lưu trữ Cloud"],"packages":[{"id":"HC_home_cam_canh","table":"home_cam","name":"HOME CAM CANH","speed":"INTERNET WIFI 6 TỐC ĐỘ 300 Mbps","speedMbps":300,"service":"TRANG BỊ 1 CAMERA INDOOR + CLOUD 1 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":195000,"unit":"month","periods":[{"label":"3 tháng","price":585000},{"label":"6 tháng","price":1170000},{"label":"12 tháng","price":2340000}],"components":["fiber","cam"],"note":"Wifi 6 · Camera Indoor · Cloud","audience":"personal"},{"id":"HC_home_cam_mat","table":"home_cam","name":"HOME CAM MẬT","speed":"INTERNET WIFI 6 TỐC ĐỘ 300 Mbps","speedMbps":300,"service":"TRUYỀN HÌNH MYTV APP S1 HOẶC S2; TRANG BỊ 1 CAMERA INDOOR + CLOUD 1 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":220000,"unit":"month","periods":[{"label":"3 tháng","price":660000},{"label":"6 tháng","price":1320000},{"label":"12 tháng","price":2640000}],"components":["fiber","cam","mytv"],"note":"Wifi 6 · Camera Indoor · Cloud","audience":"personal"},{"id":"HC_home_cam_sanh","table":"home_cam","name":"HOME CAM SÀNH","speed":"INTERNET WIFI 6 TỐC ĐỘ 300 Mbps","speedMbps":300,"service":"TRUYỀN HÌNH MYTV APP S1 HOẶC S2; TRANG BỊ KÈM 1 WIFI PHỤ MESH 6 MSTT; TRANG BỊ 1 CAMERA INDOOR + CLOUD 1 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":235000,"unit":"month","periods":[{"label":"3 tháng","price":705000},{"label":"6 tháng","price":1410000},{"label":"12 tháng","price":2820000}],"components":["fiber","mesh","cam","mytv"],"note":"Wifi 6 · Camera Indoor · Cloud","audience":"personal"}]},{"key":"tan_cong","short":"Tấn công thị trường","icon":"fa-bolt","color":"teal","audience":"personal","title":"BẢNG GIÁ CƯỚC LẮP MỚI TẤN CÔNG, ĐÁNH CHIẾM THỊ TRƯỜNG","notes":["Giá đã bao gồm 10% thuế VAT","Áp dụng cho khách hàng lắp mới"],"packages":[{"id":"ATK_home1_m","table":"tan_cong","name":"Home1_M","speed":"300 Mbps","speedMbps":300,"service":"LẮP KÈM 1 WIFI MESH 6","quantity":null,"ip":null,"intCommit":null,"price":195000,"unit":"month","periods":[],"components":["fiber","mesh"],"note":"Gói lắp mới đánh chiếm thị trường","audience":"personal"},{"id":"ATK_hometv_b","table":"tan_cong","name":"HomeTV_B","speed":"300 Mbps","speedMbps":300,"service":"LẮP KÈM MyTV App: S1 hoặc S2","quantity":null,"ip":null,"intCommit":null,"price":195000,"unit":"month","periods":[],"components":["fiber","mytv"],"note":"Gói lắp mới đánh chiếm thị trường","audience":"personal"},{"id":"ATK_home_slay","table":"tan_cong","name":"Home Slay","speed":"300 Mbps ULM; ( 1 Gbps )","speedMbps":1000,"service":"Internet riêng lẻ","quantity":null,"ip":null,"intCommit":null,"price":200000,"unit":"month","periods":[],"components":["fiber"],"note":"Gói lắp mới đánh chiếm thị trường","audience":"personal"},{"id":"ATK_home_slay_m","table":"tan_cong","name":"Home Slay_M","speed":"300 Mbps ULM; ( 1 Gbps )","speedMbps":1000,"service":"1 WIFI MESH 6 HOẶC MYTV","quantity":null,"ip":null,"intCommit":null,"price":210000,"unit":"month","periods":[],"components":["fiber","mesh","mytv"],"note":"Gói lắp mới đánh chiếm thị trường","audience":"personal"},{"id":"ATK_home_slay_f","table":"tan_cong","name":"Home Slay_F","speed":"300 Mbps ULM; ( 1 Gbps )","speedMbps":1000,"service":"1 MESH 6 + CAMERA CLOUD 1 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":215000,"unit":"month","periods":[],"components":["fiber","mesh","cam"],"note":"Gói lắp mới đánh chiếm thị trường","audience":"personal"}]},{"key":"pack_mesh","short":"Pack Mesh","icon":"fa-router","color":"emerald","audience":"both","title":"BẢNG GIÁ CƯỚC PACK MESH","notes":["Từ tháng 14 trở đi: giá gói = giá 1 tháng × số tháng"],"packages":[{"id":"PM_pack_1","table":"pack_mesh","name":"PACK 1","speed":null,"speedMbps":null,"service":null,"quantity":"1 thiết bị Mesh 6","ip":null,"intCommit":null,"price":30000,"unit":"month","periods":[{"label":"3 tháng","price":90000},{"label":"6 tháng","price":180000},{"label":"12/13 tháng","price":360000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_2","table":"pack_mesh","name":"PACK 2","speed":null,"speedMbps":null,"service":null,"quantity":"2 thiết bị Mesh 6","ip":null,"intCommit":null,"price":50000,"unit":"month","periods":[{"label":"3 tháng","price":150000},{"label":"6 tháng","price":300000},{"label":"12/13 tháng","price":450000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_3","table":"pack_mesh","name":"PACK 3","speed":null,"speedMbps":null,"service":null,"quantity":"3 thiết bị Mesh 6","ip":null,"intCommit":null,"price":75000,"unit":"month","periods":[{"label":"3 tháng","price":225000},{"label":"6 tháng","price":450000},{"label":"12/13 tháng","price":675000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_4","table":"pack_mesh","name":"PACK 4","speed":null,"speedMbps":null,"service":null,"quantity":"4 thiết bị Mesh 6","ip":null,"intCommit":null,"price":100000,"unit":"month","periods":[{"label":"3 tháng","price":300000},{"label":"6 tháng","price":600000},{"label":"12/13 tháng","price":900000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_5","table":"pack_mesh","name":"PACK 5","speed":null,"speedMbps":null,"service":null,"quantity":"5 thiết bị Mesh 6","ip":null,"intCommit":null,"price":120000,"unit":"month","periods":[{"label":"3 tháng","price":360000},{"label":"6 tháng","price":720000},{"label":"12/13 tháng","price":1080000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_5_sao","table":"pack_mesh","name":"PACK 5*","speed":null,"speedMbps":null,"service":null,"quantity":"5 thiết bị Mesh 6 (KHCC, KHDN)","ip":null,"intCommit":null,"price":100000,"unit":"month","periods":[{"label":"3 tháng","price":300000},{"label":"6 tháng","price":600000},{"label":"12/13 tháng","price":900000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_6","table":"pack_mesh","name":"PACK 6","speed":null,"speedMbps":null,"service":null,"quantity":"6 thiết bị Mesh 6","ip":null,"intCommit":null,"price":140000,"unit":"month","periods":[{"label":"3 tháng","price":420000},{"label":"6 tháng","price":840000},{"label":"12/13 tháng","price":1260000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_7","table":"pack_mesh","name":"PACK 7","speed":null,"speedMbps":null,"service":null,"quantity":"7 thiết bị Mesh 6","ip":null,"intCommit":null,"price":160000,"unit":"month","periods":[{"label":"3 tháng","price":480000},{"label":"6 tháng","price":960000},{"label":"12/13 tháng","price":1440000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_8","table":"pack_mesh","name":"PACK 8","speed":null,"speedMbps":null,"service":null,"quantity":"8 thiết bị Mesh 6","ip":null,"intCommit":null,"price":180000,"unit":"month","periods":[{"label":"3 tháng","price":540000},{"label":"6 tháng","price":1080000},{"label":"12/13 tháng","price":1620000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_9","table":"pack_mesh","name":"PACK 9","speed":null,"speedMbps":null,"service":null,"quantity":"9 thiết bị Mesh 6","ip":null,"intCommit":null,"price":200000,"unit":"month","periods":[{"label":"3 tháng","price":600000},{"label":"6 tháng","price":1200000},{"label":"12/13 tháng","price":1800000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_10","table":"pack_mesh","name":"PACK 10","speed":null,"speedMbps":null,"service":null,"quantity":"10 thiết bị Mesh 6","ip":null,"intCommit":null,"price":220000,"unit":"month","periods":[{"label":"3 tháng","price":660000},{"label":"6 tháng","price":1320000},{"label":"12/13 tháng","price":1980000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"},{"id":"PM_pack_10_sao","table":"pack_mesh","name":"PACK 10*","speed":null,"speedMbps":null,"service":null,"quantity":"10 thiết bị Mesh 6 (KHCC, KHDN)","ip":null,"intCommit":null,"price":200000,"unit":"month","periods":[{"label":"3 tháng","price":600000},{"label":"6 tháng","price":1200000},{"label":"12/13 tháng","price":1800000}],"components":["mesh"],"note":"Gói bổ sung Wifi Mesh 6","audience":"both"}]},{"key":"pack_cam","short":"Pack Camera","icon":"fa-cloud","color":"sky","audience":"both","title":"BẢNG GIÁ CƯỚC PACK CAMERA","notes":["Cloud lưu trữ 3 ngày","Giá đã bao gồm 10% thuế VAT"],"packages":[{"id":"PC_pack_01_cam","table":"pack_cam","name":"PACK 01 CAM","speed":null,"speedMbps":null,"service":"1 CAMERA IN + CLOUD LƯU TRỮ 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":30000,"unit":"month","periods":[{"label":"3 tháng","price":90000},{"label":"6 tháng","price":180000},{"label":"12/13 tháng","price":360000}],"components":["cam"],"note":"Gói bổ sung Camera + Cloud","audience":"both"},{"id":"PC_pack_03_cam","table":"pack_cam","name":"PACK 03 CAM","speed":null,"speedMbps":null,"service":"3 CAMERA IN + CLOUD LƯU TRỮ 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":80000,"unit":"month","periods":[{"label":"3 tháng","price":240000},{"label":"6 tháng","price":480000},{"label":"12/13 tháng","price":720000}],"components":["cam"],"note":"Gói bổ sung Camera + Cloud","audience":"both"},{"id":"PC_pack_05_cam","table":"pack_cam","name":"PACK 05 CAM","speed":null,"speedMbps":null,"service":"5 CAMERA IN + CLOUD LƯU TRỮ 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":130000,"unit":"month","periods":[{"label":"3 tháng","price":390000},{"label":"6 tháng","price":780000},{"label":"12/13 tháng","price":1170000}],"components":["cam"],"note":"Gói bổ sung Camera + Cloud","audience":"both"},{"id":"PC_pack_10_cam","table":"pack_cam","name":"PACK 10 CAM","speed":null,"speedMbps":null,"service":"10 CAMERA IN + CLOUD LƯU TRỮ 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":250000,"unit":"month","periods":[{"label":"3 tháng","price":750000},{"label":"6 tháng","price":1500000},{"label":"12/13 tháng","price":2250000}],"components":["cam"],"note":"Gói bổ sung Camera + Cloud","audience":"both"},{"id":"PC_pack_01_cam_out","table":"pack_cam","name":"PACK 01 CAM OUT","speed":null,"speedMbps":null,"service":"1 CAMERA OUT + CLOUD LƯU TRỮ 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":40000,"unit":"month","periods":[{"label":"3 tháng","price":120000},{"label":"6 tháng","price":240000},{"label":"12/13 tháng","price":360000}],"components":["cam"],"note":"Gói bổ sung Camera + Cloud","audience":"both"},{"id":"PC_pack_01_cam_in_pack_01_cam_out","table":"pack_cam","name":"PACK 01 CAM IN + PACK 01 CAM OUT","speed":null,"speedMbps":null,"service":"1 CAMERA IN + 1 CAMERA OUT; CLOUD LƯU TRỮ 3 NGÀY","quantity":null,"ip":null,"intCommit":null,"price":60000,"unit":"month","periods":[{"label":"3 tháng","price":180000},{"label":"6 tháng","price":360000},{"label":"12/13 tháng","price":540000}],"components":["cam"],"note":"Gói bổ sung Camera + Cloud","audience":"both"}]}]};
+const SHEET_META = {"source":"https://docs.google.com/spreadsheets/d/1RTNWBqlfNylCoO_K4AYuDMw-jZistMBZsF7CxC8zBG8/edit?usp=sharing","sheetId":"1RTNWBqlfNylCoO_K4AYuDMw-jZistMBZsF7CxC8zBG8","sheetName":"Trang tính1","generatedAt":"29/10/2026 16:00","ranges":{"fiber_canhan":"A3:F18","fiber_doanhnghiep":"A20:G45","mytv_box":"A47:I56","mua_luon":"A60:C66","home_cam":"A67:H83","tan_cong":"A83:D91","pack_mesh":"A91:F106","pack_cam":"A107:F116"}};
+/* === ENGINE START === */
+/* Lõi xử lý (không JSX) — tách riêng để test độc lập bằng Node */
+(function () {
+  const SNAPSHOT = (typeof SHEET_DATA !== 'undefined' && SHEET_DATA) ? SHEET_DATA : { tables: [] };
+  const META = (typeof SHEET_META !== 'undefined' && SHEET_META) ? SHEET_META : {};
 
-        const MASTER_PACKAGES = [
-            // --- HOME CAM TRỌN GÓI ---
-            { id: "HC_1", category: "home_cam", name: "HOME CAM CANH", speed: "Internet Wifi 6 - 300 Mbps", service: "Trang bị 1 Camera Indoor + Cloud 1 Ngày", price1M: 195000, price3M: 585000, price6M: 1170000, price12M: 2340000 },
-            { id: "HC_2", category: "home_cam", name: "HOME CAM MẬT", speed: "Internet Wifi 6 - 300 Mbps", service: "Truyền hình MyTV App S1 hoặc S2 + 1 Camera Indoor + Cloud 1 Ngày", price1M: 220000, price3M: 660000, price6M: 1320000, price12M: 2840000 },
-            { id: "HC_3", category: "home_cam", name: "HOME CAM SÀNH", speed: "Internet Wifi 6 - 300 Mbps", service: "Truyền hình MyTV S1/S2 + Wifi phụ Mesh 6 M8TT + 1 Camera Indoor + Cloud 1 Ngày", price1M: 235000, price3M: 705000, price6M: 1410000, price12M: 2820000 },
+  const COMPONENTS = {
+    fiber: { key: 'fiber', label: 'Fiber', icon: 'fa-globe' },
+    mesh:  { key: 'mesh',  label: 'Mesh 6', icon: 'fa-router' },
+    cam:   { key: 'cam',   label: 'Camera', icon: 'fa-video' },
+    mytv:  { key: 'mytv',  label: 'MyTV', icon: 'fa-tv' },
+  };
+  const COMPONENT_ORDER = ['fiber', 'mesh', 'cam', 'mytv'];
 
-            // --- HOME / FIBER CÁ NHÂN ---
-            { id: "H_1", category: "home", name: "HOME 1_B", speed: "300 MB", service: "Internet Riêng Lẻ", price1M: 195000, mesh1: 215000, mesh2: 220000 },
-            { id: "H_2", category: "home", name: "HOME 2", speed: "500 MB * ULM", service: "Internet Riêng Lẻ", price1M: 235000, mesh1: 240000, mesh2: 245000 },
-            { id: "H_3", category: "home", name: "HOME 3", speed: "1000 MB", service: "Internet Riêng Lẻ", price1M: 290000, mesh1: 310000, mesh2: 335000 },
-            { id: "H_4", category: "home", name: "HOME TV1", speed: "300 MB", service: "Chọn 1 trong 4: MyTV Flexi 1, Flexi 2, Flim, Flim+", price1M: 215000, mesh1: 230000 },
-            { id: "H_5", category: "home", name: "HOME TV2", speed: "500 MB", service: "Chọn 1 trong 4: MyTV Flexi 1, Flexi 2, Flim, Flim+", price1M: 240000, mesh1: 250000, mesh2: 265000 },
-            { id: "H_6", category: "home", name: "HOME TV3", speed: "1000 MB", service: "Chọn 1 trong 4: MyTV Flexi 1, Flexi 2, Flim, Flim+", price1M: 310000, mesh1: 330000, mesh2: 355000 },
-            { id: "H_7", category: "home", name: "HOME TV VIP 1", speed: "300 MB", service: "MyTV VIP", price1M: 240000, mesh1: 270000 },
-            { id: "H_8", category: "home", name: "HOME TV VIP 3", speed: "1000 MB", service: "MyTV VIP", price1M: 310000, mesh1: 360000 },
-            { id: "H_9", category: "home", name: "HOME CAM 1", speed: "300 MB", service: "1 Camera Indoor + Cloud 3 Ngày", price1M: 215000, mesh1: 230000 },
-            { id: "H_10", category: "home", name: "HOME CAM 2", speed: "500 MB * ULM", service: "1 Camera Indoor + Cloud 3 Ngày", price1M: 240000, mesh1: 250000, mesh2: 265000 },
-            { id: "H_11", category: "home", name: "HOME CAM 3", speed: "1000 MB", service: "1 Camera Indoor + Cloud 3 Ngày", price1M: 310000, mesh1: 330000, mesh2: 355000 },
-            
-            // --- CHIẾN LƯỢC ---
-            { id: "HS_1", category: "home", name: "Home1_M", speed: "300 Mbps", service: "Lắp kèm 1 Wifi Mesh 6", price1M: 195000 },
-            { id: "HS_2", category: "home", name: "HomeTV_B", speed: "300 Mbps", service: "Lắp kèm MyTV App: S1 hoặc S2", price1M: 195000 },
-            { id: "HS_3", category: "home", name: "Home Slay", speed: "300 Mbps ULM (1 Gbps)", service: "Internet Riêng Lẻ", price1M: 200000 },
-            { id: "HS_4", category: "home", name: "Home Slay_M", speed: "300 Mbps ULM (1 Gbps)", service: "1 Wifi Mesh 6 Hoặc MyTV", price1M: 210000 },
-            { id: "HS_5", category: "home", name: "Home Slay_F", speed: "300 Mbps ULM (1 Gbps)", service: "1 Mesh 6 + Camera Cloud 1 Ngày", price1M: 215000 },
+  const TABLE_DEFS = [
+    {
+      key: 'fiber_canhan', short: 'Fiber cá nhân', icon: 'fa-house-signal', color: 'blue', audience: 'personal',
+      title: 'BẢNG GIÁ CƯỚC DỊCH VỤ FIBER INTERNET CÁ NHÂN VNPT HỒ CHÍ MINH',
+      notes: ['Giá trên đã bao gồm 10% thuế VAT', 'Tivi không sử dụng được App: trang bị thêm Box cộng 50.000đ/tháng'],
+    },
+    {
+      key: 'fiber_doanhnghiep', short: 'Fiber doanh nghiệp', icon: 'fa-building', color: 'violet', audience: 'business',
+      title: 'BẢNG GIÁ CƯỚC INTERNET FIBER CÁP QUANG — GÓI CƯỚC DOANH NGHIỆP (CÔNG TY)',
+      notes: ['Giá trên đã bao gồm 10% thuế VAT', 'TT 6 tháng tặng 1 tháng — TT 12 tháng tặng 2 tháng, miễn phí lắp đặt'],
+    },
+    {
+      key: 'mytv_box', short: 'MyTV Box', icon: 'fa-tv', color: 'indigo', audience: 'personal',
+      title: 'BẢNG GIÁ CƯỚC HOME INTERNET & TRUYỀN HÌNH MYTV — TRANG BỊ ĐẦU THU (BOX)',
+      notes: ['Giá trên đã bao gồm 10% thuế VAT', 'Tặng tài khoản GreenNet — chặn web độc hại', 'Áp dụng gói truyền hình nâng cao 180 kênh'],
+    },
+    {
+      key: 'mua_luon', short: 'Mua luôn thiết bị', icon: 'fa-box-open', color: 'rose', audience: 'both',
+      title: 'BẢNG GIÁ CƯỚC MUA LUÔN (MUA 1 LẦN): CAMERA, WIFI MESH 6',
+      notes: ['Giá bán đã bao gồm VAT', 'Thanh toán 1 lần, không phí duy trì hàng tháng'],
+    },
+    {
+      key: 'home_cam', short: 'Home Cam', icon: 'fa-video', color: 'amber', audience: 'personal',
+      title: 'BẢNG GIÁ CƯỚC HOME CAM',
+      notes: ['Giá gói đã bao gồm 10% thuế VAT', 'Camera Indoor + lưu trữ Cloud'],
+    },
+    {
+      key: 'tan_cong', short: 'Tấn công thị trường', icon: 'fa-bolt', color: 'teal', audience: 'personal',
+      title: 'BẢNG GIÁ CƯỚC LẮP MỚI TẤN CÔNG, ĐÁNH CHIẾM THỊ TRƯỜNG',
+      notes: ['Giá đã bao gồm 10% thuế VAT', 'Áp dụng cho khách hàng lắp mới'],
+    },
+    {
+      key: 'pack_mesh', short: 'Pack Mesh', icon: 'fa-router', color: 'emerald', audience: 'both',
+      title: 'BẢNG GIÁ CƯỚC PACK MESH',
+      notes: ['Từ tháng 14 trở đi: giá gói = giá 1 tháng × số tháng'],
+    },
+    {
+      key: 'pack_cam', short: 'Pack Camera', icon: 'fa-cloud', color: 'sky', audience: 'both',
+      title: 'BẢNG GIÁ CƯỚC PACK CAMERA',
+      notes: ['Cloud lưu trữ 3 ngày', 'Giá đã bao gồm 10% thuế VAT'],
+    },
+  ];
 
-            // --- BẢNG DOANH NGHIỆP (22 GÓI) ---
-            { id: "DN_1", category: "dn", name: "Fiber Eco1", speed: "150 Mbps", service: "Cam kết QT: 3 Mbps | IP Động", ipType: "IP Động", price1M: 352000, price6M: 1686000, price12M: 3372000 },
-            { id: "DN_2", category: "dn", name: "Fiber Eco2", speed: "250 Mbps", service: "Cam kết QT: 4 Mbps | IP Động", ipType: "IP Động", price1M: 418000, price6M: 2006400, price12M: 4012800 },
-            { id: "DN_3", category: "dn", name: "Fiber Eco3", speed: "300 Mbps", service: "Cam kết QT: 6 Mbps | IP Động", ipType: "IP Động", price1M: 858000, price6M: 4118400, price12M: 8236800 },
-            { id: "DN_4", category: "dn", name: "Fiber Xtra2", speed: "400 Mbps", service: "Cam kết QT: 20 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 550000, price6M: 2475000, price12M: 4950000 },
-            { id: "DN_5", category: "dn", name: "Fiber Xtra3", speed: "600 Mbps", service: "Cam kết QT: 24 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 1760000, price6M: 7920000, price12M: 15840000 },
-            { id: "DN_6", category: "dn", name: "Fiber Xtra4", speed: "800 Mbps", service: "Cam kết QT: 30 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 5500000, price6M: 24750000, price12M: 49500000 },
-            { id: "DN_7", category: "dn", name: "Fiber Xtra5", speed: "1000 Mbps", service: "Cam kết QT: 35 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 8800000, price6M: 39600000, price12M: 79200000 },
-            { id: "DN_8", category: "dn", name: "Fiber Xtra6", speed: "2000 Mbps", service: "Cam kết QT: 50 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 16500000, price6M: 74250000, price12M: 148500000 },
-            { id: "DN_9", category: "dn", name: "Fiber S1", speed: "500 Mbps", service: "Cam kết QT: 2 Mbps | IP Động", ipType: "IP Động", price1M: 418000, price6M: 2131800, price12M: 4263600 },
-            { id: "DN_10", category: "dn", name: "Fiber S2", speed: "800 Mbps", service: "Cam kết QT: 6 Mbps | IP Động", ipType: "IP Động", price1M: 660000, price6M: 3366000, price12M: 6732000 },
-            { id: "DN_11", category: "dn", name: "Fiber S3", speed: "1000 Mbps", service: "Cam kết QT: 12 Mbps | IP Động", ipType: "IP Động", price1M: 814000, price6M: 4151400, price12M: 8302800 },
-            { id: "DN_12", category: "dn", name: "Fiber Eco4", speed: "400 Mbps", service: "Cam kết QT: 8 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 1100000, price6M: 5280000, price12M: 10560000 },
-            { id: "DN_13", category: "dn", name: "Fiber Eco5", speed: "500 Mbps", service: "Cam kết QT: 16 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 3520000, price6M: 14784000, price12M: 29568000 },
-            { id: "DN_14", category: "dn", name: "Fiber 4", speed: "400 Mbps", service: "Cam kết QT: 12 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 2200000, price6M: 10560000, price12M: 21120000 },
-            { id: "DN_15", category: "dn", name: "Fiber 5", speed: "500 Mbps", service: "Cam kết QT: 24 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 5500000, price6M: 23100000, price12M: 46200000 },
-            { id: "DN_16", category: "dn", name: "Fiber 6", speed: "600 Mbps", service: "Cam kết QT: 32 Mbps | IP Wan Tĩnh", ipType: "IP Wan Tĩnh", price1M: 9900000, price6M: 41580000, price12M: 83160000 },
-            { id: "DN_17", category: "dn", name: "Fiber 7", speed: "800 Mbps", service: "Cam kết QT: 55 Mbps | IP Wan Tĩnh, 1 Block 08 Lan", ipType: "IP Tĩnh (Wan+Lan)", price1M: 17600000, price6M: 73920000, price12M: 147840000 },
-            { id: "DN_18", category: "dn", name: "Fiber 8", speed: "1000 Mbps", service: "Cam kết QT: 80 Mbps | IP Wan Tĩnh, 1 Block 08 Lan", ipType: "IP Tĩnh (Wan+Lan)", price1M: 27500000, price6M: 115500000, price12M: 231000000 },
-            { id: "DN_19", category: "dn", name: "Fiber VIP 6", speed: "600 Mbps", service: "Cam kết QT: 45 Mbps | IP Wan Tĩnh, 1 Block 08 Lan", ipType: "IP Tĩnh (Wan+Lan)", price1M: 13200000, price6M: 55440000, price12M: 110880000 },
-            { id: "DN_20", category: "dn", name: "Fiber VIP 7", speed: "800 Mbps", service: "Cam kết QT: 65 Mbps | IP Wan Tĩnh, 1 Block 08 Lan", ipType: "IP Tĩnh (Wan+Lan)", price1M: 22000000, price6M: 92400000, price12M: 184800000 },
-            { id: "DN_21", category: "dn", name: "Fiber VIP 8", speed: "1000 Mbps", service: "Cam kết QT: 100 Mbps | IP Wan Tĩnh, 1 Block 08 Lan", ipType: "IP Tĩnh (Wan+Lan)", price1M: 33000000, price6M: 138600000, price12M: 277200000 },
-            { id: "DN_22", category: "dn", name: "Fiber VIP 9", speed: "2000 Mbps", service: "Cam kết QT: 200 Mbps | IP Wan Tĩnh, 1 Block 08 Lan", ipType: "IP Tĩnh (Wan+Lan)", price1M: 60500000, price6M: 254100000, price12M: 508200000 },
+  /* ---------------- tiện ích ---------------- */
+  function norm(str) {
+    if (!str) return '';
+    return String(str)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase();
+  }
 
-            // --- PACK MESH ---
-            { id: "M_1", category: "mesh", name: "PACK 1", quantity: "1 Thiết bị Mesh 6", price1M: 30000, price3M: 90000, price6M: 180000, price12M: 360000 },
-            { id: "M_2", category: "mesh", name: "PACK 2", quantity: "2 Thiết bị Mesh 6", price1M: 50000, price3M: 150000, price6M: 300000, price12M: 450000 },
-            { id: "M_3", category: "mesh", name: "PACK 3", quantity: "3 Thiết bị Mesh 6", price1M: 75000, price3M: 225000, price6M: 450000, price12M: 675000 },
-            { id: "M_4", category: "mesh", name: "PACK 4", quantity: "4 Thiết bị Mesh 6", price1M: 100000, price3M: 300000, price6M: 600000, price12M: 900000 },
-            { id: "M_5", category: "mesh", name: "PACK 5", quantity: "5 Thiết bị Mesh 6", price1M: 120000, price3M: 360000, price6M: 720000, price12M: 1080000 },
-            { id: "M_5s", category: "mesh", name: "PACK 5*", quantity: "(KHCC, KHDN) 5 Thiết bị Mesh 6", price1M: 100000, price3M: 300000, price6M: 600000, price12M: 900000 },
-            { id: "M_6", category: "mesh", name: "PACK 6", quantity: "6 Thiết bị Mesh 6", price1M: 140000, price3M: 420000, price6M: 840000, price12M: 1260000 },
-            { id: "M_7", category: "mesh", name: "PACK 7", quantity: "7 Thiết bị Mesh 6", price1M: 160000, price3M: 480000, price6M: 960000, price12M: 1440000 },
-            { id: "M_8", category: "mesh", name: "PACK 8", quantity: "8 Thiết bị Mesh 6", price1M: 180000, price3M: 540000, price6M: 1080000, price12M: 1620000 },
-            { id: "M_9", category: "mesh", name: "PACK 9", quantity: "9 Thiết bị Mesh 6", price1M: 200000, price3M: 600000, price6M: 1200000, price12M: 1800000 },
-            { id: "M_10", category: "mesh", name: "PACK 10", quantity: "10 Thiết bị Mesh 6", price1M: 220000, price3M: 660000, price6M: 1320000, price12M: 1980000 },
-            { id: "M_10s", category: "mesh", name: "PACK 10*", quantity: "10 (KHCC, KHDN) Mesh 6", price1M: 200000, price3M: 600000, price6M: 1200000, price12M: 1800000 },
+  function linesOf(v) {
+    if (v == null) return [];
+    let s = String(v).replace(/\u00a0/g, ' ');
+    const out = [];
+    s.split(/\r?\n/).forEach(function (part) {
+      part = part.replace(/\s+/g, ' ').trim().replace(/^[\s\-–•*]+/, '');
+      if (part) out.push(part);
+    });
+    return out;
+  }
 
-            // --- PACK CAMERA ---
-            { id: "PC_1", category: "pack_cam", name: "PACK 01 CAM", quantity: "1 CAMERA IN + CLOUD 3 NGÀY", price1M: 30000, price3M: 90000, price6M: 180000, price12M: 360000 },
-            { id: "PC_3", category: "pack_cam", name: "PACK 03 CAM", quantity: "3 CAMERA IN + CLOUD 3 NGÀY", price1M: 80000, price3M: 240000, price6M: 480000, price12M: 720000 },
-            { id: "PC_5", category: "pack_cam", name: "PACK 05 CAM", quantity: "5 CAMERA IN + CLOUD 3 NGÀY", price1M: 130000, price3M: 390000, price6M: 780000, price12M: 1170000 },
-            { id: "PC_10", category: "pack_cam", name: "PACK 10 CAM", quantity: "10 CAMERA IN + CLOUD 3 NGÀY", price1M: 250000, price3M: 750000, price6M: 1500000, price12M: 2250000 },
-            { id: "PC_OUT", category: "pack_cam", name: "PACK 01 CAM OUT", quantity: "1 CAMERA OUT + CLOUD 3 NGÀY", price1M: 40000, price3M: 120000, price6M: 240000, price12M: 360000 },
-            { id: "PC_COMBO", category: "pack_cam", name: "PACK 01 CAM IN + PACK 01 CAM OUT", quantity: "1 CAM IN + 1 CAM OUT + CLOUD 3 NGÀY", price1M: 60000, price3M: 180000, price6M: 360000, price12M: 540000 },
+  function cellText(v) { return linesOf(v).join('; '); }
+  function cellName(v) { return linesOf(v).join(' '); }
 
-            // --- BẢNG MUA LUÔN ---
-            { id: "HW_1", category: "hardware", name: "CAMERA IN-DOOR", speed: "Tặng kèm thẻ nhớ 64Gb", service: "2K, đàm thoại 2 chiều, phát hiện chuyển động", price1M: 789000 },
-            { id: "HW_2", category: "hardware", name: "CAMERA OUT-DOOR", speed: "Tặng kèm thẻ nhớ 64Gb", service: "2K, IP65/IP67, ban đêm, chống ngược sáng", price1M: 990000 },
-            { id: "HW_3", category: "hardware", name: "WIFI MESH 6", speed: "Tốc độ 3000 Mbps", service: "Phủ sóng xuyên tường, kết nối đồng thời 100 TB", price1M: 699000 }
-        ];
+  function num(v) {
+    if (v == null || typeof v === 'boolean') return null;
+    if (typeof v === 'number') return Math.round(v);
+    const s = String(v).trim();
+    if (!s || /^(x|-|liên hệ|lien he)$/i.test(s)) return null;
+    const digits = s.replace(/[^\d]/g, '');
+    return digits ? parseInt(digits, 10) : null;
+  }
 
-        const formatDisplayPrice = (val) => {
-            if (!val || val === 0) return "Liên hệ";
-            const num = parseInt(String(val).replace(/\D/g, ''));
-            if (isNaN(num) || num < 20000) return "Liên hệ"; 
-            return num.toLocaleString('vi-VN') + "đ";
-        };
+  function speedMbps(text) {
+    const t = norm(text);
+    if (!t) return null;
+    const gb = (t.match(/(\d+(?:[.,]\d+)?)\s*gb/g) || []).map(function (m) {
+      return parseFloat(m.replace(/[^\d.,]/g, '').replace(',', '.'));
+    }).filter(function (n) { return !isNaN(n); });
+    if (gb.length) return Math.round(Math.max.apply(null, gb) * 1000);
+    const mb = (t.match(/(\d+)\s*mb/g) || []).map(function (m) { return parseInt(m.replace(/[^\d]/g, ''), 10); });
+    if (mb.length) return Math.max.apply(null, mb);
+    const nums = (t.match(/\d+/g) || []).map(Number);
+    return nums.length ? Math.max.apply(null, nums) : null;
+  }
 
-        const removeAccents = (str) => {
-            if (!str) return '';
-            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd');
-        };
+  function componentsOf(text, base) {
+    const t = norm(text).replace(/cam ket/g, ' ');
+    const comps = (base || []).slice();
+    if (/mesh/.test(t) && comps.indexOf('mesh') === -1) comps.push('mesh');
+    if (/(\bcam\b|camera)/.test(t) && comps.indexOf('cam') === -1) comps.push('cam');
+    if (/(mytv|truyen hinh|tivi|\btv\d*|dau thu|\bbox\b)/.test(t) && comps.indexOf('mytv') === -1) comps.push('mytv');
+    return comps;
+  }
 
-        const smartAIQuery = (rawQuery) => {
-            let query = removeAccents(rawQuery.trim());
-            let results = [...MASTER_PACKAGES];
-            let activeFilters = [];
+  function slugify(s) {
+    const star = /\*/.test(String(s)) ? '_sao' : '';
+    return norm(s).replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') + star;
+  }
 
-            // LỌC TỪ VỰNG RÁC GIAO TIẾP
-            const stopwords = /\b(kh|khach|hang|co|va|cho|minh|tai|chinh|can|lap|muon|tim|goi|cuoc|gia|tien|kinh|te|re|nhat|tam|khoang|voi|o|de|nha|nhe|a|ah|oi|e|anh|em|tu|van|nay|do|vay|dang|ky|chi|da|thi|cua|mua|ban)\b/gi;
-            query = query.replace(stopwords, ' ').replace(/\s+/g, ' ').trim();
+  function makePkg(id, name, extra) {
+    const p = {
+      id: id, name: name, speed: null, speedMbps: null, service: null, quantity: null,
+      ip: null, intCommit: null, price: null, unit: 'month', periods: [], components: [], note: null,
+    };
+    const e = extra || {};
+    Object.keys(e).forEach(function (k) { p[k] = e[k]; });
+    return p;
+  }
 
-            let minPrice = null;
-            let maxPrice = null;
+  /* ---------------- nhận dạng dòng ---------------- */
+  const TITLE_RE = /^bang gia/;
+  const NOTE_RE = /^(gia tren|tu thang|tt6t|\*|luu y|tang tai khoan|goi cuoc truyen hinh)/;
+  const HEADER_RE = /^(goi cuoc|goi mesh \d|thiet bi|ten goi( cuoc)?)$/;
 
-            // BẮT GIÁ TIỀN
-            const minMatch = query.match(/\b(tren|>|lon hon|tu)\s*(\d+)(?:\s*(k|ngan|000|tr|trieu))?\b/i);
-            if (minMatch) {
-                let val = parseInt(minMatch[2]);
-                let unit = minMatch[3] ? minMatch[3].toLowerCase() : "";
-                if (unit === 'tr' || unit === 'trieu' || (val >= 1 && val <= 10)) val = val * 1000000;
-                else if (val > 10 && val <= 999) val = val * 1000;
-                minPrice = val;
-                activeFilters.push(`Giá > ${val >= 1000000 ? val/1000000 + 'Tr' : val/1000 + 'k'}`);
-                query = query.replace(minMatch[0], ' ');
-            }
+  function isMetaRow(name) {
+    const n = norm(name).trim();
+    if (!n) return false;
+    return TITLE_RE.test(n) || NOTE_RE.test(n) || HEADER_RE.test(n);
+  }
 
-            const maxMatch = query.match(/\b(duoi|<|toi da|nho hon|be hon)\s*(\d+)(?:\s*(k|ngan|000|tr|trieu))?\b/i);
-            if (maxMatch) {
-                let val = parseInt(maxMatch[2]);
-                let unit = maxMatch[3] ? maxMatch[3].toLowerCase() : "";
-                if (unit === 'tr' || unit === 'trieu' || (val >= 1 && val <= 10)) val = val * 1000000;
-                else if (val > 10 && val <= 999) val = val * 1000;
-                maxPrice = val;
-                activeFilters.push(`Giá < ${val >= 1000000 ? val/1000000 + 'Tr' : val/1000 + 'k'}`);
-                query = query.replace(maxMatch[0], ' ');
-            }
+  function rowsOf(block) {
+    return (block || []).filter(function (r) { return Array.isArray(r); });
+  }
 
-            if (!maxPrice && !minPrice) {
-                const implicitMatch = query.match(/\b(\d+)(?:\s*(k|ngan|000|tr|trieu))?\b/i);
-                if (implicitMatch) {
-                     let val = parseInt(implicitMatch[1]);
-                     let unit = implicitMatch[2] ? implicitMatch[2].toLowerCase() : "";
-                     if (unit === 'tr' || unit === 'trieu') {
-                         val = val * 1000000;
-                         maxPrice = val; 
-                         activeFilters.push(`Ngân sách ≤ ${val/1000000}Tr`);
-                         query = query.replace(implicitMatch[0], ' ');
-                     } else if (val >= 20) { 
-                         if (val <= 999) val = val * 1000;
-                         maxPrice = val; 
-                         activeFilters.push(`Ngân sách ≤ ${val/1000}k`);
-                         query = query.replace(implicitMatch[0], ' ');
-                     }
-                }
-            }
+  /* ---------------- parser từng bảng ---------------- */
+  function parseFiberCanhan(block) {
+    const out = [];
+    let service = '';
+    rowsOf(block).forEach(function (row) {
+      const name = cellName(row[0]);
+      if (!name || isMetaRow(name)) return;
+      const svc = cellText(row[2]);
+      if (svc) service = svc;
+      const speed = cellText(row[1]);
+      const price = num(row[3]);
+      const mesh1 = num(row[4]);
+      const mesh2 = num(row[5]);
+      const base = componentsOf(name + ' ' + speed + ' ' + service, ['fiber']);
+      const slug = slugify(name);
+      const withMesh = base.concat(base.indexOf('mesh') === -1 ? ['mesh'] : []);
+      out.push(makePkg('F1_' + slug, name, {
+        speed: speed || null, speedMbps: speedMbps(speed), service: service || null, price: price, components: base,
+      }));
+      if (mesh1 != null) {
+        out.push(makePkg('F1_' + slug + '_m1', name + ' + 1 Mesh 6', {
+          speed: speed || null, speedMbps: speedMbps(speed), service: service || null, price: mesh1,
+          components: withMesh, note: 'Trang bị kèm 1 Wifi Mesh 6',
+        }));
+      }
+      if (mesh2 != null) {
+        out.push(makePkg('F1_' + slug + '_m2', name + ' + 2 Mesh 6', {
+          speed: speed || null, speedMbps: speedMbps(speed), service: service || null, price: mesh2,
+          components: withMesh, note: 'Trang bị kèm 2 Wifi Mesh 6',
+        }));
+      }
+    });
+    return out;
+  }
 
-            if (!maxPrice && !minPrice && query.includes("re nhat")) {
-                maxPrice = 220000; activeFilters.push(`Kinh tế (≤ 220k)`);
-            }
+  function parseFiberDoanhnghiep(block) {
+    const out = [];
+    rowsOf(block).forEach(function (row) {
+      const name = cellName(row[0]);
+      if (!name || isMetaRow(name)) return;
+      const speedVal = num(row[1]);
+      const commit = num(row[2]);
+      const ip = cellText(row[3]);
+      const periods = [];
+      const p6 = num(row[4 + 1]);
+      const p12 = num(row[4 + 2]);
+      if (p6 != null) periods.push({ label: '6 tháng', price: p6 });
+      if (p12 != null) periods.push({ label: '12 tháng', price: p12 });
+      out.push(makePkg('F2_' + slugify(name), name, {
+        speed: speedVal != null ? speedVal + ' Mbps' : null,
+        speedMbps: speedVal,
+        service: commit != null ? 'Cam kết quốc tế ' + commit + ' Mbps' : null,
+        ip: ip || null, intCommit: commit, price: num(row[4]), periods: periods, components: ['fiber'],
+      }));
+    });
+    return out;
+  }
 
-            query = query.replace(/\s+/g, ' ').trim();
+  function parseMytvBox(block) {
+    const dataRows = rowsOf(block).filter(function (row) {
+      const name = cellName(row[0]);
+      return name && !isMetaRow(name);
+    });
+    const compText = dataRows.map(function (row) { return cellText(row[3]); })
+      .filter(Boolean).join('; ');
+    return dataRows.map(function (row) {
+      const name = cellName(row[0]);
+      const speed = cellText(row[1]);
+      const periods = [];
+      const p6 = num(row[6]);
+      const p12 = num(row[7]);
+      if (p6 != null) periods.push({ label: '6 tháng', price: p6 });
+      if (p12 != null) periods.push({ label: '12 tháng', price: p12 });
+      return makePkg('F3_' + slugify(name), name, {
+        speed: speed || null, speedMbps: speedMbps(speed), service: compText || null,
+        price: num(row[5]), periods: periods,
+        components: componentsOf(name + ' ' + speed + ' ' + compText, ['fiber']),
+        note: 'Trang bị đầu thu (Box) MyTV',
+      });
+    });
+  }
 
-            // NHẬN DIỆN KỸ THUẬT IP
-            let requireStaticIP = false;
-            let requireDynamicIP = false;
-            if (query.match(/(ip|wan|lan)\s*(tinh)/i)) {
-                requireStaticIP = true; activeFilters.push(`IP Tĩnh`);
-                query = query.replace(/(ip|wan|lan)\s*(tinh)/gi, ' ');
-            } else if (query.match(/ip\s*(dong)/i)) {
-                requireDynamicIP = true; activeFilters.push(`IP Động`);
-                query = query.replace(/ip\s*(dong)/gi, ' ');
-            }
+  function parseMuaLuon(block) {
+    const out = [];
+    rowsOf(block).forEach(function (row) {
+      const lines = linesOf(row[0]);
+      if (!lines.length) return;
+      const name = lines[0];
+      if (isMetaRow(name)) return;
+      const note = lines.length > 1 ? lines.slice(1).join('; ') : null;
+      const config = cellText(row[1]);
+      out.push(makePkg('HW_' + slugify(name), name, {
+        service: config || null, price: num(row[2]), unit: 'once', note: note,
+        components: componentsOf(name + ' ' + config, []),
+      }));
+    });
+    return out;
+  }
 
-            // ĐỊNH TUYẾN BẢNG
-            let targetCategory = null;
-            if (query.match(/\b(mua luon|luon|mua 1 lan|1 lan|mua dut|dut|thiet bi)\b/i)) {
-                targetCategory = 'hardware'; query = query.replace(/\b(mua luon|luon|mua 1 lan|1 lan|mua dut|dut|thiet bi)\b/gi, ' ');
-            } else if (query.match(/\b(pack cam)\b/i)) {
-                targetCategory = 'pack_cam'; query = query.replace(/\b(pack cam)\b/gi, ' ');
-            } else if (query.match(/\b(home cam|cam canh|cam mat|cam sanh)\b/i)) {
-                targetCategory = 'home_cam'; query = query.replace(/\b(home cam|cam canh|cam mat|cam sanh)\b/gi, ' ');
-            } else if (query.match(/\b(pack mesh)\b/i)) {
-                targetCategory = 'mesh'; query = query.replace(/\b(pack mesh)\b/gi, ' ');
-            } else if (query.match(/\b(doanh nghiep|cong ty|dn)\b/i)) {
-                targetCategory = 'dn'; query = query.replace(/\b(doanh nghiep|cong ty|dn)\b/gi, ' ');
-            } else if (query.match(/\b(home|fiber|ca nhan|gia dinh|mang)\b/i)) {
-                targetCategory = 'home'; query = query.replace(/\b(home|fiber|ca nhan|gia dinh|mang)\b/gi, ' ');
-            }
+  function parseHomeCam(block) {
+    const groups = [];
+    let cur = null;
+    rowsOf(block).forEach(function (row) {
+      const name = cellName(row[0]);
+      const comp = cellText(row[2]);
+      const price = num(row[4]);
+      if (name) {
+        if (isMetaRow(name)) return;
+        cur = { name: name, comps: [], price: price, periods: [] };
+        const p3 = num(row[5]);
+        const p6 = num(row[6]);
+        const p12 = num(row[7]);
+        if (p3 != null) cur.periods.push({ label: '3 tháng', price: p3 });
+        if (p6 != null) cur.periods.push({ label: '6 tháng', price: p6 });
+        if (p12 != null) cur.periods.push({ label: '12 tháng', price: p12 });
+        groups.push(cur);
+      }
+      if (cur && comp) cur.comps.push(comp);
+    });
+    return groups.map(function (g) {
+      const device = g.comps.length ? g.comps[0] : null;
+      const service = g.comps.filter(function (x) { return !/^internet wifi/.test(norm(x)); }).join('; ');
+      return makePkg('HC_' + slugify(g.name), g.name, {
+        speed: device, speedMbps: speedMbps(device), service: service || null,
+        price: g.price, periods: g.periods,
+        components: componentsOf(g.name + ' ' + g.comps.join(' '), ['fiber']),
+        note: 'Wifi 6 · Camera Indoor · Cloud',
+      });
+    });
+  }
 
-            query = query.replace(/\s+/g, ' ').trim();
+  function parseTanCong(block) {
+    const out = [];
+    let speedPrev = '', servicePrev = '';
+    rowsOf(block).forEach(function (row) {
+      const name = cellName(row[0]);
+      if (!name || isMetaRow(name)) return;
+      let speed = cellText(row[1]) || speedPrev;
+      let service = cellText(row[2]) || servicePrev;
+      speedPrev = speed;
+      servicePrev = service;
+      if (norm(service).trim() === 'x') service = '';
+      const slug = slugify(name);
+      let comps = componentsOf(name + ' ' + service, ['fiber']);
+      if (/hoac/.test(norm(service)) && /slay_m/.test(slug)) comps = ['fiber', 'mesh', 'mytv'];
+      out.push(makePkg('ATK_' + slug, name, {
+        speed: speed || null, speedMbps: speedMbps(speed),
+        service: service || 'Internet riêng lẻ', price: num(row[3]),
+        components: comps, note: 'Gói lắp mới đánh chiếm thị trường',
+      }));
+    });
+    return out;
+  }
 
-            // ÁP DỤNG ĐIỀU KIỆN
-            results = results.filter(pkg => {
-                if (targetCategory && pkg.category !== targetCategory) return false;
-                
-                const price = pkg.price1M || 0;
-                if (maxPrice !== null && (price === 0 || price > maxPrice)) return false;
-                if (minPrice !== null && (price === 0 || price < minPrice)) return false;
-
-                if (requireStaticIP && (!pkg.ipType || !removeAccents(pkg.ipType).includes("tinh"))) return false;
-                if (requireDynamicIP && (!pkg.ipType || !removeAccents(pkg.ipType).includes("dong"))) return false;
-
-                const words = query.split(/\s+/).filter(w => w.length > 0);
-                if (words.length > 0) {
-                    let hiddenKeywords = "";
-                    if (pkg.mesh1) hiddenKeywords += " mesh"; 
-                    if (pkg.category === 'hardware' && pkg.name.toLowerCase().includes('camera')) hiddenKeywords += " cam camera";
-                    if (pkg.category === 'pack_cam') hiddenKeywords += " cam camera";
-                    if (pkg.category === 'home_cam') hiddenKeywords += " cam camera";
-                    if (pkg.category === 'mesh') hiddenKeywords += " mesh";
-
-                    const targetStr = removeAccents(`${pkg.name} ${pkg.speed || ''} ${pkg.service || ''} ${hiddenKeywords}`.toLowerCase());
-                    if (!words.every(w => targetStr.includes(w))) return false;
-                }
-
-                return true;
-            });
-
-            // SẮP XẾP UƯ TIÊN
-            results.sort((a, b) => {
-                const isHomeA = (a.category === 'home' || a.category === 'home_cam') ? 0 : 1;
-                const isHomeB = (b.category === 'home' || b.category === 'home_cam') ? 0 : 1;
-                if (isHomeA !== isHomeB) return isHomeA - isHomeB; 
-                return (a.price1M || 0) - (b.price1M || 0);
-            });
-
-            return { packages: results.slice(0, 16), filters: activeFilters, totalFound: results.length };
-        };
-
-        const PackageCard = ({ pkg }) => {
-            const [copied, setCopied] = useState(false);
-            const handleCopy = () => {
-                let text = `📌 *${pkg.name}*\n`;
-                if (pkg.speed) text += `▪ Tốc độ: ${pkg.speed}\n`;
-                if (pkg.service) text += `▪ Dịch vụ: ${pkg.service}\n`;
-                if (pkg.quantity) text += `▪ Thành phần: ${pkg.quantity}\n`;
-                if (pkg.ipType) text += `▪ IP: ${pkg.ipType}\n`;
-                if (pkg.price1M && formatDisplayPrice(pkg.price1M) !== "Liên hệ") text += `💰 Giá 1 Tháng: ${formatDisplayPrice(pkg.price1M)}\n`;
-                if (pkg.mesh1) text += `▪ Kèm 1 Mesh 6: ${formatDisplayPrice(pkg.mesh1)}\n`;
-
-                const el = document.createElement('textarea');
-                el.value = text; document.body.appendChild(el); el.select();
-                document.execCommand('copy'); document.body.removeChild(el);
-                setCopied(true); setTimeout(() => setCopied(false), 2000);
-            };
-
-            let theme = { bg: 'bg-blue-600', text: 'HOME / FIBER', icon: 'fa-wifi', border: 'border-blue-100' };
-            if (pkg.category === 'dn') theme = { bg: 'bg-purple-600', text: 'DOANH NGHIỆP', icon: 'fa-building', border: 'border-purple-100' };
-            if (pkg.category === 'mesh') theme = { bg: 'bg-emerald-500', text: 'PACK MESH', icon: 'fa-router', border: 'border-emerald-100' };
-            if (pkg.category === 'pack_cam') theme = { bg: 'bg-sky-500', text: 'PACK CAMERA', icon: 'fa-cloud', border: 'border-sky-100' };
-            if (pkg.category === 'home_cam') theme = { bg: 'bg-amber-500', text: 'HOME CAM', icon: 'fa-video', border: 'border-amber-100' };
-            if (pkg.category === 'hardware') theme = { bg: 'bg-rose-500', text: 'MUA THIẾT BỊ', icon: 'fa-box-open', border: 'border-rose-100' };
-
-            return (
-                <div className={`bg-white border ${theme.border} rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col h-full w-full snap-center shrink-0`} style={{ width: '280px' }}>
-                    <div className="bg-slate-50 px-4 py-3 border-b border-gray-100">
-                        <div className="flex justify-between items-center mb-1.5">
-                            <span className={`${theme.bg} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1`}>
-                                <i className={`fas ${theme.icon}`}></i> {theme.text}
-                            </span>
-                            {pkg.ipType && <span className="text-[10px] bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded font-semibold">{pkg.ipType}</span>}
-                        </div>
-                        <h3 className="font-extrabold text-gray-900 uppercase text-[15px] leading-tight" title={pkg.name}>{pkg.name}</h3>
-                    </div>
-
-                    <div className="p-4 flex-grow flex flex-col gap-3 bg-white">
-                        <div className="text-[13px] text-gray-600 space-y-2 flex-grow">
-                            {pkg.speed && <div className="flex gap-2"><i className="fas fa-gauge-high text-gray-400 mt-1"></i> <span><span className="font-semibold text-gray-800">{pkg.speed}</span></span></div>}
-                            {pkg.service && <div className="flex gap-2"><i className="fas fa-layer-group text-gray-400 mt-1"></i> <span className="font-medium text-gray-800">{pkg.service}</span></div>}
-                            {pkg.quantity && <div className="flex gap-2"><i className="fas fa-box text-gray-400 mt-1"></i> <span className="font-medium text-gray-800">{pkg.quantity}</span></div>}
-                        </div>
-
-                        <div className="mt-auto space-y-2 pt-2 border-t border-gray-50">
-                            <div className="bg-blue-50/50 rounded-xl p-3 text-center border border-blue-50">
-                                <div className="text-[10px] font-bold uppercase text-blue-600 mb-0.5">
-                                    {pkg.category === 'hardware' ? 'GIÁ BÁN (MUA 1 LẦN)' : 'GIÁ 1 THÁNG GỐC'}
-                                </div>
-                                <div className="font-black text-2xl text-blue-900">{formatDisplayPrice(pkg.price1M)}</div>
-                            </div>
-                            {(pkg.price3M || pkg.price6M || pkg.price12M) && (
-                                <div className="flex justify-center flex-wrap gap-1.5 mt-2">
-                                    {pkg.price3M && <span className="bg-white border border-blue-200 text-blue-700 px-1.5 py-0.5 rounded text-[11px] font-bold">3T: {formatDisplayPrice(pkg.price3M)}</span>}
-                                    {pkg.price6M && <span className="bg-white border border-emerald-200 text-emerald-700 px-1.5 py-0.5 rounded text-[11px] font-bold">6T: {formatDisplayPrice(pkg.price6M)}</span>}
-                                    {pkg.price12M && <span className="bg-white border border-purple-200 text-purple-700 px-1.5 py-0.5 rounded text-[11px] font-bold">12T: {formatDisplayPrice(pkg.price12M)}</span>}
-                                </div>
-                            )}
-                        </div>
-
-                        <button onClick={handleCopy} className={`mt-2 w-full py-2.5 rounded-xl text-[13px] font-bold transition-all flex items-center justify-center gap-2 ${copied ? 'bg-green-500 text-white shadow-md' : 'bg-slate-800 text-white hover:bg-blue-600 shadow'}`}>
-                            {copied ? <><i className="fas fa-check"></i> Đã chép</> : <><i className="far fa-copy"></i> Copy gửi Zalo</>}
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
-        const AppChat = () => {
-            const [inputValue, setInputValue] = useState('');
-            const [isTyping, setIsTyping] = useState(false);
-
-            const initialSuggestions = [
-                'Cam', 'Cam dưới 250k', 'Doanh Nghiệp IP Động', 'Doanh Nghiệp IP Tĩnh', 'Doanh nghiệp dưới 1 triệu', 'Doanh Nghiệp dưới 500k', 
-                'Fiber có mesh dưới 250k', 'Fiber dưới 200k', 'Gói cước Fiber dưới 300k', 'Home Cam', 'Home Slay', 'Home TV', 
-                'Mesh dưới 100k', 'Mua Thiết Bị', 'Pack Cam', 'Pack Mesh'
-            ].sort((a, b) => a.localeCompare(b, 'vi'));
-
-            const [messages, setMessages] = useState([{
-                id: 1, type: 'bot', 
-                text: '👋 **Trợ lý AI Smart VNPT đã sẵn sàng.**\n\n- Tôi đã được nâng cấp NLU: hiểu giá tiền (*"dưới 200k"*), hiểu kỹ thuật (*"ip tĩnh / động"*).\n- Tự động lược bỏ từ thừa (*khách, có, và, muốn, kh...*).\n- Quét thông minh xuyên bảng và luôn ưu tiên hiển thị gói giá tốt nhất lên trước.',
-                suggestions: initialSuggestions
-            }]);
-            const messagesEndRef = useRef(null);
-
-            useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isTyping]);
-
-            const handleSearch = (query) => {
-                if (!query.trim()) return;
-                setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: query }]);
-                setInputValue('');
-                setIsTyping(true);
-
-                setTimeout(() => {
-                    const result = smartAIQuery(query);
-                    setIsTyping(false);
-
-                    if (result.totalFound > 0) {
-                        const maxShow = Math.min(result.totalFound, 16);
-                        let botText = `✅ **Tìm thấy ${result.totalFound} kết quả** (Hiển thị tối đa ${maxShow} gói).`;
-                        if (result.filters.length > 0) botText += `\n🎯 Đã áp dụng AI lọc: *${result.filters.join(", ")}*`;
-                        setMessages(prev => [...prev, { id: Date.now(), type: 'bot', text: botText, packages: result.packages }]);
-                    } else {
-                        setMessages(prev => [...prev, {
-                            id: Date.now(), type: 'bot',
-                            text: `❌ Không tìm thấy gói cước nào khớp với yêu cầu "${query}".\nHãy thử chọn các gợi ý bên dưới hoặc nới lỏng mức giá nhé!`,
-                            suggestions: ['Fiber dưới 200k', 'Doanh Nghiệp IP Tĩnh', 'Home Cam', 'Pack Mesh']
-                        }]);
-                    }
-                }, 500); 
-            };
-
-            return (
-                <div className="w-full h-full flex flex-col bg-slate-50 relative">
-                    <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 p-4 flex items-center justify-between z-10 shadow-md shrink-0">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1.5 shadow-inner">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/VNPT_Logo.svg/2048px-VNPT_Logo.svg.png" className="w-full h-full object-contain" alt="VNPT" />
-                            </div>
-                            <div>
-                                <h1 className="font-bold text-white text-[15px] uppercase tracking-wider flex items-center gap-1.5">
-                                    Smart AI VNPT <i className="fas fa-bolt text-yellow-400 text-xs"></i>
-                                </h1>
-                                <p className="text-[10px] text-blue-100 flex items-center gap-1 mt-0.5">
-                                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> NLU Engine Active • Tích hợp Nội bộ
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex-grow p-4 md:p-6 overflow-y-auto custom-scrollbar flex flex-col gap-6" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
-                        {messages.map((msg) => (
-                            <div key={msg.id} className={`flex w-full ${msg.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in-up`}>
-                                {msg.type === 'bot' && (
-                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 shrink-0 mt-1 border border-blue-200 shadow-sm">
-                                        <i className="fas fa-robot text-blue-600 text-sm"></i>
-                                    </div>
-                                )}
-                                <div className={`max-w-[95%] sm:max-w-[85%] flex flex-col ${msg.type === 'user' ? 'items-end' : 'items-start'}`}>
-                                    {msg.text && (
-                                        <div className={`px-4 py-3 text-[14px] leading-relaxed shadow-sm ${msg.type === 'user' ? 'bg-blue-600 text-white rounded-2xl rounded-tr-sm font-medium' : 'bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-sm'}`} 
-                                             dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br/>') }} />
-                                    )}
-
-                                    {msg.suggestions && (
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            {msg.suggestions.map((sug, i) => (
-                                                <button key={i} onClick={() => handleSearch(sug)} className="bg-white border border-blue-200 text-blue-700 font-medium text-[12px] px-3 py-1.5 rounded-full hover:bg-blue-50 hover:border-blue-300 transition-colors shadow-sm active:scale-95">
-                                                    {sug}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {msg.packages && (
-                                        <div className="mt-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-18rem)] lg:max-w-[800px]">
-                                            <div className="carousel-scroll">
-                                                {msg.packages.map(pkg => <PackageCard key={pkg.id} pkg={pkg} />)}
-                                            </div>
-                                            <div className="text-center mt-2 text-[11px] text-gray-500 font-medium flex justify-center items-center gap-1 opacity-70">
-                                                <i className="fas fa-arrows-left-right"></i> Kéo thanh trượt ngang để xem thêm
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                        
-                        {isTyping && (
-                            <div className="flex w-full justify-start animate-fade-in-up">
-                                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 border border-blue-200">
-                                    <i className="fas fa-robot text-blue-600 text-sm"></i>
-                                </div>
-                                <div className="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                    <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                    <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                                </div>
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} className="h-4" />
-                    </div>
-
-                    <div className="p-3 bg-white border-t border-gray-200 shadow-[0_-5px_15px_-3px_rgba(0,0,0,0.05)] shrink-0 z-10">
-                        <div className="flex items-center gap-2 rounded-2xl p-1.5 bg-gray-50 border border-gray-300 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all max-w-4xl mx-auto">
-                            <i className="fas fa-sparkles ml-3 text-blue-500"></i>
-                            <input
-                                type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSearch(inputValue)}
-                                placeholder="VD: Doanh nghiệp IP tĩnh, Fiber dưới 200k, Home Cam..."
-                                className="flex-grow bg-transparent border-none outline-none text-[14px] text-gray-800 placeholder-gray-400 py-2.5 w-full font-medium"
-                            />
-                            <button 
-                                onClick={() => handleSearch(inputValue)} disabled={!inputValue.trim()}
-                                className="w-11 h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center disabled:bg-gray-300 transition-all shadow-md active:scale-95 shrink-0"
-                            >
-                                <i className="fas fa-paper-plane ml-[-2px]"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const rootNode = document.getElementById('react-chat-root');
-        if(rootNode) {
-            const root = ReactDOM.createRoot(rootNode);
-            root.render(<AppChat />);
+  function parsePack(block, meta) {
+    const out = [];
+    rowsOf(block).forEach(function (row) {
+      const name = cellName(row[0]);
+      if (!name || isMetaRow(name)) return;
+      const periods = [];
+      meta.periodCols.forEach(function (pc) {
+        const v = num(row[pc.col]);
+        if (v != null) periods.push({ label: pc.label, price: v });
+      });
+      const extra = { quantity: null, price: num(row[2]), periods: periods, components: meta.components, note: meta.note };
+      if (meta.qty) {
+        const qtyRaw = cellText(row[1]);
+        let qty = null;
+        let digits = String(qtyRaw).match(/\d+/);
+        let khcc = /KHCC/i.test(qtyRaw);
+        if (!digits) {
+          // gviz có thể bỏ trống ô số lượng -> suy ra từ tên gói (PACK 5*, PACK 10*)
+          const fromName = String(name).match(/pack\s*(\d+)/i);
+          if (fromName) { digits = [fromName[1]]; khcc = khcc || /\*/.test(name); }
         }
+        if (digits) {
+          qty = digits[0] + ' thiết bị Mesh 6';
+          if (khcc) qty += ' (KHCC, KHDN)';
+        } else if (qtyRaw) {
+          qty = qtyRaw;
+        }
+        extra.quantity = qty;
+      } else {
+        extra.service = cellText(row[1]) || null;
+      }
+      out.push(makePkg(meta.prefix + slugify(name), name, extra));
+    });
+    return out;
+  }
+
+  const PARSERS = {
+    fiber_canhan: parseFiberCanhan,
+    fiber_doanhnghiep: parseFiberDoanhnghiep,
+    mytv_box: parseMytvBox,
+    mua_luon: parseMuaLuon,
+    home_cam: parseHomeCam,
+    tan_cong: parseTanCong,
+    pack_mesh: function (b) { return parsePack(b, { prefix: 'PM_', qty: true, components: ['mesh'], note: 'Gói bổ sung Wifi Mesh 6', periodCols: [{ col: 3, label: '3 tháng' }, { col: 4, label: '6 tháng' }, { col: 5, label: '12/13 tháng' }] }); },
+    pack_cam: function (b) { return parsePack(b, { prefix: 'PC_', qty: false, components: ['cam'], note: 'Gói bổ sung Camera + Cloud', periodCols: [{ col: 3, label: '3 tháng' }, { col: 4, label: '6 tháng' }, { col: 5, label: '12/13 tháng' }] }); },
+  };
+
+  function parseTables(blocks) {
+    return TABLE_DEFS.map(function (def) {
+      const block = (blocks && blocks[def.key]) || [];
+      let pkgs = [];
+      try { pkgs = PARSERS[def.key](block) || []; } catch (e) { pkgs = []; }
+      pkgs.forEach(function (p) { p.table = def.key; p.audience = def.audience; });
+      return {
+        key: def.key, short: def.short, icon: def.icon, color: def.color,
+        audience: def.audience, title: def.title, notes: def.notes, packages: pkgs,
+      };
+    });
+  }
+
+  /* ---------------- trạng thái dữ liệu ---------------- */
+  let tables = [];
+  let packages = [];
+  let byKey = {};
+
+  function applyTables(list) {
+    tables = Array.isArray(list) ? list : [];
+    packages = [];
+    byKey = {};
+    tables.forEach(function (t) {
+      byKey[t.key] = t;
+      (t.packages || []).forEach(function (p) {
+        p.tableKey = t.key;
+        p.tableShort = t.short;
+        const hay = norm([p.name, p.speed, p.service, p.quantity, p.ip, p.note, t.title, t.short].join(' '));
+        p._hay = hay;
+        p._tokens = hay.split(/[^a-z0-9]+/).filter(Boolean);
+        packages.push(p);
+      });
+    });
+  }
+
+  applyTables((SNAPSHOT.tables || []).slice());
+
+  function getTables() { return tables; }
+  function getPackages() { return packages; }
+  function getTable(key) { return byKey[key]; }
+
+  function signature() {
+    return packages.map(function (p) { return p.id + ':' + (p.price == null ? '-' : p.price); }).sort().join('|');
+  }
+  function componentCount(p) { return (p.components || []).length; }
+
+  /* ---------------- đọc Google Sheet trực tiếp ---------------- */
+  const SHEET_ID = META.sheetId || '1RTNWBqlfNylCoO_K4AYuDMw-jZistMBZsF7CxC8zBG8';
+  const SHEET_NAME = META.sheetName || '';
+  const RANGES = META.ranges || {};
+  const GVIZ = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq';
+
+  function rangeUrl(range, jsonpCallback) {
+    const tqx = jsonpCallback ? 'out:json;responseHandler:' + jsonpCallback : 'out:json';
+    let url = GVIZ + '?tqx=' + encodeURIComponent(tqx) + '&range=' + encodeURIComponent(range);
+    if (SHEET_NAME) url += '&sheet=' + encodeURIComponent(SHEET_NAME);
+    return url + '&_=' + Date.now();
+  }
+
+  function rowsFromGviz(text) {
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start < 0 || end < 0) throw new Error('payload không hợp lệ');
+    const data = JSON.parse(text.slice(start, end + 1));
+    if (!data || !data.table || !data.table.rows) throw new Error('không có dữ liệu bảng');
+    return data.table.rows.map(function (row) {
+      return (row.c || []).map(function (c) { return c && 'v' in c ? c.v : null; });
+    });
+  }
+
+  function rowsFromQueryResponse(payload) {
+    if (!payload || !payload.table || !payload.table.rows) throw new Error('không có dữ liệu bảng');
+    return payload.table.rows.map(function (row) {
+      return (row.c || []).map(function (c) { return c && 'v' in c ? c.v : null; });
+    });
+  }
+
+  function loadRangeJsonp(range) {
+    return new Promise(function (resolve, reject) {
+      const cb = '__vnptSheetCb' + Math.random().toString(36).slice(2);
+      const script = document.createElement('script');
+      let done = false;
+      const timer = setTimeout(function () { finish(new Error('quá thời gian tải sheet')); }, 15000);
+
+      function finish(err, rows) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+        if (err) reject(err); else resolve(rows);
+      }
+
+      window[cb] = function (payload) {
+        try { finish(null, rowsFromQueryResponse(payload)); }
+        catch (e) { finish(e); }
+      };
+      script.onerror = function () { finish(new Error('không tải được script Google')); };
+      script.src = rangeUrl(range, cb);
+      document.head.appendChild(script);
+    });
+  }
+
+  async function loadRange(range) {
+    try {
+      const res = await fetch(rangeUrl(range), { mode: 'cors', cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      const rows = rowsFromGviz(text);
+      if (!rows.length) throw new Error('rỗng');
+      return rows;
+    } catch (e) {
+      // file:// hoặc khi bị CORS: dùng JSONP để vẫn lấy được giá mới
+      return loadRangeJsonp(range);
+    }
+  }
+
+  async function loadLive() {
+    const keys = TABLE_DEFS.filter(function (d) { return RANGES[d.key]; }).map(function (d) { return d.key; });
+    if (!keys.length) throw new Error('chưa cấu hình vùng dữ liệu');
+    const fetched = await Promise.all(keys.map(function (k) {
+      return loadRange(RANGES[k]).then(function (rows) {
+        return { key: k, rows: rows };
+      }).catch(function () {
+        return { key: k, rows: null };
+      });
+    }));
+    const blocks = {};
+    fetched.forEach(function (f) { if (f.rows) blocks[f.key] = f.rows; });
+    if (!Object.keys(blocks).length) throw new Error('không lấy được dữ liệu nào');
+
+    const parsed = parseTables(blocks);
+    const failed = [];
+    const merged = parsed.map(function (t) {
+      const current = byKey[t.key];
+      const expected = current ? (current.packages || []).length : 0;
+      // Bảng đọc lỗi, hoặc số gói sụt quá nhiều (sheet đổi cấu trúc) -> giữ bản đang dùng
+      const broken = !t.packages.length || (expected > 0 && t.packages.length < expected * 0.5);
+      if (broken) {
+        failed.push(t.key);
+        return current || t;
+      }
+      return t;
+    });
+    return { tables: merged, failed: failed, at: new Date() };
+  }
+
+  /* ---------------- truy vấn ---------------- */
+  const COMPONENT_PATTERNS = {
+    fiber: /\b(fiber|internet|cap quang|duong truyen)\b/g,
+    mesh: /\b(mesh|m8tt|mstt)\b/g,
+    cam: /\b(cam|camera|giam sat|cloud)\b/g,
+    mytv: /\b(mytv|truyen hinh|tivi|tv|box|dau thu)\b/g,
+  };
+
+  const STOPWORDS = new Set(('kh khach hang co va cho minh tai chinh can lap muon tim goi cuoc gia tien kinh te ' +
+    'nhat tam khoang voi o de nha nhe a ah oi e anh em tu van nay do vay dang ky chi da thi la bao nhieu ' +
+    'the nao cua mot giup ho tro nhu the loai nao gom chua kem ket hop cung').split(/\s+/));
+
+  function toVnd(numStr, unit) {
+    const raw = String(numStr).trim();
+    let n;
+    if (/^\d{1,3}([.,]\d{3})+$/.test(raw)) n = parseInt(raw.replace(/[.,]/g, ''), 10);
+    else n = parseFloat(raw.replace(',', '.'));
+    if (!isFinite(n) || isNaN(n)) return null;
+    if (unit) {
+      if (/trieu|tr/.test(unit)) return Math.round(n * 1000000);
+      if (/k|nghin|ngan|000/.test(unit)) return Math.round(n * 1000);
+    }
+    if (n >= 1000) return Math.round(n);
+    if (n >= 10) return Math.round(n * 1000);
+    return null;
+  }
+
+  function formatPrice(v) {
+    if (v == null || isNaN(v)) return 'Liên hệ';
+    return Math.round(v).toLocaleString('vi-VN') + 'đ';
+  }
+
+  function parseQuery(raw) {
+    let s = ' ' + norm(raw || '') + ' ';
+    const filters = [];
+    let speedMin = null, maxPrice = null, minPrice = null,
+        requireStaticIP = false, requireDynamicIP = false,
+        audience = null, onceOnly = false, cheapMode = false,
+        comboMode = false, minComponents = null;
+
+    // --- tốc độ (300mb / 300 mbps / 1gbps / 1 gb)
+    s = s.replace(/(\d+(?:[.,]\d+)?)\s*(gbps|gb)(?![a-z])/g, function (m, n) {
+      speedMin = Math.max(speedMin || 0, Math.round(parseFloat(n.replace(',', '.')) * 1000));
+      return ' ';
+    });
+    s = s.replace(/(\d+)\s*(mbps|mb)(?![a-z])/g, function (m, n) {
+      speedMin = Math.max(speedMin || 0, parseInt(n, 10));
+      return ' ';
+    });
+    if (speedMin) filters.push('Tốc độ ≥ ' + (speedMin >= 1000 ? (speedMin / 1000) + ' Gbps' : speedMin + ' Mbps'));
+
+    // --- ngân sách
+    const money = '(\\d[\\d.,]*)\\s*(trieu|tr|k|nghin|ngan|000)?';
+    let m = s.match(new RegExp('(?:duoi|nho hon|be hon|khong qua|toi da|under|<=?)\\s*' + money));
+    if (m) {
+      const v = toVnd(m[1], m[2]);
+      if (v) { maxPrice = v; filters.push('Giá ≤ ' + formatPrice(v)); s = s.replace(m[0], ' '); }
+    }
+    m = s.match(new RegExp('(?:tren|lon hon|cao hon|over|>=?)\\s*' + money));
+    if (m) {
+      const v = toVnd(m[1], m[2]);
+      if (v) { minPrice = v; filters.push('Giá ≥ ' + formatPrice(v)); s = s.replace(m[0], ' '); }
+    }
+    if (maxPrice == null && minPrice == null) {
+      const im = s.match(/(?:^|\s)(\d{2,})(\s*(?:k|nghin|ngan))?(?=\s|$)/);
+      if (im) {
+        const v = im[2] ? parseInt(im[1], 10) * 1000 : toVnd(im[1], null);
+        if (v) { maxPrice = v; filters.push('Ngân sách ≤ ' + formatPrice(v)); s = s.replace(im[0], ' '); }
+      }
+    }
+
+    // --- IP tĩnh / động
+    if (/\btinh\b/.test(s) && /\b(ip|wan|lan)\b/.test(s)) {
+      requireStaticIP = true;
+      filters.push('IP tĩnh');
+      s = s.replace(/\b(ip|wan|lan)\b|\btinh\b/g, ' ');
+    } else if (/\bdong\b/.test(s) && /\b(ip|wan)\b/.test(s)) {
+      requireDynamicIP = true;
+      filters.push('IP động');
+      s = s.replace(/\b(ip|wan)\b|\bdong\b/g, ' ');
+    }
+
+    // --- đối tượng khách hàng
+    if (/\b(doanh nghiep|cong ty|khdn|dn|business)\b/.test(s)) {
+      audience = 'business';
+      filters.push('Khách hàng doanh nghiệp');
+      s = s.replace(/\b(doanh nghiep|cong ty|khdn|dn|business)\b/g, ' ');
+    } else if (/\b(ca nhan|gia dinh|ho gia dinh|khcn|sinh vien)\b/.test(s)) {
+      audience = 'personal';
+      filters.push('Khách hàng cá nhân');
+      s = s.replace(/\b(ca nhan|gia dinh|ho gia dinh|khcn|sinh vien)\b/g, ' ');
+    }
+
+    // --- mua luôn (1 lần)
+    const onceRe = /\b(mua luon|mua 1 lan|mua mot lan|mua dut|mua thiet bi|mua rieng|mua)\b/g;
+    if (onceRe.test(s)) {
+      onceOnly = true;
+      filters.push('Mua thiết bị 1 lần');
+      s = s.replace(onceRe, ' ');
+    }
+
+    // --- ưu tiên giá thấp / gói tích hợp
+    const cheapRe = /\b(re nhat|re|gia re|kinh te|tiet kiem|thap nhat)\b/g;
+    if (cheapRe.test(s)) {
+      cheapMode = true;
+      filters.push('Ưu tiên giá thấp');
+      s = s.replace(cheapRe, ' ');
+    }
+    const comboRe = /\b(tich hop|combo|tron goi|full)\b/g;
+    if (comboRe.test(s)) {
+      comboMode = true;
+      filters.push('Ưu tiên gói tích hợp');
+      s = s.replace(comboRe, ' ');
+    }
+
+    // --- thành phần (fiber / mesh / cam / mytv)
+    const comps = [];
+    COMPONENT_ORDER.forEach(function (key) {
+      const re = new RegExp(COMPONENT_PATTERNS[key].source, 'g');
+      if (re.test(s)) {
+        comps.push(key);
+        s = s.replace(re, ' ');
+      }
+    });
+
+    // --- từ khóa còn lại
+    s = s.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    const terms = [];
+    s.split(' ').forEach(function (w) {
+      if (!w || STOPWORDS.has(w) || terms.indexOf(w) !== -1) return;
+      // bỏ ký tự đơn lẻ (vd 'b' trong "HOME 1_B") để không khớp tràn lan; vẫn giữ số đơn như '1'
+      if (w.length < 2 && !/^\d$/.test(w)) return;
+      terms.push(w);
+    });
+
+    if (comboMode && comps.length === 0) minComponents = 2;
+
+    const labelParts = comps.map(function (c) { return COMPONENTS[c].label; })
+      .concat(terms.map(function (t) { return '"' + t + '"'; }));
+    if (labelParts.length) filters.unshift('Thành phần: ' + labelParts.join(' + '));
+
+    return {
+      raw: raw || '', comps: comps, terms: terms,
+      phrase: terms.length >= 2 ? terms.join(' ') : '',
+      filters: filters,
+      speedMin: speedMin, maxPrice: maxPrice, minPrice: minPrice,
+      requireStaticIP: requireStaticIP, requireDynamicIP: requireDynamicIP,
+      audience: audience, onceOnly: onceOnly, cheapMode: cheapMode,
+      minComponents: minComponents, tableKey: null,
+    };
+  }
+
+  function sortPackages(list, cheapMode) {
+    const price = function (p) { return p.price == null ? Number.POSITIVE_INFINITY : p.price; };
+    // Nhóm ưu tiên: 0 = gói tích hợp (từ 2 dịch vụ trở lên), 1 = gói lẻ
+    const tier = function (p) { return componentCount(p) >= 2 ? 0 : 1; };
+    return list.slice().sort(function (a, b) {
+      if (cheapMode) {
+        // Người dùng yêu cầu rẻ nhất: giá thấp trước, cùng giá thì gói tích hợp trước
+        const d = price(a) - price(b);
+        if (d) return d;
+        const t = tier(a) - tier(b);
+        if (t) return t;
+      } else {
+        // 1) gói tích hợp lên trước  2) giá thấp nhất lên trước
+        const t = tier(a) - tier(b);
+        if (t) return t;
+        const d = price(a) - price(b);
+        if (d) return d;
+      }
+      const c = componentCount(b) - componentCount(a);
+      if (c) return c;
+      return a.name.localeCompare(b.name, 'vi');
+    });
+  }
+
+  function search(q) {
+    const comps = q.comps || [];
+    const terms = q.terms || [];
+    // Khi người dùng chỉ nêu đối tượng (vd "doanh nghiệp") thì chỉ lấy đúng bảng của đối tượng đó;
+    // các bảng dùng chung (Pack Mesh/Camera, Mua luôn) chỉ xuất hiện khi có thêm thành phần/nhu cầu cụ thể.
+    const hasFocus = comps.length > 0 || terms.length > 0 || !!q.onceOnly || !!q.minComponents;
+    const matched = packages.filter(function (p) {
+      if (comps.length && !comps.every(function (c) { return p.components.indexOf(c) !== -1; })) return false;
+      if (q.minComponents && componentCount(p) < q.minComponents) return false;
+      if (q.tableKey && p.tableKey !== q.tableKey) return false;
+      if (q.onceOnly && p.unit !== 'once') return false;
+      if (q.maxPrice != null && (p.price == null || p.price > q.maxPrice)) return false;
+      if (q.minPrice != null && (p.price == null || p.price < q.minPrice)) return false;
+      if (q.speedMin != null && !(p.speedMbps != null && p.speedMbps >= q.speedMin)) return false;
+      if (q.requireStaticIP && !/tinh/.test(norm(p.ip))) return false;
+      if (q.requireDynamicIP && !/dong/.test(norm(p.ip))) return false;
+      if (q.audience) {
+        if (p.audience === q.audience) { /* đúng đối tượng */ }
+        else if (p.audience === 'both' && hasFocus) { /* bảng dùng chung: chỉ khi đã có tiêu chí cụ thể */ }
+        else return false;
+      }
+      if (terms.length) {
+        for (let i = 0; i < terms.length; i++) {
+          const t = terms[i];
+          // số (vd "1") phải khớp nguyên từ, tránh "1" dính trong "tv1", "eco1"
+          if (/^\d+$/.test(t)) {
+            if (p._tokens.indexOf(t) === -1) return false;
+          } else if (p._hay.indexOf(t) === -1) {
+            return false;
+          }
+        }
+      }
+      return true;
+    });
+
+    let list = matched;
+    if (q.phrase) {
+      const byName = list.filter(function (p) { return norm(p.name).indexOf(q.phrase) !== -1; });
+      if (byName.length) list = byName;
+    }
+
+    const sorted = sortPackages(list, !!q.cheapMode);
+
+    // Nhóm theo bảng (bảng nào có gói xếp hạng cao nhất thì đứng trước)
+    const groups = [];
+    const seen = {};
+    sorted.forEach(function (p) {
+      if (!seen[p.tableKey]) {
+        seen[p.tableKey] = { table: byKey[p.tableKey] || { key: p.tableKey, short: p.tableShort, color: 'blue', icon: 'fa-table' }, packages: [] };
+        groups.push(seen[p.tableKey]);
+      }
+      seen[p.tableKey].packages.push(p);
+    });
+
+    return {
+      groups: groups, total: sorted.length, packages: sorted,
+      filters: q.filters || [], cheapMode: !!q.cheapMode,
+    };
+  }
+
+  // Nếu từ khóa chữ làm rỗng kết quả thì tự nới lỏng, chỉ giữ thành phần/điều kiện
+  function searchSmart(q) {
+    const res = search(q);
+    const hasFacet = (q.comps || []).length > 0 || q.audience || q.maxPrice != null ||
+      q.minPrice != null || q.speedMin != null || q.onceOnly || q.minComponents;
+    if (res.total === 0 && (q.terms || []).length && hasFacet) {
+      const relaxed = search(Object.assign({}, q, { terms: [], filters: (q.filters || []).filter(function (f) { return !/^Thành phần:/.test(f); }) }));
+      if (relaxed.total) {
+        relaxed.relaxed = true;
+        relaxed.droppedTerms = q.terms.slice();
+        return relaxed;
+      }
+    }
+    return res;
+  }
+
+  window.VNPT_ENGINE = {
+    META: META,
+    COMPONENTS: COMPONENTS, COMPONENT_ORDER: COMPONENT_ORDER, TABLE_DEFS: TABLE_DEFS,
+    RANGES: RANGES,
+    getTables: getTables, getPackages: getPackages, getTable: getTable, applyTables: applyTables,
+    parseTables: parseTables, loadLive: loadLive, loadRange: loadRange,
+    norm: norm, parseQuery: parseQuery, search: search, searchSmart: searchSmart,
+    sortPackages: sortPackages, formatPrice: formatPrice, componentCount: componentCount,
+    signature: signature, num: num, cellText: cellText, cellName: cellName,
+  };
+})();
+/* === ENGINE END === */
+    })();
+    </script>
+
+    <script type="text/babel">
+    (function () {
+const { useState, useEffect, useRef } = React;
+const ENGINE = window.VNPT_ENGINE;
+const { COMPONENTS, formatPrice, norm } = ENGINE;
+
+/* ---------- màu theo bảng ---------- */
+const TABLE_THEME = {
+  blue:    { bar: 'bg-blue-600',    soft: 'bg-blue-50 text-blue-700 border-blue-200',       dot: 'bg-blue-500' },
+  violet:  { bar: 'bg-violet-600',  soft: 'bg-violet-50 text-violet-700 border-violet-200', dot: 'bg-violet-500' },
+  indigo:  { bar: 'bg-indigo-600',  soft: 'bg-indigo-50 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500' },
+  rose:    { bar: 'bg-rose-600',    soft: 'bg-rose-50 text-rose-700 border-rose-200',       dot: 'bg-rose-500' },
+  amber:   { bar: 'bg-amber-500',   soft: 'bg-amber-50 text-amber-700 border-amber-200',    dot: 'bg-amber-500' },
+  teal:    { bar: 'bg-teal-600',    soft: 'bg-teal-50 text-teal-700 border-teal-200',       dot: 'bg-teal-500' },
+  emerald: { bar: 'bg-emerald-600', soft: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
+  sky:     { bar: 'bg-sky-600',     soft: 'bg-sky-50 text-sky-700 border-sky-200',          dot: 'bg-sky-500' },
+};
+
+const COMPONENT_CHIP = {
+  fiber: 'bg-blue-50 text-blue-700 border-blue-200',
+  mesh:  'bg-emerald-50 text-emerald-700 border-emerald-200',
+  cam:   'bg-amber-50 text-amber-700 border-amber-200',
+  mytv:  'bg-indigo-50 text-indigo-700 border-indigo-200',
+};
+
+/* Bộ gợi ý: thành phần, tổ hợp, bảng giá, đối tượng, ngân sách, tốc độ */
+const SUGGESTION_POOL = [
+  'Camera', 'Mesh', 'MyTV', 'Fiber',
+  'Camera + MyTV', 'Camera + Mesh', 'Mesh + MyTV', 'Camera + MyTV + Mesh',
+  'Gói tích hợp', 'Gói tích hợp gồm Fiber, MyTV, Mesh', 'Home Cam', 'Home TV', 'Home Slay', 'Home 1_B',
+  'MyTV VIP', 'Home TV VIP', 'Pack Mesh', 'Pack Camera', 'Mua luôn thiết bị',
+  'Doanh nghiệp', 'Doanh nghiệp IP tĩnh', 'Doanh nghiệp IP động', 'Doanh nghiệp dưới 500k',
+  'Dưới 200k', 'Dưới 300k', 'Dưới 500k', 'Fiber 300mb', 'Fiber 1gb', 'Camera Out',
+];
+
+/* ---------- định dạng chữ có **đậm** / *nghiêng* ---------- */
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const richText = (s) => escapeHtml(s)
+  .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+  .replace(/\*([^*\n]+)\*/g, '<i>$1</i>')
+  .replace(/\n/g, '<br/>');
+
+const formatTime = (d) => {
+  try { return new Date(d).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
+  catch (e) { return ''; }
+};
+
+/* ---------- danh sách gợi ý (thu gọn / mở rộng) ---------- */
+const SuggestionList = ({ items, limit = 10, onPick }) => {
+  const [open, setOpen] = useState(false);
+  if (!items || !items.length) return null;
+  const shown = open ? items : items.slice(0, limit);
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {shown.map((sug) => (
+        <button key={sug} onClick={() => onPick(sug)}
+          className="bg-white border border-blue-200 text-blue-700 font-semibold text-[11.5px] px-2.5 py-1 rounded-full hover:bg-blue-50 transition-colors shadow-sm active:scale-95">
+          {sug}
+        </button>
+      ))}
+      {items.length > limit && (
+        <button onClick={() => setOpen(!open)}
+          className="bg-slate-100 border border-slate-300 border-dashed text-slate-600 font-bold text-[11.5px] px-2.5 py-1 rounded-full hover:bg-slate-200 active:scale-95">
+          {open ? 'Thu gọn' : `+${items.length - limit} gợi ý khác`}
+        </button>
+      )}
+    </div>
+  );
+};
+
+/* ---------- thẻ gói cước ---------- */
+const PackageCard = ({ pkg }) => {
+  const [copied, setCopied] = useState(false);
+  const tbl = ENGINE.getTable(pkg.tableKey) || {};
+  const theme = TABLE_THEME[tbl.color] || TABLE_THEME.blue;
+  const isOnce = pkg.unit === 'once';
+
+  const fallbackCopy = (text, done) => {
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.style.position = 'fixed';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.select();
+    try { document.execCommand('copy'); done(); } catch (e) { /* bỏ qua */ }
+    document.body.removeChild(el);
+  };
+
+  const handleCopy = () => {
+    const lines = ['📌 *' + pkg.name + '*'];
+    lines.push('🗂 Bảng: ' + pkg.tableShort);
+    if (pkg.speed) lines.push('▪ Tốc độ: ' + pkg.speed);
+    if (pkg.service) lines.push('▪ Dịch vụ: ' + pkg.service);
+    if (pkg.quantity) lines.push('▪ Thành phần: ' + pkg.quantity);
+    if (pkg.ip) lines.push('▪ IP: ' + pkg.ip);
+    if (pkg.price != null) lines.push((isOnce ? '💰 Giá mua 1 lần: ' : '💰 Giá 1 tháng: ') + formatPrice(pkg.price));
+    (pkg.periods || []).forEach((t) => lines.push('   • ' + t.label + ': ' + formatPrice(t.price)));
+    if (pkg.note) lines.push('• ' + pkg.note);
+    const text = lines.join('\n');
+
+    const done = () => { setCopied(true); setTimeout(() => setCopied(false), 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl flex flex-col overflow-hidden shadow-sm hover:shadow-lg hover:border-slate-300 transition-all">
+      <div className="px-3 py-2.5 border-b border-slate-100 bg-slate-50/70">
+        <div className="flex items-center justify-between gap-1.5">
+          <div className="flex items-center gap-1">
+            {pkg.components.map((c) => (
+              <span key={c} title={COMPONENTS[c].label} className={`text-[9px] font-bold border rounded px-1 py-[1px] ${COMPONENT_CHIP[c]}`}>
+                <i className={`fas ${COMPONENTS[c].icon} mr-0.5`}></i>{COMPONENTS[c].label}
+              </span>
+            ))}
+          </div>
+          {isOnce && <span className="text-[8px] font-bold uppercase bg-slate-800 text-white rounded px-1.5 py-[2px] shrink-0">Mua 1 lần</span>}
+        </div>
+        <h3 className="mt-1.5 font-extrabold text-[13px] leading-tight uppercase text-slate-900">{pkg.name}</h3>
+        {pkg.components.length > 1 && (
+          <div className="mt-1 text-[9.5px] font-bold text-emerald-600 uppercase tracking-wide">
+            <i className="fas fa-layer-group mr-1"></i>Tích hợp {pkg.components.length} dịch vụ
+          </div>
+        )}
+      </div>
+
+      <div className="px-3 py-2.5 flex-1 flex flex-col gap-1.5 text-[11.5px] text-slate-600">
+        {pkg.speed && (
+          <div className="flex gap-1.5">
+            <i className="fas fa-gauge-high text-slate-300 mt-[3px] text-[10px]"></i>
+            <span className="font-semibold text-slate-800">{pkg.speed}</span>
+          </div>
+        )}
+        {pkg.service && (
+          <div className="flex gap-1.5">
+            <i className="fas fa-circle-info text-slate-300 mt-[3px] text-[10px]"></i>
+            <span className="clamp-3">{pkg.service}</span>
+          </div>
+        )}
+        {pkg.quantity && (
+          <div className="flex gap-1.5">
+            <i className="fas fa-box text-slate-300 mt-[3px] text-[10px]"></i>
+            <span className="font-medium text-slate-800">{pkg.quantity}</span>
+          </div>
+        )}
+        {pkg.ip && (
+          <div className="flex gap-1.5">
+            <i className="fas fa-network-wired text-slate-300 mt-[3px] text-[10px]"></i>
+            <span>{pkg.ip}</span>
+          </div>
+        )}
+        {pkg.note && <div className="text-[10px] text-slate-400 italic">{pkg.note}</div>}
+      </div>
+
+      <div className="px-3 pb-3">
+        <div className="rounded-xl bg-slate-50 border border-slate-100 py-1.5 text-center">
+          <div className="text-[8.5px] font-bold uppercase tracking-wide text-slate-400">
+            {isOnce ? 'Giá mua 1 lần' : 'Giá 1 tháng'}
+          </div>
+          <div className="font-black text-[19px] leading-tight text-blue-900">{formatPrice(pkg.price)}</div>
+        </div>
+
+        {(pkg.periods || []).length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1.5">
+            {pkg.periods.map((t) => (
+              <span key={t.label} className="bg-white border border-slate-200 text-slate-600 px-1.5 py-[1px] rounded text-[9.5px] font-semibold">
+                {t.label}: {formatPrice(t.price)}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={handleCopy}
+          className={`mt-2 w-full py-1.5 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all ${
+            copied ? 'bg-green-500 text-white' : 'bg-slate-800 text-white hover:bg-blue-600'
+          }`}
+        >
+          {copied ? <><i className="fas fa-check"></i> Đã chép</> : <><i className="far fa-copy"></i> Copy gửi Zalo</>}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- nhóm kết quả theo 1 bảng trong sheet ---------- */
+const GroupSection = ({ group, onShowTable }) => {
+  const [expanded, setExpanded] = useState(false);
+  const LIMIT = 6;
+  const theme = TABLE_THEME[group.table.color] || TABLE_THEME.blue;
+  const list = expanded ? group.packages : group.packages.slice(0, LIMIT);
+  const hidden = group.packages.length - list.length;
+  const notes = group.table.notes || [];
+
+  return (
+    <div className="border border-slate-200 rounded-2xl bg-white/70 overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-3 py-2 bg-slate-50 border-b border-slate-200">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className={`w-6 h-6 rounded-lg ${theme.bar} text-white text-[10px] flex items-center justify-center shrink-0`}>
+            <i className={`fas ${group.table.icon}`}></i>
+          </span>
+          <div className="min-w-0">
+            <div className="text-[11.5px] font-extrabold uppercase tracking-wide text-slate-700 truncate" title={group.table.title}>
+              {group.table.short}
+            </div>
+            <div className="text-[9.5px] text-slate-400 truncate">
+              {group.packages.length} gói khớp{notes.length ? ' · ' + notes[0] : ''}
+            </div>
+          </div>
+        </div>
+        <button onClick={() => onShowTable(group.table.key)}
+          className="text-[10px] font-bold text-blue-600 hover:text-blue-800 whitespace-nowrap shrink-0">
+          Cả bảng <i className="fas fa-arrow-right text-[8px]"></i>
+        </button>
+      </div>
+
+      <div className="p-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          {list.map((p) => <PackageCard key={p.id} pkg={p} />)}
+        </div>
+        {(hidden > 0 || expanded) && (
+          <button onClick={() => setExpanded(!expanded)}
+            className="mt-2.5 w-full py-1.5 rounded-lg border border-dashed border-slate-300 text-[11px] font-bold text-slate-500 hover:bg-slate-50 hover:text-blue-600">
+            {expanded ? 'Thu gọn' : `Xem thêm ${hidden} gói cùng bảng`}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ---------- khối kết quả ---------- */
+const ResultPanel = ({ result, onShowTable }) => {
+  if (!result.packages.length) {
+    return (
+      <div className="mt-3 rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-3 text-[12px] text-amber-800">
+        <b>Không tìm thấy gói phù hợp.</b> Thử bỏ bớt điều kiện, hoặc chọn nhanh một thành phần bên dưới.
+      </div>
+    );
+  }
+  return (
+    <div className="mt-3 space-y-3">
+      {result.groups.map((g) => <GroupSection key={g.table.key} group={g} onShowTable={onShowTable} />)}
+    </div>
+  );
+};
+
+/* ---------- ứng dụng ---------- */
+const App = () => {
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = useState([
+    { id: 1, type: 'bot', welcome: true, suggestions: SUGGESTION_POOL },
+  ]);
+  const [sync, setSync] = useState({ mode: 'snapshot', at: ENGINE.META.generatedAt || '', failed: [] });
+  const [syncing, setSyncing] = useState(false);
+
+  const messagesEndRef = useRef(null);
+  const lastResultRef = useRef(null);
+  const chatRef = useRef(null);
+  const contentRef = useRef(null);
+  const pendingScrollRef = useRef(null);
+  const idRef = useRef(10);
+  const syncRef = useRef(false);
+  const firstSyncRef = useRef(true);
+  const [, forceRender] = useState(0);
+
+  const nextId = () => ++idRef.current;
+
+  const welcomeText = () => {
+    const tbls = ENGINE.getTables();
+    const total = ENGINE.getPackages().length;
+    return `👋 **Trợ lý gói cước VNPT** đã sẵn sàng.\n\nTôi đọc **${tbls.length} bảng giá** từ Google Sheet (${total} gói). Bạn chỉ cần nêu **thành phần** muốn dùng — **Fiber**, **Mesh**, **Camera**, **MyTV** — hoặc nói nhu cầu kèm mức giá.\n\n🎯 Kết quả luôn xếp: **gói tích hợp nhiều dịch vụ lên đầu**, cùng nhóm thì **giá thấp nhất trước**.`;
+  };
+
+  const alignTop = (el) => {
+    const scroller = chatRef.current;
+    if (!scroller || !el) return;
+    scroller.scrollTop += el.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 34;
+  };
+
+  useEffect(() => {
+    const scroller = chatRef.current;
+    if (!scroller) return;
+    const last = messages[messages.length - 1];
+    if (last && last.type === 'bot' && last.result && lastResultRef.current) {
+      pendingScrollRef.current = lastResultRef.current;
+      alignTop(lastResultRef.current);
+    } else {
+      pendingScrollRef.current = null;
+      scroller.scrollTop = scroller.scrollHeight;
+    }
+  }, [messages, isTyping]);
+
+  useEffect(() => {
+    const target = contentRef.current;
+    if (!target || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => { alignTop(pendingScrollRef.current); });
+    ro.observe(target);
+    const stop = () => { pendingScrollRef.current = null; };
+    window.addEventListener('wheel', stop, { passive: true });
+    window.addEventListener('touchstart', stop, { passive: true });
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('wheel', stop);
+      window.removeEventListener('touchstart', stop);
+    };
+  }, []);
+
+  /* ---------- đồng bộ giá từ Google Sheet ---------- */
+  const pushBotNote = (text, extra) => {
+    setMessages((prev) => prev.concat(Object.assign({ id: nextId(), type: 'bot', text: text }, extra || {})));
+  };
+
+  const refreshPrices = async (silent) => {
+    if (syncRef.current) return;
+    syncRef.current = true;
+    setSyncing(true);
+    const beforeSig = ENGINE.signature();
+    const beforePrice = {};
+    ENGINE.getPackages().forEach((p) => { beforePrice[p.id] = p.price; });
+    const isFirstSync = firstSyncRef.current;
+    firstSyncRef.current = false;
+
+    try {
+      const res = await ENGINE.loadLive();
+      ENGINE.applyTables(res.tables);
+      forceRender((v) => v + 1);
+      const at = formatTime(res.at);
+      setSync({ mode: 'live', at: at, failed: res.failed || [] });
+
+      let changed = 0;
+      ENGINE.getPackages().forEach((p) => {
+        if (Object.prototype.hasOwnProperty.call(beforePrice, p.id) && beforePrice[p.id] !== p.price) changed++;
+      });
+      if (!isFirstSync && changed > 0) {
+        // luôn báo khi giá đổi (kể cả tự động cập nhật), để người dùng không đọc nhầm giá cũ
+        pushBotNote(`🔄 **Đã cập nhật giá mới từ Google Sheet** lúc ${at} — **${changed} gói** thay đổi giá.`);
+      } else if (!silent && !isFirstSync) {
+        pushBotNote(`✅ Đã kiểm tra Google Sheet lúc ${at} — giá đang là mới nhất, không có thay đổi.`);
+      }
+      if (res.failed && res.failed.length && !silent) {
+        pushBotNote(`⚠️ ${res.failed.length} bảng chưa đọc được (sheet đổi cấu trúc?) nên đang dùng bản lưu sẵn.`);
+      }
+    } catch (e) {
+      if (!silent) {
+        pushBotNote('⚠️ Chưa kết nối được Google Sheet (mạng/CORS). Ứng dụng vẫn dùng **bản lưu sẵn** — bấm nút cạnh tiêu đề để thử lại.');
+      }
+      setSync((s) => ({ mode: s.mode === 'live' ? 'live' : 'snapshot', at: s.at, failed: s.failed }));
+    } finally {
+      setSyncing(false);
+      syncRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    refreshPrices(true);
+    const timer = setInterval(() => {
+      if (!document.hidden) refreshPrices(true);
+    }, 5 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Gợi ý tìm tiếp dựa trên truy vấn vừa rồi
+  const suggestionsAfter = (q) => {
+    const have = new Set(q.comps || []);
+    const pool = [];
+    if (q.audience === 'business') {
+      if (!q.requireStaticIP) pool.push('Doanh nghiệp IP tĩnh');
+      if (!q.requireDynamicIP) pool.push('Doanh nghiệp IP động');
+      pool.push('Doanh nghiệp dưới 500k');
+    } else if (q.audience === 'personal') {
+      pool.push('Home Cam', 'Home TV', 'Home Slay');
+    } else {
+      if (!have.has('cam')) pool.push('Camera');
+      if (!have.has('mesh')) pool.push('Mesh');
+      if (!have.has('mytv')) pool.push('MyTV');
+      if (!have.has('fiber')) pool.push('Fiber');
+      if (have.size >= 2) pool.unshift('Gói tích hợp');
+      if (!q.maxPrice) pool.push('Dưới 200k');
+      if (!q.onceOnly) pool.push('Mua luôn thiết bị');
+    }
+    return Array.from(new Set(pool)).slice(0, 5);
+  };
+
+  const pushSearch = (rawText, opts) => {
+    opts = opts || {};
+    if (!rawText && !(opts.comps && opts.comps.length) && !opts.minComponents && !opts.tableKey) return;
+
+    const q = ENGINE.parseQuery(rawText || '');
+    if (opts.comps && opts.comps.length) {
+      q.comps = Array.from(new Set(q.comps.concat(opts.comps)));
+      const labels = q.comps.map((c) => COMPONENTS[c].label).join(' + ');
+      q.filters = ['Thành phần: ' + labels].concat(q.filters.filter((f) => !/^Thành phần:/.test(f)));
+    }
+    if (opts.minComponents) q.minComponents = opts.minComponents;
+    if (opts.tableKey) q.tableKey = opts.tableKey;
+
+    let userLabel = rawText || '';
+    const tbl = opts.tableKey ? ENGINE.getTable(opts.tableKey) : null;
+    if (tbl) userLabel = 'Xem cả bảng: ' + tbl.short;
+    else if (!userLabel && opts.minComponents) userLabel = 'Gói tích hợp (≥ 2 dịch vụ)';
+    else if (!userLabel) userLabel = q.comps.map((c) => COMPONENTS[c].label).join(' + ');
+
+    setMessages((prev) => prev.concat({ id: nextId(), type: 'user', text: userLabel }));
+    setInputValue('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      const result = ENGINE.searchSmart(q);
+      setIsTyping(false);
+
+      let botText;
+      if (result.total > 0) {
+        botText = `✅ **${result.total} gói** phù hợp, nằm trong **${result.groups.length} bảng giá**.`;
+        if (result.filters.length) botText += `\n🎯 Điều kiện: *${result.filters.join(' • ')}*`;
+        if (result.relaxed) {
+          botText += `\nℹ️ Không khớp chính xác từ khóa *"${(result.droppedTerms || []).join(' ')}"* nên đã nới lỏng, chỉ lọc theo thành phần/điều kiện.`;
+        }
+        botText += result.cheapMode
+          ? '\n↕️ Đang xếp theo **giá thấp nhất trước** (bạn yêu cầu giá rẻ).'
+          : '\n↕️ Đang xếp: **gói tích hợp trước**, rồi **giá thấp nhất trước**.';
+        setMessages((prev) => prev.concat({
+          id: nextId(), type: 'bot', text: botText, result,
+          suggestions: suggestionsAfter(q), suggestionLimit: 5,
+        }));
+      } else {
+        setMessages((prev) => prev.concat({
+          id: nextId(), type: 'bot',
+          text: `❌ Không có gói nào khớp với "${userLabel}".\nHãy thử bỏ bớt điều kiện, hoặc chọn một thành phần:`,
+          suggestions: SUGGESTION_POOL, suggestionLimit: 8,
+        }));
+      }
+    }, 320);
+  };
+
+  const handleSubmit = (text) => {
+    const value = (text != null ? text : inputValue).trim();
+    if (!value) return;
+    pushSearch(value);
+  };
+
+  const quickChips = [
+    { label: 'Fiber', icon: 'fa-globe', comps: ['fiber'] },
+    { label: 'Mesh', icon: 'fa-router', comps: ['mesh'] },
+    { label: 'Camera', icon: 'fa-video', comps: ['cam'] },
+    { label: 'MyTV', icon: 'fa-tv', comps: ['mytv'] },
+    { label: 'Camera + MyTV', icon: 'fa-video', comps: ['cam', 'mytv'], extra: 'fa-tv' },
+    { label: 'Camera + Mesh', icon: 'fa-video', comps: ['cam', 'mesh'], extra: 'fa-router' },
+    { label: 'Tích hợp', icon: 'fa-layer-group', minComponents: 2 },
+  ];
+
+  const live = sync.mode === 'live';
+  const failedCount = (sync.failed || []).length;
+
+  return (
+    <div className="w-full h-full flex flex-col bg-slate-50">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 px-4 py-3 flex items-center justify-between gap-2 z-10 shadow-md shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-inner shrink-0 ring-2 ring-white/40">
+            <span className="text-[11px] font-black text-blue-700 tracking-tighter leading-none">VNPT</span>
+          </div>
+          <div className="min-w-0">
+            <h1 className="font-bold text-white text-[15px] uppercase tracking-wide leading-tight truncate">Trợ lý gói cước VNPT</h1>
+            <p className="text-[10px] text-blue-100 flex items-center gap-1.5 mt-0.5 truncate">
+              <span className={`w-1.5 h-1.5 rounded-full ${live ? 'bg-green-400 animate-pulse' : 'bg-amber-300'}`}></span>
+              {ENGINE.getTables().length} bảng giá · {ENGINE.getPackages().length} gói · {live ? 'giá đồng bộ từ sheet' : 'dữ liệu lưu sẵn'}
+            </p>
+          </div>
+        </div>
+
+        <button onClick={() => refreshPrices(false)} disabled={syncing}
+          title="Lấy giá mới nhất từ Google Sheet"
+          className="flex items-center gap-1.5 text-[10.5px] font-bold text-white bg-white/10 hover:bg-white/25 border border-white/25 rounded-full px-2.5 sm:px-3 py-1.5 transition disabled:opacity-70 shrink-0">
+          <i className={`fas ${syncing ? 'fa-circle-notch fa-spin' : 'fa-rotate'}`}></i>
+          <span className="whitespace-nowrap">{syncing ? 'Đang lấy giá…' : live ? `Giá ${sync.at}` : 'Cập nhật giá'}</span>
+        </button>
+      </div>
+
+      {/* Chat */}
+      <div ref={chatRef} className="flex-1 overflow-y-auto scroll-thin p-3 sm:p-4 chat-bg">
+        <div ref={contentRef} className="flex flex-col gap-4">
+          {messages.map((msg) => (
+            <div key={msg.id} className={`flex w-full ${msg.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in-up`}>
+              {msg.type === 'bot' && (
+                <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center mr-2.5 shrink-0 mt-0.5 shadow-sm">
+                  <i className="fas fa-robot text-blue-600 text-[13px]"></i>
+                </div>
+              )}
+              <div ref={msg.type === 'bot' ? lastResultRef : null}
+                   className={`min-w-0 flex flex-col scroll-mt-3 ${msg.type === 'user' ? 'items-end max-w-[85%]' : 'items-start flex-1'}`}>
+                {(msg.text || msg.welcome) && (
+                  <div className={`px-3.5 py-2.5 text-[13px] leading-relaxed shadow-sm ${
+                    msg.type === 'user'
+                      ? 'bg-blue-600 text-white rounded-2xl rounded-tr-sm font-medium whitespace-pre-wrap'
+                      : 'bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-tl-sm'
+                  }`} dangerouslySetInnerHTML={{ __html: richText(msg.welcome ? welcomeText() : msg.text) }} />
+                )}
+
+                {msg.suggestions && <SuggestionList items={msg.suggestions} limit={msg.suggestionLimit || 10} onPick={handleSubmit} />}
+
+                {msg.result && (
+                  <div className="w-full">
+                    <ResultPanel result={msg.result} onShowTable={(key) => pushSearch('', { tableKey: key })} />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {isTyping && (
+            <div className="flex w-full justify-start animate-fade-in-up">
+              <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center mr-2.5 shrink-0">
+                <i className="fas fa-robot text-blue-600 text-[13px]"></i>
+              </div>
+              <div className="bg-white border border-slate-100 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} className="h-1" />
+        </div>
+      </div>
+
+      {/* Lối tắt thành phần */}
+      <div className="px-3 pt-2 bg-white border-t border-slate-200 shrink-0">
+        <div className="flex gap-1.5 overflow-x-auto chip-scroll pb-0.5">
+          <span className="text-[10px] font-bold uppercase text-slate-400 self-center pr-1 shrink-0">Chọn nhanh:</span>
+          {quickChips.map((c) => (
+            <button key={c.label}
+              onClick={() => pushSearch('', { comps: c.comps, minComponents: c.minComponents })}
+              className={`shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full border transition-all active:scale-95 hover:shadow-sm ${
+                c.minComponents ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400 hover:text-blue-700'
+              }`}>
+              <i className={`fas ${c.icon} mr-1 text-[10px]`}></i>{c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Ô nhập */}
+      <div className="px-3 pt-2 pb-3 bg-white shrink-0">
+        <div className="flex items-center gap-2 rounded-2xl p-1.5 bg-slate-50 border border-slate-300 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+          <i className="fas fa-magnifying-glass ml-2.5 text-blue-500 text-[13px]"></i>
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+            placeholder="VD: gói tích hợp gồm Fiber, MyTV, Mesh, camera dưới 300k..."
+            className="flex-grow bg-transparent border-none outline-none text-[13.5px] text-slate-800 placeholder-slate-400 py-2 w-full font-medium"
+          />
+          <button onClick={() => handleSubmit()} disabled={!inputValue.trim()}
+            className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center disabled:bg-slate-300 disabled:shadow-none transition-all shadow-md active:scale-95 shrink-0">
+            <i className="fas fa-paper-plane text-[13px]"></i>
+          </button>
+        </div>
+        <p className="mt-1.5 text-center text-[9.5px] text-slate-400">
+          Nguồn: <a className="underline hover:text-blue-500" href={ENGINE.META.source} target="_blank" rel="noopener">Google Sheet gói cước</a>
+          {' · '}{live ? 'đồng bộ' : 'bản lưu'} {sync.at}
+          {failedCount ? ` · ${failedCount} bảng dùng bản lưu` : ''}
+          {' · '}mỗi bảng giá là một bảng gói cước
+        </p>
+      </div>
+    </div>
+  );
+};
+
+
+
+      const rootNode = document.getElementById('react-chat-root');
+      if (rootNode && rootNode.dataset.mounted !== '1') {
+        rootNode.dataset.mounted = '1';
+        ReactDOM.createRoot(rootNode).render(<App />);
+      }
+    })();
     </script>
     <script id="bc-modem-js">
 (function () {
