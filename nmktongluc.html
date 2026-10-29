@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231d4ed8'/><path d='M18 33l9 9 19-19' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <style>/* ===== CHẠM KH – TỔNG LỰC · v7 · giao diện navy hiện đại ===== */
 :root{
-  --bg:#f2f7ff; --bg-2:#e9f1ff; --card:#ffffff;
+  --bg:#e8f0fc; --bg-2:#dee9fa; --card:#ffffff;
   --ink:#13233c; --ink-2:#4b5f7a; --ink-3:#7286a3;
   --line:#e2ebfa; --line-2:#eef4fe;
   --navy:#2563eb; --navy-d:#1d4ed8; --navy-l:#3b82f6; --navy-soft:#e8f1ff;
@@ -32,8 +32,8 @@
 html,body{margin:0;padding:0}
 body{
   background:
-    radial-gradient(1100px 380px at 50% -160px, #dfeaff 0%, rgba(223,234,255,0) 72%),
-    linear-gradient(180deg,#f4f9ff 0%,var(--bg) 320px);
+    radial-gradient(1100px 380px at 50% -170px, #d8e7ff 0%, rgba(216,231,255,0) 72%),
+    linear-gradient(180deg,#eef4ff 0%,var(--bg) 300px);
   background-color:var(--bg);
   color:var(--ink); font-size:15px; line-height:1.45;
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -78,11 +78,11 @@ button{cursor:pointer;border:0;background:none}
 
 /* ---------- KPI ---------- */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.kpi{background:linear-gradient(180deg,#f7faff,#fff);border-radius:14px;padding:11px 12px;box-shadow:var(--shadow);
-     border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;position:relative;overflow:hidden}
-.kpi.ok{background:linear-gradient(180deg,#e9fbf3,#fff)}
-.kpi.wait{background:linear-gradient(180deg,#fff8ea,#fff)}
-.kpi.pct{background:linear-gradient(180deg,#eef2ff,#fff)}
+.kpi{background:#fff;border-radius:14px;padding:11px 12px;box-shadow:var(--shadow);
+     border:1px solid #d9e6f9;display:flex;flex-direction:column;gap:2px;position:relative;overflow:hidden}
+.kpi.ok{background:#fff}
+.kpi.wait{background:#fff}
+.kpi.pct{background:#fff}
 .kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
 .kpi.ok::after{background:var(--green)} .kpi.wait::after{background:var(--amber)} .kpi.pct::after{background:var(--navy)}
 .kpi b{font-size:20px;font-weight:800;letter-spacing:-.5px;line-height:1.1;color:var(--ink)}
@@ -96,13 +96,13 @@ button{cursor:pointer;border:0;background:none}
 /* ---------- toolbar ---------- */
 .toolbar{position:sticky;top:58px;z-index:30;background:var(--bg);padding:10px 0 8px;
          box-shadow:0 12px 10px -14px rgba(13,27,42,.45)}
-.search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
-        border-radius:11px;padding:9px 12px;box-shadow:var(--shadow);min-width:0}
+.search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #d7e5fa;
+        border-radius:12px;padding:10px 12px;box-shadow:var(--shadow);min-width:0}
 .search input{border:0;outline:0;flex:1;background:transparent;font-size:15px;min-width:0}
 .search svg{flex:0 0 auto;opacity:.5}
 .filter-bar{display:flex;align-items:center;gap:10px;margin-top:8px;width:100%;text-align:left;
-            background:linear-gradient(180deg,#f6faff,#fff);border:1px solid #d3e4ff;border-radius:13px;
-            padding:10px 12px;box-shadow:0 2px 10px -6px rgba(37,99,235,.35);transition:.15s;cursor:pointer}
+            background:#fff;border:1px solid #d7e5fa;border-radius:13px;
+            padding:10px 12px;box-shadow:var(--shadow);transition:.15s;cursor:pointer}
 .filter-bar:hover{background:#f7fbff;border-color:#bcd4ff}
 .filter-bar:active{transform:scale(.997)}
 .filter-bar.has{background:linear-gradient(180deg,#eaf2ff,#fff);border-color:#a9c8ff;
@@ -121,7 +121,7 @@ button{cursor:pointer;border:0;background:none}
 .fb-chev{color:var(--ink-3);font-size:18px;line-height:1;flex:0 0 auto}
 .chips{display:flex;gap:7px;overflow-x:auto;padding:9px 14px 2px 2px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{white-space:nowrap;padding:7px 12px;border-radius:99px;background:var(--card);border:1px solid var(--line);
+.chip{white-space:nowrap;padding:8px 13px;border-radius:99px;background:#fff;border:1px solid #d9e6f9;
       font-size:12.5px;font-weight:700;color:var(--ink-2);box-shadow:0 1px 2px rgba(13,27,42,.04);transition:.15s}
 .chip .n{opacity:.55;font-weight:700;margin-left:4px}
 .chip.on{background:linear-gradient(135deg,#2563eb,#4f46e5);border-color:transparent;color:#fff;
@@ -144,20 +144,21 @@ button{cursor:pointer;border:0;background:none}
 .banner .link{font-weight:800;text-decoration:underline;color:#7c4a09;background:none;padding:0;font-size:13px}
 
 /* ---------- cards ---------- */
-.list{display:flex;flex-direction:column;gap:10px;padding:6px 0 14px}
-.card{background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);border-radius:var(--radius);box-shadow:var(--shadow);
-      border:1px solid #e2ecfb;overflow:hidden;position:relative;animation:pop .18s ease-out;
+.list{display:flex;flex-direction:column;gap:12px;padding:8px 0 16px}
+.card{background:#fff;border-radius:var(--radius);
+      box-shadow:0 1px 2px rgba(37,99,235,.06), 0 10px 24px -14px rgba(37,99,235,.45);
+      border:1px solid #d7e5fa;overflow:hidden;position:relative;animation:pop .18s ease-out;
       transition:box-shadow .18s,border-color .18s}
 .card:hover{border-color:#d7e6ff;box-shadow:0 2px 4px rgba(37,99,235,.06), 0 16px 32px -20px rgba(37,99,235,.5)}
 @keyframes pop{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#cbd5e1}
 .card.st-dongy::before{background:var(--green)} .card.st-khong::before{background:var(--red)}
 .card.st-hen::before{background:var(--amber)} .card.st-sai::before{background:var(--violet)}
-.card.st-chua{background:linear-gradient(180deg,#f5fbff 0%,#fff 62%)}
-.card.st-dongy{background:linear-gradient(180deg,#f2fdf8 0%,#fff 62%)}
-.card.st-hen{background:linear-gradient(180deg,#fffcf4 0%,#fff 62%)}
-.card.st-khong{background:linear-gradient(180deg,#fff6f8 0%,#fff 62%)}
-.card.st-sai{background:linear-gradient(180deg,#f9f5ff 0%,#fff 62%)}
+.card.st-chua{background:linear-gradient(180deg,#f4faff 0%,#fff 46%)}
+.card.st-dongy{background:linear-gradient(180deg,#eafcf3 0%,#fff 46%)}
+.card.st-hen{background:linear-gradient(180deg,#fffaef 0%,#fff 46%)}
+.card.st-khong{background:linear-gradient(180deg,#fff2f5 0%,#fff 46%)}
+.card.st-sai{background:linear-gradient(180deg,#f7f2ff 0%,#fff 46%)}
 .card.leaving{opacity:0;transform:translateX(16px) scale(.985);transition:opacity .22s,transform .22s}
 .card-h{display:flex;gap:11px;padding:12px 12px 6px 14px;align-items:flex-start}
 .hnum{flex:0 0 auto;min-width:58px;padding:4px 8px 5px;border-radius:11px;
@@ -199,20 +200,21 @@ button{cursor:pointer;border:0;background:none}
 .res-time .link{font-size:11px;color:var(--navy-l);font-weight:700;text-decoration:underline}
 
 .acts{display:grid;gap:7px;padding:4px 12px 8px 14px}
-.act{padding:10px 6px;border-radius:9px;border:1px solid var(--line);background:#fdfeff;font-size:12px;
-     font-weight:700;color:var(--ink-2);display:flex;align-items:center;justify-content:center;gap:5px;
-     transition:.15s;min-height:40px;white-space:nowrap}
-.act:hover{border-color:#cbd5e1;background:#fbfcfe}
+.act{padding:10px 6px;border-radius:10px;border:1px solid #cfdef3;background:#fff;font-size:12px;
+     font-weight:700;color:#3d5c86;display:flex;align-items:center;justify-content:center;gap:5px;
+     transition:.15s;min-height:42px;white-space:nowrap}
+.act:hover{border-color:#a9c4ea;background:#f6faff}
 .act:active{transform:scale(.985)}
 .acts.two{grid-template-columns:1.7fr 1fr}
-.act.main{font-size:12.5px;font-weight:800;background:linear-gradient(180deg,#eef5ff,#e3edff);
-          border-color:#cbdcff;color:#1d4ed8}
-.act.main:hover{background:#e4eeff;border-color:#bcd4ff}
+.act.main{font-size:12.5px;font-weight:800;color:#fff;border-color:transparent;
+          background:linear-gradient(135deg,#2563eb,#4f46e5);
+          box-shadow:0 8px 18px -10px rgba(37,99,235,.85)}
+.act.main:hover{filter:brightness(1.06)}
 .act.on-dongy{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 6px 14px -8px rgba(21,128,61,.8)}
 .act.on-khong{background:var(--red);border-color:var(--red);color:#fff}
 .act.on-hen{background:var(--amber);border-color:var(--amber);color:#fff}
 .act.on-sai{background:var(--violet);border-color:var(--violet);color:#fff}
-.act.on-note{background:linear-gradient(180deg,#eef5ff,#e4eeff);border-color:#c9dcff;color:#1d4ed8}
+.act.on-note{background:#eaf2ff;border-color:#bed5fb;color:#1d4ed8}
 .card-f{display:flex;align-items:center;gap:8px;padding:0 12px 8px 14px;font-size:11.5px;color:var(--ink-3)}
 .card-f .link{margin-left:auto;color:var(--navy-l);font-weight:700;font-size:11.5px}
 .goc{margin:0 12px 10px 14px;background:#f8fafc;border:1px dashed var(--line);border-radius:9px;padding:8px 10px;
