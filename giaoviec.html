@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hệ Thống Giao Việc</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4f46e5; --primary-hover: #4338ca; --bg: #f8fafc;
+    --surface: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.5; }
+  
+  .topbar { display: flex; align-items: center; justify-content: space-between; background: var(--surface); padding: 0 24px; height: 64px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; color: var(--primary); }
+  .brand svg { width: 28px; height: 28px; }
+  .user-info { display: flex; align-items: center; gap: 16px; font-size: 14px; }
+  .role-badge { background: #e0e7ff; color: var(--primary); padding: 4px 10px; border-radius: 99px; font-weight: 600; font-size: 12px; }
+  .btn-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 13px; }
+  .btn-logout:hover { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
+
+  #content { padding: 24px; max-width: 1100px; margin: 0 auto; }
+  
+  /* Dashboard Thống kê & Bộ lọc */
+  .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); padding: 16px; border-radius: 12px; border: 2px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); cursor: pointer; transition: all 0.2s; user-select: none; display: flex; flex-direction: column; justify-content: center; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .stat-card.active-filter { border-color: var(--primary); background: #f8fafc; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+  
+  .stat-card h4 { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card h4 span.hint { font-size: 9px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; opacity: 0; transition: 0.2s; color: var(--text-main); }
+  .stat-card:hover h4 span.hint { opacity: 1; }
+  .stat-card.active-filter h4 span.hint { opacity: 1; background: var(--primary); color: white; }
+  
+  .stat-card .num { font-size: 22px; font-weight: 700; }
+  .stat-all .num { color: var(--primary); }
+  .stat-pending .num { color: #f59e0b; }
+  .stat-overdue .num { color: #ef4444; }
+  .stat-done .num { color: #10b981; }
+
+  .card { background: var(--surface); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+  .card h3 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+  .filter-status { font-size: 13px; font-weight: normal; color: var(--text-muted); background: #f1f5f9; padding: 4px 10px; border-radius: 6px; }
+
+  input[type="text"], input[type="password"], input[type="date"], textarea { width: 100%; padding: 12px 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: border 0.2s; }
+  input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+  textarea { min-height: 80px; resize: vertical; }
+  .form-row { display: flex; gap: 16px; margin-bottom: 12px; }
+  .form-group { flex: 1; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
+  .assignee-box { border: 1px solid var(--border); border-radius: 8px; max-height: 150px; overflow-y: auto; padding: 8px; background: #f8fafc; }
+  .assignee-box label { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+  .assignee-box label:hover { background: #e2e8f0; }
+  .assignee-box input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+  button.btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
+  button.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+  /* Thẻ công việc Nhóm */
+  .task-group { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; border-left: 5px solid #cbd5e1; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .task-group.status-new { border-left-color: #f59e0b; }
+  .task-group.status-in_progress { border-left-color: #8b5cf6; }
+  .task-group.status-done { border-left-color: #10b981; background: #f8fafc; opacity: 0.8; }
+  .task-group.is-overdue { border-left-color: #ef4444 !important; background: #fef2f2; }
+  .task-group.is-warning { border-left-color: #f97316 !important; background: #fff7ed; }
+
+  .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .task-title { font-weight: 600; font-size: 18px; color: var(--text-main); }
+  .badges { display: flex; gap: 8px; }
+  .badge { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .badge.new { background: #fef3c7; color: #d97706; }
+  .badge.in_progress { background: #ede9fe; color: #7c3aed; }
+  .badge.done { background: #d1fae5; color: #059669; }
+  .badge.deadline-overdue { background: #ef4444; color: white; animation: pulse 2s infinite; }
+  .badge.deadline-warning { background: #f97316; color: white; }
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
+  .task-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .task-desc { font-size: 14px; margin-bottom: 16px; color: #334155; background: #f1f5f9; padding: 10px; border-radius: 6px; }
+
+  .progress-container { margin: 16px 0; background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+  .progress-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
+  .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #10b981; transition: width 0.3s ease; }
+
+  .members-list { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; }
+  .member-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; background: #fff; border: 1px solid #f1f5f9; }
+  .member-row:hover { background: #f8fafc; }
+  .m-info { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .m-name { font-weight: 500; }
+  .m-status { font-size: 12px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .m-status.new { background: #fef3c7; color: #d97706; }
+  .m-status.in_progress { background: #ede9fe; color: #7c3aed; }
+  .m-status.done { background: #d1fae5; color: #059669; }
+
+  .btn-action { padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+  .btn-receive { background: #3b82f6; color: white; }
+  .btn-start { background: #8b5cf6; color: white; }
+  .btn-done { background: #10b981; color: white; }
+  .btn-log { background: #f1f5f9; color: var(--text-main); margin-top: 12px; }
+
+  .log-list { margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 13px; border: 1px solid var(--border); }
+  .log-list ul { padding-left: 20px; color: var(--text-muted); }
+  .log-list li { margin-bottom: 6px; }
+
+  .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-card { width: 100%; max-width: 400px; text-align: center; }
+  .login-card svg { width: 48px; height: 48px; margin-bottom: 16px; color: var(--primary); }
+  .login-card h2 { margin-bottom: 8px; font-size: 24px; }
+  .login-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
+const API_URL = 'https://script.google.com/macros/s/AKfycbx37cMX53oBN2Q6LRUisFcVtnPhqvGrcKLB7vbXNHQN_5OYyqBBEOaW1_wIxgX9V1tUtQ/exec'; 
+
+const $app = document.getElementById('app');
+let token = localStorage.getItem('token');
+let me = JSON.parse(localStorage.getItem('me') || 'null');
+
+// Mặc định hiển thị tất cả
+let currentFilter = 'all'; 
+
+const fmt = (s) => s && s !== '' ? new Date(s).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'}) : '';
+const fmtDate = (s) => s && s !== '' ? new Date(s).toLocaleDateString('vi-VN') : '';
+const logoHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`;
+
+async function api(action, data = {}) {
+  const res = await fetch(API_URL, {
+    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+    body: JSON.stringify({ action, data })
+  });
+  const json = await res.json();
+  if (json.error) throw new Error(json.error);
+  return json.data;
+}
+
+function renderLogin() {
+  $app.innerHTML = `
+    <div class="login-wrapper">
+      <div class="card login-card">
+        <div style="color: var(--primary)">${logoHTML}</div>
+        <h2>Hệ Thống Giao Việc</h2>
+        <p>Đăng nhập để tiếp tục làm việc</p>
+        <input id="u" type="text" placeholder="Tên đăng nhập" value="levanduoc.hcm">
+        <input id="p" type="password" placeholder="Mật khẩu" value="123456">
+        <button class="btn-primary" id="btn" style="margin-top: 12px;">Đăng nhập ngay</button>
+      </div>
+    </div>`;
+  
+  document.getElementById('btn').onclick = async () => {
+    try {
+      const user = await api('login', { username: document.getElementById('u').value, password: document.getElementById('p').value });
+      token = 'logged_in'; me = user;
+      localStorage.setItem('token', token); localStorage.setItem('me', JSON.stringify(me));
+      renderMain();
+    } catch (e) { alert(e.message); }
+  };
+}
+
+async function renderMain() {
+  $app.innerHTML = `
+    <div class="topbar">
+      <div class="brand">${logoHTML} TaskManager</div>
+      <div class="user-info">
+        <span>Chào, <b>${me.name}</b></span>
+        <span class="role-badge">${me.role === 'director' ? 'Giám đốc' : 'Nhân viên'}</span>
+        <button class="btn-logout" id="logout">Đăng xuất</button>
+      </div>
+    </div>
+    <div id="content"></div>`;
+  
+  document.getElementById('logout').onclick = () => {
+    token = null; me = null; localStorage.clear(); renderLogin();
+  };
+  
+  if (me.role === 'director') await renderDirector();
+  else await renderEmployee();
+}
+
+function getDeadlineInfo(deadlineStr, status) {
+  if (!deadlineStr || status === 'done') return { isOverdue: false, isWarning: false, text: '' };
+  const today = new Date(); today.setHours(0,0,0,0);
+  const deadline = new Date(deadlineStr); deadline.setHours(0,0,0,0);
+  const diffDays = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return { isOverdue: true, isWarning: false, text: 'Quá hạn ' + Math.abs(diffDays) + ' ngày' };
+  if (diffDays === 0) return { isOverdue: false, isWarning: true, text: 'Hạn chót hôm nay' };
+  if (diffDays <= 2) return { isOverdue: false, isWarning: true, text: 'Còn ' + diffDays + ' ngày' };
+  return { isOverdue: false, isWarning: false, text: '' };
+}
+
+async function renderDirector() {
+  const [users, tasks] = await Promise.all([api('getUsers'), api('getTasks')]);
+  
+  const checkboxList = users.map(u => `<label><input type="checkbox" name="assignee" value="${u.id}">${u.name}</label>`).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <h3>📝 Giao việc mới</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex: 2;">
+          <label>Tiêu đề công việc</label>
+          <input id="t-title" type="text" placeholder="VD: Xử lý modem hỏng">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label>Hạn hoàn thành</label>
+          <input id="t-deadline" type="date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Mô tả chi tiết</label>
+        <textarea id="t-desc" placeholder="Mô tả công việc..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Chọn người nhận (Giao chung 1 nhóm):</label>
+        <div class="assignee-box">${checkboxList}</div>
+      </div>
+      <button class="btn-primary" id="t-add" style="margin-top: 16px;">🚀 Giao việc ngay</button>
+    </div>
+    
+    <div id="dashboard"></div>
+    
+    <div class="card">
+      <h3>
+        📋 Danh sách công việc
+        <span class="filter-status" id="filter-status"></span>
+      </h3>
+      <div id="task-list"></div>
+    </div>`;
+  
+  document.getElementById('t-add').onclick = async () => {
+    const title = document.getElementById('t-title').value.trim();
+    const deadline = document.getElementById('t-deadline').value;
+    const description = document.getElementById('t-desc').value.trim();
+    const selected = Array.from(document.querySelectorAll('input[name="assignee"]:checked')).map(cb => cb.value);
+    
+    if (!title) return alert('Vui lòng nhập tiêu đề!');
+    if (selected.length === 0) return alert('Vui lòng chọn ít nhất 1 người nhận!');
+    
+    document.getElementById('t-add').innerText = 'Đang gửi...';
+    await api('createTask', { title, description, assigned_to: selected, assigned_by: me.id, deadline });
+    renderDirector();
+  };
+  
+  processAndRender(tasks, false);
+}
+
+async function renderEmployee() {
+  const allTasks = await api('getTasks');
+  const myTasks = allTasks.filter(t => String(t['Người nhận']) === String(me.id));
+  
+  document.getElementById('content').innerHTML = `
+    <div id="dashboard"></div>
+    <div class="card">
+      <h3>
+        📋 Việc của tôi & Nhóm
+        <span class="filter-status" id="filter-status"></span>
+      </h3>
+      <div id="task-list"></div>
+    </div>`;
+  processAndRender(myTasks, true, allTasks);
+}
+
+function processAndRender(myTasks, canAct, allTasks = []) {
+  const dbEl = document.getElementById('dashboard');
+  const tasksToProcess = canAct ? allTasks : myTasks;
+
+  // 1. Gom nhóm dữ liệu
+  const groups = {};
+  tasksToProcess.forEach(t => {
+    const gid = t['Mã nhóm'] || ('LEGACY_' + t['ID']);
+    if (!groups[gid]) {
+      groups[gid] = {
+        groupId: gid, title: t['Tiêu đề'], desc: t['Mô tả'], assigner: t.assigner_name,
+        deadline: t['Hạn hoàn thành'], members: []
+      };
+    }
+    groups[gid].members.push({
+      rowId: t['ID'], userId: String(t['Người nhận']), name: t.assignee_name, status: t['Trạng thái'] || 'new'
+    });
+  });
+
+  let displayGroups = Object.values(groups);
+
+  if (canAct) {
+    const myGroupIds = new Set(myTasks.map(t => t['Mã nhóm'] || ('LEGACY_' + t['ID'])));
+    displayGroups = displayGroups.filter(g => myGroupIds.has(g.groupId));
+  }
+
+  // 2. Tính toán thống kê
+  let total = displayGroups.length;
+  let done = 0, overdue = 0, warning = 0, pending = 0;
+
+  displayGroups.forEach(g => {
+    let doneCount = g.members.filter(m => m.status === 'done').length;
+    if (doneCount === g.members.length) { 
+      done++; 
+    } else {
+      pending++;
+      const dl = getDeadlineInfo(g.deadline, 'new');
+      if (dl.isOverdue) overdue++;
+      if (dl.isWarning) warning++;
+    }
+  });
+
+  // 3. Vẽ Dashboard (5 Bộ lọc riêng biệt)
+  dbEl.innerHTML = `
+    <div class="dashboard">
+      <div class="stat-card stat-all ${currentFilter === 'all' ? 'active-filter' : ''}" data-filter="all">
+        <h4>📂 Tất cả <span class="hint">Xem hết</span></h4>
+        <div class="num">${total}</div>
+      </div>
+      <div class="stat-card stat-pending ${currentFilter === 'pending' ? 'active-filter' : ''}" data-filter="pending">
+        <h4>📋 Chưa xong <span class="hint">Lọc</span></h4>
+        <div class="num">${pending}</div>
+      </div>
+      <div class="stat-card stat-overdue ${currentFilter === 'overdue' ? 'active-filter' : ''}" data-filter="overdue">
+        <h4>⚠️ Quá hạn <span class="hint">Lọc</span></h4>
+        <div class="num">${overdue}</div>
+      </div>
+      <div class="stat-card ${currentFilter === 'warning' ? 'active-filter' : ''}" style="border-left: 4px solid #f97316" data-filter="warning">
+        <h4>⏳ Sắp tới hạn <span class="hint">Lọc</span></h4>
+        <div class="num" style="color:#f97316">${warning}</div>
+      </div>
+      <div class="stat-card stat-done ${currentFilter === 'done' ? 'active-filter' : ''}" data-filter="done">
+        <h4>✅ Đã xong <span class="hint">Lọc</span></h4>
+        <div class="num">${done}</div>
+      </div>
+    </div>`;
+
+  // Gắn sự kiện click cho các thẻ thống kê
+  dbEl.querySelectorAll('.stat-card').forEach(card => {
+    card.onclick = () => {
+      const newFilter = card.dataset.filter;
+      if (currentFilter === newFilter) {
+        currentFilter = 'all'; // Bấm lại thì reset về Tất cả
+      } else {
+        currentFilter = newFilter;
+      }
+      processAndRender(myTasks, canAct, allTasks);
+    };
+  });
+
+  // 4. Áp dụng Bộ lọc
+  let filteredGroups = displayGroups;
+  let filterText = "";
+
+  if (currentFilter === 'pending') {
+    filteredGroups = displayGroups.filter(g => g.members.filter(m => m.status === 'done').length !== g.members.length);
+    filterText = "Đang xem: Chưa hoàn thành";
+  } else if (currentFilter === 'overdue') {
+    filteredGroups = displayGroups.filter(g => {
+      const dl = getDeadlineInfo(g.deadline, 'new');
+      return dl.isOverdue && g.members.filter(m => m.status === 'done').length !== g.members.length;
+    });
+    filterText = "Đang xem: Việc quá hạn";
+  } else if (currentFilter === 'warning') {
+    filteredGroups = displayGroups.filter(g => {
+      const dl = getDeadlineInfo(g.deadline, 'new');
+      return dl.isWarning && g.members.filter(m => m.status === 'done').length !== g.members.length;
+    });
+    filterText = "Đang xem: Việc sắp tới hạn";
+  } else if (currentFilter === 'done') {
+    filteredGroups = displayGroups.filter(g => g.members.filter(m => m.status === 'done').length === g.members.length);
+    filterText = "Đang xem: Đã hoàn thành";
+  } else {
+    filterText = "Đang xem: Tất cả công việc";
+  }
+
+  document.getElementById('filter-status').innerText = filterText;
+
+  // 5. Sắp xếp & Render
+  const el = document.getElementById('task-list');
+  if (!filteredGroups.length) { 
+    el.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 20px;">Không có công việc nào trong mục này.</p>`; 
+    return; 
+  }
+
+  filteredGroups.sort((a, b) => {
+    const dlA = getDeadlineInfo(a.deadline, 'new');
+    const dlB = getDeadlineInfo(b.deadline, 'new');
+    if (dlA.isOverdue && !dlB.isOverdue) return -1;
+    if (!dlA.isOverdue && dlB.isOverdue) return 1;
+    if (dlA.isWarning && !dlB.isWarning) return -1;
+    if (!dlA.isWarning && dlB.isWarning) return 1;
+    return 0;
+  });
+
+  const STATUS = {
+    new: { label: 'Mới', cls: 'new' }, received: { label: 'Đã nhận', cls: 'received' },
+    in_progress: { label: 'Đang làm', cls: 'in_progress' }, done: { label: 'Hoàn thành', cls: 'done' }
+  };
+
+  el.innerHTML = filteredGroups.map(g => {
+    let totalM = g.members.length;
+    let doneM = g.members.filter(m => m.status === 'done').length;
+    let percent = Math.round((doneM / totalM) * 100);
+    let groupStatus = doneM === totalM ? 'done' : (doneM > 0 || g.members.some(m=>m.status!=='new') ? 'in_progress' : 'new');
+    let dl = getDeadlineInfo(g.deadline, groupStatus);
+
+    let cardClass = `task-group status-${groupStatus}`;
+    if (dl.isOverdue) cardClass += ' is-overdue';
+    else if (dl.isWarning) cardClass += ' is-warning';
+
+    let membersHtml = g.members.map(m => {
+      let mStatus = STATUS[m.status] || STATUS.new;
+      let actionBtn = '';
+      if (canAct && m.userId === String(me.id)) {
+        if (m.status === 'new') actionBtn = `<button class="btn-action btn-receive" data-id="${m.rowId}" data-to="in_progress">▶️ Nhận & Bắt đầu</button>`;
+        else if (m.status === 'received') actionBtn = `<button class="btn-action btn-start" data-id="${m.rowId}" data-to="in_progress">▶️ Bắt đầu</button>`;
+        else if (m.status === 'in_progress') actionBtn = `<button class="btn-action btn-done" data-id="${m.rowId}" data-to="done">✅ Xong</button>`;
+      }
+
+      return `<div class="member-row">
+        <div class="m-info">
+          <span class="m-name">👤 ${m.name}</span>
+          <span class="m-status ${mStatus.cls}">${mStatus.label}</span>
+        </div>
+        <div>${actionBtn}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="${cardClass}">
+      <div class="task-header">
+        <div class="task-title">${g.title}</div>
+        <div class="badges">
+          ${dl.isOverdue ? `<span class="badge deadline-overdue">🔴 ${dl.text}</span>` : ''}
+          ${dl.isWarning ? `<span class="badge deadline-warning">⏳ ${dl.text}</span>` : ''}
+        </div>
+      </div>
+      <div class="task-meta">
+        <span>✍️ Giao: ${g.assigner}</span>
+        ${g.deadline ? `<span>📅 Hạn chót: <b style="color:#ef4444">${fmtDate(g.deadline)}</b></span>` : ''}
+      </div>
+      ${g.desc ? `<div class="task-desc">${g.desc}</div>` : ''}
+      
+      <div class="progress-container">
+        <div class="progress-header">
+          <span>Tiến độ nhóm</span>
+          <span>${doneM}/${totalM} người hoàn thành (${percent}%)</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${percent}%"></div>
+        </div>
+      </div>
+
+      <div class="members-list">
+        ${membersHtml}
+      </div>
+      
+      <button class="btn-action btn-log" data-log="${g.members[0].rowId}">🕒 Lịch sử</button>
+      <div id="log-${g.members[0].rowId}"></div>
+    </div>`;
+  }).join('');
+
+  el.querySelectorAll('button[data-to]').forEach(btn => {
+    btn.onclick = async () => {
+      const to = btn.dataset.to;
+      let note = to === 'done' ? prompt('Nhập kết quả/Ghi chú:') || '' : '';
+      btn.innerText = 'Đang gửi...';
+      await api('updateStatus', { taskId: btn.dataset.id, status: to, note, user_id: me.id });
+      renderMain();
+    };
+  });
+
+  el.querySelectorAll('button[data-log]').forEach(btn => {
+    btn.onclick = async () => {
+      const box = document.getElementById('log-' + btn.dataset.log);
+      if (box.innerHTML) { box.innerHTML = ''; return; }
+      const logs = await api('getLogs', { taskId: btn.dataset.log });
+      const ACTION_LABEL = { created:'Giao việc', received:'Đã nhận', in_progress:'Đang làm', done:'Báo xong' };
+      box.innerHTML = '<div class="log-list"><ul>' + logs.map(l => `<li><span style="font-weight:500">${fmt(l['Thời gian'])}</span> - ${l.user_name}: <b>${ACTION_LABEL[l['Hành động']] || l['Hành động']}</b> ${l['Ghi chú'] ? ' - ' + l['Ghi chú'] : ''}</li>`).join('') + '</ul></div>';
+    };
+  });
+}
+
+if (token && me) renderMain(); else renderLogin();
+</script>
+</body>
+</html>
