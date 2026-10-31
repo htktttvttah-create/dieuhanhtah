@@ -25,7 +25,6 @@
 
   #content { padding: 24px; max-width: 1100px; margin: 0 auto; }
   
-  /* Dashboard Thống kê & Bộ lọc */
   .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px; }
   .stat-card { background: var(--surface); padding: 16px; border-radius: 12px; border: 2px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); cursor: pointer; transition: all 0.2s; user-select: none; display: flex; flex-direction: column; justify-content: center; }
   .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
@@ -60,16 +59,17 @@
   button.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
   /* Thẻ công việc Nhóm */
-  .task-group { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; border-left: 5px solid #cbd5e1; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .task-group { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; border-left: 5px solid #cbd5e1; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .task-group:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
   .task-group.status-new { border-left-color: #f59e0b; }
   .task-group.status-in_progress { border-left-color: #8b5cf6; }
   .task-group.status-done { border-left-color: #10b981; background: #f8fafc; opacity: 0.8; }
   .task-group.is-overdue { border-left-color: #ef4444 !important; background: #fef2f2; }
   .task-group.is-warning { border-left-color: #f97316 !important; background: #fff7ed; }
 
-  .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .task-title { font-weight: 600; font-size: 18px; color: var(--text-main); }
-  .badges { display: flex; gap: 8px; }
+  .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .task-title { font-weight: 600; font-size: 17px; color: var(--text-main); }
+  .badges { display: flex; gap: 8px; align-items: center; }
   .badge { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; }
   .badge.new { background: #fef3c7; color: #d97706; }
   .badge.in_progress { background: #ede9fe; color: #7c3aed; }
@@ -79,14 +79,27 @@
   @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
   .task-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
-  .task-desc { font-size: 14px; margin-bottom: 16px; color: #334155; background: #f1f5f9; padding: 10px; border-radius: 6px; }
+  
+  /* Nút bấm thao tác */
+  .btn-toggle-detail { background: #f1f5f9; border: 1px solid var(--border); color: var(--text-main); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+  .btn-toggle-detail:hover { background: #e2e8f0; }
+  
+  .btn-edit { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+  .btn-edit:hover { background: #dbeafe; }
+  .btn-del { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+  .btn-del:hover { background: #fee2e2; }
 
+  /* Phần chi tiết ẩn/hiện */
+  .task-details { display: none; margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 16px; }
+  .task-details.show { display: block; animation: slideDown 0.3s ease; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+  .task-desc { font-size: 14px; margin-bottom: 16px; color: #334155; background: #f1f5f9; padding: 10px; border-radius: 6px; }
   .progress-container { margin: 16px 0; background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
   .progress-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
   .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
   .progress-fill { height: 100%; background: #10b981; transition: width 0.3s ease; }
-
-  .members-list { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; }
+  .members-list { margin-top: 12px; }
   .member-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; background: #fff; border: 1px solid #f1f5f9; }
   .member-row:hover { background: #f8fafc; }
   .m-info { display: flex; align-items: center; gap: 10px; font-size: 14px; }
@@ -100,7 +113,7 @@
   .btn-receive { background: #3b82f6; color: white; }
   .btn-start { background: #8b5cf6; color: white; }
   .btn-done { background: #10b981; color: white; }
-  .btn-log { background: #f1f5f9; color: var(--text-main); margin-top: 12px; }
+  .btn-log { background: #f8fafc; border: 1px solid var(--border); color: var(--text-main); margin-top: 12px; }
 
   .log-list { margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 13px; border: 1px solid var(--border); }
   .log-list ul { padding-left: 20px; color: var(--text-muted); }
@@ -112,7 +125,6 @@
   .login-card h2 { margin-bottom: 8px; font-size: 24px; }
   .login-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
 
-  /* Modal Đổi Mật Khẩu */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
   .modal-content { background: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
   .modal-content h3 { margin-bottom: 16px; font-size: 18px; }
@@ -137,13 +149,14 @@
 
 <script>
 // ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbxs56ZNeY3qUdnOsGgXq1Ds4VbWJngs2czgpM25SlWX0Hmr7c9M9BkV_WkTJqdWPmLLEQ/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwyqpAeg83EBkHEgWeb-pz8Dcso_w32DcxVlAmj6lcEDInTRhpisAYtLVUrVKxJNQ2HNQ/exec'; 
 
 const $app = document.getElementById('app');
 let token = localStorage.getItem('token');
 let me = JSON.parse(localStorage.getItem('me') || 'null');
 
 let currentFilter = 'all'; 
+let expandedGroups = new Set(); // Lưu trạng thái bung/thu gọn của từng thẻ
 
 const fmt = (s) => s && s !== '' ? new Date(s).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'}) : '';
 const fmtDate = (s) => s && s !== '' ? new Date(s).toLocaleDateString('vi-VN') : '';
@@ -159,7 +172,7 @@ async function api(action, data = {}) {
   return json.data;
 }
 
-// Xử lý sự kiện Đổi Mật Khẩu
+// Xử lý Đổi Mật Khẩu
 document.getElementById('btn-cancel-pass').onclick = () => {
   document.getElementById('modal-change-pass').style.display = 'none';
 };
@@ -230,7 +243,6 @@ async function renderMain() {
     token = null; me = null; localStorage.clear(); renderLogin();
   };
 
-  // Bấm nút Đổi MK thì mở bảng popup
   document.getElementById('btn-open-change-pass').onclick = () => {
     document.getElementById('modal-change-pass').style.display = 'flex';
   };
@@ -458,6 +470,9 @@ function processAndRender(myTasks, canAct, allTasks = []) {
     if (dl.isOverdue) cardClass += ' is-overdue';
     else if (dl.isWarning) cardClass += ' is-warning';
 
+    // Kiểm tra xem thẻ này có đang được mở rộng không
+    let isExpanded = expandedGroups.has(g.groupId);
+
     let membersHtml = g.members.map(m => {
       let mStatus = STATUS[m.status] || STATUS.new;
       let actionBtn = '';
@@ -488,39 +503,59 @@ function processAndRender(myTasks, canAct, allTasks = []) {
        }
     }
 
+    // Các nút thao tác của Giám đốc
+    let adminButtons = '';
+    if (me.role === 'director') {
+      adminButtons = `
+        <button class="btn-edit" data-edit="${g.groupId}">✏️ Sửa</button>
+        <button class="btn-del" data-del="${g.groupId}">🗑️ Xóa</button>
+      `;
+    }
+
     return `<div class="${cardClass}">
       <div class="task-header">
         <div class="task-title">${g.title}</div>
         <div class="badges">
           ${dl.isOverdue ? `<span class="badge deadline-overdue">🔴 ${dl.text}</span>` : ''}
           ${dl.isWarning ? `<span class="badge deadline-warning">⏳ ${dl.text}</span>` : ''}
+          ${adminButtons}
         </div>
       </div>
       <div class="task-meta">
         <span>✍️ Giao: ${g.assigner}</span>
         ${g.deadline ? `<span>📅 Hạn chót: <b style="color:#ef4444">${fmtDate(g.deadline)}</b> ${countdownHtml}</span>` : ''}
+        
+        <!-- Nút bung/thu gọn chi tiết -->
+        <button class="btn-toggle-detail" data-toggle="${g.groupId}">
+          ${isExpanded ? '▲ Thu gọn' : '▼ Hiện chi tiết'}
+        </button>
       </div>
-      ${g.desc ? `<div class="task-desc">${g.desc}</div>` : ''}
       
-      <div class="progress-container">
-        <div class="progress-header">
-          <span>Tiến độ nhóm</span>
-          <span>${doneM}/${totalM} người hoàn thành (${percent}%)</span>
+      <!-- Phần chi tiết bị ẩn -->
+      <div class="task-details ${isExpanded ? 'show' : ''}" id="details-${g.groupId}">
+        ${g.desc ? `<div class="task-desc">${g.desc}</div>` : ''}
+        
+        <div class="progress-container">
+          <div class="progress-header">
+            <span>Tiến độ nhóm</span>
+            <span>${doneM}/${totalM} người hoàn thành (${percent}%)</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${percent}%"></div>
+          </div>
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${percent}%"></div>
-        </div>
-      </div>
 
-      <div class="members-list">
-        ${membersHtml}
+        <div class="members-list">
+          ${membersHtml}
+        </div>
+        
+        <button class="btn-action btn-log" data-log="${g.members[0].rowId}">🕒 Lịch sử</button>
+        <div id="log-${g.members[0].rowId}"></div>
       </div>
-      
-      <button class="btn-action btn-log" data-log="${g.members[0].rowId}">🕒 Lịch sử</button>
-      <div id="log-${g.members[0].rowId}"></div>
     </div>`;
   }).join('');
 
+  // Gắn sự kiện cho các nút
   el.querySelectorAll('button[data-to]').forEach(btn => {
     btn.onclick = async () => {
       const to = btn.dataset.to;
@@ -528,6 +563,49 @@ function processAndRender(myTasks, canAct, allTasks = []) {
       btn.innerText = 'Đang gửi...';
       await api('updateStatus', { taskId: btn.dataset.id, status: to, note, user_id: me.id });
       renderMain();
+    };
+  });
+
+  el.querySelectorAll('button[data-toggle]').forEach(btn => {
+    btn.onclick = () => {
+      const gid = btn.dataset.toggle;
+      if (expandedGroups.has(gid)) expandedGroups.delete(gid);
+      else expandedGroups.add(gid);
+      processAndRender(myTasks, canAct, allTasks); // Vẽ lại để cập nhật trạng thái mở/đóng
+    };
+  });
+
+  // Sự kiện nút XÓA
+  el.querySelectorAll('button[data-del]').forEach(btn => {
+    btn.onclick = async () => {
+      if (confirm('Bạn có chắc chắn muốn xóa toàn bộ công việc này? Thao tác không thể hoàn tác!')) {
+        btn.innerText = 'Đang xóa...';
+        await api('deleteTask', { groupId: btn.dataset.del });
+        renderDirector();
+      }
+    };
+  });
+
+  // Sự kiện nút SỬA
+  el.querySelectorAll('button[data-edit]').forEach(btn => {
+    btn.onclick = async () => {
+      // Tìm dữ liệu nhóm hiện tại
+      const group = filteredGroups.find(x => x.groupId === btn.dataset.edit);
+      if (!group) return;
+
+      const newTitle = prompt('Nhập Tiêu đề mới:', group.title);
+      if (newTitle === null) return; // Bấm Hủy
+      
+      const newDesc = prompt('Nhập Mô tả mới:', group.desc);
+      if (newDesc === null) return;
+
+      const oldDate = group.deadline ? group.deadline.split('T')[0] : '';
+      const newDate = prompt('Nhập Hạn hoàn thành mới (Định dạng YYYY-MM-DD, VD: 2026-12-31):', oldDate);
+      if (newDate === null) return;
+
+      btn.innerText = 'Đang lưu...';
+      await api('updateTask', { groupId: group.groupId, title: newTitle, description: newDesc, deadline: newDate });
+      renderDirector();
     };
   });
 
