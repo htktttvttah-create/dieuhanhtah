@@ -13,140 +13,134 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.5; }
   
-  .topbar { display: flex; align-items: center; justify-content: space-between; background: var(--surface); padding: 0 24px; height: 64px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
-  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; color: var(--primary); }
-  .brand svg { width: 28px; height: 28px; }
-  .user-info { display: flex; align-items: center; gap: 12px; font-size: 14px; }
-  .role-badge { background: #e0e7ff; color: var(--primary); padding: 4px 10px; border-radius: 99px; font-weight: 600; font-size: 12px; }
-  .btn-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 13px; }
-  .btn-logout:hover { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
-  .btn-change-pass { background: #f1f5f9; border: 1px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 13px; }
-  .btn-change-pass:hover { background: #e2e8f0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; background: var(--surface); padding: 0 16px; height: 60px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; color: var(--primary); }
+  .brand svg { width: 24px; height: 24px; }
+  .user-info { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .role-badge { background: #e0e7ff; color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+  .btn-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .btn-change-pass { background: #f1f5f9; border: 1px solid var(--border); color: var(--text-main); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; }
 
-  #content { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  #content { padding: 16px; max-width: 1400px; margin: 0 auto; }
   
-  .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px; }
-  .stat-card { background: var(--surface); padding: 16px; border-radius: 12px; border: 2px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); cursor: pointer; transition: all 0.2s; user-select: none; display: flex; flex-direction: column; justify-content: center; }
-  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-  .stat-card.active-filter { border-color: var(--primary); background: #f8fafc; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2); }
-  .stat-card h4 { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: flex; justify-content: space-between; text-transform: uppercase; }
-  .stat-card .num { font-size: 22px; font-weight: 700; }
+  /* Dashboard */
+  .dashboard { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 16px; padding-bottom: 4px; }
+  .stat-card { flex: 0 0 auto; background: var(--surface); padding: 12px; border-radius: 8px; border: 2px solid var(--border); cursor: pointer; min-width: 110px; }
+  .stat-card.active-filter { border-color: var(--primary); background: #f8fafc; }
+  .stat-card h4 { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+  .stat-card .num { font-size: 18px; font-weight: 700; }
   .stat-all .num { color: var(--primary); }
   .stat-pending .num { color: #f59e0b; }
   .stat-overdue .num { color: #ef4444; }
   .stat-done .num { color: #10b981; }
 
-  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; background: var(--surface); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); }
+  .toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; background: var(--surface); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
   .view-switch { background: #e2e8f0; padding: 4px; border-radius: 8px; display: flex; }
-  .view-switch button { background: transparent; border: none; padding: 8px 16px; font-weight: 600; cursor: pointer; border-radius: 6px; color: var(--text-muted); transition: 0.2s; }
+  .view-switch button { flex: 1; background: transparent; border: none; padding: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px; color: var(--text-muted); }
   .view-switch button.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  .search-box { flex: 1; max-width: 400px; }
-  .search-box input { width: 100%; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
-  .btn-export { background: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .search-box input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+  .btn-export { background: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
 
-  .card { background: var(--surface); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-  .card h3 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-  .filter-status { font-size: 13px; font-weight: normal; color: var(--text-muted); background: #f1f5f9; padding: 4px 10px; border-radius: 6px; }
+  .card { background: var(--surface); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+  .card h3 { font-size: 16px; margin-bottom: 12px; }
 
-  input[type="text"], input[type="password"], input[type="date"], select, textarea { width: 100%; padding: 12px 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: border 0.2s; }
-  input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
-  textarea { min-height: 80px; resize: vertical; }
-  .form-row { display: flex; gap: 16px; margin-bottom: 12px; }
-  .form-group { flex: 1; }
-  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
-  .assignee-box { border: 1px solid var(--border); border-radius: 8px; max-height: 150px; overflow-y: auto; padding: 8px; background: #f8fafc; }
-  .assignee-box label { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
-  .assignee-box label:hover { background: #e2e8f0; }
-  .assignee-box input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
-  button.btn-primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
-  button.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+  input[type="text"], input[type="password"], input[type="date"], select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+  .form-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .assignee-box { border: 1px solid var(--border); border-radius: 8px; max-height: 120px; overflow-y: auto; padding: 8px; background: #f8fafc; }
+  .assignee-box label { display: flex; align-items: center; gap: 8px; padding: 6px; font-size: 13px; }
+  .assignee-box input { width: 16px; height: 16px; }
+  button.btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; }
+  
+  .file-upload-box { border: 1px dashed #cbd5e1; padding: 10px; border-radius: 8px; background: #f8fafc; text-align: center; position: relative; }
+  .file-upload-box input[type="file"] { position: absolute; top:0; left:0; width: 100%; height: 100%; opacity: 0; }
+  .file-name-display { font-size: 12px; color: var(--primary); font-weight: 600; margin-top: 4px; }
 
-  .file-upload-box { border: 1px dashed #cbd5e1; padding: 10px; border-radius: 8px; background: #f8fafc; text-align: center; cursor: pointer; position: relative; }
-  .file-upload-box input[type="file"] { position: absolute; top:0; left:0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-  .file-name-display { font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px; }
-
-  /* Thẻ công việc Nhóm */
-  .task-group { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; border-left: 5px solid #cbd5e1; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-  .task-group:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  /* Thẻ công việc */
+  .task-group { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; border-left: 4px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
   .task-group.status-new { border-left-color: #f59e0b; }
   .task-group.status-in_progress { border-left-color: #8b5cf6; }
   .task-group.status-done { border-left-color: #10b981; background: #f8fafc; opacity: 0.8; }
   .task-group.is-overdue { border-left-color: #ef4444 !important; background: #fef2f2; }
+  .task-group.is-urgent { border: 2px solid #ef4444; border-left: 6px solid #ef4444; background: #fff5f5; }
   
-  /* Cảnh báo Khẩn cấp */
-  .task-group.is-urgent { border: 2px solid #ef4444; border-left: 8px solid #ef4444; background: #fff5f5; }
-  .badge-urgent { background: #ef4444; color: white; animation: pulse 1.5s infinite; font-weight: bold; padding: 4px 10px; border-radius: 99px; font-size: 12px; white-space: nowrap; display: inline-flex; align-items: center;}
-  @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+  .badge-urgent { background: #ef4444; color: white; animation: pulse 1.5s infinite; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-size: 11px; display: inline-block; margin-left: 6px;}
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-  .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-  .task-title { font-weight: 600; font-size: 17px; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
-  .badges { display: flex; gap: 8px; align-items: center; }
-  .badge { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-  .badge.deadline-overdue { background: #ef4444; color: white; }
-  .badge.deadline-warning { background: #f97316; color: white; }
+  .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  .task-title { font-weight: 600; font-size: 15px; }
+  .task-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn-toggle-detail { background: #f1f5f9; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; cursor: pointer;}
+  .btn-edit { background: #eff6ff; color: #2563eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #bfdbfe; cursor:pointer;}
+  .btn-del { background: #fef2f2; color: #dc2626; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #fecaca; cursor:pointer;}
+
+  .task-details { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
+  .task-details.show { display: block; }
+  .task-desc { font-size: 13px; margin-bottom: 12px; background: #f1f5f9; padding: 8px; border-radius: 6px; }
+  .progress-container { margin-bottom: 12px; }
+  .progress-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #10b981; }
   
-  .task-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
-  
-  .btn-toggle-detail { background: #f1f5f9; border: 1px solid var(--border); color: var(--text-main); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
-  .btn-edit { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
-  .btn-del { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
-
-  .task-details { display: none; margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 16px; }
-  .task-details.show { display: block; animation: slideDown 0.3s ease; }
-  @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-  .task-desc { font-size: 14px; margin-bottom: 16px; color: #334155; background: #f1f5f9; padding: 10px; border-radius: 6px; }
-  .progress-container { margin: 16px 0; background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
-  .progress-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
-  .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
-  .progress-fill { height: 100%; background: #10b981; transition: width 0.3s ease; }
-  .members-list { margin-top: 12px; }
-  .member-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; background: #fff; border: 1px solid #f1f5f9; }
-  .m-status { font-size: 12px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .member-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 6px; margin-bottom: 6px; background: #fff; border: 1px solid #f1f5f9; font-size: 13px; }
+  .m-status { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
   .m-status.new { background: #fef3c7; color: #d97706; }
   .m-status.in_progress { background: #ede9fe; color: #7c3aed; }
   .m-status.done { background: #d1fae5; color: #059669; }
 
-  .btn-action { padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+  .btn-action { padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; border: none; cursor: pointer; }
   .btn-receive { background: #3b82f6; color: white; }
   .btn-start { background: #8b5cf6; color: white; }
   .btn-done { background: #10b981; color: white; }
-  .btn-log { background: #f8fafc; border: 1px solid var(--border); color: var(--text-main); margin-top: 12px; }
+  .btn-log { background: #f8fafc; border: 1px solid var(--border); color: var(--text-main); margin-top: 12px; width: 100%; padding: 8px; font-weight: 600;}
 
-  /* View Kanban */
-  .kanban-board { display: none; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
-  .kanban-col { background: #e2e8f0; border-radius: 12px; padding: 16px; min-height: 200px; }
-  .kanban-col h3 { font-size: 15px; margin-bottom: 16px; display: flex; justify-content: space-between; }
-  .kanban-cards { display: flex; flex-direction: column; gap: 12px; min-height: 100px; }
-  .k-card { background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: grab; border-left: 4px solid var(--primary); }
-  .k-card:active { cursor: grabbing; }
+  /* View Bảng (Table) cho Mobile */
+  .table-view { display: none; background: white; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+  th { background: #f8fafc; font-weight: 600; }
+
+  /* Kanban cho Mobile */
+  .kanban-board { display: none; flex-direction: column; gap: 16px; }
+  .kanban-col { background: #e2e8f0; border-radius: 8px; padding: 12px; }
+  .kanban-col h3 { font-size: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; }
+  .kanban-cards { display: flex; flex-direction: column; gap: 8px; }
+  .k-card { background: white; padding: 12px; border-radius: 6px; border-left: 4px solid var(--primary); font-size: 13px; cursor: pointer;}
   .k-card.status-new { border-left-color: #f59e0b; }
   .k-card.status-in_progress { border-left-color: #8b5cf6; }
   .k-card.status-done { border-left-color: #10b981; opacity: 0.8; }
-  .k-card.is-urgent { border: 2px solid #ef4444; border-left: 6px solid #ef4444; background: #fff5f5; }
-
-  /* View Bảng */
-  .table-view { display: none; background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; text-align: left; }
-  th { background: #f8fafc; padding: 12px 16px; font-weight: 600; color: var(--text-muted); font-size: 13px; border-bottom: 1px solid var(--border); cursor: pointer; }
-  td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .k-card.is-urgent { border: 1px solid #ef4444; border-left: 4px solid #ef4444; background: #fff5f5; }
 
   /* Modal */
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
-  .modal-content { background: white; padding: 24px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
   .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
-  .comment-box { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px; }
-  .comment-list { max-height: 200px; overflow-y: auto; margin-bottom: 12px; }
-  .comment-item { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
+  .comment-list { max-height: 250px; overflow-y: auto; margin-bottom: 12px; }
+  .comment-item { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
   .comment-item b { color: var(--primary); }
   
-  /* CSS ĐÃ SỬA CHO PHẦN BÌNH LUẬN */
-  .comment-input-box { display: flex; flex-direction: column; gap: 8px; }
-  .comment-input-box input { width: 100%; margin-bottom: 0; padding: 12px 14px; }
+  /* Form nhập bình luận */
+  .comment-input-box { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .comment-input-box input { width: 100%; margin-bottom: 0; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
   
-  .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }
   .login-card { width: 100%; max-width: 400px; text-align: center; }
+
+  /* Responsive cho Desktop */
+  @media (min-width: 768px) {
+    .topbar { height: 64px; padding: 0 24px; }
+    .brand { font-size: 18px; }
+    .user-info { gap: 12px; font-size: 14px; }
+    .form-row { flex-direction: row; }
+    .toolbar { flex-direction: row; justify-content: space-between; align-items: center; padding: 12px 16px; }
+    .view-switch { flex: none; }
+    .view-switch button { flex: none; padding: 8px 16px; }
+    .search-box { max-width: 400px; flex: 1; }
+    .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .task-title { font-size: 17px; }
+    .btn-log { width: auto; margin-top: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -154,21 +148,24 @@
 
 <!-- Modal Đổi Mật Khẩu -->
 <div id="modal-change-pass" class="modal-overlay" style="display:none;">
-  <div class="modal-content">
-    <h3>🔑 Đổi Mật Khẩu</h3>
+  <div class="modal-content" style="max-width: 400px;">
+    <div class="modal-header">
+      <h3>🔑 Đổi Mật Khẩu</h3>
+      <button class="close-btn" onclick="document.getElementById('modal-change-pass').style.display='none'">&times;</button>
+    </div>
     <input type="password" id="old-pass" placeholder="Mật khẩu hiện tại">
     <input type="password" id="new-pass" placeholder="Mật khẩu mới">
     <input type="password" id="confirm-pass" placeholder="Nhập lại mật khẩu mới">
     <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
-      <button class="btn-logout" id="btn-cancel-pass">Hủy</button>
-      <button class="btn-primary" style="width:auto; padding:8px 16px;" id="btn-save-pass">Lưu thay đổi</button>
+      <button class="btn-logout" id="btn-cancel-pass" style="padding:10px 16px;">Hủy</button>
+      <button class="btn-primary" style="width:auto; padding:10px 16px;" id="btn-save-pass">Lưu thay đổi</button>
     </div>
   </div>
 </div>
 
 <!-- Modal Chi Tiết / Bình luận -->
 <div id="modal-detail" class="modal-overlay" style="display:none;">
-  <div class="modal-content">
+  <div class="modal-content" style="max-width: 600px;">
     <div class="modal-header">
       <h3 id="modal-title">Chi tiết công việc</h3>
       <button class="close-btn" onclick="document.getElementById('modal-detail').style.display='none'">&times;</button>
@@ -179,7 +176,7 @@
 
 <!-- Modal SỬA TOÀN DIỆN -->
 <div id="modal-edit" class="modal-overlay" style="display:none;">
-  <div class="modal-content">
+  <div class="modal-content" style="max-width: 600px;">
     <div class="modal-header">
       <h3>✏️ Chỉnh sửa công việc</h3>
       <button class="close-btn" onclick="document.getElementById('modal-edit').style.display='none'">&times;</button>
@@ -232,7 +229,7 @@
 
 <script>
 // ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbw6X2Q3bOa6M-S6KsapAbLUTCYDkCiIRJgarfwdxNGOsgX0RL_OuVmOV-S2OE5CZSIXPg/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwmkq9YuxAw3BX5SCDPAPLK6VGU20tnBSYiaLvXrvZabx59iDVYha0GFtpPQVOdLjgURg/exec'; 
 
 const $app = document.getElementById('app');
 let token = localStorage.getItem('token');
@@ -242,6 +239,7 @@ let currentFilter = 'all';
 let expandedGroups = new Set(); 
 let currentView = 'list'; 
 let allTasksCache = [];
+let myTasksCache = []; 
 
 const fmt = (s) => s && s !== '' ? new Date(s).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'}) : '';
 const fmtDate = (s) => s && s !== '' ? new Date(s).toLocaleDateString('vi-VN') : '';
@@ -291,6 +289,7 @@ document.getElementById('btn-save-pass').onclick = async () => {
 
   const btn = document.getElementById('btn-save-pass');
   btn.innerText = 'Đang lưu...';
+  btn.disabled = true;
 
   try {
     await api('changePassword', { userId: me.id, oldPassword: oldP, newPassword: newP });
@@ -303,6 +302,7 @@ document.getElementById('btn-save-pass').onclick = async () => {
     alert(e.message);
   } finally {
     btn.innerText = 'Lưu thay đổi';
+    btn.disabled = false;
   }
 };
 
@@ -311,11 +311,11 @@ function renderLogin() {
     <div class="login-wrapper">
       <div class="card login-card">
         <div style="color: var(--primary)">${logoHTML}</div>
-        <h2>Hệ Thống Giao Việc</h2>
-        <p>Đăng nhập để tiếp tục làm việc</p>
+        <h2 style="margin-top:12px;">Hệ Thống Giao Việc</h2>
+        <p style="margin-bottom: 24px; color:var(--text-muted); font-size:14px;">Đăng nhập để tiếp tục làm việc</p>
         <input id="u" type="text" placeholder="Tên đăng nhập" value="levanduoc.hcm">
         <input id="p" type="password" placeholder="Mật khẩu" value="123456">
-        <button class="btn-primary" id="btn" style="margin-top: 12px;">Đăng nhập ngay</button>
+        <button class="btn-primary" id="btn">Đăng nhập ngay</button>
       </div>
     </div>`;
   
@@ -369,6 +369,7 @@ function getDeadlineInfo(deadlineStr, status) {
 async function renderDirector() {
   const [users, tasks] = await Promise.all([api('getUsers'), api('getTasks')]);
   allTasksCache = tasks;
+  myTasksCache = [];
   
   const checkboxList = users.map(u => `<label><input type="checkbox" name="assignee" value="${u.id}">${u.name}</label>`).join('');
 
@@ -400,38 +401,38 @@ async function renderDirector() {
         <div class="form-group">
           <label>Tài liệu đính kèm</label>
           <div style="display:flex; flex-direction:column; gap:8px;">
-            <input id="t-link" type="text" placeholder="Dán link (Drive/OneDrive) nếu có...">
+            <input id="t-link" type="text" placeholder="Dán link (Drive) nếu có...">
             <div class="file-upload-box">
               <input type="file" id="t-file" onchange="updateFileName(this)">
-              <div style="font-size:13px; font-weight:600; color:var(--primary);">📁 Hoặc bấm vào đây để chọn File từ máy</div>
-              <div id="file-name-display" class="file-name-display">Chưa chọn file nào</div>
+              <div style="font-size:12px; font-weight:600; color:var(--primary);">📁 Chọn File từ máy</div>
+              <div id="file-name-display" class="file-name-display">Chưa chọn file</div>
             </div>
           </div>
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group" style="margin-bottom:12px;">
         <label>Chọn người nhận (Giao chung 1 nhóm):</label>
         <div class="assignee-box">${checkboxList}</div>
       </div>
-      <button class="btn-primary" id="t-add" style="margin-top: 16px;">🚀 Giao việc ngay</button>
+      <button class="btn-primary" id="t-add">🚀 Giao việc ngay</button>
     </div>
     
     <div id="dashboard"></div>
     
     <div class="toolbar">
       <div class="view-switch">
-        <button id="btn-view-list" class="active" onclick="switchView('list')">📋 Chi tiết</button>
+        <button id="btn-view-list" class="active" onclick="switchView('list')">📋 DS</button>
         <button id="btn-view-kanban" onclick="switchView('kanban')">📌 Kanban</button>
         <button id="btn-view-table" onclick="switchView('table')">📊 Bảng</button>
       </div>
       <div class="search-box">
-        <input type="text" id="search-input" placeholder="🔍 Tìm tên việc, người làm..." oninput="renderFilteredTasks()">
+        <input type="text" id="search-input" placeholder="🔍 Tìm việc..." oninput="renderFilteredTasks()">
       </div>
       <button class="btn-export" onclick="exportCSV()">📥 Xuất CSV</button>
     </div>
 
     <div id="view-list" class="card" style="display:block;">
-      <h3>📋 Danh sách công việc <span class="filter-status" id="filter-status"></span></h3>
+      <h3>📋 Danh sách công việc <span class="filter-status" id="filter-status" style="font-size:12px;"></span></h3>
       <div id="task-list"></div>
     </div>
 
@@ -454,7 +455,7 @@ async function renderDirector() {
       <table>
         <thead>
           <tr>
-            <th>Mã</th><th>Tiêu đề</th><th>Người nhận</th><th>Ưu tiên</th><th>Hạn chót</th><th>Trạng thái</th><th>Thao tác</th>
+            <th>Mã</th><th>Tiêu đề</th><th>Người nhận</th><th>Ưu tiên</th><th>Hạn</th><th>Trạng thái</th><th></th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -476,11 +477,14 @@ async function renderDirector() {
       const file = fileInput.files[0];
       if (file.size > 5 * 1024 * 1024) return alert('File quá lớn! Vui lòng chọn file dưới 5MB.');
       document.getElementById('t-add').innerText = 'Đang tải file lên...';
+      document.getElementById('t-add').disabled = true;
       fileData = await getBase64(file);
       fileName = file.name;
     }
 
     document.getElementById('t-add').innerText = 'Đang gửi...';
+    document.getElementById('t-add').disabled = true;
+    
     await api('createTask', { 
       title, 
       description: document.getElementById('t-desc').value.trim(), 
@@ -495,20 +499,20 @@ async function renderDirector() {
     renderDirector();
   };
   
-  processAndRender(tasks, false);
+  processAndRender(false);
 }
 
 async function renderEmployee() {
   const allTasks = await api('getTasks');
   allTasksCache = allTasks;
-  const myTasks = allTasks.filter(t => String(t['Người nhận']) === String(me.id));
+  myTasksCache = allTasks.filter(t => String(t['Người nhận']) === String(me.id));
   
   document.getElementById('content').innerHTML = `
     <div id="dashboard"></div>
     
     <div class="toolbar">
       <div class="view-switch">
-        <button id="btn-view-list" class="active" onclick="switchView('list')">📋 Chi tiết</button>
+        <button id="btn-view-list" class="active" onclick="switchView('list')">📋 DS</button>
         <button id="btn-view-kanban" onclick="switchView('kanban')">📌 Kanban</button>
         <button id="btn-view-table" onclick="switchView('table')">📊 Bảng</button>
       </div>
@@ -518,7 +522,7 @@ async function renderEmployee() {
     </div>
 
     <div id="view-list" class="card" style="display:block;">
-      <h3>📋 Việc của tôi & Nhóm <span class="filter-status" id="filter-status"></span></h3>
+      <h3>📋 Việc của tôi <span class="filter-status" id="filter-status" style="font-size:12px;"></span></h3>
       <div id="task-list"></div>
     </div>
 
@@ -541,17 +545,22 @@ async function renderEmployee() {
       <table>
         <thead>
           <tr>
-            <th>Mã</th><th>Tiêu đề</th><th>Ưu tiên</th><th>Hạn chót</th><th>Trạng thái</th><th>Thao tác</th>
+            <th>Mã</th><th>Tiêu đề</th><th>Ưu tiên</th><th>Hạn</th><th>Trạng thái</th><th></th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
       </table>
     </div>`;
-  processAndRender(myTasks, true, allTasks);
+    
+  processAndRender(true);
 }
 
 function switchView(view) {
   currentView = view;
+  
+  // TỰ ĐỘNG RESET BỘ LỌC VỀ TẤT CẢ KHI CHUYỂN VIEW
+  currentFilter = 'all'; 
+  
   document.getElementById('view-list').style.display = view === 'list' ? 'block' : 'none';
   document.getElementById('view-kanban').style.display = view === 'kanban' ? 'grid' : 'none';
   document.getElementById('view-table').style.display = view === 'table' ? 'block' : 'none';
@@ -560,11 +569,11 @@ function switchView(view) {
   document.getElementById('btn-view-kanban').classList.toggle('active', view === 'kanban');
   document.getElementById('btn-view-table').classList.toggle('active', view === 'table');
   
-  processAndRender(currentView === 'list' ? allTasksCache : allTasksCache, me.role==='director'?false:true);
+  processAndRender(me.role !== 'director');
 }
 
-function processAndRender(myTasks, canAct, allTasks = []) {
-  const tasksToProcess = canAct ? allTasks : myTasks;
+function processAndRender(canAct) {
+  const tasksToProcess = canAct ? myTasksCache : allTasksCache;
   
   const groups = {};
   tasksToProcess.forEach(t => {
@@ -583,7 +592,7 @@ function processAndRender(myTasks, canAct, allTasks = []) {
   let displayGroups = Object.values(groups);
 
   if (canAct) {
-    const myGroupIds = new Set(myTasks.map(t => t['Mã nhóm'] || ('LEGACY_' + t['ID'])));
+    const myGroupIds = new Set(myTasksCache.map(t => t['Mã nhóm'] || ('LEGACY_' + t['ID'])));
     displayGroups = displayGroups.filter(g => myGroupIds.has(g.groupId));
   }
 
@@ -643,13 +652,13 @@ function processAndRender(myTasks, canAct, allTasks = []) {
 
 function filterTasks(type) {
   currentFilter = type;
-  processAndRender(allTasksCache, me.role==='director'?false:true);
+  processAndRender(me.role !== 'director');
 }
 
 function renderListView(displayGroups, canAct) {
   const el = document.getElementById('task-list');
   if (!displayGroups.length) { 
-    el.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 20px;">Không có công việc nào trong mục này.</p>`; 
+    el.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 20px; font-size:14px;">Không có công việc nào trong mục này.</p>`; 
     return; 
   }
 
@@ -673,7 +682,7 @@ function renderListView(displayGroups, canAct) {
     let dl = getDeadlineInfo(g.deadline, groupStatus);
     
     let isUrgent = (g.priority === 'Khẩn cấp' || g.priority === 'Cao');
-    let priorityBadge = isUrgent ? `<span class="badge badge-urgent">🚨 KHẨN CẤP</span>` : `<span style="font-size:12px; color:#64748b;">(Bình thường)</span>`;
+    let priorityBadge = isUrgent ? `<span class="badge-urgent">🚨 KHẨN CẤP</span>` : `<span style="font-size:11px; color:#64748b;">(Bình thường)</span>`;
     let urgentClass = isUrgent ? 'is-urgent' : '';
     
     let isExpanded = expandedGroups.has(g.groupId);
@@ -681,7 +690,7 @@ function renderListView(displayGroups, canAct) {
       let mStatus = STATUS[m.status] || STATUS.new;
       let actionBtn = '';
       if (canAct && m.userId === String(me.id)) {
-        if (m.status === 'new') actionBtn = `<button class="btn-action btn-receive" data-id="${m.rowId}" data-to="in_progress">▶️ Nhận & Bắt đầu</button>`;
+        if (m.status === 'new') actionBtn = `<button class="btn-action btn-receive" data-id="${m.rowId}" data-to="in_progress">▶️ Bắt đầu</button>`;
         else if (m.status === 'received') actionBtn = `<button class="btn-action btn-start" data-id="${m.rowId}" data-to="in_progress">▶️ Bắt đầu</button>`;
         else if (m.status === 'in_progress') actionBtn = `<button class="btn-action btn-done" data-id="${m.rowId}" data-to="done">✅ Xong</button>`;
       }
@@ -693,39 +702,40 @@ function renderListView(displayGroups, canAct) {
 
     let countdownHtml = '';
     if (g.deadline && dl.daysLeft !== null) {
-       if (dl.daysLeft < 0) countdownHtml = `<span style="color:#ef4444; font-weight:600; font-size:13px;">(Trễ ${Math.abs(dl.daysLeft)} ngày)</span>`;
-       else if (dl.daysLeft === 0) countdownHtml = `<span style="color:#f97316; font-weight:600; font-size:13px;">(Hạn chót hôm nay)</span>`;
-       else countdownHtml = `<span style="color:${dl.daysLeft <= 2 ? '#f97316' : '#3b82f6'}; font-weight:600; font-size:13px;">(Còn ${dl.daysLeft} ngày)</span>`;
+       if (dl.daysLeft < 0) countdownHtml = `<span style="color:#ef4444; font-weight:600; font-size:12px;">(Trễ ${Math.abs(dl.daysLeft)} ngày)</span>`;
+       else if (dl.daysLeft === 0) countdownHtml = `<span style="color:#f97316; font-weight:600; font-size:12px;">(Hạn chót hôm nay)</span>`;
+       else countdownHtml = `<span style="color:${dl.daysLeft <= 2 ? '#f97316' : '#3b82f6'}; font-weight:600; font-size:12px;">(Còn ${dl.daysLeft} ngày)</span>`;
     }
 
     let adminButtons = '';
     if (me.role === 'director') {
-      adminButtons = `<button class="btn-edit" data-edit="${g.groupId}">✏️ Sửa</button> <button class="btn-del" data-del="${g.groupId}">🗑️ Xóa</button>`;
+      adminButtons = `<div style="display:flex; gap:6px; margin-top:4px;"><button class="btn-edit" data-edit="${g.groupId}">✏️ Sửa</button> <button class="btn-del" data-del="${g.groupId}">🗑️ Xóa</button></div>`;
     }
 
     return `<div class="task-group ${urgentClass} status-${groupStatus} ${dl.isOverdue ? 'is-overdue' : ''}">
       <div class="task-header">
-        <div class="task-title">${g.title} ${priorityBadge}</div>
-        <div class="badges">
-          ${dl.isOverdue ? `<span class="badge deadline-overdue">🔴 ${dl.text}</span>` : ''}
-          ${adminButtons}
+        <div>
+          <div class="task-title">${g.title} ${priorityBadge}</div>
+          <div class="task-meta">
+            <span>✍️ Giao: ${g.assigner}</span>
+            ${g.deadline ? `<span>📅 Hạn: <b style="color:#ef4444">${fmtDate(g.deadline)}</b> ${countdownHtml}</span>` : ''}
+            <button class="btn-toggle-detail" data-toggle="${g.groupId}">${isExpanded ? '▲ Thu gọn' : '▼ Chi tiết'}</button>
+          </div>
         </div>
-      </div>
-      <div class="task-meta">
-        <span>✍️ Giao: ${g.assigner}</span>
-        ${g.deadline ? `<span>📅 Hạn chót: <b style="color:#ef4444">${fmtDate(g.deadline)}</b> ${countdownHtml}</span>` : ''}
-        <button class="btn-toggle-detail" data-toggle="${g.groupId}">${isExpanded ? '▲ Thu gọn' : '▼ Hiện chi tiết'}</button>
+        ${adminButtons}
       </div>
       
       <div class="task-details ${isExpanded ? 'show' : ''}">
         ${g.desc ? `<div class="task-desc">${g.desc}</div>` : ''}
-        ${g.link ? `<div style="margin-bottom:12px;"><a href="${g.link}" target="_blank" style="color:var(--primary); font-weight:600;">📎 Mở link đính kèm</a></div>` : ''}
+        
+        ${g.link ? `<div style="margin-bottom:12px;"><a href="${g.link}" target="_blank" style="color:var(--primary); font-weight:600; font-size:13px; text-decoration:none; display:inline-block; padding:6px 10px; background:#eff6ff; border-radius:6px; border:1px solid #bfdbfe;">📎 Mở File / Link đính kèm</a></div>` : ''}
         
         <div class="progress-container">
           <div class="progress-header"><span>Tiến độ</span><span>${doneM}/${totalM} (${percent}%)</span></div>
           <div class="progress-bar"><div class="progress-fill" style="width: ${percent}%"></div></div>
         </div>
         <div class="members-list">${membersHtml}</div>
+        
         <button class="btn-action btn-log" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">💬 Bình luận & Lịch sử</button>
       </div>
     </div>`;
@@ -743,22 +753,31 @@ function renderKanbanView(displayGroups, canAct) {
   });
 
   for (let key in cols) {
-    document.getElementById(`count-${key}`).innerText = cols[key].length;
+    const countEl = document.getElementById(`count-${key}`);
+    if (countEl) countEl.innerText = cols[key].length;
+    
     const container = document.querySelector(`#col-${key} .kanban-cards`);
+    if (!container) continue;
+
+    if (cols[key].length === 0) {
+      container.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:12px; padding: 20px 0;">Trống</p>`;
+      continue;
+    }
+
     container.innerHTML = cols[key].map(g => {
       let dl = getDeadlineInfo(g.deadline, key);
       let isUrgent = (g.priority === 'Khẩn cấp' || g.priority === 'Cao');
       let urgentClass = isUrgent ? 'is-urgent' : '';
       let prioHtml = isUrgent ? `<b style="color:#ef4444">🚨 Khẩn cấp</b>` : `<span style="color:#64748b">Bình thường</span>`;
 
-      return `<div class="k-card status-${key} ${urgentClass}" draggable="true" ondragstart="drag(event, '${g.groupId}')" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">
-        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px;">
+      return `<div class="k-card status-${key} ${urgentClass}" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:6px;">
           ${prioHtml}
           ${dl.isOverdue ? `<span style="color:#ef4444; font-weight:bold;">🔴 Trễ hạn</span>` : ''}
         </div>
-        <div style="font-weight:600; font-size:15px; margin-bottom:8px;">${g.title}</div>
-        <div style="font-size:13px; color:#64748b;">👤 ${g.members.map(m=>m.name).join(', ')}</div>
-        <div style="font-size:12px; color:#64748b; margin-top:8px;">📅 ${fmtDate(g.deadline)}</div>
+        <div style="font-weight:600; margin-bottom:6px;">${g.title}</div>
+        <div style="color:#64748b; margin-bottom:4px;">👤 ${g.members.map(m=>m.name).join(', ')}</div>
+        <div style="color:#64748b;">📅 ${fmtDate(g.deadline)}</div>
       </div>`;
     }).join('');
   }
@@ -766,6 +785,12 @@ function renderKanbanView(displayGroups, canAct) {
 
 function renderTableView(displayGroups, canAct) {
   const tbody = document.getElementById('table-body');
+  
+  if (!displayGroups.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color:#94a3b8;">Không có công việc nào</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = displayGroups.map(g => {
     let doneM = g.members.filter(m => m.status === 'done').length;
     let groupStatus = doneM === g.members.length ? 'Hoàn thành' : 'Đang làm';
@@ -780,7 +805,7 @@ function renderTableView(displayGroups, canAct) {
       <td>${prioHtml}</td>
       <td style="color:${dl.isOverdue?'#ef4444':(dl.isWarning?'#f97316':'inherit')}">${fmtDate(g.deadline)}</td>
       <td>${groupStatus}</td>
-      <td><button class="btn-log" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">Chi tiết</button></td>
+      <td><button class="btn-log" style="margin-top:0; padding:4px 8px;" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">Xem</button></td>
     </tr>`;
   }).join('');
 }
@@ -791,9 +816,18 @@ function attachEvents(el, displayGroups, canAct) {
       e.stopPropagation();
       const to = btn.dataset.to;
       let note = to === 'done' ? prompt('Nhập kết quả/Ghi chú:') || '' : '';
-      btn.innerText = 'Đang gửi...';
-      await api('updateStatus', { taskId: btn.dataset.id, status: to, note, user_id: me.id });
-      renderMain();
+      
+      btn.innerText = '...';
+      btn.disabled = true;
+      
+      try {
+        await api('updateStatus', { taskId: btn.dataset.id, status: to, note, user_id: me.id });
+        renderMain();
+      } catch (err) {
+        alert(err.message);
+        btn.innerText = to === 'done' ? '✅ Xong' : '▶️ Bắt đầu';
+        btn.disabled = false;
+      }
     };
   });
 
@@ -803,7 +837,7 @@ function attachEvents(el, displayGroups, canAct) {
       const gid = btn.dataset.toggle;
       if (expandedGroups.has(gid)) expandedGroups.delete(gid);
       else expandedGroups.add(gid);
-      processAndRender(allTasksCache, canAct);
+      processAndRender(canAct);
     };
   });
 
@@ -811,7 +845,8 @@ function attachEvents(el, displayGroups, canAct) {
     btn.onclick = async (e) => {
       e.stopPropagation();
       if (confirm('Bạn có chắc muốn xóa toàn bộ công việc này?')) {
-        btn.innerText = 'Đang xóa...';
+        btn.innerText = '...';
+        btn.disabled = true;
         await api('deleteTask', { groupId: btn.dataset.del });
         renderMain();
       }
@@ -845,6 +880,7 @@ async function saveEditTask() {
   const btn = document.querySelector('#modal-edit .btn-primary');
   const originalText = btn.innerText;
   btn.innerText = 'Đang lưu...';
+  btn.disabled = true;
 
   const data = {
     groupId: document.getElementById('edit-group-id').value,
@@ -863,6 +899,7 @@ async function saveEditTask() {
   } catch (e) {
     alert(e.message);
     btn.innerText = originalText;
+    btn.disabled = false;
   }
 }
 
@@ -886,39 +923,44 @@ async function openDetail(taskId, groupId) {
   const modal = document.getElementById('modal-detail');
   const body = document.getElementById('modal-body');
   modal.style.display = 'flex';
-  body.innerHTML = '<p>Đang tải dữ liệu...</p>';
+  body.innerHTML = '<p style="text-align:center; padding:20px;">Đang tải dữ liệu...</p>';
 
   try {
     const logs = await api('getLogs', { taskId });
-    const groupTasks = allTasksCache.filter(t => (t['Mã nhóm'] || ('LEGACY_' + t['ID'])) === groupId);
+    
+    const groupTasks = allTasksCache.filter(t => String(t['Mã nhóm'] || ('LEGACY_' + t['ID'])) === String(groupId));
     const firstTask = groupTasks[0];
+    
+    if (!firstTask) {
+      body.innerHTML = `<p style="color:red; text-align:center;">Lỗi: Không tìm thấy dữ liệu công việc.</p>`;
+      return;
+    }
 
     let historyHtml = logs.map(l => {
-      if (l['Hành động'] === 'comment') return `<div class="comment-item"><b>${l.user_name}:</b> ${l['Ghi chú']} <span style="color:var(--text-muted); font-size:12px;">(${fmt(l['Thời gian'])})</span></div>`;
+      if (l['Hành động'] === 'comment') return `<div class="comment-item"><b>${l.user_name}:</b> ${l['Ghi chú']} <div style="color:var(--text-muted); font-size:11px; margin-top:4px;">${fmt(l['Thời gian'])}</div></div>`;
       let act = { created:'Giao việc', received:'Đã nhận', in_progress:'Đang làm', done:'Báo xong' }[l['Hành động']] || l['Hành động'];
-      return `<div style="font-size:13px; color:var(--text-muted); margin-bottom:6px;">- ${l.user_name} <b>${act}</b> lúc ${fmt(l['Thời gian'])}</div>`;
+      return `<div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #e2e8f0;">- ${l.user_name} <b>${act}</b> lúc ${fmt(l['Thời gian'])}</div>`;
     }).join('');
 
     body.innerHTML = `
-      <h2 style="color:var(--primary);">${firstTask['Tiêu đề']}</h2>
-      <p style="margin-top:8px; margin-bottom:16px;">${firstTask['Mô tả'] || 'Không có mô tả'}</p>
-      <div style="display:flex; gap:16px; font-size:14px; color:var(--text-muted); margin-bottom:20px;">
+      <h2 style="color:var(--primary); font-size:18px; margin-bottom:8px;">${firstTask['Tiêu đề']}</h2>
+      <p style="margin-bottom:16px; font-size:14px;">${firstTask['Mô tả'] || 'Không có mô tả'}</p>
+      <div style="display:flex; gap:16px; font-size:13px; color:var(--text-muted); margin-bottom:16px;">
         <span>👤 Người nhận: <b>${firstTask.assignee_name}</b></span>
         <span>📅 Hạn: <b>${fmtDate(firstTask['Hạn hoàn thành'])}</b></span>
       </div>
-      ${firstTask['File đính kèm'] ? `<div style="margin-bottom:16px;"><a href="${firstTask['File đính kèm']}" target="_blank" class="btn-primary" style="text-decoration:none; padding:6px 12px; font-size:13px;">📎 Mở File đính kèm</a></div>` : ''}
+      ${firstTask['File đính kèm'] ? `<div style="margin-bottom:16px;"><a href="${firstTask['File đính kèm']}" target="_blank" style="display:inline-block; padding:10px 16px; background:#eff6ff; color:var(--primary); text-decoration:none; border-radius:8px; font-weight:600; font-size:14px; border:1px solid #bfdbfe;">📎 Mở File đính kèm</a></div>` : ''}
       
-      <h4 style="margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;">💬 Bình luận & Lịch sử</h4>
+      <h4 style="margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px; font-size:15px;">💬 Bình luận & Lịch sử</h4>
       <div class="comment-list">${historyHtml || 'Chưa có hoạt động nào.'}</div>
       
-      <!-- PHẦN Ô NHẬP BÌNH LUẬN ĐÃ ĐƯỢC SỬA GIAO DIỆN -->
       <div class="comment-input-box">
         <input type="text" id="comment-input-${taskId}" placeholder="Nhập bình luận... (Ấn Enter để gửi)" onkeypress="if(event.key === 'Enter') submitComment('${taskId}')">
         <button class="btn-primary" onclick="submitComment('${taskId}')">Gửi bình luận</button>
       </div>
     `;
   } catch (e) {
-    body.innerHTML = `<p style="color:red;">Lỗi: ${e.message}</p>`;
+    body.innerHTML = `<p style="color:red; text-align:center;">Lỗi tải dữ liệu: ${e.message}</p>`;
   }
 }
 
@@ -926,11 +968,18 @@ async function submitComment(taskId) {
   const input = document.getElementById(`comment-input-${taskId}`);
   const text = input.value.trim();
   if (!text) return;
+  
   input.disabled = true;
+  input.placeholder = "Đang gửi...";
+  
   await api('addComment', { taskId, userId: me.id, note: text });
+  
   input.disabled = false;
   input.value = '';
-  openDetail(taskId, allTasksCache.find(t=>t.ID==taskId)['Mã nhóm']); 
+  
+  const task = allTasksCache.find(t => String(t.ID) === String(taskId));
+  const gid = task ? (task['Mã nhóm'] || 'LEGACY_' + task.ID) : taskId;
+  openDetail(taskId, gid); 
 }
 
 function exportCSV() {
