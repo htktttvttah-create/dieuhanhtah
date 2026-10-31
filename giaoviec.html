@@ -558,8 +558,10 @@ async function renderEmployee() {
 function switchView(view) {
   currentView = view;
   
-  // TỰ ĐỘNG RESET BỘ LỌC VỀ TẤT CẢ KHI CHUYỂN VIEW
+  // XÓA BỘ LỌC VÀ Ô TÌM KIẾM KHI CHUYỂN TAB
   currentFilter = 'all'; 
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) searchInput.value = '';
   
   document.getElementById('view-list').style.display = view === 'list' ? 'block' : 'none';
   document.getElementById('view-kanban').style.display = view === 'kanban' ? 'grid' : 'none';
@@ -569,6 +571,11 @@ function switchView(view) {
   document.getElementById('btn-view-kanban').classList.toggle('active', view === 'kanban');
   document.getElementById('btn-view-table').classList.toggle('active', view === 'table');
   
+  processAndRender(me.role !== 'director');
+}
+
+// Hàm này được gọi mỗi khi gõ phím vào ô tìm kiếm hoặc click bộ lọc
+function renderFilteredTasks() {
   processAndRender(me.role !== 'director');
 }
 
@@ -596,10 +603,16 @@ function processAndRender(canAct) {
     displayGroups = displayGroups.filter(g => myGroupIds.has(g.groupId));
   }
 
-  const keyword = document.getElementById('search-input')?.value.toLowerCase() || '';
+  const keyword = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
   
+  // Áp dụng bộ lọc tìm kiếm và bộ lọc thẻ
   displayGroups = displayGroups.filter(g => {
-    if (keyword && !g.title.toLowerCase().includes(keyword) && !g.members.some(m=>m.name.toLowerCase().includes(keyword))) return false;
+    let matchKeyword = true;
+    if (keyword) {
+      matchKeyword = g.title.toLowerCase().includes(keyword) || 
+                     g.members.some(m=>m.name.toLowerCase().includes(keyword));
+    }
+    if (!matchKeyword) return false;
     
     let doneM = g.members.filter(m => m.status === 'done').length;
     let isDone = doneM === g.members.length;
@@ -612,8 +625,11 @@ function processAndRender(canAct) {
     return true;
   });
 
-  let total = Object.keys(groups).length;
+  // Thống kê dựa trên kết quả ĐÃ LỌC (để khớp với hiển thị)
+  let total = displayGroups.length;
   let done = 0, overdue = 0, warning = 0, pending = 0;
+  
+  // Để tính đúng số liệu thống kê toàn cảnh, ta tính lại từ groups
   Object.values(groups).forEach(g => {
     let doneCount = g.members.filter(m => m.status === 'done').length;
     if (doneCount === g.members.length) { done++; }
@@ -629,7 +645,7 @@ function processAndRender(canAct) {
   dbEl.innerHTML = `
     <div class="dashboard">
       <div class="stat-card stat-all ${currentFilter === 'all' ? 'active-filter' : ''}" onclick="filterTasks('all')">
-        <h4>📂 Tất cả</h4><div class="num">${total}</div>
+        <h4>📂 Tất cả</h4><div class="num">${Object.keys(groups).length}</div>
       </div>
       <div class="stat-card stat-pending ${currentFilter === 'pending' ? 'active-filter' : ''}" onclick="filterTasks('pending')">
         <h4>📋 Chưa xong</h4><div class="num">${pending}</div>
@@ -658,7 +674,7 @@ function filterTasks(type) {
 function renderListView(displayGroups, canAct) {
   const el = document.getElementById('task-list');
   if (!displayGroups.length) { 
-    el.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 20px; font-size:14px;">Không có công việc nào trong mục này.</p>`; 
+    el.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 20px; font-size:14px;">Không có công việc nào phù hợp.</p>`; 
     return; 
   }
 
@@ -787,7 +803,7 @@ function renderTableView(displayGroups, canAct) {
   const tbody = document.getElementById('table-body');
   
   if (!displayGroups.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color:#94a3b8;">Không có công việc nào</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color:#94a3b8;">Không có công việc nào phù hợp</td></tr>`;
     return;
   }
 
