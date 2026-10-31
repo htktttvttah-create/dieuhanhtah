@@ -101,13 +101,13 @@
   .btn-log { background: #f8fafc; border: 1px solid var(--border); color: var(--text-main); margin-top: 12px; width: 100%; padding: 8px; font-weight: 600;}
 
   /* View Bảng (Table) cho Mobile */
-  .table-view { display: none; background: white; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+  .table-view { background: white; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
   table { width: 100%; border-collapse: collapse; min-width: 600px; }
   th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
   th { background: #f8fafc; font-weight: 600; }
 
-  /* Kanban cho Mobile */
-  .kanban-board { display: none; flex-direction: column; gap: 16px; }
+  /* Kanban */
+  .kanban-board { flex-direction: column; gap: 16px; }
   .kanban-col { background: #e2e8f0; border-radius: 8px; padding: 12px; }
   .kanban-col h3 { font-size: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; }
   .kanban-cards { display: flex; flex-direction: column; gap: 8px; }
@@ -235,7 +235,7 @@
 
 <script>
 // ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbwmkq9YuxAw3BX5SCDPAPLK6VGU20tnBSYiaLvXrvZabx59iDVYha0GFtpPQVOdLjgURg/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwyqpAeg83EBkHEgWeb-pz8Dcso_w32DcxVlAmj6lcEDInTRhpisAYtLVUrVKxJNQ2HNQ/exec'; 
 
 const $app = document.getElementById('app');
 let token = localStorage.getItem('token');
@@ -442,7 +442,8 @@ async function renderDirector() {
       <div id="task-list"></div>
     </div>
 
-    <div id="view-kanban" class="kanban-board">
+    <!-- Đã thêm style="display: none;" để ẩn mặc định, tránh lỗi đè giao diện -->
+    <div id="view-kanban" class="kanban-board" style="display: none;">
       <div class="kanban-col" id="col-new" ondrop="drop(event, 'new')" ondragover="allowDrop(event)">
         <h3>🟡 Mới giao <span id="count-new">0</span></h3>
         <div class="kanban-cards"></div>
@@ -457,7 +458,7 @@ async function renderDirector() {
       </div>
     </div>
 
-    <div id="view-table" class="table-view">
+    <div id="view-table" class="table-view" style="display: none;">
       <table>
         <thead>
           <tr>
@@ -506,6 +507,7 @@ async function renderDirector() {
   };
   
   processAndRender(false);
+  switchView('list'); // Đảm bảo hiển thị đúng tab ban đầu
 }
 
 async function renderEmployee() {
@@ -532,7 +534,8 @@ async function renderEmployee() {
       <div id="task-list"></div>
     </div>
 
-    <div id="view-kanban" class="kanban-board">
+    <!-- Đã thêm style="display: none;" -->
+    <div id="view-kanban" class="kanban-board" style="display: none;">
       <div class="kanban-col" id="col-new" ondrop="drop(event, 'new')" ondragover="allowDrop(event)">
         <h3>🟡 Mới giao <span id="count-new">0</span></h3>
         <div class="kanban-cards"></div>
@@ -547,7 +550,7 @@ async function renderEmployee() {
       </div>
     </div>
 
-    <div id="view-table" class="table-view">
+    <div id="view-table" class="table-view" style="display: none;">
       <table>
         <thead>
           <tr>
@@ -559,6 +562,7 @@ async function renderEmployee() {
     </div>`;
     
   processAndRender(true);
+  switchView('list');
 }
 
 function switchView(view) {
@@ -569,18 +573,26 @@ function switchView(view) {
   const searchInput = document.getElementById('search-input');
   if (searchInput) searchInput.value = '';
   
-  document.getElementById('view-list').style.display = view === 'list' ? 'block' : 'none';
-  document.getElementById('view-kanban').style.display = view === 'kanban' ? 'grid' : 'none';
-  document.getElementById('view-table').style.display = view === 'table' ? 'block' : 'none';
+  const elList = document.getElementById('view-list');
+  const elKanban = document.getElementById('view-kanban');
+  const elTable = document.getElementById('view-table');
   
-  document.getElementById('btn-view-list').classList.toggle('active', view === 'list');
-  document.getElementById('btn-view-kanban').classList.toggle('active', view === 'kanban');
-  document.getElementById('btn-view-table').classList.toggle('active', view === 'table');
+  // Ẩn hiện chính xác
+  if (elList) elList.style.display = view === 'list' ? 'block' : 'none';
+  if (elKanban) elKanban.style.display = view === 'kanban' ? 'grid' : 'none';
+  if (elTable) elTable.style.display = view === 'table' ? 'block' : 'none';
+  
+  const btnList = document.getElementById('btn-view-list');
+  const btnKanban = document.getElementById('btn-view-kanban');
+  const btnTable = document.getElementById('btn-view-table');
+  
+  if (btnList) btnList.classList.toggle('active', view === 'list');
+  if (btnKanban) btnKanban.classList.toggle('active', view === 'kanban');
+  if (btnTable) btnTable.classList.toggle('active', view === 'table');
   
   processAndRender(me.role !== 'director');
 }
 
-// Hàm này được gọi mỗi khi gõ phím vào ô tìm kiếm hoặc click bộ lọc
 function renderFilteredTasks() {
   processAndRender(me.role !== 'director');
 }
@@ -611,7 +623,6 @@ function processAndRender(canAct) {
 
   const keyword = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
   
-  // Áp dụng bộ lọc tìm kiếm và bộ lọc thẻ
   displayGroups = displayGroups.filter(g => {
     let matchKeyword = true;
     if (keyword) {
@@ -631,11 +642,9 @@ function processAndRender(canAct) {
     return true;
   });
 
-  // Thống kê dựa trên kết quả ĐÃ LỌC (để khớp với hiển thị)
-  let total = displayGroups.length;
+  let total = Object.keys(groups).length;
   let done = 0, overdue = 0, warning = 0, pending = 0;
   
-  // Để tính đúng số liệu thống kê toàn cảnh, ta tính lại từ groups
   Object.values(groups).forEach(g => {
     let doneCount = g.members.filter(m => m.status === 'done').length;
     if (doneCount === g.members.length) { done++; }
@@ -706,7 +715,6 @@ function renderListView(displayGroups, canAct) {
     let isUrgent = (g.priority === 'Khẩn cấp' || g.priority === 'Cao');
     let priorityBadge = isUrgent ? `<span class="badge-urgent">🚨 KHẨN CẤP</span>` : `<span style="font-size:11px; color:#64748b;">(Bình thường)</span>`;
     
-    // Tạo Nhãn trạng thái
     let statusObj = {
       new: { text: 'Mới giao', cls: 'new' },
       in_progress: { text: 'Đang làm', cls: 'in_progress' },
