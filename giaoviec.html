@@ -122,13 +122,16 @@
   .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
   .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
-  .comment-list { max-height: 250px; overflow-y: auto; margin-bottom: 12px; }
-  .comment-item { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
-  .comment-item b { color: var(--primary); }
   
-  /* Form nhập bình luận */
-  .comment-input-box { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  /* Giao diện Bình luận mới */
+  .comment-list { max-height: 250px; overflow-y: auto; margin-bottom: 16px; padding-right: 4px; }
+  .comment-item { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid #e2e8f0;}
+  .comment-item b { color: var(--primary); }
+  .comment-item.time-line { border: none; background: transparent; padding: 0 0 8px 0; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; color: var(--text-muted); font-size: 12px; }
+
+  .comment-input-box { display: flex; flex-direction: column; gap: 8px; background: #f1f5f9; padding: 12px; border-radius: 8px; }
   .comment-input-box input { width: 100%; margin-bottom: 0; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+  .comment-input-box button { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
   
   .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }
   .login-card { width: 100%; max-width: 400px; text-align: center; }
@@ -235,7 +238,7 @@
 
 <script>
 // ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbwyqpAeg83EBkHEgWeb-pz8Dcso_w32DcxVlAmj6lcEDInTRhpisAYtLVUrVKxJNQ2HNQ/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbwmkq9YuxAw3BX5SCDPAPLK6VGU20tnBSYiaLvXrvZabx59iDVYha0GFtpPQVOdLjgURg/exec'; 
 
 const $app = document.getElementById('app');
 let token = localStorage.getItem('token');
@@ -246,6 +249,7 @@ let expandedGroups = new Set();
 let currentView = 'list'; 
 let allTasksCache = [];
 let myTasksCache = []; 
+let currentDetailTaskId = null; // Biến lưu ID công việc đang mở
 
 const fmt = (s) => s && s !== '' ? new Date(s).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'}) : '';
 const fmtDate = (s) => s && s !== '' ? new Date(s).toLocaleDateString('vi-VN') : '';
@@ -442,7 +446,6 @@ async function renderDirector() {
       <div id="task-list"></div>
     </div>
 
-    <!-- Đã thêm style="display: none;" để ẩn mặc định, tránh lỗi đè giao diện -->
     <div id="view-kanban" class="kanban-board" style="display: none;">
       <div class="kanban-col" id="col-new" ondrop="drop(event, 'new')" ondragover="allowDrop(event)">
         <h3>🟡 Mới giao <span id="count-new">0</span></h3>
@@ -507,7 +510,7 @@ async function renderDirector() {
   };
   
   processAndRender(false);
-  switchView('list'); // Đảm bảo hiển thị đúng tab ban đầu
+  switchView('list'); 
 }
 
 async function renderEmployee() {
@@ -534,7 +537,6 @@ async function renderEmployee() {
       <div id="task-list"></div>
     </div>
 
-    <!-- Đã thêm style="display: none;" -->
     <div id="view-kanban" class="kanban-board" style="display: none;">
       <div class="kanban-col" id="col-new" ondrop="drop(event, 'new')" ondragover="allowDrop(event)">
         <h3>🟡 Mới giao <span id="count-new">0</span></h3>
@@ -567,8 +569,6 @@ async function renderEmployee() {
 
 function switchView(view) {
   currentView = view;
-  
-  // XÓA BỘ LỌC VÀ Ô TÌM KIẾM KHI CHUYỂN TAB
   currentFilter = 'all'; 
   const searchInput = document.getElementById('search-input');
   if (searchInput) searchInput.value = '';
@@ -577,7 +577,6 @@ function switchView(view) {
   const elKanban = document.getElementById('view-kanban');
   const elTable = document.getElementById('view-table');
   
-  // Ẩn hiện chính xác
   if (elList) elList.style.display = view === 'list' ? 'block' : 'none';
   if (elKanban) elKanban.style.display = view === 'kanban' ? 'grid' : 'none';
   if (elTable) elTable.style.display = view === 'table' ? 'block' : 'none';
@@ -963,6 +962,7 @@ async function drop(ev, newStatus) {
 }
 
 async function openDetail(taskId, groupId) {
+  currentDetailTaskId = taskId;
   const modal = document.getElementById('modal-detail');
   const body = document.getElementById('modal-body');
   modal.style.display = 'flex';
@@ -980,9 +980,11 @@ async function openDetail(taskId, groupId) {
     }
 
     let historyHtml = logs.map(l => {
-      if (l['Hành động'] === 'comment') return `<div class="comment-item"><b>${l.user_name}:</b> ${l['Ghi chú']} <div style="color:var(--text-muted); font-size:11px; margin-top:4px;">${fmt(l['Thời gian'])}</div></div>`;
+      if (l['Hành động'] === 'comment') {
+        return `<div class="comment-item"><b>${l.user_name}:</b> ${l['Ghi chú']} <div style="color:var(--text-muted); font-size:11px; margin-top:4px;">${fmt(l['Thời gian'])}</div></div>`;
+      }
       let act = { created:'Giao việc', received:'Đã nhận', in_progress:'Đang làm', done:'Báo xong' }[l['Hành động']] || l['Hành động'];
-      return `<div style="font-size:12px; color:var(--text-muted); margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #e2e8f0;">- ${l.user_name} <b>${act}</b> lúc ${fmt(l['Thời gian'])}</div>`;
+      return `<div class="comment-item time-line">- ${l.user_name} <b>${act}</b> lúc ${fmt(l['Thời gian'])}</div>`;
     }).join('');
 
     body.innerHTML = `
@@ -995,13 +997,20 @@ async function openDetail(taskId, groupId) {
       ${firstTask['File đính kèm'] ? `<div style="margin-bottom:16px;"><a href="${firstTask['File đính kèm']}" target="_blank" style="display:inline-block; padding:10px 16px; background:#eff6ff; color:var(--primary); text-decoration:none; border-radius:8px; font-weight:600; font-size:14px; border:1px solid #bfdbfe;">📎 Mở File đính kèm</a></div>` : ''}
       
       <h4 style="margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px; font-size:15px;">💬 Bình luận & Lịch sử</h4>
-      <div class="comment-list">${historyHtml || 'Chưa có hoạt động nào.'}</div>
+      <div class="comment-list" id="comment-list-box">${historyHtml || 'Chưa có hoạt động nào.'}</div>
       
       <div class="comment-input-box">
         <input type="text" id="comment-input-${taskId}" placeholder="Nhập bình luận... (Ấn Enter để gửi)" onkeypress="if(event.key === 'Enter') submitComment('${taskId}')">
-        <button class="btn-primary" onclick="submitComment('${taskId}')">Gửi bình luận</button>
+        <button class="btn-primary" id="btn-submit-${taskId}" onclick="submitComment('${taskId}')">Gửi bình luận</button>
       </div>
     `;
+    
+    // Tự động cuộn xuống cuối danh sách bình luận
+    setTimeout(() => {
+      const box = document.getElementById('comment-list-box');
+      if (box) box.scrollTop = box.scrollHeight;
+    }, 100);
+
   } catch (e) {
     body.innerHTML = `<p style="color:red; text-align:center;">Lỗi tải dữ liệu: ${e.message}</p>`;
   }
@@ -1009,20 +1018,45 @@ async function openDetail(taskId, groupId) {
 
 async function submitComment(taskId) {
   const input = document.getElementById(`comment-input-${taskId}`);
+  const btn = document.getElementById(`btn-submit-${taskId}`);
   const text = input.value.trim();
   if (!text) return;
   
+  // Khóa nút và input để tránh bấm nhiều lần
   input.disabled = true;
-  input.placeholder = "Đang gửi...";
+  btn.disabled = true;
+  btn.innerText = 'Đang gửi...';
+  input.placeholder = "Đang gửi bình luận...";
   
-  await api('addComment', { taskId, userId: me.id, note: text });
-  
-  input.disabled = false;
-  input.value = '';
-  
-  const task = allTasksCache.find(t => String(t.ID) === String(taskId));
-  const gid = task ? (task['Mã nhóm'] || 'LEGACY_' + task.ID) : taskId;
-  openDetail(taskId, gid); 
+  try {
+    // Gửi API lên server
+    await api('addComment', { taskId, userId: me.id, note: text });
+    
+    // Thêm ngay vào UI (Optimistic UI) để không cần chờ load lại
+    const box = document.getElementById('comment-list-box');
+    const newHtml = `<div class="comment-item"><b>${me.name}:</b> ${text} <div style="color:var(--text-muted); font-size:11px; margin-top:4px;">Vừa xong</div></div>`;
+    if (box.innerHTML === 'Chưa có hoạt động nào.') box.innerHTML = '';
+    box.innerHTML += newHtml;
+    box.scrollTop = box.scrollHeight;
+    
+    // Reset ô nhập
+    input.value = '';
+    input.placeholder = "Nhập bình luận... (Ấn Enter để gửi)";
+    
+    // Gọi ngầm tải lại dữ liệu chuẩn
+    setTimeout(() => {
+       const gid = allTasksCache.find(t => String(t.ID) === String(taskId))['Mã nhóm'];
+       openDetail(taskId, gid || 'LEGACY_' + taskId);
+    }, 1000);
+
+  } catch (err) {
+    alert("Lỗi gửi bình luận: " + err.message);
+    input.placeholder = "Nhập bình luận... (Ấn Enter để gửi)";
+  } finally {
+    input.disabled = false;
+    btn.disabled = false;
+    btn.innerText = 'Gửi bình luận';
+  }
 }
 
 function exportCSV() {
