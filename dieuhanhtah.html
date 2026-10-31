@@ -1458,7 +1458,7 @@ to {
             <th class="ctr">STT</th>
             <th>Nhân viên KTĐB</th>
             <th>Tổ</th>
-            <th class="num" title="Kế hoạch ngày = còn lại ÷ số ngày đến 30/11">KH/ngày</th>
+            <th class="num" title="Kế hoạch ngày = còn lại ÷ số ngày đến 10/12">KH/ngày</th>
             <th class="num" title="Cột “🟢 Thay trong ngày” trên sheet">Đã thay hôm nay</th>
             <th class="num" title="KH/ngày − đã thay hôm nay">Còn thiếu</th>
             <th class="num">Còn lại</th>
@@ -7506,8 +7506,8 @@ const App = () => {
   if (U.accentDark) HOST.style.setProperty('--accent-dark', U.accentDark);
   if (U.accentSoft) HOST.style.setProperty('--accent-soft', U.accentSoft);
 
-  /* ---------------- hạn chốt 30/11/2026 ---------------- */
-  const DEADLINE = { y: 2026, m: 11, d: 30 };          // tháng 1..12
+  /* ---------------- hạn chốt 10/12/2026 ---------------- */
+  const DEADLINE = { y: 2026, m: 12, d: 10 };          // tháng 1..12
   const DAY_MS = 86400000;
   const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
   function remainingDays() {
