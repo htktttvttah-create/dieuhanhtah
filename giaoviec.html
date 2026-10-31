@@ -64,11 +64,17 @@
   .task-group.is-overdue { border-left-color: #ef4444 !important; background: #fef2f2; }
   .task-group.is-urgent { border: 2px solid #ef4444; border-left: 6px solid #ef4444; background: #fff5f5; }
   
-  .badge-urgent { background: #ef4444; color: white; animation: pulse 1.5s infinite; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-size: 11px; display: inline-block; margin-left: 6px;}
+  /* Các loại Badge */
+  .badge-urgent { background: #ef4444; color: white; animation: pulse 1.5s infinite; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-size: 11px; display: inline-block;}
   @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+  
+  .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
+  .status-badge.new { background: #fef3c7; color: #d97706; }
+  .status-badge.in_progress { background: #ede9fe; color: #7c3aed; }
+  .status-badge.done { background: #d1fae5; color: #059669; }
 
   .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-  .task-title { font-weight: 600; font-size: 15px; }
+  .task-title { font-weight: 600; font-size: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
   .task-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
   .btn-toggle-detail { background: #f1f5f9; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; cursor: pointer;}
   .btn-edit { background: #eff6ff; color: #2563eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #bfdbfe; cursor:pointer;}
@@ -699,6 +705,15 @@ function renderListView(displayGroups, canAct) {
     
     let isUrgent = (g.priority === 'Khẩn cấp' || g.priority === 'Cao');
     let priorityBadge = isUrgent ? `<span class="badge-urgent">🚨 KHẨN CẤP</span>` : `<span style="font-size:11px; color:#64748b;">(Bình thường)</span>`;
+    
+    // Tạo Nhãn trạng thái
+    let statusObj = {
+      new: { text: 'Mới giao', cls: 'new' },
+      in_progress: { text: 'Đang làm', cls: 'in_progress' },
+      done: { text: 'Hoàn thành', cls: 'done' }
+    }[groupStatus] || { text: 'Mới giao', cls: 'new' };
+    let statusBadge = `<span class="status-badge ${statusObj.cls}">${statusObj.text}</span>`;
+    
     let urgentClass = isUrgent ? 'is-urgent' : '';
     
     let isExpanded = expandedGroups.has(g.groupId);
@@ -731,7 +746,11 @@ function renderListView(displayGroups, canAct) {
     return `<div class="task-group ${urgentClass} status-${groupStatus} ${dl.isOverdue ? 'is-overdue' : ''}">
       <div class="task-header">
         <div>
-          <div class="task-title">${g.title} ${priorityBadge}</div>
+          <div class="task-title">
+            <span>${g.title}</span>
+            ${priorityBadge}
+            ${statusBadge}
+          </div>
           <div class="task-meta">
             <span>✍️ Giao: ${g.assigner}</span>
             ${g.deadline ? `<span>📅 Hạn: <b style="color:#ef4444">${fmtDate(g.deadline)}</b> ${countdownHtml}</span>` : ''}
