@@ -238,7 +238,7 @@
 
 <script>
 // ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbwmkq9YuxAw3BX5SCDPAPLK6VGU20tnBSYiaLvXrvZabx59iDVYha0GFtpPQVOdLjgURg/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbweuszzDI61-Ucr7u7tUz69JAJoK0wZhhoOgu4wVLGiYwdPMcckQAWFDsNKIreQBvtCBg/exec'; 
 
 const $app = document.getElementById('app');
 let token = localStorage.getItem('token');
@@ -249,7 +249,7 @@ let expandedGroups = new Set();
 let currentView = 'list'; 
 let allTasksCache = [];
 let myTasksCache = []; 
-let currentDetailTaskId = null; // Biến lưu ID công việc đang mở
+let currentDetailTaskId = null; 
 
 const fmt = (s) => s && s !== '' ? new Date(s).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'}) : '';
 const fmtDate = (s) => s && s !== '' ? new Date(s).toLocaleDateString('vi-VN') : '';
@@ -340,12 +340,14 @@ function renderLogin() {
 }
 
 async function renderMain() {
+  let roleName = me.role === 'director' ? 'Giám đốc' : (me.role === 'deputy' ? 'Phó Giám đốc' : 'Nhân viên');
+  
   $app.innerHTML = `
     <div class="topbar">
       <div class="brand">${logoHTML} TaskManager</div>
       <div class="user-info">
         <span>Chào, <b>${me.name}</b></span>
-        <span class="role-badge">${me.role === 'director' ? 'Giám đốc' : 'Nhân viên'}</span>
+        <span class="role-badge">${roleName}</span>
         <button class="btn-change-pass" id="btn-open-change-pass">🔑 Đổi MK</button>
         <button class="btn-logout" id="logout">Đăng xuất</button>
       </div>
@@ -360,7 +362,7 @@ async function renderMain() {
     document.getElementById('modal-change-pass').style.display = 'flex';
   };
   
-  if (me.role === 'director') await renderDirector();
+  if (me.role === 'director' || me.role === 'deputy') await renderManager();
   else await renderEmployee();
 }
 
@@ -376,12 +378,26 @@ function getDeadlineInfo(deadlineStr, status) {
   return { isOverdue: false, isWarning: false, text: '', daysLeft: diffDays };
 }
 
-async function renderDirector() {
+async function renderManager() {
   const [users, tasks] = await Promise.all([api('getUsers'), api('getTasks')]);
   allTasksCache = tasks;
   myTasksCache = [];
   
-  const checkboxList = users.map(u => `<label><input type="checkbox" name="assignee" value="${u.id}">${u.name}</label>`).join('');
+  // LỌC NGƯỜI NHẬN DỰA VÀO QUYỀN
+  let assignableUsers = users.filter(u => {
+      let uRole = String(u.role || '').toLowerCase();
+      let isDirector = (uRole === 'giám đốc' || uRole === 'director');
+      let isDeputy = (uRole === 'phó giám đốc' || uRole === 'pho giam doc' || uRole === 'deputy');
+      
+      if (me.role === 'director') {
+          return !isDirector; // GĐ giao được cho PGĐ và NV
+      } else if (me.role === 'deputy') {
+          return !isDirector && !isDeputy; // PGĐ CHỈ giao được cho NV (không giao cho GĐ hay PGĐ khác)
+      }
+      return false;
+  });
+
+  const checkboxList = assignableUsers.map(u => `<label><input type="checkbox" name="assignee" value="${u.id}">${u.name}</label>`).join('');
 
   document.getElementById('content').innerHTML = `
     <div class="card">
@@ -506,10 +522,10 @@ async function renderDirector() {
       fileData: fileData,
       fileName: fileName
     });
-    renderDirector();
+    renderManager();
   };
   
-  processAndRender(false);
+  processAndRender(true); // Truyền true để cho phép hiện nút nhận việc (cho GĐ/PGĐ nếu lỡ được giao việc)
   switchView('list'); 
 }
 
@@ -589,15 +605,16 @@ function switchView(view) {
   if (btnKanban) btnKanban.classList.toggle('active', view === 'kanban');
   if (btnTable) btnTable.classList.toggle('active', view === 'table');
   
-  processAndRender(me.role !== 'director');
+  processAndRender(true);
 }
 
 function renderFilteredTasks() {
-  processAndRender(me.role !== 'director');
+  processAndRender(true);
 }
 
 function processAndRender(canAct) {
-  const tasksToProcess = canAct ? myTasksCache : allTasksCache;
+  const isManager = (me.role === 'director' || me.role === 'deputy');
+  const tasksToProcess = isManager ? allTasksCache : myTasksCache;
   
   const groups = {};
   tasksToProcess.forEach(t => {
@@ -615,7 +632,8 @@ function processAndRender(canAct) {
 
   let displayGroups = Object.values(groups);
 
-  if (canAct) {
+  if (!isManager) {
+    // Nhân viên chỉ thấy việc của mình
     const myGroupIds = new Set(myTasksCache.map(t => t['Mã nhóm'] || ('LEGACY_' + t['ID'])));
     displayGroups = displayGroups.filter(g => myGroupIds.has(g.groupId));
   }
@@ -682,7 +700,7 @@ function processAndRender(canAct) {
 
 function filterTasks(type) {
   currentFilter = type;
-  processAndRender(me.role !== 'director');
+  processAndRender(true);
 }
 
 function renderListView(displayGroups, canAct) {
@@ -703,6 +721,7 @@ function renderListView(displayGroups, canAct) {
   });
 
   const STATUS = { new: { label: 'Mới', cls: 'new' }, received: { label: 'Đã nhận', cls: 'received' }, in_progress: { label: 'Đang làm', cls: 'in_progress' }, done: { label: 'Hoàn thành', cls: 'done' } };
+  const isManager = (me.role === 'director' || me.role === 'deputy');
 
   el.innerHTML = displayGroups.map(g => {
     let totalM = g.members.length;
@@ -727,7 +746,8 @@ function renderListView(displayGroups, canAct) {
     let membersHtml = g.members.map(m => {
       let mStatus = STATUS[m.status] || STATUS.new;
       let actionBtn = '';
-      if (canAct && m.userId === String(me.id)) {
+      // Bất kỳ ai (kể cả PGĐ) nếu có tên trong danh sách người nhận đều được bấm nút
+      if (m.userId === String(me.id)) {
         if (m.status === 'new') actionBtn = `<button class="btn-action btn-receive" data-id="${m.rowId}" data-to="in_progress">▶️ Bắt đầu</button>`;
         else if (m.status === 'received') actionBtn = `<button class="btn-action btn-start" data-id="${m.rowId}" data-to="in_progress">▶️ Bắt đầu</button>`;
         else if (m.status === 'in_progress') actionBtn = `<button class="btn-action btn-done" data-id="${m.rowId}" data-to="done">✅ Xong</button>`;
@@ -745,8 +765,9 @@ function renderListView(displayGroups, canAct) {
        else countdownHtml = `<span style="color:${dl.daysLeft <= 2 ? '#f97316' : '#3b82f6'}; font-weight:600; font-size:12px;">(Còn ${dl.daysLeft} ngày)</span>`;
     }
 
+    // Nút Sửa/Xóa: Chỉ hiện cho Giám đốc và Phó Giám đốc
     let adminButtons = '';
-    if (me.role === 'director') {
+    if (isManager) {
       adminButtons = `<div style="display:flex; gap:6px; margin-top:4px;"><button class="btn-edit" data-edit="${g.groupId}">✏️ Sửa</button> <button class="btn-del" data-del="${g.groupId}">🗑️ Xóa</button></div>`;
     }
 
@@ -937,7 +958,8 @@ async function saveEditTask() {
   try {
     await api('updateTask', data);
     document.getElementById('modal-edit').style.display = 'none';
-    renderDirector();
+    if (me.role === 'director' || me.role === 'deputy') renderManager();
+    else renderEmployee();
   } catch (e) {
     alert(e.message);
     btn.innerText = originalText;
@@ -1005,7 +1027,6 @@ async function openDetail(taskId, groupId) {
       </div>
     `;
     
-    // Tự động cuộn xuống cuối danh sách bình luận
     setTimeout(() => {
       const box = document.getElementById('comment-list-box');
       if (box) box.scrollTop = box.scrollHeight;
@@ -1022,28 +1043,23 @@ async function submitComment(taskId) {
   const text = input.value.trim();
   if (!text) return;
   
-  // Khóa nút và input để tránh bấm nhiều lần
   input.disabled = true;
   btn.disabled = true;
   btn.innerText = 'Đang gửi...';
   input.placeholder = "Đang gửi bình luận...";
   
   try {
-    // Gửi API lên server
     await api('addComment', { taskId, userId: me.id, note: text });
     
-    // Thêm ngay vào UI (Optimistic UI) để không cần chờ load lại
     const box = document.getElementById('comment-list-box');
     const newHtml = `<div class="comment-item"><b>${me.name}:</b> ${text} <div style="color:var(--text-muted); font-size:11px; margin-top:4px;">Vừa xong</div></div>`;
     if (box.innerHTML === 'Chưa có hoạt động nào.') box.innerHTML = '';
     box.innerHTML += newHtml;
     box.scrollTop = box.scrollHeight;
     
-    // Reset ô nhập
     input.value = '';
     input.placeholder = "Nhập bình luận... (Ấn Enter để gửi)";
     
-    // Gọi ngầm tải lại dữ liệu chuẩn
     setTimeout(() => {
        const gid = allTasksCache.find(t => String(t.ID) === String(taskId))['Mã nhóm'];
        openDetail(taskId, gid || 'LEGACY_' + taskId);
