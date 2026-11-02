@@ -638,9 +638,19 @@ to {
                                 </div>
                             </a>
                         </li>
+<li>
+                            <a href="#" onclick="switchView('view-giao-viec')" id="nav-giao-viec" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
+                                <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
+                                    <i class="fa-solid fa-tasks"></i>
+                                </div>
+                                <div class="pt-0.5">
+                                    <span class="title-text block text-[13px] font-semibold text-gray-600 leading-none mb-1">Giao việc nội bộ</span>
+                                    <span class="sub-text block text-[11px] text-gray-400 leading-tight">Quản lý và theo dõi tiến độ</span>
+ </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
-
                 <!-- Chăm sóc thuê bao -->
                 <div>
                     <h2 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-3">Chăm sóc thuê bao</h2>
@@ -910,7 +920,10 @@ to {
                     </div>
                 </div>
             </div>
-
+ <!-- ================= NEW VIEW: GIAO VIỆC NỘI BỘ ================= -->
+            <div id="view-giao-viec" class="max-w-7xl mx-auto h-[calc(100vh-100px)] hidden animate-fade-in pb-4">
+                <iframe src="https://htktttvttah-create.github.io/dieuhanhtah/giaoviec.html" class="w-full h-full bg-white rounded-xl shadow-sm border border-slate-200" frameborder="0"></iframe>
+            </div>
             <!-- ================= NEW VIEW: BÁO CÁO & DANH SÁCH CSTC ================= -->
             <div id="view-cstc" class="max-w-7xl mx-auto space-y-6 hidden animate-fade-in pb-10">
                 <!-- Tiêu đề trang -->
@@ -5852,7 +5865,7 @@ const fallbackMockData = {
             const views = [
                 'view-dashboard', 'view-dpsc-file1', 'view-dpsc', 'view-bao-cao', 'view-gia-han', 
                 'view-tyle-dpsc', 'view-npsc', 'view-tyle-npsc', 'view-thu-cuoc', 'view-tiep-thi',
-                'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-bc-modem', 'view-tra-cuu'
+                'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-bc-modem', 'view-tra-cuu', 'view-giao-viec'
             ];
             
             views.forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
@@ -5892,10 +5905,12 @@ const fallbackMockData = {
             } else if (viewId === 'view-thay-modem') {
                 document.getElementById('nav-thay-modem').classList.add('active');
                 if(!isModemLoaded) loadModemData();
-	    } else if (viewId === 'view-tra-cuu') {
+	        } else if (viewId === 'view-tra-cuu') {
                 document.getElementById('nav-tra-cuu').classList.add('active');
+            } else if (viewId === 'view-giao-viec') {
+                document.getElementById('nav-giao-viec').classList.add('active');
             }
-}
+        }
 async function fetchWithFallback(url, mockKey) {
             try {
                 const response = await fetch(url, { redirect: "follow", mode: 'cors' });
