@@ -95,6 +95,9 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* Sidebar Toggle */
+#main-sidebar { transition: margin-left 0.3s ease-in-out; }
+#main-sidebar.collapsed { margin-left: -16rem; }
     </style>
     </style>
         <style id="bc-modem-css">
@@ -599,6 +602,11 @@ to {
 <body class="h-screen flex flex-col overflow-hidden text-gray-800 selection:bg-blue-200 selection:text-blue-900">
 
     <header class="bg-white border-b border-gray-200 py-3 px-6 flex justify-between items-center shrink-0 z-20 relative shadow-sm">
+<div class="flex items-center space-x-3">
+    <!-- Nút bấm ẩn hiện -->
+    <button onclick="toggleSidebar()" class="text-gray-500 hover:text-blue-600 text-xl p-2 -ml-2 rounded-lg hover:bg-gray-100 transition-colors">
+        <i class="fa-solid fa-bars"></i>
+    </button>
         <div class="flex items-center space-x-3 cursor-pointer" onclick="window.location.reload()">
             <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md">V</div>
             <div>
@@ -621,7 +629,7 @@ to {
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col overflow-y-auto shrink-0 z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <aside id="main-sidebar" class="w-64 bg-white border-r border-gray-200 flex flex-col overflow-y-auto shrink-0 z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
             <div class="p-4 space-y-6">
                 <!-- Bảng điều hành -->
                 <div>
@@ -2780,6 +2788,13 @@ to {
     </div>
 
     <script>
+// ================= HÀM ẨN/HIỆN SIDEBAR =================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
         // ================= API URLs =================
         const FILE1_API_URL = "https://script.google.com/macros/s/AKfycby7RPuYbBlaBtwIaqwVuA0YgisZFK8Wp60C-fEtONWIkpF3PCu-ImtJ52qgBCX4QUmm/exec"; 
         const API_URL = "https://script.google.com/macros/s/AKfycbx0JFgGzBrc2L_g1YcW4v1-GaQwmdSisGlQ9UqGqUjwkTXV9WezzpGQjJNuG3fXACQ/exec"; 
