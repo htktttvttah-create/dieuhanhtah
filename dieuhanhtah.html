@@ -665,43 +665,20 @@ to {
                                     <span class="sub-text block text-[11px] text-gray-400 leading-tight">Cập nhật kết quả chạm</span>
                                 </div>
                             </a>
-                        </li>
+                        </li>                      
+<!-- THÊM MENU: CHẠM NMK TỔNG LỰC -->
                         <li>
-                            <a href="#" onclick="switchView('view-bao-cao')" id="nav-bao-cao" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
+                            <a href="#" onclick="switchView('view-nmk-tong-luc')" id="nav-nmk-tong-luc" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
                                 <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
-                                    <i class="fa-solid fa-chart-line"></i>
+                                    <i class="fa-solid fa-satellite-dish"></i>
                                 </div>
                                 <div class="pt-0.5">
-                                    <span class="title-text block text-[13px] font-semibold text-gray-600 leading-none mb-1">Báo cáo chạm DPSC</span>
-                                    <span class="sub-text block text-[11px] text-gray-400 leading-tight">Tiến độ và sản lượng</span>
+                                    <span class="title-text block text-[13px] font-semibold text-gray-600 leading-none mb-1">Chạm NMK Tổng lực</span>
+                                    <span class="sub-text block text-[11px] text-gray-400 leading-tight">Cập nhật chạm NMK</span>
                                 </div>
                             </a>
-                        </li>
-                        <!-- NEW MENU ITEM: BÁO CÁO & DANH SÁCH CSTC -->
-                        <li>
-                            <a href="#" onclick="switchView('view-cstc')" id="nav-cstc" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
-                                <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
-                                    <i class="fa-solid fa-list-check"></i>
-                                </div>
-                                <div class="pt-0.5">
-                                    <span class="title-text block text-[13px] font-semibold text-gray-600 leading-none mb-1">Báo cáo & DS CSTC</span>
-                                    <span class="sub-text block text-[11px] text-gray-400 leading-tight">Theo dõi TB tồn chưa chạm</span>
-                                </div>
-                            </a>
-                        </li>
-                        <!-- MENU: BÁO CÁO TIẾN ĐỘ THAY MODEM -->
-                        <li>
-                            <a href="#" onclick="switchView('view-bc-modem')" id="nav-bc-modem" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
-                                <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
-                                    <i class="fa-solid fa-gauge-high"></i>
-                                </div>
-                                <div class="pt-0.5">
-                                    <span class="title-text block text-[13px] font-semibold text-gray-600 leading-none mb-1">Báo cáo tiến độ Modem</span>
-                                    <span class="sub-text block text-[11px] text-gray-400 leading-tight">Tiến độ & sản lượng theo tổ</span>
-                                </div>
-                            </a>
-                        </li>
-<!-- DANH SÁCH THU CƯỚC MENU ITEM -->
+                        </li>             
+                        <!-- DANH SÁCH THU CƯỚC MENU ITEM -->
                         <li>
                             <a href="#" onclick="switchView('view-ds-thu-cuoc')" id="nav-ds-thu-cuoc" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
                                 <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
@@ -896,17 +873,6 @@ to {
                             <span class="text-teal-600 text-sm font-semibold flex items-center group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
                         </div>
                     </div>
-<!-- Nút Danh sách Thay Modem -->
-                    <div onclick="switchView('view-thay-modem')" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-blue-500 hover:shadow-md transition-all cursor-pointer group flex items-start flex-col sm:flex-row border-l-4 border-l-blue-500">
-                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl mb-4 sm:mb-0 sm:mr-4 shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                            <i class="fa-solid fa-wifi"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900 mb-1">Danh sách Thay Modem</h3>
-                            <p class="text-sm text-gray-500 mb-2">Điều hành và cập nhật trạng thái thay modem 1 băng tần.</p>
-                            <span class="text-blue-600 text-sm font-semibold flex items-center group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
-                        </div>
-                    </div>
 <!-- Nút Báo cáo tiến độ thay Modem (Card) -->
                     <div onclick="switchView('view-bc-modem')" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all cursor-pointer group flex items-start flex-col sm:flex-row border-l-4 border-l-indigo-500">
                         <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-2xl mb-4 sm:mb-0 sm:mr-4 shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
@@ -918,11 +884,26 @@ to {
                             <span class="text-indigo-600 text-sm font-semibold flex items-center group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
                         </div>
                     </div>
-                </div>
-            </div>
+<!-- Nút Báo cáo chạm DPSC (Chuyển từ menu vào) -->
+                    <div onclick="switchView('view-bao-cao')" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-slate-800 hover:shadow-md transition-all cursor-pointer group flex items-start flex-col sm:flex-row border-l-4 border-l-slate-700">
+                        <div class="w-14 h-14 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center text-2xl mb-4 sm:mb-0 sm:mr-4 shrink-0 group-hover:bg-slate-700 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">Báo cáo chạm DPSC</h3>
+                            <p class="text-sm text-gray-500 mb-2">Tiến độ cập nhật chạm và thống kê nguyên nhân thuê bao rời mạng.</p>
+                            <span class="text-slate-700 text-sm font-semibold flex items-center group-hover:translate-x-1 transition-transform">Xem chi tiết <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></span>
+                        </div>
+                    </div>
+</div>
+</div>
  <!-- ================= NEW VIEW: GIAO VIỆC NỘI BỘ ================= -->
             <div id="view-giao-viec" class="max-w-7xl mx-auto h-[calc(100vh-100px)] hidden animate-fade-in pb-4">
                 <iframe src="https://htktttvttah-create.github.io/dieuhanhtah/giaoviec.html" class="w-full h-full bg-white rounded-xl shadow-sm border border-slate-200" frameborder="0"></iframe>
+            </div>
+ <!-- ================= THÊM KHUNG HIỂN THỊ: CHẠM NMK TỔNG LỰC ================= -->
+            <div id="view-nmk-tong-luc" class="max-w-7xl mx-auto h-[calc(100vh-100px)] hidden animate-fade-in pb-4">
+                <iframe src="https://htktttvttah-create.github.io/dieuhanhtah/nmktongluc.html" class="w-full h-full bg-white rounded-xl shadow-sm border border-slate-200" frameborder="0"></iframe>
             </div>
             <!-- ================= NEW VIEW: BÁO CÁO & DANH SÁCH CSTC ================= -->
             <div id="view-cstc" class="max-w-7xl mx-auto space-y-6 hidden animate-fade-in pb-10">
@@ -5865,7 +5846,7 @@ const fallbackMockData = {
             const views = [
                 'view-dashboard', 'view-dpsc-file1', 'view-dpsc', 'view-bao-cao', 'view-gia-han', 
                 'view-tyle-dpsc', 'view-npsc', 'view-tyle-npsc', 'view-thu-cuoc', 'view-tiep-thi',
-                'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-bc-modem', 'view-tra-cuu', 'view-giao-viec'
+                'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-bc-modem', 'view-tra-cuu', 'view-giao-viec', 'view-nmk-tong-luc'
             ];
             
             views.forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
@@ -5876,7 +5857,7 @@ const fallbackMockData = {
             
             // Xử lý Active Menu & Lazy Loading cho từng View
             if(['view-dashboard', 'view-dpsc-file1', 'view-gia-han', 'view-tyle-dpsc', 'view-npsc', 'view-tyle-npsc', 'view-thu-cuoc', 'view-tiep-thi'].includes(viewId)) {
-                document.getElementById('nav-dashboard').classList.add('active');
+                if (document.getElementById('nav-dashboard')) document.getElementById('nav-dashboard').classList.add('active');
                 
                 if(viewId === 'view-dpsc-file1' && file1NormalizedData.length === 0) fetchFile1Data();
                 if(viewId === 'view-gia-han' && !isGiaHanLoaded) loadReportGiaHan();
@@ -5887,28 +5868,30 @@ const fallbackMockData = {
                 if(viewId === 'view-tiep-thi' && !isTiepThiLoaded) loadTiepThiData(); 
                 
             } else if(viewId === 'view-dpsc') {
-                document.getElementById('nav-dpsc').classList.add('active');
+                if (document.getElementById('nav-dpsc')) document.getElementById('nav-dpsc').classList.add('active');
             } else if (viewId === 'view-bao-cao') {
-                document.getElementById('nav-bao-cao').classList.add('active');
+                if (document.getElementById('nav-bao-cao')) document.getElementById('nav-bao-cao').classList.add('active');
                 calculateReport(); 
             } else if (viewId === 'view-cstc') {
-                document.getElementById('nav-cstc').classList.add('active');
+                if (document.getElementById('nav-cstc')) document.getElementById('nav-cstc').classList.add('active');
                 if(!isCstcLoaded) loadCstcData();
 	        } else if (viewId === 'view-ds-thu-cuoc') {
-                document.getElementById('nav-ds-thu-cuoc').classList.add('active');
+                if (document.getElementById('nav-ds-thu-cuoc')) document.getElementById('nav-ds-thu-cuoc').classList.add('active');
                 if(!isDsThuCuocLoaded) loadDsThuCuocData();
             } else if (viewId === 'view-ds-gia-han') {
-                document.getElementById('nav-ds-gia-han').classList.add('active');
+                if (document.getElementById('nav-ds-gia-han')) document.getElementById('nav-ds-gia-han').classList.add('active');
                 if(!isDsGiaHanLoaded) loadDsGiaHanData();
-                        } else if (viewId === 'view-bc-modem') {
-                document.getElementById('nav-bc-modem').classList.add('active');
+            } else if (viewId === 'view-bc-modem') {
+                if (document.getElementById('nav-bc-modem')) document.getElementById('nav-bc-modem').classList.add('active');
             } else if (viewId === 'view-thay-modem') {
-                document.getElementById('nav-thay-modem').classList.add('active');
+                if (document.getElementById('nav-thay-modem')) document.getElementById('nav-thay-modem').classList.add('active');
                 if(!isModemLoaded) loadModemData();
 	        } else if (viewId === 'view-tra-cuu') {
-                document.getElementById('nav-tra-cuu').classList.add('active');
+                if (document.getElementById('nav-tra-cuu')) document.getElementById('nav-tra-cuu').classList.add('active');
             } else if (viewId === 'view-giao-viec') {
-                document.getElementById('nav-giao-viec').classList.add('active');
+                if (document.getElementById('nav-giao-viec')) document.getElementById('nav-giao-viec').classList.add('active');
+            } else if (viewId === 'view-nmk-tong-luc') {
+                if (document.getElementById('nav-nmk-tong-luc')) document.getElementById('nav-nmk-tong-luc').classList.add('active');
             }
         }
 async function fetchWithFallback(url, mockKey) {
