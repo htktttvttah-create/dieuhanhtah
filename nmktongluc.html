@@ -817,13 +817,15 @@ button{cursor:pointer;border:0;background:none}
     
     var head = m[0];
     // Mặc định vị trí các cột nếu không tìm thấy header (bản cũ)
-    var col = { stt: 0, nv: 1, so: 2, dc: 3, net: 4, tuyen: 5, goc: 6, ketQua: 7, sdt: 8, henText: 9, ghiChu: 10 };
+    var col = { stt: 0, nv: 1, nvNhap: 2, donVi: 3, so: 4, dc: 5, net: 6, tuyen: 7, goc: 8, ketQua: 9, sdt: 10, henText: 11, ghiChu: 12 };
     
     // Dò tìm vị trí cột theo tên để chống xô lệch dù chèn bao nhiêu cột
     for (var i = 0; i < head.length; i++) {
       var name = String(head[i]).toLowerCase();
       if (name === 'stt') col.stt = i;
       else if (name.indexOf('tên_nv') >= 0 || name.indexOf('nhân viên') >= 0) col.nv = i;
+      else if (name.indexOf('nhập') >= 0) col.nvNhap = i;
+      else if (name.indexOf('đơn vị') >= 0) col.donVi = i;
       else if (name.indexOf('số nhà') >= 0 || name.indexOf('so nha') >= 0) col.so = i;
       else if (name.indexOf('địa chỉ') >= 0 || name.indexOf('chi tiết') >= 0) col.dc = i;
       else if (name.indexOf('nhà mạng') >= 0 && name.indexOf('hiện tại') >= 0) col.net = i;
@@ -843,6 +845,8 @@ button{cursor:pointer;border:0;background:none}
       var o = {
         stt: String(r[col.stt] || '').trim(), 
         nv: nv,
+        nvNhap: String(r[col.nvNhap] || '').trim(),
+        donVi: String(r[col.donVi] || '').trim(),
         so: String(r[col.so] || '').trim(), 
         dc: String(r[col.dc] || '').trim(),
         net: String(r[col.net] || '').trim(), 
@@ -1269,13 +1273,17 @@ button{cursor:pointer;border:0;background:none}
     var statsByNvNhap = {};
     state.rows.forEach(function (r) {
       var u = upd(r.key);
-      if (u && u.nvNhap && u.st && u.st !== 'CHUA') {
-        var name = u.nvNhap;
+      var st = effSt(r);
+      // Ưu tiên người nhập thao tác trên web, nếu chưa có thì lấy từ file gốc
+      var name = (u && u.nvNhap) ? u.nvNhap : r.nvNhap;
+      var dVi = (u && u.donVi) ? u.donVi : r.donVi;
+      
+      if (name) {
         if (!statsByNvNhap[name]) {
-          statsByNvNhap[name] = { name: name, total: 0, dongy: 0, donVi: u.donVi || '' };
+          statsByNvNhap[name] = { name: name, total: 0, dongy: 0, donVi: dVi || '' };
         }
         statsByNvNhap[name].total++;
-        if (u.st === 'DONGY') statsByNvNhap[name].dongy++;
+        if (st === 'DONGY') statsByNvNhap[name].dongy++;
       }
     });
 
@@ -1911,11 +1919,14 @@ button{cursor:pointer;border:0;background:none}
         var stats = {};
         state.rows.forEach(function (r) {
           var u = upd(r.key);
-          if (u && u.nvNhap && u.st && u.st !== 'CHUA') {
-            var name = u.nvNhap;
-            if (!stats[name]) stats[name] = { name: name, total: 0, dongy: 0, donVi: u.donVi || '' };
+          var st = effSt(r);
+          var name = (u && u.nvNhap) ? u.nvNhap : r.nvNhap;
+          var dVi = (u && u.donVi) ? u.donVi : r.donVi;
+          
+          if (name) {
+            if (!stats[name]) stats[name] = { name: name, total: 0, dongy: 0, donVi: dVi || '' };
             stats[name].total++;
-            if (u.st === 'DONGY') stats[name].dongy++;
+            if (st === 'DONGY') stats[name].dongy++;
           }
         });
         var keys = Object.keys(stats).sort(function(a, b) {
