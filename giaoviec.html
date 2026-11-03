@@ -751,23 +751,30 @@ async function renderManager() {
     btn.innerText = 'Đang gửi yêu cầu...';
     btn.disabled = true;
     
-    await api('createTask', { 
-      title, 
-      description: document.getElementById('t-desc').value.trim(), 
-      assigned_to: selected, 
-      assigned_by: me.id, 
-      deadline: document.getElementById('t-deadline').value,
-      priority: document.getElementById('t-priority').value,
-      link: document.getElementById('t-link').value.trim(),
-      fileData: fileData,
-      fileName: fileName,
-      send_telegram: sendTele
-    });
-    renderManager();
+    try {
+      await api('createTask', { 
+        title, 
+        description: document.getElementById('t-desc').value.trim(), 
+        assigned_to: selected, 
+        assigned_by: me.id, 
+        deadline: document.getElementById('t-deadline').value,
+        priority: document.getElementById('t-priority').value,
+        link: document.getElementById('t-link').value.trim(),
+        fileData: fileData,
+        fileName: fileName,
+        send_telegram: sendTele
+      });
+      alert('✅ Đã giao việc thành công!');
+      await forceRefresh(); // Gọi làm mới an toàn thay vì renderManager() trực tiếp
+    } catch(e) {
+      alert('❌ Lỗi khi giao việc: ' + e.message);
+      btn.innerText = '🚀 Giao việc ngay';
+      btn.disabled = false;
+    }
   };
   
   processAndRender(true); 
-  switchView('list'); 
+  switchView(currentView || 'list'); // Giữ nguyên view hiện tại thay vì luôn ép về list
 }
 
 async function renderEmployee() {
