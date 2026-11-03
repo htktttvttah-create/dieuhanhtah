@@ -428,7 +428,7 @@
 
 <script>
 // ⚠️ DÁN URL CỦA BẠN VÀO ĐÂY ⚠️
-const API_URL = 'https://script.google.com/macros/s/AKfycbylocU7omDU4XZtb3IWu7zRBwQ2wOPcGU6o_8eSyCpa2SH0W45a38VBDIpfwuV7q2ZBBg/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycby_jD0AUrVSeefyD0QtrQPQPYMfrX5gBu96269WfH6gPIoPwIz1b6EjENz6wUgYFd5V/exec'; 
 
 const $app = document.getElementById('app');
 
@@ -563,7 +563,10 @@ function renderLogin(msg = "") {
 }
 
 async function renderMain() {
-  let roleName = me.role === 'director' ? 'Giám đốc' : (me.role === 'deputy' ? 'Phó Giám đốc' : 'Nhân viên');
+  let roleName = 'Nhân viên';
+  if (me.role === 'director') roleName = 'Giám đốc';
+  else if (me.role === 'deputy') roleName = 'Phó Giám đốc';
+  else if (me.role === 'htkt') roleName = 'Hỗ trợ KT';
   
   $app.innerHTML = `
     <div class="topbar">
@@ -778,10 +781,11 @@ async function renderManager() {
 }
 
 async function renderEmployee() {
-  document.getElementById('content').innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">Đang tải công việc của bạn...</div>`;
+  document.getElementById('content').innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">Đang tải công việc...</div>`;
   const allTasks = await api('getTasks');
   allTasksCache = allTasks;
-  myTasksCache = allTasks.filter(t => String(t['Người nhận']) === String(me.id));
+  
+  let listTitle = (me.role === 'htkt') ? '📋 Theo dõi công việc toàn Trung tâm' : '📋 Việc của tôi';
   
   document.getElementById('content').innerHTML = `
     <div id="dashboard"></div>
@@ -798,7 +802,7 @@ async function renderEmployee() {
     </div>
 
     <div id="view-list" style="display:block;">
-      <h3 style="font-size:18px; margin-bottom:16px; color:var(--text-main);">📋 Việc của tôi <span class="filter-status" id="filter-status" style="font-size:14px; font-weight:normal; color:var(--text-muted);"></span></h3>
+      <h3 style="font-size:18px; margin-bottom:16px; color:var(--text-main);">${listTitle} <span class="filter-status" id="filter-status" style="font-size:14px; font-weight:normal; color:var(--text-muted);"></span></h3>
       <div id="task-list"></div>
     </div>
 
@@ -863,10 +867,11 @@ function renderFilteredTasks() {
 
 function processAndRender(canAct) {
   const isManager = (me.role === 'director' || me.role === 'deputy');
-  const tasksToProcess = isManager ? allTasksCache : myTasksCache;
+  const isHTKT = (me.role === 'htkt');
+  const canSeeAll = isManager || isHTKT;
   
   const groups = {};
-  tasksToProcess.forEach(t => {
+  allTasksCache.forEach(t => {
     const gid = t['Mã nhóm'] || ('LEGACY_' + t['ID']);
     if (!groups[gid]) {
       groups[gid] = {
@@ -881,9 +886,8 @@ function processAndRender(canAct) {
 
   let displayGroups = Object.values(groups);
 
-  if (!isManager) {
-    const myGroupIds = new Set(myTasksCache.map(t => t['Mã nhóm'] || ('LEGACY_' + t['ID'])));
-    displayGroups = displayGroups.filter(g => myGroupIds.has(g.groupId));
+  if (!canSeeAll) {
+    displayGroups = displayGroups.filter(g => g.members.some(m => m.userId === String(me.id)));
   }
 
   const keyword = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
