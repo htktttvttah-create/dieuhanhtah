@@ -571,6 +571,7 @@ async function renderMain() {
       <div class="user-info">
         <span style="display:none; @media(min-width:480px){display:inline;}">Xin chào, <b>${me.name}</b></span>
         <span class="role-badge">${roleName}</span>
+        <button class="btn-change-pass" onclick="forceRefresh()">🔄 <span style="display:none; @media(min-width:480px){display:inline;}">Làm mới</span></button>
         <button class="btn-change-pass" id="btn-open-change-pass">🔑 <span style="display:none; @media(min-width:480px){display:inline;}">Đổi MK</span></button>
         <button class="btn-logout" id="logout">Đăng xuất</button>
       </div>
@@ -587,6 +588,19 @@ async function renderMain() {
   
   if (me.role === 'director' || me.role === 'deputy') await renderManager();
   else await renderEmployee();
+}
+
+// Hàm hỗ trợ làm mới dữ liệu thủ công
+async function forceRefresh() {
+  const content = document.getElementById('content');
+  if(content) content.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--primary); font-weight:600;">🔄 Đang làm mới dữ liệu...</div>`;
+  try {
+    if (me.role === 'director' || me.role === 'deputy') await renderManager();
+    else await renderEmployee();
+  } catch(e) {
+    token = null; me = null; 
+    renderLogin("Đã xảy ra lỗi hoặc phiên hết hạn. Vui lòng đăng nhập lại!");
+  }
 }
 
 function getDeadlineInfo(deadlineStr, status) {
@@ -935,7 +949,14 @@ function filterTasks(type) {
 function renderListView(displayGroups, canAct) {
   const el = document.getElementById('task-list');
   if (!displayGroups.length) { 
-    el.innerHTML = `<div class="card" style="text-align:center; padding: 40px; color:var(--text-muted); font-size:15px; background:transparent; border: 2px dashed var(--border); box-shadow:none;">Không có công việc nào phù hợp với bộ lọc hiện tại.</div>`; 
+    el.innerHTML = `
+      <div class="card" style="text-align:center; padding: 40px; color:var(--text-muted); font-size:15px; background:transparent; border: 2px dashed var(--border); box-shadow:none;">
+        <div style="margin-bottom: 16px; font-weight: 500;">Chưa có công việc nào hoặc không tìm thấy việc phù hợp.</div>
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap: wrap;">
+          <button onclick="forceRefresh()" class="btn-action" style="background:var(--primary); color:white; border:none; padding:10px 20px;">🔄 Làm mới dữ liệu</button>
+          <button onclick="document.getElementById('logout').click()" class="btn-logout" style="padding:10px 20px; border: 1px solid var(--border);">Đăng nhập lại</button>
+        </div>
+      </div>`; 
     return; 
   }
 
@@ -1083,7 +1104,13 @@ function renderTableView(displayGroups, canAct) {
   const tbody = document.getElementById('table-body');
   
   if (!displayGroups.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color:#94a3b8;">Không có dữ liệu</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 40px; color:#94a3b8;">
+      <div style="margin-bottom: 16px; font-weight: 500; font-size: 14px;">Chưa có công việc nào hoặc không tìm thấy việc phù hợp.</div>
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap: wrap;">
+        <button onclick="forceRefresh()" class="btn-action" style="background:var(--primary); color:white; border:none; padding:8px 16px;">🔄 Làm mới</button>
+        <button onclick="document.getElementById('logout').click()" class="btn-logout" style="padding:8px 16px; border: 1px solid var(--border);">Đăng nhập lại</button>
+      </div>
+    </td></tr>`;
     return;
   }
 
