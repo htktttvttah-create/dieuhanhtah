@@ -647,6 +647,16 @@ to {
                             </a>
                         </li>
 <li>
+    <a href="#" onclick="switchView('view-giao-san-luong')" id="nav-giao-san-luong" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
+        <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
+            <i class="fa-solid fa-chart-pie"></i> <!-- Icon cho menu -->
+        </div>
+        <div class="pt-0.5">
+            <span class="title-text block text-[13px] font-semibold text-gray-600 leading-none mb-1">Giao sản lượng quý 4</span>
+            <span class="sub-text block text-[11px] text-gray-400 leading-tight">Theo dõi chỉ tiêu Q4</span>
+        </div>
+    </a>
+</li>
                             <a href="#" onclick="switchView('view-giao-viec')" id="nav-giao-viec" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
                                 <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
                                     <i class="fa-solid fa-tasks"></i>
@@ -761,7 +771,6 @@ to {
                     <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Tổng Hợp Báo Cáo TAH</h2>
                     <p class="text-gray-500">Bảng điều khiển trung tâm. Chọn một danh mục báo cáo bên dưới để xem số liệu chi tiết.</p>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     
                     <!-- Nút Báo cáo Gia Hạn -->
@@ -904,6 +913,10 @@ to {
                         </div>
                     </div>
 </div>
+</div>
+<!-- ================= VIEW: GIAO SẢN LƯỢNG QUÝ 4 ================= -->
+<div id="view-giao-san-luong" class="max-w-7xl mx-auto h-[calc(100vh-100px)] hidden animate-fade-in pb-4">
+    <iframe src="https://htktttvttah-create.github.io/dieuhanhtah/sanluong.html" class="w-full h-full bg-white rounded-xl shadow-sm border border-slate-200" frameborder="0"></iframe>
 </div>
  <!-- ================= NEW VIEW: GIAO VIỆC NỘI BỘ ================= -->
             <div id="view-giao-viec" class="max-w-7xl mx-auto h-[calc(100vh-100px)] hidden animate-fade-in pb-4">
@@ -5860,8 +5873,8 @@ const fallbackMockData = {
         function switchView(viewId) {
             const views = [
                 'view-dashboard', 'view-dpsc-file1', 'view-dpsc', 'view-bao-cao', 'view-gia-han', 
-                'view-tyle-dpsc', 'view-npsc', 'view-tyle-npsc', 'view-thu-cuoc', 'view-tiep-thi',
-                'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-bc-modem', 'view-tra-cuu', 'view-giao-viec', 'view-nmk-tong-luc'
+    'view-tyle-dpsc', 'view-npsc', 'view-tyle-npsc', 'view-thu-cuoc', 'view-tiep-thi',
+    'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-bc-modem', 'view-tra-cuu', 'view-giao-viec', 'view-nmk-tong-luc', 'view-giao-san-luong'
             ];
             
             views.forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
@@ -5907,7 +5920,9 @@ const fallbackMockData = {
                 if (document.getElementById('nav-giao-viec')) document.getElementById('nav-giao-viec').classList.add('active');
             } else if (viewId === 'view-nmk-tong-luc') {
                 if (document.getElementById('nav-nmk-tong-luc')) document.getElementById('nav-nmk-tong-luc').classList.add('active');
-            }
+            } else if (viewId === 'view-giao-san-luong') {
+    if (document.getElementById('nav-giao-san-luong')) document.getElementById('nav-giao-san-luong').classList.add('active');
+}
         }
 async function fetchWithFallback(url, mockKey) {
             try {
