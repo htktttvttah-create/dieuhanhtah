@@ -1297,9 +1297,44 @@ button{cursor:pointer;border:0;background:none}
     } else {
       html += '<tr><td colspan="4" style="text-align:center;color:var(--ink-3);padding:24px 12px">Chưa có kết quả nào được cập nhật</td></tr>';
     }
-    
     html += '</tbody></table></div>';
 
+    // Bảng mới: Thống kê theo Nhân viên (Kỹ thuật phụ trách)
+    var statsByNv = {};
+    scopeRows().forEach(function (r) {
+      var k = r.nv || '(không rõ)';
+      var o = statsByNv[k] = statsByNv[k] || { t: 0, d: 0, handled: 0 };
+      o.t++;
+      var st = effSt(r);
+      if (st !== 'CHUA') o.handled++;
+      if (st === 'DONGY') o.d++;
+    });
+    
+    // Sắp xếp theo tên (A-Z) để đảm bảo đúng logic "theo tổ" nếu tên có tiền tố tổ
+    var nvk = Object.keys(statsByNv).sort(function(a, b) {
+      return a.localeCompare(b, 'vi');
+    });
+
+    html += '<div class="sec"><h2><span>Thống kê theo Kỹ thuật (TÊN_NV)</span><button class="btn-s ghost" id="btnCsvNv" title="Tải dữ liệu bảng này">⬇ Xuất CSV</button></h2><table class="tbl"><thead><tr>' +
+      '<th>Nhân viên</th><th class="num">Tổng</th><th class="num">Đã chạm</th><th class="num">Đồng ý</th><th>Tỷ lệ chốt</th></tr></thead><tbody>';
+    
+    if (nvk.length > 0) {
+      html += nvk.map(function (k) {
+        var o = statsByNv[k];
+        var p = o.handled ? Math.round((o.d * 100) / o.handled) : 0;
+        return '<tr data-tech="' + esc(k) + '"><td style="font-weight:600; color:var(--primary-d); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="' + esc(k) + '">' + esc(k) + '</td>' +
+          '<td class="num">' + o.t + '</td>' +
+          '<td class="num">' + o.handled + '</td>' +
+          '<td class="num" style="color:var(--success-d)">' + o.d + '</td>' +
+          '<td><div class="progcell"><div class="mini"><i style="width:' + p + '%"></i></div><span>' + p + '%</span></div></td>' +
+          '</tr>';
+      }).join('');
+    } else {
+      html += '<tr><td colspan="5" style="text-align:center;color:var(--ink-3);padding:24px 12px">Không có dữ liệu</td></tr>';
+    }
+    html += '</tbody></table></div>';
+
+    // Bảng thống kê theo tuyến
     var routes = {};
     scopeRows().forEach(function (r) {
       var k = r.tuyen || '(không rõ tuyến)';
@@ -1892,6 +1927,30 @@ button{cursor:pointer;border:0;background:none}
         toast('Đã tải CSV Thống kê người nhập');
         return;
       }
+      
+      // XỬ LÝ NÚT XUẤT CSV TÊN NHÂN VIÊN MỚI
+      if (e.target.closest('#btnCsvNv')) {
+        var statsByNv = {};
+        scopeRows().forEach(function (r) {
+          var k = r.nv || '(không rõ)';
+          var o = statsByNv[k] = statsByNv[k] || { t: 0, d: 0, handled: 0 };
+          o.t++;
+          var st = effSt(r);
+          if (st !== 'CHUA') o.handled++;
+          if (st === 'DONGY') o.d++;
+        });
+        var nvk = Object.keys(statsByNv).sort(function(a, b) { return a.localeCompare(b, 'vi'); });
+        
+        var head = 'Nhân viên;Tổng nhà;Đã chạm;Đồng ý;Tỷ lệ chốt';
+        var lines = nvk.map(function(k) {
+          var o = statsByNv[k];
+          var p = o.handled ? Math.round(o.d * 100 / o.handled) : 0;
+          return [k, o.t, o.handled, o.d, p + '%'].join(';');
+        });
+        download('tk_nhan_vien_' + stamp() + '.csv', [head].concat(lines).join('\r\n'), 'text/csv', true);
+        toast('Đã tải CSV Thống kê nhân viên');
+        return;
+      }
 
       if (e.target.closest('#btnCsvTuyen')) {
         var routes = {};
@@ -1942,6 +2001,8 @@ button{cursor:pointer;border:0;background:none}
         toast('Đã tải danh sách phiếu');
         return;
       }
+      
+      // Cho phép bấm vào dòng nhân viên trong bảng mới để chuyển tab lọc theo nhân viên đó
       var tr = e.target.closest('tr[data-tech]');
       if (!tr) return;
       state.tech = tr.dataset.tech; localStorage.setItem(LS.tech, state.tech);
