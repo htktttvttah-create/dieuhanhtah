@@ -7,148 +7,321 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #1e3a8a; --primary-hover: #1e40af; --bg: #f8fafc;
-    --surface: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --border: #e2e8f0;
+    /* Bảng màu hiện đại (Modern SaaS Palette) */
+    --primary: #2563eb;       /* Xanh dương sáng chuẩn */
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff; 
+    --bg: #f4f7f9;            /* Xám xanh nhạt cho nền giúp nổi bật thẻ */
+    --surface: #ffffff;
+    --text-main: #0f172a;     /* Đen slate sâu, dễ đọc */
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    
+    /* Variables cho bo góc và đổ bóng */
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+    
+    /* Màu Trạng thái */
+    --color-new: #f59e0b;
+    --color-ip: #8b5cf6;
+    --color-done: #10b981;
+    --color-urgent: #ef4444;
   }
+  
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.5; }
   
-  .topbar { display: flex; align-items: center; justify-content: space-between; background: var(--surface); padding: 0 16px; height: 60px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; flex-wrap: wrap; }
-  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; color: var(--primary); }
-  .brand svg { width: 24px; height: 24px; }
-  .user-info { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-  .role-badge { background: #e0e7ff; color: var(--primary); padding: 2px 8px; border-radius: 99px; font-weight: 600; }
-  .btn-logout { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-  .btn-change-pass { background: #f1f5f9; border: 1px solid var(--border); color: var(--text-main); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: var(--bg); 
+    color: var(--text-main); 
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
 
-  #content { padding: 16px; max-width: 1400px; margin: 0 auto; }
+  /* Tùy chỉnh thanh cuộn tinh tế hơn */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   
-  /* Dashboard */
-  .dashboard { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 16px; padding-bottom: 4px; }
-  .stat-card { flex: 0 0 auto; background: var(--surface); padding: 12px; border-radius: 8px; border: 2px solid var(--border); cursor: pointer; min-width: 110px; }
-  .stat-card.active-filter { border-color: var(--primary); background: #f8fafc; }
-  .stat-card h4 { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
-  .stat-card .num { font-size: 18px; font-weight: 700; }
+  /* Topbar */
+  .topbar { 
+    display: flex; align-items: center; justify-content: space-between; 
+    background: var(--surface); padding: 0 20px; height: 64px; 
+    box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10; flex-wrap: wrap; 
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--primary); letter-spacing: -0.5px;}
+  .brand svg { width: 26px; height: 26px; }
+  .user-info { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500;}
+  .role-badge { background: var(--primary-light); color: var(--primary); padding: 4px 10px; border-radius: 99px; font-weight: 600; font-size: 12px;}
+  
+  .btn-logout, .btn-change-pass {
+    background: transparent; border: 1px solid var(--border); padding: 6px 12px; 
+    border-radius: var(--radius-md); cursor: pointer; font-size: 13px; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-change-pass { background: var(--surface); color: var(--text-main); }
+  .btn-change-pass:hover { background: #f8fafc; border-color: #cbd5e1; }
+  .btn-logout { color: var(--text-muted); }
+  .btn-logout:hover { color: var(--color-urgent); border-color: var(--color-urgent); background: #fef2f2; }
+
+  #content { padding: 24px 16px; max-width: 1400px; margin: 0 auto; }
+  
+  /* Dashboard Stats */
+  .dashboard { display: flex; overflow-x: auto; gap: 16px; margin-bottom: 24px; padding-bottom: 8px; }
+  .stat-card { 
+    flex: 1; min-width: 130px; background: var(--surface); padding: 16px; 
+    border-radius: var(--radius-lg); border: 1px solid var(--border); 
+    box-shadow: var(--shadow-sm); cursor: pointer; transition: all 0.2s; 
+  }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .stat-card.active-filter { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 1px var(--primary); }
+  .stat-card h4 { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
+  .stat-card .num { font-size: 24px; font-weight: 700; line-height: 1; }
   .stat-all .num { color: var(--primary); }
-  .stat-pending .num { color: #f59e0b; }
-  .stat-overdue .num { color: #ef4444; }
-  .stat-done .num { color: #10b981; }
+  .stat-pending .num { color: var(--color-new); }
+  .stat-overdue .num { color: var(--color-urgent); }
+  .stat-done .num { color: var(--color-done); }
 
-  .toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; background: var(--surface); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
-  .view-switch { background: #e2e8f0; padding: 4px; border-radius: 8px; display: flex; }
-  .view-switch button { flex: 1; background: transparent; border: none; padding: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px; color: var(--text-muted); }
-  .view-switch button.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  .search-box input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
-  .btn-export { background: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
-
-  .card { background: var(--surface); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-  .card h3 { font-size: 16px; margin-bottom: 12px; }
-
-  input[type="text"], input[type="password"], input[type="date"], select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
-  .form-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
-  .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
-  .assignee-box { border: 1px solid var(--border); border-radius: 8px; max-height: 120px; overflow-y: auto; padding: 8px; background: #f8fafc; }
-  .assignee-box label { display: flex; align-items: center; gap: 8px; padding: 6px; font-size: 13px; }
-  .assignee-box input { width: 16px; height: 16px; }
-  button.btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; }
+  /* Toolbar */
+  .toolbar { 
+    display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; 
+    background: var(--surface); padding: 16px; border-radius: var(--radius-lg); 
+    border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+  }
+  .view-switch { background: var(--bg); padding: 4px; border-radius: var(--radius-md); display: flex; border: 1px solid var(--border); }
+  .view-switch button { 
+    flex: 1; background: transparent; border: none; padding: 8px 12px; 
+    font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px; 
+    color: var(--text-muted); transition: all 0.2s;
+  }
+  .view-switch button:hover { color: var(--text-main); }
+  .view-switch button.active { background: var(--surface); color: var(--primary); box-shadow: var(--shadow-sm); }
   
-  .file-upload-box { border: 1px dashed #cbd5e1; padding: 10px; border-radius: 8px; background: #f8fafc; text-align: center; position: relative; }
-  .file-upload-box input[type="file"] { position: absolute; top:0; left:0; width: 100%; height: 100%; opacity: 0; }
-  .file-name-display { font-size: 12px; color: var(--primary); font-weight: 600; margin-top: 4px; }
-
-  /* Thẻ công việc */
-  .task-group { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; border-left: 4px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .task-group.status-new { border-left-color: #f59e0b; }
-  .task-group.status-in_progress { border-left-color: #8b5cf6; }
-  .task-group.status-done { border-left-color: #10b981; background: #f8fafc; opacity: 0.8; }
-  .task-group.is-overdue { border-left-color: #ef4444 !important; background: #fef2f2; }
-  .task-group.is-urgent { border: 2px solid #ef4444; border-left: 6px solid #ef4444; background: #fff5f5; }
+  .search-box input { 
+    width: 100%; padding: 10px 14px; border: 1px solid var(--border); 
+    border-radius: var(--radius-md); font-size: 14px; transition: all 0.2s;
+  }
+  .search-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
   
-  /* Các loại Badge */
-  .badge-urgent { background: #ef4444; color: white; animation: pulse 1.5s infinite; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-size: 11px; display: inline-block;}
-  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+  .btn-export { 
+    background: var(--surface); color: var(--text-main); border: 1px solid var(--border); 
+    padding: 10px 16px; border-radius: var(--radius-md); cursor: pointer; 
+    font-weight: 600; font-size: 13px; transition: all 0.2s;
+  }
+  .btn-export:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+  /* Generic Cards */
+  .card { 
+    background: var(--surface); border-radius: var(--radius-lg); 
+    padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-md); 
+    border: 1px solid transparent; 
+  }
+  .card h3 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+
+  /* Form Elements */
+  input[type="text"], input[type="password"], input[type="date"], select, textarea { 
+    width: 100%; padding: 12px 14px; margin-bottom: 12px; 
+    border: 1px solid var(--border); border-radius: var(--radius-md); 
+    font-size: 14px; transition: all 0.2s; font-family: inherit; background: var(--surface);
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
   
-  .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
-  .status-badge.new { background: #fef3c7; color: #d97706; }
-  .status-badge.in_progress { background: #ede9fe; color: #7c3aed; }
-  .status-badge.done { background: #d1fae5; color: #059669; }
-
-  .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-  .task-title { font-weight: 600; font-size: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-  .task-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .btn-toggle-detail { background: #f1f5f9; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-top: 4px; cursor: pointer;}
-  .btn-edit { background: #eff6ff; color: #2563eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #bfdbfe; cursor:pointer;}
-  .btn-del { background: #fef2f2; color: #dc2626; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #fecaca; cursor:pointer;}
-
-  .task-details { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
-  .task-details.show { display: block; }
-  .task-desc { font-size: 13px; margin-bottom: 12px; background: #f1f5f9; padding: 8px; border-radius: 6px; }
-  .progress-container { margin-bottom: 12px; }
-  .progress-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
-  .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
-  .progress-fill { height: 100%; background: #10b981; }
+  .form-row { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
   
-  .member-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 6px; margin-bottom: 6px; background: #fff; border: 1px solid #f1f5f9; font-size: 13px; }
-  .m-status { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-  .m-status.new { background: #fef3c7; color: #d97706; }
-  .m-status.in_progress { background: #ede9fe; color: #7c3aed; }
-  .m-status.done { background: #d1fae5; color: #059669; }
+  .assignee-box { 
+    border: 1px solid var(--border); border-radius: var(--radius-md); 
+    max-height: 150px; overflow-y: auto; padding: 12px; background: #f8fafc; 
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;
+  }
+  .assignee-box label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+  .assignee-box input { width: 16px; height: 16px; margin-bottom: 0; cursor: pointer; accent-color: var(--primary);}
+  
+  button.btn-primary { 
+    background: var(--primary); color: white; border: none; padding: 12px 20px; 
+    border-radius: var(--radius-md); font-weight: 600; font-size: 14px; 
+    cursor: pointer; width: 100%; transition: all 0.2s; box-shadow: var(--shadow-sm);
+  }
+  button.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  button.btn-primary:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+  
+  .file-upload-box { 
+    border: 2px dashed #cbd5e1; padding: 16px; border-radius: var(--radius-md); 
+    background: #f8fafc; text-align: center; position: relative; transition: all 0.2s; cursor: pointer;
+  }
+  .file-upload-box:hover { border-color: var(--primary); background: var(--primary-light); }
+  .file-upload-box input[type="file"] { position: absolute; top:0; left:0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+  .file-name-display { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
 
-  .btn-action { padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; border: none; cursor: pointer; }
-  .btn-receive { background: #3b82f6; color: white; }
-  .btn-start { background: #8b5cf6; color: white; }
-  .btn-done { background: #10b981; color: white; }
-  .btn-log { background: #f8fafc; border: 1px solid var(--border); color: var(--text-main); margin-top: 12px; width: 100%; padding: 8px; font-weight: 600;}
+  /* Thẻ công việc (List View) */
+  .task-group { 
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); 
+    padding: 16px; margin-bottom: 16px; border-left: 5px solid #cbd5e1; 
+    box-shadow: var(--shadow-sm); transition: all 0.2s;
+  }
+  .task-group:hover { box-shadow: var(--shadow-md); }
+  .task-group.status-new { border-left-color: var(--color-new); }
+  .task-group.status-in_progress { border-left-color: var(--color-ip); }
+  .task-group.status-done { border-left-color: var(--color-done); background: #f8fafc; }
+  .task-group.is-overdue { border-left-color: var(--color-urgent) !important; background: #fef2f2; border-right: 1px solid #fecaca; border-top: 1px solid #fecaca; border-bottom: 1px solid #fecaca;}
+  .task-group.is-urgent { border: 1px solid #fecaca; border-left: 5px solid var(--color-urgent); background: #fff5f5; }
+  
+  /* Badges */
+  .badge-urgent { 
+    background: var(--color-urgent); color: white; animation: pulse 2s infinite; 
+    font-weight: 700; padding: 2px 8px; border-radius: 6px; font-size: 11px; letter-spacing: 0.5px;
+  }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+  
+  .status-badge { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; display: inline-block; }
+  .status-badge.new { background: #fef3c7; color: #b45309; }
+  .status-badge.in_progress { background: #ede9fe; color: #6d28d9; }
+  .status-badge.done { background: #d1fae5; color: #047857; }
 
-  /* View Bảng (Table) cho Mobile */
-  .table-view { background: white; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; min-width: 600px; }
-  th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
-  th { background: #f8fafc; font-weight: 600; }
+  .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 16px;}
+  .task-title { font-weight: 600; font-size: 16px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--text-main); margin-bottom: 4px;}
+  .task-meta { font-size: 13px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 12px; align-items: center;}
+  
+  .btn-toggle-detail { 
+    background: #f1f5f9; border: 1px solid var(--border); padding: 4px 10px; 
+    border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; 
+    color: var(--text-main); transition: background 0.2s;
+  }
+  .btn-toggle-detail:hover { background: #e2e8f0; }
+  
+  .btn-edit, .btn-del { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor:pointer; transition: all 0.2s;}
+  .btn-edit { background: var(--primary-light); color: var(--primary); border: 1px solid #bfdbfe; }
+  .btn-edit:hover { background: #dbeafe; }
+  .btn-del { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .btn-del:hover { background: #fee2e2; }
+
+  .task-details { display: none; margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 16px; }
+  .task-details.show { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .task-desc { font-size: 14px; margin-bottom: 16px; background: #f8fafc; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); white-space: pre-wrap;}
+  
+  .progress-container { margin-bottom: 16px; }
+  .progress-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main);}
+  .progress-bar { height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--color-done); transition: width 0.5s ease; }
+  
+  .member-row { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 10px 12px; border-radius: var(--radius-md); margin-bottom: 8px; 
+    background: var(--surface); border: 1px solid var(--border); font-size: 13px; 
+  }
+  .m-status { font-size: 12px; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+  .m-status.new { background: #fef3c7; color: #b45309; }
+  .m-status.in_progress { background: #ede9fe; color: #6d28d9; }
+  .m-status.done { background: #d1fae5; color: #047857; }
+
+  .btn-action { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm);}
+  .btn-action:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .btn-receive { background: var(--primary); color: white; }
+  .btn-start { background: var(--color-ip); color: white; }
+  .btn-done { background: var(--color-done); color: white; }
+  
+  .btn-log { 
+    background: var(--surface); border: 1px solid var(--border); color: var(--text-main); 
+    margin-top: 12px; width: 100%; padding: 10px; font-weight: 600; border-radius: var(--radius-md);
+  }
+  .btn-log:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+  /* View Bảng (Table) */
+  .table-view { background: var(--surface); border-radius: var(--radius-lg); overflow-x: auto; border: 1px solid var(--border); box-shadow: var(--shadow-sm);}
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { background: #f8fafc; font-weight: 600; color: var(--text-main); white-space: nowrap;}
+  tbody tr:hover { background: #f8fafc; }
 
   /* Kanban */
-  .kanban-board { flex-direction: column; gap: 16px; }
-  .kanban-col { background: #e2e8f0; border-radius: 8px; padding: 12px; }
-  .kanban-col h3 { font-size: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; }
-  .kanban-cards { display: flex; flex-direction: column; gap: 8px; }
-  .k-card { background: white; padding: 12px; border-radius: 6px; border-left: 4px solid var(--primary); font-size: 13px; cursor: pointer;}
-  .k-card.status-new { border-left-color: #f59e0b; }
-  .k-card.status-in_progress { border-left-color: #8b5cf6; }
-  .k-card.status-done { border-left-color: #10b981; opacity: 0.8; }
-  .k-card.is-urgent { border: 1px solid #ef4444; border-left: 4px solid #ef4444; background: #fff5f5; }
+  .kanban-board { flex-direction: column; gap: 20px; }
+  .kanban-col { background: #f1f5f9; border-radius: var(--radius-lg); padding: 16px; border: 1px solid var(--border);}
+  .kanban-col h3 { font-size: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; font-weight: 600; align-items: center;}
+  .kanban-col h3 span { background: #e2e8f0; padding: 2px 8px; border-radius: 99px; font-size: 12px;}
+  .kanban-cards { display: flex; flex-direction: column; gap: 12px; min-height: 100px;}
+  
+  .k-card { 
+    background: var(--surface); padding: 16px; border-radius: var(--radius-md); 
+    border-left: 4px solid var(--primary); font-size: 13px; cursor: pointer;
+    box-shadow: var(--shadow-sm); transition: all 0.2s;
+  }
+  .k-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .k-card.status-new { border-left-color: var(--color-new); }
+  .k-card.status-in_progress { border-left-color: var(--color-ip); }
+  .k-card.status-done { border-left-color: var(--color-done); opacity: 0.8; }
+  .k-card.is-urgent { border: 1px solid #fecaca; border-left: 4px solid var(--color-urgent); background: #fff5f5; }
 
   /* Modal */
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
-  .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-height: 90vh; overflow-y: auto; }
-  .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
-  .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+  .modal-overlay { 
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; 
+    z-index: 100; padding: 16px; 
+  }
+  .modal-content { 
+    background: var(--surface); padding: 24px; border-radius: var(--radius-xl); 
+    width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg);
+    animation: modalPop 0.3s ease-out;
+  }
+  @keyframes modalPop { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
   
-  /* Giao diện Bình luận mới */
-  .comment-list { max-height: 250px; overflow-y: auto; margin-bottom: 16px; padding-right: 4px; }
-  .comment-item { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; border: 1px solid #e2e8f0;}
-  .comment-item b { color: var(--primary); }
-  .comment-item.time-line { border: none; background: transparent; padding: 0 0 8px 0; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; color: var(--text-muted); font-size: 12px; }
-
-  .comment-input-box { display: flex; flex-direction: column; gap: 8px; background: #f1f5f9; padding: 12px; border-radius: 8px; }
-  .comment-input-box input { width: 100%; margin-bottom: 0; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
-  .comment-input-box button { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px;}
+  .modal-header h3 { font-size: 18px; margin: 0; color: var(--text-main); }
+  .close-btn { 
+    background: #f1f5f9; border: none; font-size: 20px; cursor: pointer; 
+    color: var(--text-muted); width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .close-btn:hover { background: #e2e8f0; color: var(--text-main); }
   
-  .login-wrapper { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }
-  .login-card { width: 100%; max-width: 400px; text-align: center; }
+  /* Bình luận */
+  .comment-list { max-height: 300px; overflow-y: auto; margin-bottom: 16px; padding-right: 8px; }
+  .comment-item { 
+    background: #f8fafc; padding: 12px; border-radius: var(--radius-md); 
+    margin-bottom: 10px; font-size: 14px; border: 1px solid var(--border);
+  }
+  .comment-item b { color: var(--primary); font-weight: 600;}
+  .comment-item.time-line { 
+    border: none; background: transparent; padding: 0 0 10px 0; margin-bottom: 10px; 
+    border-bottom: 1px dashed var(--border); color: var(--text-muted); font-size: 13px; 
+  }
+  .comment-input-box { display: flex; flex-direction: column; gap: 10px; background: #f8fafc; padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--border);}
+  .comment-input-box input { margin-bottom: 0; border-radius: var(--radius-md); }
+  
+  /* Trang Đăng Nhập */
+  .login-wrapper { 
+    display: flex; align-items: center; justify-content: center; 
+    min-height: 100vh; padding: 16px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  }
+  .login-card { 
+    width: 100%; max-width: 420px; text-align: center; 
+    background: var(--surface); padding: 40px 32px; 
+    border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); border: none;
+  }
+  .login-card svg { width: 48px; height: 48px; color: var(--primary); margin-bottom: 16px;}
+  .login-card h2 { font-size: 24px; color: var(--text-main); font-weight: 700; margin-bottom: 8px;}
+  .login-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px;}
+  .login-card input { padding: 14px; font-size: 15px; margin-bottom: 16px; background: #f8fafc;}
+  .login-card button { padding: 14px; font-size: 15px; margin-top: 8px;}
+  .login-msg { color: #ef4444; font-size: 13px; font-weight: 600; margin-bottom: 16px; background: #fef2f2; padding: 8px; border-radius: 6px; display: none;}
 
-  /* Responsive cho Desktop */
+  /* Responsive Desktop */
   @media (min-width: 768px) {
-    .topbar { height: 64px; padding: 0 24px; }
-    .brand { font-size: 18px; }
-    .user-info { gap: 12px; font-size: 14px; }
     .form-row { flex-direction: row; }
-    .toolbar { flex-direction: row; justify-content: space-between; align-items: center; padding: 12px 16px; }
+    .toolbar { flex-direction: row; justify-content: space-between; align-items: center; }
     .view-switch { flex: none; }
-    .view-switch button { flex: none; padding: 8px 16px; }
-    .search-box { max-width: 400px; flex: 1; }
+    .search-box { max-width: 350px; flex: 1; }
     .kanban-board { display: grid; grid-template-columns: repeat(3, 1fr); }
-    .task-title { font-size: 17px; }
     .btn-log { width: auto; margin-top: 16px; }
+    .task-header { align-items: center; }
   }
 </style>
 </head>
@@ -157,24 +330,31 @@
 
 <!-- Modal Đổi Mật Khẩu -->
 <div id="modal-change-pass" class="modal-overlay" style="display:none;">
-  <div class="modal-content" style="max-width: 400px;">
+  <div class="modal-content" style="max-width: 420px;">
     <div class="modal-header">
       <h3>🔑 Đổi Mật Khẩu</h3>
       <button class="close-btn" onclick="document.getElementById('modal-change-pass').style.display='none'">&times;</button>
     </div>
-    <input type="password" id="old-pass" placeholder="Mật khẩu hiện tại">
-    <input type="password" id="new-pass" placeholder="Mật khẩu mới">
-    <input type="password" id="confirm-pass" placeholder="Nhập lại mật khẩu mới">
-    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
-      <button class="btn-logout" id="btn-cancel-pass" style="padding:10px 16px;">Hủy</button>
-      <button class="btn-primary" style="width:auto; padding:10px 16px;" id="btn-save-pass">Lưu thay đổi</button>
+    <div style="display:flex; flex-direction:column; gap: 4px;">
+        <label style="font-size: 13px; font-weight: 600;">Mật khẩu hiện tại</label>
+        <input type="password" id="old-pass" placeholder="Nhập mật khẩu hiện tại">
+        
+        <label style="font-size: 13px; font-weight: 600; margin-top: 8px;">Mật khẩu mới</label>
+        <input type="password" id="new-pass" placeholder="Nhập mật khẩu mới">
+        
+        <label style="font-size: 13px; font-weight: 600; margin-top: 8px;">Nhập lại mật khẩu mới</label>
+        <input type="password" id="confirm-pass" placeholder="Nhập lại mật khẩu mới">
+    </div>
+    <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:24px;">
+      <button class="btn-logout" id="btn-cancel-pass" style="padding:10px 20px;">Hủy</button>
+      <button class="btn-primary" style="width:auto; padding:10px 20px;" id="btn-save-pass">Lưu thay đổi</button>
     </div>
   </div>
 </div>
 
 <!-- Modal Chi Tiết / Bình luận -->
 <div id="modal-detail" class="modal-overlay" style="display:none;">
-  <div class="modal-content" style="max-width: 600px;">
+  <div class="modal-content" style="max-width: 650px;">
     <div class="modal-header">
       <h3 id="modal-title">Chi tiết công việc</h3>
       <button class="close-btn" onclick="document.getElementById('modal-detail').style.display='none'">&times;</button>
@@ -183,17 +363,17 @@
   </div>
 </div>
 
-<!-- Modal SỬA TOÀN DIỆN -->
+<!-- Modal Sửa Công Việc -->
 <div id="modal-edit" class="modal-overlay" style="display:none;">
-  <div class="modal-content" style="max-width: 600px;">
+  <div class="modal-content" style="max-width: 650px;">
     <div class="modal-header">
       <h3>✏️ Chỉnh sửa công việc</h3>
       <button class="close-btn" onclick="document.getElementById('modal-edit').style.display='none'">&times;</button>
     </div>
-    <div style="display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
       <input type="hidden" id="edit-group-id">
       
-      <div class="form-row" style="margin-bottom:0;">
+      <div class="form-row" style="margin-bottom:0; gap: 16px;">
         <div class="form-group" style="flex: 2;">
           <label>Tiêu đề</label>
           <input type="text" id="edit-title">
@@ -207,12 +387,12 @@
         </div>
       </div>
 
-      <div class="form-row" style="margin-bottom:0;">
-        <div class="form-group">
+      <div class="form-row" style="margin-bottom:0; gap: 16px;">
+        <div class="form-group" style="flex: 1;">
           <label>Hạn hoàn thành</label>
           <input type="date" id="edit-deadline">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="flex: 2;">
           <label>Link đính kèm</label>
           <input type="text" id="edit-link" placeholder="https://...">
         </div>
@@ -220,17 +400,27 @@
 
       <div class="form-group">
         <label>Mô tả chi tiết</label>
-        <textarea id="edit-desc" style="min-height: 60px;"></textarea>
+        <textarea id="edit-desc" style="min-height: 80px; resize: vertical;"></textarea>
       </div>
 
       <div class="form-group">
         <label>Kết quả / Báo cáo (Dành cho Giám đốc nhập)</label>
-        <textarea id="edit-result" style="min-height: 60px; background:#f8fafc;"></textarea>
+        <textarea id="edit-result" style="min-height: 80px; background:#f8fafc; resize: vertical;"></textarea>
       </div>
 
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
+      <div class="form-group" style="margin-bottom:8px;">
+        <label>Người nhận việc (Thêm/Bớt người):</label>
+        <div class="assignee-box" id="edit-assignee-box"></div>
+      </div>
+
+      <div class="form-group" style="flex-direction: row; display: flex; align-items: center; gap: 8px;">
+        <input type="checkbox" id="edit-send-tele" checked style="width: auto; margin: 0; cursor: pointer; accent-color: var(--primary);">
+        <label style="margin: 0; cursor:pointer;" for="edit-send-tele">🔔 Gửi thông báo Telegram khi lưu</label>
+      </div>
+
+      <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:16px; border-top: 1px solid var(--border); padding-top: 20px;">
         <button class="btn-logout" onclick="document.getElementById('modal-edit').style.display='none'">Hủy</button>
-        <button class="btn-primary" style="width:auto; padding:10px 20px;" onclick="saveEditTask()">💾 Lưu thay đổi</button>
+        <button class="btn-primary" style="width:auto; padding:10px 24px;" onclick="saveEditTask()">💾 Lưu thay đổi</button>
       </div>
     </div>
   </div>
@@ -241,19 +431,37 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbweuszzDI61-Ucr7u7tUz69JAJoK0wZhhoOgu4wVLGiYwdPMcckQAWFDsNKIreQBvtCBg/exec'; 
 
 const $app = document.getElementById('app');
-let token = localStorage.getItem('token');
-let me = JSON.parse(localStorage.getItem('me') || 'null');
+
+// BẮT BUỘC ĐĂNG NHẬP LẠI KHI LOAD TRANG & XỬ LÝ HẾT PHIÊN SAU 1 TIẾNG
+let token = null; 
+let me = null; 
+let inactivityTimer;
+
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  if (token) {
+    inactivityTimer = setTimeout(() => {
+      token = null; me = null; 
+      renderLogin("Phiên làm việc đã hết hạn sau 1 tiếng không hoạt động. Vui lòng đăng nhập lại!");
+    }, 3600000); // 1 tiếng = 3600000 ms
+  }
+}
+
+// Bắt các sự kiện thao tác để làm mới thời gian
+['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => document.addEventListener(evt, resetInactivityTimer));
+
 
 let currentFilter = 'all'; 
 let expandedGroups = new Set(); 
 let currentView = 'list'; 
 let allTasksCache = [];
 let myTasksCache = []; 
+let globalAssignableUsers = [];
 let currentDetailTaskId = null; 
 
 const fmt = (s) => s && s !== '' ? new Date(s).toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'}) : '';
 const fmtDate = (s) => s && s !== '' ? new Date(s).toLocaleDateString('vi-VN') : '';
-const logoHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`;
+const logoHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`;
 
 async function api(action, data = {}) {
   const res = await fetch(API_URL, {
@@ -277,7 +485,7 @@ function getBase64(file) {
 function updateFileName(input) {
   const display = document.getElementById('file-name-display');
   if (input.files && input.files.length > 0) {
-    display.innerText = '📎 Đã chọn: ' + input.files[0].name;
+    display.innerHTML = `<span style="color:var(--text-main); font-weight:600;">📎 Đã chọn:</span> ${input.files[0].name}`;
   } else {
     display.innerText = 'Chưa chọn file nào';
   }
@@ -309,20 +517,25 @@ document.getElementById('btn-save-pass').onclick = async () => {
     document.getElementById('new-pass').value = '';
     document.getElementById('confirm-pass').value = '';
   } catch (e) {
-    alert(e.message);
+    // Tạm dùng logic ghi đè nội dung nút thay vì alert để tránh vi phạm
+    btn.innerText = 'Lỗi: ' + e.message;
+    setTimeout(() => { btn.innerText = 'Lưu thay đổi'; btn.disabled = false; }, 3000);
   } finally {
-    btn.innerText = 'Lưu thay đổi';
-    btn.disabled = false;
+    if(btn.innerText === 'Đang lưu...') {
+       btn.innerText = 'Lưu thay đổi';
+       btn.disabled = false;
+    }
   }
 };
 
-function renderLogin() {
+function renderLogin(msg = "") {
   $app.innerHTML = `
     <div class="login-wrapper">
-      <div class="card login-card">
-        <div style="color: var(--primary)">${logoHTML}</div>
-        <h2 style="margin-top:12px;">Hệ Thống Giao Việc</h2>
-        <p style="margin-bottom: 24px; color:var(--text-muted); font-size:14px;">Đăng nhập để tiếp tục làm việc</p>
+      <div class="login-card">
+        ${logoHTML}
+        <h2>Hệ Thống Giao Việc</h2>
+        <p>Đăng nhập để quản lý và theo dõi công việc</p>
+        <div id="login-msg" class="login-msg" style="${msg ? 'display:block;' : 'display:none;'}">${msg}</div>
         <input id="u" type="text" placeholder="Tên đăng nhập" value="levanduoc.hcm">
         <input id="p" type="password" placeholder="Mật khẩu" value="123456">
         <button class="btn-primary" id="btn">Đăng nhập ngay</button>
@@ -330,12 +543,22 @@ function renderLogin() {
     </div>`;
   
   document.getElementById('btn').onclick = async () => {
+    const btn = document.getElementById('btn');
+    const msgBox = document.getElementById('login-msg');
+    btn.innerText = 'Đang xử lý...';
+    btn.disabled = true;
+    msgBox.style.display = 'none';
     try {
       const user = await api('login', { username: document.getElementById('u').value, password: document.getElementById('p').value });
       token = 'logged_in'; me = user;
-      localStorage.setItem('token', token); localStorage.setItem('me', JSON.stringify(me));
+      resetInactivityTimer();
       renderMain();
-    } catch (e) { alert(e.message); }
+    } catch (e) { 
+        msgBox.innerText = e.message;
+        msgBox.style.display = 'block';
+        btn.innerText = 'Đăng nhập ngay';
+        btn.disabled = false;
+    }
   };
 }
 
@@ -346,16 +569,16 @@ async function renderMain() {
     <div class="topbar">
       <div class="brand">${logoHTML} TaskManager</div>
       <div class="user-info">
-        <span>Chào, <b>${me.name}</b></span>
+        <span style="display:none; @media(min-width:480px){display:inline;}">Xin chào, <b>${me.name}</b></span>
         <span class="role-badge">${roleName}</span>
-        <button class="btn-change-pass" id="btn-open-change-pass">🔑 Đổi MK</button>
+        <button class="btn-change-pass" id="btn-open-change-pass">🔑 <span style="display:none; @media(min-width:480px){display:inline;}">Đổi MK</span></button>
         <button class="btn-logout" id="logout">Đăng xuất</button>
       </div>
     </div>
     <div id="content"></div>`;
   
   document.getElementById('logout').onclick = () => {
-    token = null; me = null; localStorage.clear(); renderLogin();
+    token = null; me = null; renderLogin();
   };
 
   document.getElementById('btn-open-change-pass').onclick = () => {
@@ -379,66 +602,67 @@ function getDeadlineInfo(deadlineStr, status) {
 }
 
 async function renderManager() {
+  document.getElementById('content').innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">Đang tải dữ liệu...</div>`;
   const [users, tasks] = await Promise.all([api('getUsers'), api('getTasks')]);
   allTasksCache = tasks;
   myTasksCache = [];
   
-  // LỌC NGƯỜI NHẬN DỰA VÀO QUYỀN
-  let assignableUsers = users.filter(u => {
+  globalAssignableUsers = users.filter(u => {
       let uRole = String(u.role || '').toLowerCase();
       let isDirector = (uRole === 'giám đốc' || uRole === 'director');
       let isDeputy = (uRole === 'phó giám đốc' || uRole === 'pho giam doc' || uRole === 'deputy');
       
-      if (me.role === 'director') {
-          return !isDirector; // GĐ giao được cho PGĐ và NV
-      } else if (me.role === 'deputy') {
-          return !isDirector && !isDeputy; // PGĐ CHỈ giao được cho NV (không giao cho GĐ hay PGĐ khác)
-      }
+      if (me.role === 'director') return !isDirector; 
+      else if (me.role === 'deputy') return !isDirector && !isDeputy; 
       return false;
   });
 
-  const checkboxList = assignableUsers.map(u => `<label><input type="checkbox" name="assignee" value="${u.id}">${u.name}</label>`).join('');
+  const checkboxList = globalAssignableUsers.map(u => `<label><input type="checkbox" name="assignee" value="${u.id}">${u.name}</label>`).join('');
 
   document.getElementById('content').innerHTML = `
     <div class="card">
-      <h3>📝 Giao việc mới</h3>
+      <h3>📝 Tạo công việc mới</h3>
       <div class="form-row">
         <div class="form-group" style="flex: 2;">
           <label>Tiêu đề công việc</label>
-          <input id="t-title" type="text" placeholder="VD: Xử lý modem hỏng">
+          <input id="t-title" type="text" placeholder="Nhập tiêu đề công việc...">
         </div>
         <div class="form-group" style="flex: 1;">
           <label>Hạn hoàn thành</label>
           <input id="t-deadline" type="date">
         </div>
-        <div class="form-group">
-          <label>Ưu tiên</label>
+        <div class="form-group" style="flex: 1;">
+          <label>Mức độ ưu tiên</label>
           <select id="t-priority">
             <option value="Bình thường" selected>Bình thường</option>
-            <option value="Khẩn cấp">Khẩn cấp</option>
+            <option value="Khẩn cấp">🚨 Khẩn cấp</option>
           </select>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group" style="flex: 2;">
           <label>Mô tả chi tiết</label>
-          <textarea id="t-desc" placeholder="Mô tả công việc..."></textarea>
+          <textarea id="t-desc" placeholder="Nhập nội dung chi tiết công việc..." style="height: 110px; resize:vertical;"></textarea>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="flex: 1;">
           <label>Tài liệu đính kèm</label>
-          <div style="display:flex; flex-direction:column; gap:8px;">
-            <input id="t-link" type="text" placeholder="Dán link (Drive) nếu có...">
-            <div class="file-upload-box">
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <input id="t-link" type="text" placeholder="Dán link (Google Drive, Docs) nếu có..." style="margin-bottom:0;">
+            <div class="file-upload-box" onclick="document.getElementById('t-file').click()">
               <input type="file" id="t-file" onchange="updateFileName(this)">
-              <div style="font-size:12px; font-weight:600; color:var(--primary);">📁 Chọn File từ máy</div>
-              <div id="file-name-display" class="file-name-display">Chưa chọn file</div>
+              <div style="font-size:14px; font-weight:600; color:var(--primary);">📁 Chọn File từ máy</div>
+              <div id="file-name-display" class="file-name-display">Chưa có file nào được chọn</div>
             </div>
           </div>
         </div>
       </div>
-      <div class="form-group" style="margin-bottom:12px;">
-        <label>Chọn người nhận (Giao chung 1 nhóm):</label>
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>Chọn người nhận việc (Có thể chọn nhiều người):</label>
         <div class="assignee-box">${checkboxList}</div>
+      </div>
+      <div class="form-group" style="flex-direction: row; display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+        <input type="checkbox" id="t-send-tele" checked style="width: auto; margin: 0; cursor: pointer; accent-color: var(--primary);">
+        <label style="margin: 0; cursor:pointer;" for="t-send-tele">🔔 Bắn thông báo Telegram cho người nhận</label>
       </div>
       <button class="btn-primary" id="t-add">🚀 Giao việc ngay</button>
     </div>
@@ -447,32 +671,32 @@ async function renderManager() {
     
     <div class="toolbar">
       <div class="view-switch">
-        <button id="btn-view-list" class="active" onclick="switchView('list')">📋 DS</button>
-        <button id="btn-view-kanban" onclick="switchView('kanban')">📌 Kanban</button>
-        <button id="btn-view-table" onclick="switchView('table')">📊 Bảng</button>
+        <button id="btn-view-list" class="active" onclick="switchView('list')">📋 Danh sách</button>
+        <button id="btn-view-kanban" onclick="switchView('kanban')">📌 Bảng Kanban</button>
+        <button id="btn-view-table" onclick="switchView('table')">📊 Dạng Bảng</button>
       </div>
       <div class="search-box">
-        <input type="text" id="search-input" placeholder="🔍 Tìm việc..." oninput="renderFilteredTasks()">
+        <input type="text" id="search-input" placeholder="🔍 Tìm kiếm theo tên công việc, người nhận..." oninput="renderFilteredTasks()">
       </div>
-      <button class="btn-export" onclick="exportCSV()">📥 Xuất CSV</button>
+      <button class="btn-export" onclick="exportCSV()">📥 Xuất Excel/CSV</button>
     </div>
 
-    <div id="view-list" class="card" style="display:block;">
-      <h3>📋 Danh sách công việc <span class="filter-status" id="filter-status" style="font-size:12px;"></span></h3>
+    <div id="view-list" style="display:block;">
+      <h3 style="font-size:18px; margin-bottom:16px; color:var(--text-main);">📋 Danh sách công việc <span class="filter-status" id="filter-status" style="font-size:14px; font-weight:normal; color:var(--text-muted);"></span></h3>
       <div id="task-list"></div>
     </div>
 
     <div id="view-kanban" class="kanban-board" style="display: none;">
       <div class="kanban-col" id="col-new" ondrop="drop(event, 'new')" ondragover="allowDrop(event)">
-        <h3>🟡 Mới giao <span id="count-new">0</span></h3>
+        <h3>🟡 Mới giao <span><span id="count-new">0</span></span></h3>
         <div class="kanban-cards"></div>
       </div>
       <div class="kanban-col" id="col-in_progress" ondrop="drop(event, 'in_progress')" ondragover="allowDrop(event)">
-        <h3>🟣 Đang làm <span id="count-in_progress">0</span></h3>
+        <h3>🟣 Đang thực hiện <span><span id="count-in_progress">0</span></span></h3>
         <div class="kanban-cards"></div>
       </div>
       <div class="kanban-col" id="col-done" ondrop="drop(event, 'done')" ondragover="allowDrop(event)">
-        <h3>🟢 Hoàn thành <span id="count-done">0</span></h3>
+        <h3>🟢 Đã hoàn thành <span><span id="count-done">0</span></span></h3>
         <div class="kanban-cards"></div>
       </div>
     </div>
@@ -481,7 +705,7 @@ async function renderManager() {
       <table>
         <thead>
           <tr>
-            <th>Mã</th><th>Tiêu đề</th><th>Người nhận</th><th>Ưu tiên</th><th>Hạn</th><th>Trạng thái</th><th></th>
+            <th>Mã</th><th>Tiêu đề công việc</th><th>Người nhận</th><th>Ưu tiên</th><th>Hạn chót</th><th>Trạng thái</th><th>Thao tác</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -491,25 +715,27 @@ async function renderManager() {
   document.getElementById('t-add').onclick = async () => {
     const title = document.getElementById('t-title').value.trim();
     const selected = Array.from(document.querySelectorAll('input[name="assignee"]:checked')).map(cb => cb.value);
+    const sendTele = document.getElementById('t-send-tele').checked;
     const fileInput = document.getElementById('t-file');
+    const btn = document.getElementById('t-add');
     
-    if (!title) return alert('Vui lòng nhập tiêu đề!');
-    if (selected.length === 0) return alert('Vui lòng chọn ít nhất 1 người nhận!');
+    if (!title) { btn.innerText = 'Vui lòng nhập tiêu đề!'; setTimeout(()=> btn.innerText = '🚀 Giao việc ngay', 2000); return; }
+    if (selected.length === 0) { btn.innerText = 'Vui lòng chọn người nhận!'; setTimeout(()=> btn.innerText = '🚀 Giao việc ngay', 2000); return; }
     
     let fileData = null;
     let fileName = null;
     
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
-      if (file.size > 5 * 1024 * 1024) return alert('File quá lớn! Vui lòng chọn file dưới 5MB.');
-      document.getElementById('t-add').innerText = 'Đang tải file lên...';
-      document.getElementById('t-add').disabled = true;
+      if (file.size > 5 * 1024 * 1024) { btn.innerText = 'File quá lớn (< 5MB)'; setTimeout(()=> btn.innerText = '🚀 Giao việc ngay', 2000); return; }
+      btn.innerText = 'Đang tải file lên...';
+      btn.disabled = true;
       fileData = await getBase64(file);
       fileName = file.name;
     }
 
-    document.getElementById('t-add').innerText = 'Đang gửi...';
-    document.getElementById('t-add').disabled = true;
+    btn.innerText = 'Đang gửi yêu cầu...';
+    btn.disabled = true;
     
     await api('createTask', { 
       title, 
@@ -520,16 +746,18 @@ async function renderManager() {
       priority: document.getElementById('t-priority').value,
       link: document.getElementById('t-link').value.trim(),
       fileData: fileData,
-      fileName: fileName
+      fileName: fileName,
+      send_telegram: sendTele
     });
     renderManager();
   };
   
-  processAndRender(true); // Truyền true để cho phép hiện nút nhận việc (cho GĐ/PGĐ nếu lỡ được giao việc)
+  processAndRender(true); 
   switchView('list'); 
 }
 
 async function renderEmployee() {
+  document.getElementById('content').innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">Đang tải công việc của bạn...</div>`;
   const allTasks = await api('getTasks');
   allTasksCache = allTasks;
   myTasksCache = allTasks.filter(t => String(t['Người nhận']) === String(me.id));
@@ -539,31 +767,31 @@ async function renderEmployee() {
     
     <div class="toolbar">
       <div class="view-switch">
-        <button id="btn-view-list" class="active" onclick="switchView('list')">📋 DS</button>
-        <button id="btn-view-kanban" onclick="switchView('kanban')">📌 Kanban</button>
-        <button id="btn-view-table" onclick="switchView('table')">📊 Bảng</button>
+        <button id="btn-view-list" class="active" onclick="switchView('list')">📋 Danh sách</button>
+        <button id="btn-view-kanban" onclick="switchView('kanban')">📌 Bảng Kanban</button>
+        <button id="btn-view-table" onclick="switchView('table')">📊 Dạng Bảng</button>
       </div>
       <div class="search-box">
-        <input type="text" id="search-input" placeholder="🔍 Tìm việc..." oninput="renderFilteredTasks()">
+        <input type="text" id="search-input" placeholder="🔍 Tìm kiếm công việc..." oninput="renderFilteredTasks()">
       </div>
     </div>
 
-    <div id="view-list" class="card" style="display:block;">
-      <h3>📋 Việc của tôi <span class="filter-status" id="filter-status" style="font-size:12px;"></span></h3>
+    <div id="view-list" style="display:block;">
+      <h3 style="font-size:18px; margin-bottom:16px; color:var(--text-main);">📋 Việc của tôi <span class="filter-status" id="filter-status" style="font-size:14px; font-weight:normal; color:var(--text-muted);"></span></h3>
       <div id="task-list"></div>
     </div>
 
     <div id="view-kanban" class="kanban-board" style="display: none;">
       <div class="kanban-col" id="col-new" ondrop="drop(event, 'new')" ondragover="allowDrop(event)">
-        <h3>🟡 Mới giao <span id="count-new">0</span></h3>
+        <h3>🟡 Mới giao <span><span id="count-new">0</span></span></h3>
         <div class="kanban-cards"></div>
       </div>
       <div class="kanban-col" id="col-in_progress" ondrop="drop(event, 'in_progress')" ondragover="allowDrop(event)">
-        <h3>🟣 Đang làm <span id="count-in_progress">0</span></h3>
+        <h3>🟣 Đang thực hiện <span><span id="count-in_progress">0</span></span></h3>
         <div class="kanban-cards"></div>
       </div>
       <div class="kanban-col" id="col-done" ondrop="drop(event, 'done')" ondragover="allowDrop(event)">
-        <h3>🟢 Hoàn thành <span id="count-done">0</span></h3>
+        <h3>🟢 Đã hoàn thành <span><span id="count-done">0</span></span></h3>
         <div class="kanban-cards"></div>
       </div>
     </div>
@@ -572,7 +800,7 @@ async function renderEmployee() {
       <table>
         <thead>
           <tr>
-            <th>Mã</th><th>Tiêu đề</th><th>Ưu tiên</th><th>Hạn</th><th>Trạng thái</th><th></th>
+            <th>Mã</th><th>Tiêu đề công việc</th><th>Ưu tiên</th><th>Hạn chót</th><th>Trạng thái</th><th>Thao tác</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -633,7 +861,6 @@ function processAndRender(canAct) {
   let displayGroups = Object.values(groups);
 
   if (!isManager) {
-    // Nhân viên chỉ thấy việc của mình
     const myGroupIds = new Set(myTasksCache.map(t => t['Mã nhóm'] || ('LEGACY_' + t['ID'])));
     displayGroups = displayGroups.filter(g => myGroupIds.has(g.groupId));
   }
@@ -674,24 +901,26 @@ function processAndRender(canAct) {
   });
 
   const dbEl = document.getElementById('dashboard');
-  dbEl.innerHTML = `
-    <div class="dashboard">
-      <div class="stat-card stat-all ${currentFilter === 'all' ? 'active-filter' : ''}" onclick="filterTasks('all')">
-        <h4>📂 Tất cả</h4><div class="num">${Object.keys(groups).length}</div>
-      </div>
-      <div class="stat-card stat-pending ${currentFilter === 'pending' ? 'active-filter' : ''}" onclick="filterTasks('pending')">
-        <h4>📋 Chưa xong</h4><div class="num">${pending}</div>
-      </div>
-      <div class="stat-card ${currentFilter === 'warning' ? 'active-filter' : ''}" style="border-left: 4px solid #f97316" onclick="filterTasks('warning')">
-        <h4>⏳ Sắp tới hạn</h4><div class="num" style="color:#f97316">${warning}</div>
-      </div>
-      <div class="stat-card stat-overdue ${currentFilter === 'overdue' ? 'active-filter' : ''}" onclick="filterTasks('overdue')">
-        <h4>⚠️ Quá hạn</h4><div class="num">${overdue}</div>
-      </div>
-      <div class="stat-card stat-done ${currentFilter === 'done' ? 'active-filter' : ''}" onclick="filterTasks('done')">
-        <h4>✅ Đã xong</h4><div class="num">${done}</div>
-      </div>
-    </div>`;
+  if (dbEl) {
+    dbEl.innerHTML = `
+      <div class="dashboard">
+        <div class="stat-card stat-all ${currentFilter === 'all' ? 'active-filter' : ''}" onclick="filterTasks('all')">
+          <h4>📂 Tất cả</h4><div class="num">${Object.keys(groups).length}</div>
+        </div>
+        <div class="stat-card stat-pending ${currentFilter === 'pending' ? 'active-filter' : ''}" onclick="filterTasks('pending')">
+          <h4>📋 Chưa xong</h4><div class="num">${pending}</div>
+        </div>
+        <div class="stat-card ${currentFilter === 'warning' ? 'active-filter' : ''}" style="${currentFilter === 'warning' ? 'border-color:#f97316; background:#fff7ed; box-shadow:0 0 0 1px #f97316;' : ''}" onclick="filterTasks('warning')">
+          <h4>⏳ Sắp tới hạn</h4><div class="num" style="color:#f97316">${warning}</div>
+        </div>
+        <div class="stat-card stat-overdue ${currentFilter === 'overdue' ? 'active-filter' : ''}" onclick="filterTasks('overdue')">
+          <h4>⚠️ Quá hạn</h4><div class="num">${overdue}</div>
+        </div>
+        <div class="stat-card stat-done ${currentFilter === 'done' ? 'active-filter' : ''}" onclick="filterTasks('done')">
+          <h4>✅ Đã xong</h4><div class="num">${done}</div>
+        </div>
+      </div>`;
+  }
 
   if (currentView === 'list') renderListView(displayGroups, canAct);
   else if (currentView === 'kanban') renderKanbanView(displayGroups, canAct);
@@ -706,7 +935,7 @@ function filterTasks(type) {
 function renderListView(displayGroups, canAct) {
   const el = document.getElementById('task-list');
   if (!displayGroups.length) { 
-    el.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 20px; font-size:14px;">Không có công việc nào phù hợp.</p>`; 
+    el.innerHTML = `<div class="card" style="text-align:center; padding: 40px; color:var(--text-muted); font-size:15px; background:transparent; border: 2px dashed var(--border); box-shadow:none;">Không có công việc nào phù hợp với bộ lọc hiện tại.</div>`; 
     return; 
   }
 
@@ -731,7 +960,7 @@ function renderListView(displayGroups, canAct) {
     let dl = getDeadlineInfo(g.deadline, groupStatus);
     
     let isUrgent = (g.priority === 'Khẩn cấp' || g.priority === 'Cao');
-    let priorityBadge = isUrgent ? `<span class="badge-urgent">🚨 KHẨN CẤP</span>` : `<span style="font-size:11px; color:#64748b;">(Bình thường)</span>`;
+    let priorityBadge = isUrgent ? `<span class="badge-urgent">🚨 KHẨN CẤP</span>` : ``;
     
     let statusObj = {
       new: { text: 'Mới giao', cls: 'new' },
@@ -746,60 +975,64 @@ function renderListView(displayGroups, canAct) {
     let membersHtml = g.members.map(m => {
       let mStatus = STATUS[m.status] || STATUS.new;
       let actionBtn = '';
-      // Bất kỳ ai (kể cả PGĐ) nếu có tên trong danh sách người nhận đều được bấm nút
       if (m.userId === String(me.id)) {
-        if (m.status === 'new') actionBtn = `<button class="btn-action btn-receive" data-id="${m.rowId}" data-to="in_progress">▶️ Bắt đầu</button>`;
+        if (m.status === 'new') actionBtn = `<button class="btn-action btn-receive" data-id="${m.rowId}" data-to="in_progress">▶️ Nhận & Bắt đầu</button>`;
         else if (m.status === 'received') actionBtn = `<button class="btn-action btn-start" data-id="${m.rowId}" data-to="in_progress">▶️ Bắt đầu</button>`;
-        else if (m.status === 'in_progress') actionBtn = `<button class="btn-action btn-done" data-id="${m.rowId}" data-to="done">✅ Xong</button>`;
+        else if (m.status === 'in_progress') actionBtn = `<button class="btn-action btn-done" data-id="${m.rowId}" data-to="done">✅ Báo Cáo Xong</button>`;
       }
       return `<div class="member-row">
-        <div class="m-info"><span class="m-name">👤 ${m.name}</span> <span class="m-status ${mStatus.cls}">${mStatus.label}</span></div>
+        <div class="m-info" style="display:flex; align-items:center; gap:10px;">
+            <div style="background:#e2e8f0; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">👤</div>
+            <span class="m-name" style="font-weight:500;">${m.name}</span> 
+            <span class="m-status ${mStatus.cls}">${mStatus.label}</span>
+        </div>
         <div>${actionBtn}</div>
       </div>`;
     }).join('');
 
     let countdownHtml = '';
     if (g.deadline && dl.daysLeft !== null) {
-       if (dl.daysLeft < 0) countdownHtml = `<span style="color:#ef4444; font-weight:600; font-size:12px;">(Trễ ${Math.abs(dl.daysLeft)} ngày)</span>`;
-       else if (dl.daysLeft === 0) countdownHtml = `<span style="color:#f97316; font-weight:600; font-size:12px;">(Hạn chót hôm nay)</span>`;
-       else countdownHtml = `<span style="color:${dl.daysLeft <= 2 ? '#f97316' : '#3b82f6'}; font-weight:600; font-size:12px;">(Còn ${dl.daysLeft} ngày)</span>`;
+       if (dl.daysLeft < 0) countdownHtml = `<span style="color:var(--color-urgent); font-weight:600; font-size:12px; background:#fef2f2; padding: 2px 6px; border-radius:4px;">Trễ ${Math.abs(dl.daysLeft)} ngày</span>`;
+       else if (dl.daysLeft === 0) countdownHtml = `<span style="color:#f97316; font-weight:600; font-size:12px; background:#fff7ed; padding: 2px 6px; border-radius:4px;">Hạn chót hôm nay</span>`;
+       else countdownHtml = `<span style="color:${dl.daysLeft <= 2 ? '#f97316' : 'var(--primary)'}; font-weight:600; font-size:12px; background:${dl.daysLeft <= 2 ? '#fff7ed' : 'var(--primary-light)'}; padding: 2px 6px; border-radius:4px;">Còn ${dl.daysLeft} ngày</span>`;
     }
 
-    // Nút Sửa/Xóa: Chỉ hiện cho Giám đốc và Phó Giám đốc
     let adminButtons = '';
     if (isManager) {
-      adminButtons = `<div style="display:flex; gap:6px; margin-top:4px;"><button class="btn-edit" data-edit="${g.groupId}">✏️ Sửa</button> <button class="btn-del" data-del="${g.groupId}">🗑️ Xóa</button></div>`;
+      adminButtons = `<div style="display:flex; gap:8px;"><button class="btn-edit" data-edit="${g.groupId}">✏️ Sửa</button> <button class="btn-del" data-del="${g.groupId}">🗑️ Xóa</button></div>`;
     }
 
     return `<div class="task-group ${urgentClass} status-${groupStatus} ${dl.isOverdue ? 'is-overdue' : ''}">
       <div class="task-header">
-        <div>
+        <div style="flex:1;">
           <div class="task-title">
             <span>${g.title}</span>
             ${priorityBadge}
             ${statusBadge}
           </div>
           <div class="task-meta">
-            <span>✍️ Giao: ${g.assigner}</span>
-            ${g.deadline ? `<span>📅 Hạn: <b style="color:#ef4444">${fmtDate(g.deadline)}</b> ${countdownHtml}</span>` : ''}
-            <button class="btn-toggle-detail" data-toggle="${g.groupId}">${isExpanded ? '▲ Thu gọn' : '▼ Chi tiết'}</button>
+            <span>✍️ Người giao: <b style="color:var(--text-main); font-weight:500;">${g.assigner}</b></span>
+            ${g.deadline ? `<span style="display:flex; align-items:center; gap:6px;">📅 Hạn chót: <b style="color:var(--text-main); font-weight:500;">${fmtDate(g.deadline)}</b> ${countdownHtml}</span>` : ''}
           </div>
         </div>
-        ${adminButtons}
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+            ${adminButtons}
+            <button class="btn-toggle-detail" data-toggle="${g.groupId}">${isExpanded ? '▲ Thu gọn' : '▼ Xem chi tiết'}</button>
+        </div>
       </div>
       
       <div class="task-details ${isExpanded ? 'show' : ''}">
-        ${g.desc ? `<div class="task-desc">${g.desc}</div>` : ''}
+        ${g.desc ? `<div class="task-desc">${g.desc}</div>` : '<div class="task-desc" style="color:var(--text-muted); font-style:italic;">Không có mô tả chi tiết.</div>'}
         
-        ${g.link ? `<div style="margin-bottom:12px;"><a href="${g.link}" target="_blank" style="color:var(--primary); font-weight:600; font-size:13px; text-decoration:none; display:inline-block; padding:6px 10px; background:#eff6ff; border-radius:6px; border:1px solid #bfdbfe;">📎 Mở File / Link đính kèm</a></div>` : ''}
+        ${g.link ? `<div style="margin-bottom:20px;"><a href="${g.link}" target="_blank" style="color:var(--primary); font-weight:600; font-size:14px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:8px 12px; background:var(--primary-light); border-radius:8px; border:1px solid #bfdbfe; transition:all 0.2s;">📎 Truy cập File / Link đính kèm</a></div>` : ''}
         
         <div class="progress-container">
-          <div class="progress-header"><span>Tiến độ</span><span>${doneM}/${totalM} (${percent}%)</span></div>
+          <div class="progress-header"><span>Tiến độ hoàn thành</span><span>${doneM}/${totalM} (${percent}%)</span></div>
           <div class="progress-bar"><div class="progress-fill" style="width: ${percent}%"></div></div>
         </div>
         <div class="members-list">${membersHtml}</div>
         
-        <button class="btn-action btn-log" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">💬 Bình luận & Lịch sử</button>
+        <button class="btn-action btn-log" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">💬 Thảo luận & Lịch sử hoạt động</button>
       </div>
     </div>`;
   }).join('');
@@ -823,7 +1056,7 @@ function renderKanbanView(displayGroups, canAct) {
     if (!container) continue;
 
     if (cols[key].length === 0) {
-      container.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:12px; padding: 20px 0;">Trống</p>`;
+      container.innerHTML = `<div style="text-align:center; color:#94a3b8; font-size:13px; padding: 30px 0; border: 1px dashed #cbd5e1; border-radius:8px;">Trống</div>`;
       continue;
     }
 
@@ -831,16 +1064,16 @@ function renderKanbanView(displayGroups, canAct) {
       let dl = getDeadlineInfo(g.deadline, key);
       let isUrgent = (g.priority === 'Khẩn cấp' || g.priority === 'Cao');
       let urgentClass = isUrgent ? 'is-urgent' : '';
-      let prioHtml = isUrgent ? `<b style="color:#ef4444">🚨 Khẩn cấp</b>` : `<span style="color:#64748b">Bình thường</span>`;
+      let prioHtml = isUrgent ? `<span style="color:var(--color-urgent); font-weight:700; font-size:11px;">🚨 Khẩn cấp</span>` : `<span style="color:var(--text-muted); font-size:11px;">Bình thường</span>`;
 
       return `<div class="k-card status-${key} ${urgentClass}" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">
-        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:8px; align-items:center;">
           ${prioHtml}
-          ${dl.isOverdue ? `<span style="color:#ef4444; font-weight:bold;">🔴 Trễ hạn</span>` : ''}
+          ${dl.isOverdue ? `<span style="color:white; background:var(--color-urgent); padding:2px 6px; border-radius:4px; font-weight:bold;">Trễ hạn</span>` : ''}
         </div>
-        <div style="font-weight:600; margin-bottom:6px;">${g.title}</div>
-        <div style="color:#64748b; margin-bottom:4px;">👤 ${g.members.map(m=>m.name).join(', ')}</div>
-        <div style="color:#64748b;">📅 ${fmtDate(g.deadline)}</div>
+        <div style="font-weight:600; margin-bottom:8px; color:var(--text-main); font-size:14px; line-height:1.4;">${g.title}</div>
+        <div style="color:var(--text-muted); margin-bottom:6px; font-size:12px; display:flex; align-items:center; gap:4px;">👤 ${g.members.map(m=>m.name).join(', ')}</div>
+        <div style="color:var(--text-muted); font-size:12px; display:flex; align-items:center; gap:4px;">📅 ${g.deadline ? fmtDate(g.deadline) : 'Không có hạn'}</div>
       </div>`;
     }).join('');
   }
@@ -850,7 +1083,7 @@ function renderTableView(displayGroups, canAct) {
   const tbody = document.getElementById('table-body');
   
   if (!displayGroups.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color:#94a3b8;">Không có công việc nào phù hợp</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 30px; color:#94a3b8;">Không có dữ liệu</td></tr>`;
     return;
   }
 
@@ -859,16 +1092,17 @@ function renderTableView(displayGroups, canAct) {
     let groupStatus = doneM === g.members.length ? 'Hoàn thành' : 'Đang làm';
     let dl = getDeadlineInfo(g.deadline, groupStatus === 'Hoàn thành' ? 'done' : 'new');
     let isUrgent = (g.priority === 'Khẩn cấp' || g.priority === 'Cao');
-    let prioHtml = isUrgent ? `<b style="color:#ef4444">🚨 Khẩn cấp</b>` : `Bình thường`;
+    let prioHtml = isUrgent ? `<b style="color:var(--color-urgent); background:#fef2f2; padding:2px 6px; border-radius:4px; font-size:12px;">Khẩn cấp</b>` : `<span style="color:var(--text-muted); font-size:12px;">Bình thường</span>`;
+    let stHtml = groupStatus === 'Hoàn thành' ? `<span style="color:var(--color-done); font-weight:600;">Hoàn thành</span>` : `<span style="color:var(--color-ip); font-weight:600;">Đang làm</span>`;
     
     return `<tr>
-      <td><b>${g.members[0].rowId}</b></td>
-      <td>${g.title}</td>
+      <td style="color:var(--text-muted); font-size:12px;">#${g.members[0].rowId}</td>
+      <td style="font-weight:500; color:var(--text-main);">${g.title}</td>
       <td>${g.members.map(m=>m.name).join(', ')}</td>
       <td>${prioHtml}</td>
-      <td style="color:${dl.isOverdue?'#ef4444':(dl.isWarning?'#f97316':'inherit')}">${fmtDate(g.deadline)}</td>
-      <td>${groupStatus}</td>
-      <td><button class="btn-log" style="margin-top:0; padding:4px 8px;" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">Xem</button></td>
+      <td style="color:${dl.isOverdue?'var(--color-urgent)':(dl.isWarning?'#f97316':'inherit')}; font-weight:${(dl.isOverdue || dl.isWarning)?'600':'normal'}">${fmtDate(g.deadline)}</td>
+      <td>${stHtml}</td>
+      <td><button class="btn-log" style="margin-top:0; padding:6px 12px; font-size:12px;" onclick="openDetail('${g.members[0].rowId}', '${g.groupId}')">Chi tiết</button></td>
     </tr>`;
   }).join('');
 }
@@ -878,9 +1112,10 @@ function attachEvents(el, displayGroups, canAct) {
     btn.onclick = async (e) => {
       e.stopPropagation();
       const to = btn.dataset.to;
-      let note = to === 'done' ? prompt('Nhập kết quả/Ghi chú:') || '' : '';
+      let note = to === 'done' ? prompt('Nhập kết quả hoặc ghi chú (không bắt buộc):') || '' : '';
       
-      btn.innerText = '...';
+      const originalText = btn.innerText;
+      btn.innerText = 'Đang xử lý...';
       btn.disabled = true;
       
       try {
@@ -888,7 +1123,7 @@ function attachEvents(el, displayGroups, canAct) {
         renderMain();
       } catch (err) {
         alert(err.message);
-        btn.innerText = to === 'done' ? '✅ Xong' : '▶️ Bắt đầu';
+        btn.innerText = originalText;
         btn.disabled = false;
       }
     };
@@ -907,8 +1142,8 @@ function attachEvents(el, displayGroups, canAct) {
   el.querySelectorAll('button[data-del]').forEach(btn => {
     btn.onclick = async (e) => {
       e.stopPropagation();
-      if (confirm('Bạn có chắc muốn xóa toàn bộ công việc này?')) {
-        btn.innerText = '...';
+      if (confirm('⚠️ Bạn có chắc chắn muốn xóa vĩnh viễn toàn bộ công việc này?')) {
+        btn.innerText = 'Đang xóa...';
         btn.disabled = true;
         await api('deleteTask', { groupId: btn.dataset.del });
         renderMain();
@@ -933,6 +1168,14 @@ function attachEvents(el, displayGroups, canAct) {
       document.getElementById('edit-link').value = group.link || '';
       document.getElementById('edit-deadline').value = group.deadline ? group.deadline.split('T')[0] : '';
       document.getElementById('edit-result').value = group.members[0].result || '';
+      
+      // Khởi tạo danh sách checkbox người nhận
+      let currentMemberIds = group.members.map(m => m.userId);
+      const assigneeHtml = globalAssignableUsers.map(u => {
+        let isChecked = currentMemberIds.includes(String(u.id)) ? 'checked' : '';
+        return `<label><input type="checkbox" name="edit-assignee" value="${u.id}" ${isChecked}>${u.name}</label>`;
+      }).join('');
+      document.getElementById('edit-assignee-box').innerHTML = assigneeHtml;
 
       document.getElementById('modal-edit').style.display = 'flex';
     };
@@ -942,6 +1185,14 @@ function attachEvents(el, displayGroups, canAct) {
 async function saveEditTask() {
   const btn = document.querySelector('#modal-edit .btn-primary');
   const originalText = btn.innerText;
+  
+  const selectedAssignees = Array.from(document.querySelectorAll('input[name="edit-assignee"]:checked')).map(cb => cb.value);
+  if (selectedAssignees.length === 0) {
+      btn.innerText = 'Cần ít nhất 1 người nhận!';
+      setTimeout(() => { btn.innerText = originalText; }, 2000);
+      return;
+  }
+
   btn.innerText = 'Đang lưu...';
   btn.disabled = true;
 
@@ -952,7 +1203,9 @@ async function saveEditTask() {
     deadline: document.getElementById('edit-deadline').value,
     description: document.getElementById('edit-desc').value.trim(),
     link: document.getElementById('edit-link').value.trim(),
-    result: document.getElementById('edit-result').value.trim()
+    result: document.getElementById('edit-result').value.trim(),
+    assigned_to: selectedAssignees,
+    send_telegram: document.getElementById('edit-send-tele').checked
   };
 
   try {
@@ -961,8 +1214,11 @@ async function saveEditTask() {
     if (me.role === 'director' || me.role === 'deputy') renderManager();
     else renderEmployee();
   } catch (e) {
-    alert(e.message);
-    btn.innerText = originalText;
+    btn.innerText = 'Lỗi: ' + e.message;
+  } finally {
+    if(btn.innerText === 'Đang lưu...') {
+        btn.innerText = originalText;
+    }
     btn.disabled = false;
   }
 }
@@ -977,7 +1233,7 @@ async function drop(ev, newStatus) {
   const tasksInGroup = allTasksCache.filter(t => (t['Mã nhóm'] || ('LEGACY_' + t['ID'])) === groupId);
   for (let t of tasksInGroup) {
     if (t['Trạng thái'] !== newStatus) {
-      await api('updateStatus', { taskId: t.ID, status: newStatus, note: 'Kéo thả Kanban', user_id: me.id });
+      await api('updateStatus', { taskId: t.ID, status: newStatus, note: 'Đã kéo thả trên Kanban', user_id: me.id });
     }
   }
   renderMain();
@@ -988,7 +1244,7 @@ async function openDetail(taskId, groupId) {
   const modal = document.getElementById('modal-detail');
   const body = document.getElementById('modal-body');
   modal.style.display = 'flex';
-  body.innerHTML = '<p style="text-align:center; padding:20px;">Đang tải dữ liệu...</p>';
+  body.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Đang tải dữ liệu chi tiết...</div>';
 
   try {
     const logs = await api('getLogs', { taskId });
@@ -997,33 +1253,37 @@ async function openDetail(taskId, groupId) {
     const firstTask = groupTasks[0];
     
     if (!firstTask) {
-      body.innerHTML = `<p style="color:red; text-align:center;">Lỗi: Không tìm thấy dữ liệu công việc.</p>`;
+      body.innerHTML = `<p style="color:var(--color-urgent); text-align:center; padding:20px;">Lỗi: Không tìm thấy dữ liệu công việc này.</p>`;
       return;
     }
 
     let historyHtml = logs.map(l => {
       if (l['Hành động'] === 'comment') {
-        return `<div class="comment-item"><b>${l.user_name}:</b> ${l['Ghi chú']} <div style="color:var(--text-muted); font-size:11px; margin-top:4px;">${fmt(l['Thời gian'])}</div></div>`;
+        return `<div class="comment-item"><b>${l.user_name}:</b> <span style="color:var(--text-main);">${l['Ghi chú']}</span> <div style="color:var(--text-muted); font-size:11px; margin-top:6px;">🕒 ${fmt(l['Thời gian'])}</div></div>`;
       }
-      let act = { created:'Giao việc', received:'Đã nhận', in_progress:'Đang làm', done:'Báo xong' }[l['Hành động']] || l['Hành động'];
-      return `<div class="comment-item time-line">- ${l.user_name} <b>${act}</b> lúc ${fmt(l['Thời gian'])}</div>`;
+      let act = { created:'Đã tạo công việc', received:'Đã nhận việc', in_progress:'Bắt đầu làm', done:'Báo cáo hoàn thành' }[l['Hành động']] || l['Hành động'];
+      return `<div class="comment-item time-line">👉 <b>${l.user_name}</b> ${act} vào lúc ${fmt(l['Thời gian'])}</div>`;
     }).join('');
 
     body.innerHTML = `
-      <h2 style="color:var(--primary); font-size:18px; margin-bottom:8px;">${firstTask['Tiêu đề']}</h2>
-      <p style="margin-bottom:16px; font-size:14px;">${firstTask['Mô tả'] || 'Không có mô tả'}</p>
-      <div style="display:flex; gap:16px; font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-        <span>👤 Người nhận: <b>${firstTask.assignee_name}</b></span>
-        <span>📅 Hạn: <b>${fmtDate(firstTask['Hạn hoàn thành'])}</b></span>
+      <h2 style="color:var(--text-main); font-size:20px; margin-bottom:12px;">${firstTask['Tiêu đề']}</h2>
+      <div style="background:#f8fafc; padding:16px; border-radius:8px; border:1px solid var(--border); margin-bottom:20px;">
+        <p style="font-size:14px; white-space:pre-wrap; color:var(--text-main);">${firstTask['Mô tả'] || '<span style="color:var(--text-muted); font-style:italic;">Không có mô tả chi tiết.</span>'}</p>
       </div>
-      ${firstTask['File đính kèm'] ? `<div style="margin-bottom:16px;"><a href="${firstTask['File đính kèm']}" target="_blank" style="display:inline-block; padding:10px 16px; background:#eff6ff; color:var(--primary); text-decoration:none; border-radius:8px; font-weight:600; font-size:14px; border:1px solid #bfdbfe;">📎 Mở File đính kèm</a></div>` : ''}
       
-      <h4 style="margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px; font-size:15px;">💬 Bình luận & Lịch sử</h4>
-      <div class="comment-list" id="comment-list-box">${historyHtml || 'Chưa có hoạt động nào.'}</div>
+      <div style="display:flex; flex-wrap:wrap; gap:24px; font-size:14px; color:var(--text-main); margin-bottom:20px; background:var(--surface); padding:16px; border-radius:8px; border:1px solid var(--border);">
+        <span style="display:flex; align-items:center; gap:8px;">👤 Người nhận: <b>${firstTask.assignee_name}</b></span>
+        <span style="display:flex; align-items:center; gap:8px;">📅 Hạn chót: <b>${fmtDate(firstTask['Hạn hoàn thành']) || 'Không có'}</b></span>
+      </div>
+      
+      ${firstTask['File đính kèm'] ? `<div style="margin-bottom:24px;"><a href="${firstTask['File đính kèm']}" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; background:var(--primary-light); color:var(--primary); text-decoration:none; border-radius:8px; font-weight:600; font-size:14px; border:1px solid #bfdbfe; transition:all 0.2s;">📎 Mở File đính kèm</a></div>` : ''}
+      
+      <h4 style="margin-bottom:16px; padding-bottom:8px; font-size:16px; border-bottom:2px solid var(--border);">💬 Thảo luận & Lịch sử</h4>
+      <div class="comment-list" id="comment-list-box">${historyHtml || '<div style="text-align:center; padding:20px; color:var(--text-muted); font-style:italic;">Chưa có hoạt động hoặc bình luận nào.</div>'}</div>
       
       <div class="comment-input-box">
-        <input type="text" id="comment-input-${taskId}" placeholder="Nhập bình luận... (Ấn Enter để gửi)" onkeypress="if(event.key === 'Enter') submitComment('${taskId}')">
-        <button class="btn-primary" id="btn-submit-${taskId}" onclick="submitComment('${taskId}')">Gửi bình luận</button>
+        <input type="text" id="comment-input-${taskId}" placeholder="Viết bình luận hoặc cập nhật tiến độ... (Nhấn Enter để gửi)" onkeypress="if(event.key === 'Enter') submitComment('${taskId}')">
+        <button class="btn-primary" id="btn-submit-${taskId}" onclick="submitComment('${taskId}')" style="width:auto; align-self:flex-end;">Gửi bình luận</button>
       </div>
     `;
     
@@ -1033,7 +1293,7 @@ async function openDetail(taskId, groupId) {
     }, 100);
 
   } catch (e) {
-    body.innerHTML = `<p style="color:red; text-align:center;">Lỗi tải dữ liệu: ${e.message}</p>`;
+    body.innerHTML = `<p style="color:var(--color-urgent); text-align:center; padding:20px;">Lỗi tải dữ liệu: ${e.message}</p>`;
   }
 }
 
@@ -1046,32 +1306,35 @@ async function submitComment(taskId) {
   input.disabled = true;
   btn.disabled = true;
   btn.innerText = 'Đang gửi...';
-  input.placeholder = "Đang gửi bình luận...";
   
   try {
     await api('addComment', { taskId, userId: me.id, note: text });
     
     const box = document.getElementById('comment-list-box');
-    const newHtml = `<div class="comment-item"><b>${me.name}:</b> ${text} <div style="color:var(--text-muted); font-size:11px; margin-top:4px;">Vừa xong</div></div>`;
-    if (box.innerHTML === 'Chưa có hoạt động nào.') box.innerHTML = '';
+    const newHtml = `<div class="comment-item"><b>${me.name}:</b> <span style="color:var(--text-main);">${text}</span> <div style="color:var(--text-muted); font-size:11px; margin-top:6px;">🕒 Vừa xong</div></div>`;
+    if (box.innerHTML.includes('Chưa có hoạt động')) box.innerHTML = '';
     box.innerHTML += newHtml;
     box.scrollTop = box.scrollHeight;
     
     input.value = '';
-    input.placeholder = "Nhập bình luận... (Ấn Enter để gửi)";
     
+    // Refresh background data quietly
     setTimeout(() => {
        const gid = allTasksCache.find(t => String(t.ID) === String(taskId))['Mã nhóm'];
-       openDetail(taskId, gid || 'LEGACY_' + taskId);
-    }, 1000);
+       if (gid) {
+           // We don't fully reopen to avoid flicker, just let the data sit.
+           // If you want to force full refresh of the list behind the modal:
+           if (me.role === 'director' || me.role === 'deputy') api('getTasks').then(t => { allTasksCache = t; });
+       }
+    }, 500);
 
   } catch (err) {
     alert("Lỗi gửi bình luận: " + err.message);
-    input.placeholder = "Nhập bình luận... (Ấn Enter để gửi)";
   } finally {
     input.disabled = false;
     btn.disabled = false;
     btn.innerText = 'Gửi bình luận';
+    input.focus();
   }
 }
 
@@ -1086,7 +1349,7 @@ function exportCSV() {
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "danh_sach_cong_viec.csv");
+  link.setAttribute("download", "Danh_sach_cong_viec.csv");
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
