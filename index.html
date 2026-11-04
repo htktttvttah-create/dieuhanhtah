@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#0b5cab">
+<meta name="description" content="Chạm tiếp thị thay modem — TTVT phối hợp VNPT. Dữ liệu đọc và ghi trực tiếp vào Google Sheet qua Apps Script API.">
+<title>Chạm tiếp thị thay modem — TTVT × VNPT</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b5cab'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='21' font-weight='bold' fill='white' text-anchor='middle'%3EVNPT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><span>VNPT</span><b>TTVT</b></div>
+    <h1>Đăng nhập hệ thống</h1>
+    <p class="login-sub">Chạm tiếp thị thay modem · TTVT phối hợp VNPT</p>
+    <div class="login-error hidden" id="login-error"></div>
+    <div class="form-field">
+      <label for="login-user">Tài khoản</label>
+      <input id="login-user" autocomplete="username" placeholder="Ví dụ: nmtien.hcm" spellcheck="false">
+    </div>
+    <div class="form-field">
+      <label for="login-pass">Mật khẩu</label>
+      <div class="pw-wrap">
+        <input id="login-pass" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu">
+        <button type="button" class="pw-eye" id="login-eye" title="Hiện/ẩn mật khẩu">👁</button>
+      </div>
+    </div>
+    <button type="button" class="btn primary login-btn" id="login-btn">Đăng nhập</button>
+    <div class="login-links"><span>Mật khẩu mặc định: <b>123456</b></span></div>
+    <div class="login-note">Tài khoản do quản trị cấp theo phân ô địa bàn. Quên mật khẩu, liên hệ giám đốc/HTKT.</div>
+  </div>
+  <div class="login-foot">Dữ liệu đọc và ghi trực tiếp vào Google Sheet</div>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo"><span>VNPT<br>TTVT</span></div>
+    <div>
+      <div class="brand-t">Chạm tiếp thị thay modem</div>
+      <div class="brand-s">TTVT phối hợp VNPT · Củ Chi – TP. Hồ Chí Minh</div>
+    </div>
+  </div>
+  <div class="ses">
+    <div class="conn" id="conn"><span class="dot"></span><span id="conn-text">Đang đọc sheet…</span>
+      <button type="button" class="refresh-inline" id="btn-refresh" title="Làm mới dữ liệu từ Google Sheet">⟳</button>
+    </div>
+    <div class="user-box" id="user-box">
+      <button type="button" class="user-chip" id="user-menu-btn" aria-expanded="false">
+        <span class="avatar" id="user-avatar">?</span>
+        <span class="user-meta"><b id="user-name">—</b><small id="user-role">—</small></span>
+        <span class="user-caret">▾</span>
+      </button>
+      <div class="user-menu" id="user-menu">
+        <div class="um-head">
+          <div class="um-name" id="um-name">—</div>
+          <div class="um-sub" id="um-sub">—</div>
+          <div class="um-areas" id="um-areas"></div>
+        </div>
+        <button type="button" data-act="change-password">🔑 Đổi mật khẩu</button>
+        <button type="button" class="um-logout" data-act="logout">↪ Đăng xuất</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="kpi-strip">
+  <div class="kpi primary">
+    <div class="kpi-lbl">Hộ trong danh sách</div>
+    <div class="kpi-val" id="kpi-total">—</div>
+    <div class="kpi-sub" id="kpi-total-sub">Đang tải dữ liệu…</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">Hộ đã chạm</div>
+    <div class="kpi-val"><span id="kpi-covered">0</span><small id="kpi-covered-rate"></small></div>
+    <div class="kpi-sub" id="kpi-covered-sub">Trên 0 hộ</div>
+    <div class="bar"><i id="kpi-covered-bar" style="width:0%"></i></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">Lượt chạm hôm nay</div>
+    <div class="kpi-val" id="kpi-today">0</div>
+    <div class="kpi-sub" id="kpi-today-sub">Mục tiêu 0 lượt</div>
+    <div class="bar"><i id="kpi-today-bar" style="width:0%"></i></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">Hộ khách đồng ý</div>
+    <div class="kpi-val" id="kpi-agreed">0</div>
+    <div class="kpi-sub" id="kpi-agreed-sub">Chưa có dịch vụ nào được chốt</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-lbl">Dịch vụ đã chốt</div>
+    <div class="svc-mini" id="kpi-svc"></div>
+  </div>
+</div>
+
+<nav class="tabs" id="tabs">
+  <button type="button" class="tab-btn active" data-tab="list">📋 Danh sách chạm <span class="tab-badge hot" id="badge-list">0</span></button>
+  <button type="button" class="tab-btn" data-tab="appt">📅 KH hẹn thay <span class="tab-badge" id="badge-appt">0</span></button>
+  <button type="button" class="tab-btn" data-tab="ttvt">🟠 TTVT đã chạm <span class="tab-badge" id="badge-ttvt">0</span></button>
+  <button type="button" class="tab-btn" data-tab="vnpt">🔵 VNPT đã chạm <span class="tab-badge" id="badge-vnpt">0</span></button>
+  <button type="button" class="tab-btn" data-tab="report">📑 Báo cáo chi tiết <span class="tab-badge" id="badge-report">0</span></button>
+  <button type="button" class="tab-btn" data-tab="stats">📈 Thống kê</button>
+  <button type="button" class="tab-btn" data-tab="guide">🗂 Cấu trúc sheet &amp; hướng dẫn</button>
+</nav>
+
+<div class="must-change hidden" id="must-change">
+  <span>⚠ Bạn đang dùng mật khẩu mặc định. Hãy đổi mật khẩu để bảo vệ tài khoản.</span>
+  <button type="button" class="btn sm" data-act="change-password">Đổi mật khẩu ngay</button>
+</div>
+
+<main class="wrap">
+  <!-- ============ DANH SÁCH CHẠM ============ -->
+  <section class="tab-pane active" id="tab-list">
+    <div class="card filter-card">
+      <button type="button" class="filter-toggle" id="btn-filter-toggle" aria-expanded="false">
+        <span>🔎 Bộ lọc &amp; tìm kiếm <span class="tab-badge" id="filter-count" style="display:none">0</span></span>
+        <span id="filter-chevron">▾</span>
+      </button>
+      <div class="filter-body" id="filter-body">
+      <div class="filter-grid">
+        <div class="fg search">
+          <label for="f-q">Tìm kiếm</label>
+          <div class="search-box">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input id="f-q" placeholder="Tên khách, SĐT, mã TB, địa chỉ, đường…" autocomplete="off">
+          </div>
+        </div>
+        <div class="fg">
+          <label for="f-to">Tổ</label>
+          <select id="f-to"><option value="">Tất cả tổ</option></select>
+        </div>
+        <div class="fg">
+          <label for="f-kv">Khu vực</label>
+          <select id="f-kv"><option value="">Tất cả KV</option></select>
+        </div>
+        <div class="fg">
+          <label for="f-xa">Xã</label>
+          <select id="f-xa"><option value="">Tất cả xã</option></select>
+        </div>
+        <div class="fg">
+          <label for="f-ap">Ấp</label>
+          <select id="f-ap"><option value="">Tất cả ấp</option></select>
+        </div>
+        <div class="fg">
+          <label for="f-duong">Đường</label>
+          <input id="f-duong" list="dl-duong" placeholder="Chọn đường" autocomplete="off">
+          <datalist id="dl-duong"></datalist>
+        </div>
+        <div class="fg">
+          <label for="f-cham">Trạng thái chạm</label>
+          <select id="f-cham">
+            <option value="all">Tất cả</option>
+            <option value="chua">Chưa chạm</option>
+            <option value="da">Đã chạm</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label for="f-hen">Hẹn thay</label>
+          <select id="f-hen">
+            <option value="all">Tất cả</option>
+            <option value="co">Có hẹn</option>
+            <option value="chua">Chưa hẹn</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-row2">
+        <span class="quick-label">Cần tiếp thị</span>
+        <div class="need-chips" id="need-chips">
+          <button type="button" class="need-chip" data-svc="tt">💳 Trả sau <span id="need-n-tt">0</span></button>
+          <button type="button" class="need-chip" data-svc="mytv">📺 Thiếu MyTV <span id="need-n-mytv">0</span></button>
+          <button type="button" class="need-chip" data-svc="mesh">📶 Thiếu Mesh <span id="need-n-mesh">0</span></button>
+          <button type="button" class="need-chip" data-svc="cam">📷 Thiếu Cam <span id="need-n-cam">0</span></button>
+        </div>
+        <div class="filter-actions">
+          <div class="fg" style="min-width:180px">
+            <label for="f-sort">Sắp xếp</label>
+            <select id="f-sort">
+              <option value="uu_tien">Ưu tiên (nhiều dịch vụ thiếu)</option>
+              <option value="ten">Tên khách A → Z</option>
+              <option value="duong">Đường / số nhà</option>
+              <option value="moi_nhat">Chạm gần nhất</option>
+              <option value="chua_cham">Lâu chưa chạm</option>
+            </select>
+          </div>
+          <button type="button" class="btn sm" id="btn-reset-filters">↺ Xóa lọc</button>
+          <button type="button" class="btn sm" id="btn-top15">⚡ Gợi ý 15 hộ ưu tiên</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-filters" id="quick-filters">
+      <div class="qf-group">
+        <span class="qf-lbl">Thay modem</span>
+        <div class="seg-pills" id="qf-thay" role="group" aria-label="Lọc theo trạng thái thay modem">
+          <button type="button" class="qf-pill" data-v="chua">Chưa thay <span class="n" id="qf-n-chua">0</span></button>
+          <button type="button" class="qf-pill" data-v="da">Đã thay <span class="n" id="qf-n-da">0</span></button>
+          <button type="button" class="qf-pill" data-v="all">Tất cả <span class="n" id="qf-n-all">0</span></button>
+        </div>
+      </div>
+      <div class="qf-sep"></div>
+      <div class="qf-group qf-emp" id="qf-emp">
+        <span class="qf-lbl">Nhân viên kỹ thuật</span>
+        <button type="button" class="qf-select" id="qf-emp-btn" aria-expanded="false" aria-haspopup="true">
+          <span id="qf-emp-label">Tất cả nhân viên</span><span class="qf-caret">▾</span>
+        </button>
+        <div class="qf-pop" id="qf-emp-pop">
+          <div class="qf-pop-h">
+            <input id="qf-emp-search" placeholder="Tìm tên hoặc mã nhân viên…" autocomplete="off">
+            <button type="button" class="qf-pop-close" id="qf-emp-close" aria-label="Đóng">✕</button>
+          </div>
+          <div class="qf-emp-list" id="qf-emp-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice hidden" id="top15-note">
+      <span>⚡ Đang xem <b>15 hộ ưu tiên nhất</b> theo bộ lọc hiện tại (chưa thay modem, chưa chạm, thiếu nhiều dịch vụ).</span>
+      <button type="button" class="btn sm" id="btn-clear-top15">Xem tất cả</button>
+    </div>
+
+    <div class="result-bar">
+      <div class="result-count"><b id="result-count">0</b> hộ phù hợp <span id="result-extra"></span></div>
+      <div class="result-actions">
+        <button type="button" class="btn sm" data-act="export-list">⬇ Xuất Excel danh sách</button>
+      </div>
+    </div>
+
+    <div class="card table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-stt hide-sm">#</th>
+              <th>Khách hàng</th>
+              <th>Địa chỉ</th>
+              <th class="hide-sm">Phụ trách</th>
+              <th>Thiếu dịch vụ</th>
+              <th>Trạng thái chạm</th>
+              <th style="width:100px"></th>
+            </tr>
+          </thead>
+          <tbody id="list-body"></tbody>
+        </table>
+      </div>
+      <div id="list-cards" class="mob-cards"></div>
+      <div id="list-empty" class="empty hidden">
+        <div class="big">🔍</div>
+        <div>Không có hộ nào khớp bộ lọc. Thử xóa bớt điều kiện.</div>
+      </div>
+      <div class="pager" id="pager-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ TTVT / VNPT ============ -->
+  <section class="tab-pane" id="tab-appt"><div id="appt-root"></div></section>
+  <section class="tab-pane" id="tab-ttvt"><div id="unit-ttvt"></div></section>
+  <section class="tab-pane" id="tab-vnpt"><div id="unit-vnpt"></div></section>
+
+  <!-- ============ BÁO CÁO ============ -->
+  <section class="tab-pane" id="tab-report"><div id="report-root"></div></section>
+
+  <!-- ============ THỐNG KÊ ============ -->
+  <section class="tab-pane" id="tab-stats"><div id="stats-root"></div></section>
+
+  <!-- ============ HƯỚNG DẪN ============ -->
+  <section class="tab-pane" id="tab-guide"><div id="guide-root"></div></section>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dr-head">
+    <h3 id="dr-title">Phiếu chạm tiếp thị</h3>
+    <p id="dr-sub">—</p>
+    <button type="button" class="dr-close" data-act="close-drawer" aria-label="Đóng">✕</button>
+  </div>
+  <div class="dr-body" id="dr-body"></div>
+  <div class="dr-foot">
+    <button type="button" class="btn" data-act="close-drawer">Hủy</button>
+    <span class="grow"></span>
+    <span class="muted" id="dr-hint" style="font-size:11.5px"></span>
+    <button type="button" class="btn primary" data-act="save-touch" id="btn-save">💾 Lưu phiếu chạm</button>
+  </div>
+</aside>
+
+<div class="overlay confirm" id="confirm-overlay"></div>
+<div class="modal" id="confirm-modal" role="dialog" aria-modal="true">
+  <h3 id="confirm-title">Xác nhận</h3>
+  <p id="confirm-msg"></p>
+  <div class="modal-foot">
+    <button type="button" class="btn" data-act="confirm-no">Hủy</button>
+    <button type="button" class="btn danger" data-act="confirm-yes" id="confirm-yes">Đồng ý xóa</button>
+  </div>
+</div>
+
+<div class="overlay confirm" id="pw-overlay"></div>
+<div class="modal pw-modal" id="pw-modal" role="dialog" aria-modal="true">
+  <h3>Đổi mật khẩu</h3>
+  <p>Tài khoản <b id="pw-user">—</b>. Mật khẩu mới tối thiểu 6 ký tự.</p>
+  <div class="form-field">
+    <label for="pw-old">Mật khẩu hiện tại</label>
+    <input id="pw-old" type="password" autocomplete="current-password">
+  </div>
+  <div class="form-field">
+    <label for="pw-new">Mật khẩu mới</label>
+    <input id="pw-new" type="password" autocomplete="new-password">
+  </div>
+  <div class="form-field">
+    <label for="pw-confirm">Nhập lại mật khẩu mới</label>
+    <input id="pw-confirm" type="password" autocomplete="new-password">
+  </div>
+  <div class="api-status" id="pw-error"></div>
+  <div class="modal-foot">
+    <button type="button" class="btn" data-act="pw-cancel">Hủy</button>
+    <button type="button" class="btn primary" data-act="save-password">Lưu mật khẩu</button>
+  </div>
+</div>
+
+<div class="loading" id="loading">
+  <div class="spin" id="load-spin"></div>
+  <div class="l-title" id="load-title">Đang đọc dữ liệu từ Google Sheet…</div>
+  <div class="l-sub" id="load-sub">Lần đầu tải có thể mất vài giây. Không đóng trang trong lúc chờ.</div>
+  <div class="l-err hidden" id="load-err"></div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="config.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
