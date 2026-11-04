@@ -1203,7 +1203,7 @@ function drawerHtml(r, g) {
 
   const apptRows = SVC_KEYS.map(k => {
     const have = g.indexOf(k) === -1;
-    const selected = active ? (active.dich_vu || []).indexOf(k) > -1 : !have;
+    const selected = active ? (active.dich_vu || []).indexOf(k) > -1 : false;
     return `<label class="svc-row appt-svc-row ${have ? 'have' : 'miss'} ${selected ? 'picked' : ''}">
       <input type="checkbox" data-appt-svc="${k}" ${have ? 'disabled' : ''} ${selected ? 'checked' : ''}>
       <div class="svc-ico">${SVC[k].icon}</div>
