@@ -48,7 +48,7 @@ html,body{margin:0;padding:0}
 body{
   background-color: var(--bg);
   color: var(--ink); 
-  font-size: 16px; /* Tăng font cơ bản */
+  font-size: 16px; 
   line-height: 1.5;
   font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   padding-bottom: calc(84px + env(safe-area-inset-bottom));
@@ -451,7 +451,7 @@ button{cursor:pointer;border:0;background:none}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v5.5l-4 2V13z"/></svg>
       </span>
       <span class="fb-tx">
-        <b>Lọc tuyến đường, ấp</b>
+        <b>Lọc, tìm kiếm mở rộng</b>
         <small id="filterSummary">Đang tải…</small>
       </span>
       <span id="filterCount" class="fb-count hidden">0</span>
@@ -470,7 +470,18 @@ button{cursor:pointer;border:0;background:none}
   </div>
 
   <!-- ============ TỔNG HỢP ============ -->
-  <div id="panel-summary" class="panel hidden"><div id="summary"></div></div>
+  <div id="panel-summary" class="panel hidden">
+    <!-- Bộ lọc nhanh -->
+    <div style="display:flex; gap:10px; margin-bottom:16px;">
+       <select id="fastFilterNvNhap" style="flex:1; padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--line); font-size:14px; background:var(--card); outline:none; font-weight:600; color:var(--ink-2); box-shadow:var(--shadow);">
+          <option value="">Lọc Người nhập</option>
+       </select>
+       <select id="fastFilterNgayCham" style="flex:1; padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--line); font-size:14px; background:var(--card); outline:none; font-weight:600; color:var(--ink-2); box-shadow:var(--shadow);">
+          <option value="">Lọc Ngày chạm</option>
+       </select>
+    </div>
+    <div id="summary"></div>
+  </div>
 
 
 </div>
@@ -600,8 +611,8 @@ button{cursor:pointer;border:0;background:none}
 
 <div id="toast" class="toast"></div>
 
-<script>window.SNAPSHOT = [["STT", "TÊN_NV", "Số nhà", "Địa chỉ chi tiết", "Nhà mạng hiện tại", "Tuyến đường có khả năng PTM", "Tập KH tiếp thị từ Nhà Mạng Khác (nguyên văn)"], ["1", "Nguyễn Quốc Trọng", "262", "Đường An Nhơn Tây, Gò Nỗi", "Viettel", "Đường An Nhơn Tây", "số 262, 284, 355 Đường An Nhơn Tây, Gò Nỗi - Kh xài Viettel"], ["2", "Nguyễn Quốc Trọng", "284", "Đường An Nhơn Tây, Gò Nỗi", "Viettel", "Đường An Nhơn Tây", "số 262, 284, 355 Đường An Nhơn Tây, Gò Nỗi - Kh xài Viettel"], ["3", "Nguyễn Quốc Trọng", "355", "Đường An Nhơn Tây, Gò Nỗi", "Viettel", "Đường An Nhơn Tây", "số 262, 284, 355 Đường An Nhơn Tây, Gò Nỗi - Kh xài Viettel"], ["4", "Đinh Trường Giang", "884/5", "Đường TL 15, Bến Mương", "Viettel", "Đường Tỉnh lộ 15", "Số 884/5, 884/2, 884/4 Đường TL 15, Bến Mương - KH xài Viettel"], ["5", "Đinh Trường Giang", "884/2", "Đường TL 15, Bến Mương", "Viettel", "Đường Tỉnh lộ 15", "Số 884/5, 884/2, 884/4 Đường TL 15, Bến Mương - KH xài Viettel"], ["6", "Đinh Trường Giang", "884/4", "Đường TL 15, Bến Mương", "Viettel", "Đường Tỉnh lộ 15", "Số 884/5, 884/2, 884/4 Đường TL 15, Bến Mương - KH xài Viettel"], ["7", "Nguyễn Công Khoắng", "395", "Cây Gõ", "Viettel", "Đường 794", "Số 395, 397, 441 Cây Gõ - ( Nhà Mạng Viettel)"], ["8", "Nguyễn Công Khoắng", "397", "Cây Gõ", "Viettel", "Đường 794", "Số 395, 397, 441 Cây Gõ - ( Nhà Mạng Viettel)"], ["9", "Nguyễn Công Khoắng", "441", "Cây Gõ", "Viettel", "Đường 794", "Số 395, 397, 441 Cây Gõ - ( Nhà Mạng Viettel)"], ["10", "Trần Minh Hiệp", "90A", "Đường 791", "Viettel", "Đường Tỉnh lộ 15", "Số 90A, 50, 10 Đường 791 - ( Nhà Mạng Viettel)"], ["11", "Trần Minh Hiệp", "50", "Đường 791", "Viettel", "Đường Tỉnh lộ 15", "Số 90A, 50, 10 Đường 791 - ( Nhà Mạng Viettel)"], ["12", "Trần Minh Hiệp", "10", "Đường 791", "Viettel", "Đường Tỉnh lộ 15", "Số 90A, 50, 10 Đường 791 - ( Nhà Mạng Viettel)"], ["13", "Võ Nguyễn Cao Tài", "10", "Phạm Thị Gắn", "Viettel", "Phú Thuận, Võ Thị Bàng", "Số 10, 15 Phạm Thị Gắn - 1375 Nguyễn Thị Rành, ấp Phú Lợi - xài Viettel"], ["14", "Võ Nguyễn Cao Tài", "15", "Phạm Thị Gắn", "Viettel", "Phú Thuận, Võ Thị Bàng", "Số 10, 15 Phạm Thị Gắn - 1375 Nguyễn Thị Rành, ấp Phú Lợi - xài Viettel"], ["15", "Võ Nguyễn Cao Tài", "1375", "Nguyễn Thị Rành, ấp Phú Lợi", "Viettel", "Phú Thuận, Võ Thị Bàng", "Số 10, 15 Phạm Thị Gắn - 1375 Nguyễn Thị Rành, ấp Phú Lợi - xài Viettel"], ["16", "Nguyễn Minh Tiến", "41", "Nguyễn Thị Sẳng", "FPT", "Nguyễn Thị Sẳng", "SN: 41 - 63 - 67 ( FPT )"], ["17", "Nguyễn Minh Tiến", "63", "Nguyễn Thị Sẳng", "FPT", "Nguyễn Thị Sẳng", "SN: 41 - 63 - 67 ( FPT )"], ["18", "Nguyễn Minh Tiến", "67", "Nguyễn Thị Sẳng", "FPT", "Nguyễn Thị Sẳng", "SN: 41 - 63 - 67 ( FPT )"], ["19", "Lê Văn Tuân", "26/4", "Tỉnh Lộ 8", "Viettel", "Tỉnh Lộ 8", "SN: 26/4 - 46 ( Viettel ) 26 ( FPT )"], ["20", "Lê Văn Tuân", "46", "Tỉnh Lộ 8", "Viettel", "Tỉnh Lộ 8", "SN: 26/4 - 46 ( Viettel ) 26 ( FPT )"], ["21", "Lê Văn Tuân", "26", "Tỉnh Lộ 8", "FPT", "Tỉnh Lộ 8", "SN: 26/4 - 46 ( Viettel ) 26 ( FPT )"], ["22", "Lê Thanh Tân", "24A", "Đường 358", "Viettel", "Đường 358", "SN : 24A - 36 - 56 9 Viettel)"], ["23", "Lê Thanh Tân", "36", "Đường 358", "Viettel", "Đường 358", "SN : 24A - 36 - 56 9 Viettel)"], ["24", "Lê Thanh Tân", "56", "Đường 358", "Viettel", "Đường 358", "SN : 24A - 36 - 56 9 Viettel)"], ["25", "Phạm Duy Giang", "220", "Nguyễn Văn Khạ", "Viettel", "Nguyễn Văn Khạ", "SN: 220 - 222 - 226 ( Viettel)"], ["26", "Phạm Duy Giang", "222", "Nguyễn Văn Khạ", "Viettel", "Nguyễn Văn Khạ", "SN: 220 - 222 - 226 ( Viettel)"], ["27", "Phạm Duy Giang", "226", "Nguyễn Văn Khạ", "Viettel", "Nguyễn Văn Khạ", "SN: 220 - 222 - 226 ( Viettel)"], ["28", "Lê Thành Trung", "20", "Đường 369", "Viettel", "Đường 369", "SN: 20 - 22 - 28 ( Viettel )"], ["29", "Lê Thành Trung", "22", "Đường 369", "Viettel", "Đường 369", "SN: 20 - 22 - 28 ( Viettel )"], ["30", "Lê Thành Trung", "28", "Đường 369", "Viettel", "Đường 369", "SN: 20 - 22 - 28 ( Viettel )"], ["31", "Văn Thanh Tuyên", "4", "Tuyến Cây Trôm - Mỹ Khánh", "Viettel", "Đường Cây Trôm - Mỹ Khánh", "4(VT)Kế 172(VT); 169(Fpt) tuyến CAY TRÔM MỸ KHÁNH"], ["32", "Văn Thanh Tuyên", "Kế 172", "Tuyến Cây Trôm - Mỹ Khánh", "Viettel", "Đường Cây Trôm - Mỹ Khánh", "4(VT)Kế 172(VT); 169(Fpt) tuyến CAY TRÔM MỸ KHÁNH"], ["33", "Văn Thanh Tuyên", "169", "Tuyến Cây Trôm - Mỹ Khánh", "FPT", "Đường Cây Trôm - Mỹ Khánh", "4(VT)Kế 172(VT); 169(Fpt) tuyến CAY TRÔM MỸ KHÁNH"], ["34", "Tạ Hữu Thuận", "53", "Đường Ba Sa", "Viettel", "Đường Ba Sa", "53, 55, 175 ( Viettel) . Tuyến đường Ba Sa"], ["35", "Tạ Hữu Thuận", "55", "Đường Ba Sa", "Viettel", "Đường Ba Sa", "53, 55, 175 ( Viettel) . Tuyến đường Ba Sa"], ["36", "Tạ Hữu Thuận", "175", "Đường Ba Sa", "Viettel", "Đường Ba Sa", "53, 55, 175 ( Viettel) . Tuyến đường Ba Sa"], ["37", "Phạm Công Vinh", "3", "Đường 671, Ấp Chợ", "", "Đường 671", "3, 5, 26 Đường 671 Ấp Chợ"], ["38", "Phạm Công Vinh", "5", "Đường 671, Ấp Chợ", "", "Đường 671", "3, 5, 26 Đường 671 Ấp Chợ"], ["39", "Phạm Công Vinh", "26", "Đường 671, Ấp Chợ", "", "Đường 671", "3, 5, 26 Đường 671 Ấp Chợ"], ["40", "Nguyễn Trung Trực", "20", "Đường 661, Ấp Mít Nài", "", "Đường 661", "20, 28, 33 Đường 661 Ấp Mít Nài"], ["41", "Nguyễn Trung Trực", "28", "Đường 661, Ấp Mít Nài", "", "Đường 661", "20, 28, 33 Đường 661 Ấp Mít Nài"], ["42", "Nguyễn Trung Trực", "33", "Đường 661, Ấp Mít Nài", "", "Đường 661", "20, 28, 33 Đường 661 Ấp Mít Nài"], ["43", "Cao Quốc Thiên", "12", "Đường Cây Trôm - Mỹ Khánh, Ấp Mỹ Khánh A", "", "Đường Cây Trôm - Mỹ Khánh", "12, 18, 55 Đường Cây Trôm - Mỹ Khánh Ấp Mỹ Khánh A"], ["44", "Cao Quốc Thiên", "18", "Đường Cây Trôm - Mỹ Khánh, Ấp Mỹ Khánh A", "", "Đường Cây Trôm - Mỹ Khánh", "12, 18, 55 Đường Cây Trôm - Mỹ Khánh Ấp Mỹ Khánh A"], ["45", "Cao Quốc Thiên", "55", "Đường Cây Trôm - Mỹ Khánh, Ấp Mỹ Khánh A", "", "Đường Cây Trôm - Mỹ Khánh", "12, 18, 55 Đường Cây Trôm - Mỹ Khánh Ấp Mỹ Khánh A"], ["46", "Nguyễn Trọng Sang", "1", "Đường HL10, Ấp Bình Hạ Tây", "", "Đường HL10", "1, 18, 33 Đường HL10 Ấp Bình Hạ Tây"], ["47", "Nguyễn Trọng Sang", "18", "Đường HL10, Ấp Bình Hạ Tây", "", "Đường HL10", "1, 18, 33 Đường HL10 Ấp Bình Hạ Tây"], ["48", "Nguyễn Trọng Sang", "33", "Đường HL10, Ấp Bình Hạ Tây", "", "Đường HL10", "1, 18, 33 Đường HL10 Ấp Bình Hạ Tây"], ["49", "Nguyễn Quốc Thanh", "493", "Đường Võ Văn Điều, Ấp Trung Bình", "", "Đường Võ Văn Điều", "493, 592, 497 Đường Võ Văn Điều Ấp Trung Bình"], ["50", "Nguyễn Quốc Thanh", "592", "Đường Võ Văn Điều, Ấp Trung Bình", "", "Đường Võ Văn Điều", "493, 592, 497 Đường Võ Văn Điều Ấp Trung Bình"], ["51", "Nguyễn Quốc Thanh", "497", "Đường Võ Văn Điều, Ấp Trung Bình", "", "Đường Võ Văn Điều", "493, 592, 497 Đường Võ Văn Điều Ấp Trung Bình"], ["52", "Trần Quốc Huy", "491", "Đường Trung Lập, Ấp Đồng Lớn", "", "Đường Trung Lập", "491, 491A, 515 Đường Trung Lập Ấp Đồng Lớn"], ["53", "Trần Quốc Huy", "491A", "Đường Trung Lập, Ấp Đồng Lớn", "", "Đường Trung Lập", "491, 491A, 515 Đường Trung Lập Ấp Đồng Lớn"], ["54", "Trần Quốc Huy", "515", "Đường Trung Lập, Ấp Đồng Lớn", "", "Đường Trung Lập", "491, 491A, 515 Đường Trung Lập Ấp Đồng Lớn"], ["55", "Nguyễn Tấn Lợi", "5", "Đường 676, Ấp Phước An", "", "Đường 676", "5, 13, 22 Đường 676 Ấp Phước An"], ["56", "Nguyễn Tấn Lợi", "13", "Đường 676, Ấp Phước An", "", "Đường 676", "5, 13, 22 Đường 676 Ấp Phước An"], ["57", "Nguyễn Tấn Lợi", "22", "Đường 676, Ấp Phước An", "", "Đường 676", "5, 13, 22 Đường 676 Ấp Phước An"], ["58", "Trần Văn Sỉnh", "1", "Đường đổ đăng tuyển, Ấp Canh Lý", "", "Tuyen đường đổ đăng tuyển với 533", "1 đổ đăng tuyển,kế số 2 đổ đăng tuyển, số 10 đường 533, Ấp canh lý"], ["59", "Trần Văn Sỉnh", "Kế số 2", "Đường đổ đăng tuyển, Ấp Canh Lý", "", "Tuyen đường đổ đăng tuyển với 533", "1 đổ đăng tuyển,kế số 2 đổ đăng tuyển, số 10 đường 533, Ấp canh lý"], ["60", "Trần Văn Sỉnh", "10", "Đường 533, Ấp Canh Lý", "", "Tuyen đường đổ đăng tuyển với 533", "1 đổ đăng tuyển,kế số 2 đổ đăng tuyển, số 10 đường 533, Ấp canh lý"], ["61", "Phạm Huy Cường", "Sau nhà 172", "Bà Thiên, ấp Bàu Trăn, Nhuận Đức", "", "Tuyến đường 537", "Sau nhà 172 Bà Thiên, 167 Bà Thiên, Nhà ko số hẻm đối diện 167 Bà Thiên ấp Bàu Trăn nhuận Đức"], ["62", "Phạm Huy Cường", "167", "Bà Thiên, ấp Bàu Trăn, Nhuận Đức", "", "Tuyến đường 537", "Sau nhà 172 Bà Thiên, 167 Bà Thiên, Nhà ko số hẻm đối diện 167 Bà Thiên ấp Bàu Trăn nhuận Đức"], ["63", "Phạm Huy Cường", "Nhà không số", "Hẻm đối diện 167 Bà Thiên, ấp Bàu Trăn, Nhuận Đức", "", "Tuyến đường 537", "Sau nhà 172 Bà Thiên, 167 Bà Thiên, Nhà ko số hẻm đối diện 167 Bà Thiên ấp Bàu Trăn nhuận Đức"], ["64", "Nguyễn Hoàng Quốc Triệu", "1", "Đường 503, ấp Đức Hiệp", "", "tuyến đường Nhuận Đức", "1 đường 503 ấp Đức Hiệp đối diện 45 đường Nhuận Đức ấp Đức Hiệp 80 đường Nhuận Đức ấp Đức Hiệp"], ["65", "Nguyễn Hoàng Quốc Triệu", "Đối diện 45", "Đường Nhuận Đức, ấp Đức Hiệp", "", "tuyến đường Nhuận Đức", "1 đường 503 ấp Đức Hiệp đối diện 45 đường Nhuận Đức ấp Đức Hiệp 80 đường Nhuận Đức ấp Đức Hiệp"], ["66", "Nguyễn Hoàng Quốc Triệu", "80", "Đường Nhuận Đức, ấp Đức Hiệp", "", "tuyến đường Nhuận Đức", "1 đường 503 ấp Đức Hiệp đối diện 45 đường Nhuận Đức ấp Đức Hiệp 80 đường Nhuận Đức ấp Đức Hiệp"], ["67", "Trương Minh Vũ", "491", "Đường Bùi Thị Điệt, ấp 3, xã Nhuận Đức", "", "Tuyến đường Bùi Thị Điệt ấp 3 xã Nhuận Đức", "491,492,555 đg Bùi Thị Điệt ấp 3 xã Nhuận Đức"], ["68", "Trương Minh Vũ", "492", "Đường Bùi Thị Điệt, ấp 3, xã Nhuận Đức", "", "Tuyến đường Bùi Thị Điệt ấp 3 xã Nhuận Đức", "491,492,555 đg Bùi Thị Điệt ấp 3 xã Nhuận Đức"], ["69", "Trương Minh Vũ", "555", "Đường Bùi Thị Điệt, ấp 3, xã Nhuận Đức", "", "Tuyến đường Bùi Thị Điệt ấp 3 xã Nhuận Đức", "491,492,555 đg Bùi Thị Điệt ấp 3 xã Nhuận Đức"], ["70", "Nguyễn Phương Tùng", "240", "Tỉnh lộ 2, Xóm Mới, Nhuận Đức", "", "Tuyến đường tl 2, 570", "240, 208, 291 tỉnh lộ 2, xóm mới, nhuận đức"], ["71", "Nguyễn Phương Tùng", "208", "Tỉnh lộ 2, Xóm Mới, Nhuận Đức", "", "Tuyến đường tl 2, 570", "240, 208, 291 tỉnh lộ 2, xóm mới, nhuận đức"], ["72", "Nguyễn Phương Tùng", "291", "Tỉnh lộ 2, Xóm Mới, Nhuận Đức", "", "Tuyến đường tl 2, 570", "240, 208, 291 tỉnh lộ 2, xóm mới, nhuận đức"], ["73", "Trần Minh Sang", "378", "Tỉnh lộ 7, ấp Đồn", "Khác", "Tuyến đường tỉnh lộ 7", "378 tỉnh lộ 7, số 10, 18 đg 597 ấp đồn nhà mạng khác"], ["74", "Trần Minh Sang", "10", "Đường 597, ấp Đồn", "Khác", "Tuyến đường tỉnh lộ 7", "378 tỉnh lộ 7, số 10, 18 đg 597 ấp đồn nhà mạng khác"], ["75", "Trần Minh Sang", "18", "Đường 597, ấp Đồn", "Khác", "Tuyến đường tỉnh lộ 7", "378 tỉnh lộ 7, số 10, 18 đg 597 ấp đồn nhà mạng khác"]];</script>
-<script>/* =========================================================================
+<script>
+/* =========================================================================
    CHẠM KH – TỔNG LỰC · v8
    - Đọc trực tiếp Google Sheet (CSV), tự bù lỗi cột "Số nhà" kiểu chữ
    - Chạm KH theo lý do: đồng ý lắp (lên phiếu) / không đồng ý / hẹn lại / không thấy nhà
@@ -616,8 +627,9 @@ button{cursor:pointer;border:0;background:none}
   var CSV_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=csv&gid=' + GID;
   var GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&gid=' + GID;
   var SHEET_EDIT_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/edit';
-  // Dán URL Web App Apps Script vào đây thì MỌI máy tự đồng bộ, không cần cấu hình từng máy
-  var SYNC_URL = 'https://script.google.com/macros/s/AKfycbw_tyIssSdq_URy2cXFaHxRm3KqAMv-ToK-MVJo6BZ3gr59PKEP6sGb6mXtGarMWCnH/exec';
+  
+  // URL Gửi nhận dữ liệu API MỚI NHẤT
+  var SYNC_URL = 'https://script.google.com/macros/s/AKfycbxdf1kE_d6T-9xHxmO4mOUbM2FiHDWHY1Qvxwsq40FpwYd36gdVAbdJWpCAafanm74EFQ/exec';
 
   var LS = {
     up: 'chamkh.v3.updates', up2: 'chamkh.v2.updates', up1: 'chamkh.v1.updates',
@@ -676,12 +688,12 @@ button{cursor:pointer;border:0;background:none}
     return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
   }
   function dateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-  function fmtDateY(v) {              // 2026-10-30 → 30/10/2026
+  function fmtDateY(v) {              
     if (!v) return '';
     var p = String(v).split('-');
     return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : v;
   }
-  function parseVnDate(txt) {         // 30/10/2026 hoặc 30/10 → 2026-10-30
+  function parseVnDate(txt) {         
     var m = String(txt || '').trim().match(/^(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?$/);
     if (!m) return '';
     var d = parseInt(m[1], 10), mo = parseInt(m[2], 10);
@@ -690,6 +702,10 @@ button{cursor:pointer;border:0;background:none}
     return y + '-' + pad(mo) + '-' + pad(d);
   }
   function today() { return dateStr(new Date()); }
+  function todayVn() {
+    var d = new Date();
+    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
+  }
   function addDays(n) { var d = new Date(); d.setDate(d.getDate() + n); return dateStr(d); }
   function norm(s) {
     return String(s == null ? '' : s).toLowerCase()
@@ -707,8 +723,6 @@ button{cursor:pointer;border:0;background:none}
   }
 
   // ------------------------- THAM SỐ TRÊN LINK -------------------------
-  // ?reset=1  → xoá sạch dữ liệu trên máy (về trạng thái ban đầu)
-  // ?sync=... → nạp sẵn URL Apps Script cho máy này
   var QS = (function () {
     var out = {}, q = location.search.replace(/^\?/, '');
     if (!q) return out;
@@ -722,7 +736,7 @@ button{cursor:pointer;border:0;background:none}
   if (QS.reset === '1' || QS.reset === 'true') {
     try {
       ['chamkh.v1.updates', 'chamkh.v2.updates', 'chamkh.v3.updates', 'chamkh.v2.cache', 'chamkh.v2.tech',
-       'chamkh.v2.filter', 'chamkh.v2.sort', 'chamkh.v2.syncUrl'].forEach(function (k) {
+       'chamkh.v2.filter', 'chamkh.v2.sort', 'chamkh.v2.syncUrl', 'chamkh.v3.nvNhapFilter', 'chamkh.v3.ngayChamFilter'].forEach(function (k) {
         localStorage.removeItem(k);
       });
       didReset = true;
@@ -730,7 +744,6 @@ button{cursor:pointer;border:0;background:none}
   }
   if (QS.sync) { try { localStorage.setItem('chamkh.v2.syncUrl', QS.sync); } catch (e) {} }
 
-  // Di trú dữ liệu từ bản cũ (v1 Đã chạm/Từ chối, v2 cùng cấu trúc) → v3
   (function migrate() {
     if (localStorage.getItem(LS.up)) return;
     var old = readJSON(LS.up2, null) || readJSON(LS.up1, null);
@@ -743,7 +756,7 @@ button{cursor:pointer;border:0;background:none}
         st: map[u.st] || u.st, note: u.note || '', ts: u.ts || Date.now(),
         by: u.by || '', hen: u.hen || '', phone: u.phone || '', ticket: u.ticket || '',
         history: u.history || [],
-        synced: false            // bản cũ có thể đánh dấu sai → gửi lại
+        synced: false            
       };
     });
     writeJSON(LS.up, out);
@@ -756,8 +769,10 @@ button{cursor:pointer;border:0;background:none}
     sort: (localStorage.getItem(LS.sort) === 'route' ? 'tuyen' : localStorage.getItem(LS.sort)) || 'file',
     tuyen: localStorage.getItem('chamkh.v3.tuyen') || '',
     ap: localStorage.getItem('chamkh.v3.ap') || '',
+    nvNhapFilter: localStorage.getItem('chamkh.v3.nvNhapFilter') || '',
+    ngayChamFilter: localStorage.getItem('chamkh.v3.ngayChamFilter') || '',
     q: '', tab: 'list', src: '', loadedAt: 0,
-    syncUrl: SYNC_URL, // Đã sửa: Ép buộc luôn lấy SYNC_URL khai báo ở trên, bỏ qua bộ nhớ đệm
+    syncUrl: SYNC_URL, 
     sheet: { key: null, opt: null, key2: '' }
   };
 
@@ -816,10 +831,8 @@ button{cursor:pointer;border:0;background:none}
     if (!m || !m.length) return out;
     
     var head = m[0];
-    // Mặc định vị trí các cột nếu không tìm thấy header (bản cũ)
-    var col = { stt: 0, nv: 1, nvNhap: 2, donVi: 3, so: 4, dc: 5, net: 6, tuyen: 7, goc: 8, ketQua: 9, sdt: 10, henText: 11, ghiChu: 12 };
+    var col = { stt: 0, nv: 1, nvNhap: 2, donVi: 3, so: 4, dc: 5, net: 6, tuyen: 7, goc: 8, ketQua: 9, sdt: 10, henText: 11, ghiChu: 12, ngayCham: 13 };
     
-    // Dò tìm vị trí cột theo tên để chống xô lệch dù chèn bao nhiêu cột
     for (var i = 0; i < head.length; i++) {
       var name = String(head[i]).toLowerCase();
       if (name === 'stt') col.stt = i;
@@ -835,6 +848,7 @@ button{cursor:pointer;border:0;background:none}
       else if (name.indexOf('số đt') >= 0 || name.indexOf('sđt') >= 0) col.sdt = i;
       else if (name.indexOf('hẹn lại') >= 0) col.henText = i;
       else if (name.indexOf('ghi chú') >= 0) col.ghiChu = i;
+      else if (name.indexOf('ngày chạm') >= 0 || name.indexOf('ngay cham') >= 0) col.ngayCham = i;
     }
 
     for (var i = 1; i < m.length; i++) {
@@ -855,7 +869,8 @@ button{cursor:pointer;border:0;background:none}
         ketQua: String(r[col.ketQua] || '').trim(), 
         sdt: String(r[col.sdt] || '').trim(),
         henText: String(r[col.henText] || '').trim(), 
-        ghiChu: String(r[col.ghiChu] || '').trim()
+        ghiChu: String(r[col.ghiChu] || '').trim(),
+        ngayCham: String(r[col.ngayCham] || '').trim()
       };
       o.occ = occ;
       o.ap = pickAp(o.dc) || pickAp(o.goc) || '';
@@ -889,13 +904,10 @@ button{cursor:pointer;border:0;background:none}
         if (done) return; done = true; clearTimeout(timer); s.remove();
         try {
           if (!resp || resp.status !== 'ok') throw new Error('gviz ' + (resp && resp.status));
-          
-          // Phục hồi lại dòng Header bị Google ẩn đi
           var head = resp.table.cols.map(function (c) { return c.label || ''; });
           var body = resp.table.rows.map(function (r) {
             return r.c.map(function (c) { return c ? (c.v == null ? '' : c.v) : ''; });
           });
-          
           resolve(rowsFromMatrix([head].concat(body)));
         } catch (e) { reject(e); }
       };
@@ -939,7 +951,8 @@ button{cursor:pointer;border:0;background:none}
       if (!st) return;
       state.updates[r.key] = {
         st: st, note: r.ghiChu || '', ts: 0, by: '', synced: true, history: [],
-        phone: r.sdt || '', hen: st === 'HEN' ? parseVnDate(r.henText) : ''
+        phone: r.sdt || '', hen: st === 'HEN' ? parseVnDate(r.henText) : '',
+        nvNhap: r.nvNhap || '', donVi: r.donVi || '', ngayCham: r.ngayCham || ''
       };
       n++;
     });
@@ -978,15 +991,36 @@ button{cursor:pointer;border:0;background:none}
     return !!(u && u.st === 'HEN' && u.hen && u.hen <= today());
   }
   function techNameFor(row) { return state.tech === '__ALL__' ? row.nv : state.tech; }
+  
   function scopeRows() {
     return state.tech === '__ALL__' ? state.rows.slice()
       : state.rows.filter(function (r) { return r.nv === state.tech; });
   }
+  
+  function summaryRows() {
+    return scopeRows().filter(function (r) {
+      var u = upd(r.key);
+      var rNvNhap = (u && u.nvNhap) ? u.nvNhap : (r.nvNhap || '');
+      var rNgayCham = (u && u.ngayCham) ? u.ngayCham : (r.ngayCham || '');
+
+      if (state.nvNhapFilter && rNvNhap !== state.nvNhapFilter) return false;
+      if (state.ngayChamFilter && rNgayCham !== state.ngayChamFilter) return false;
+      return true;
+    });
+  }
+
   function visibleRows() {
     var q = norm(state.q.trim());
     var rows = scopeRows().filter(function (r) {
+      var u = upd(r.key);
+      var rNvNhap = (u && u.nvNhap) ? u.nvNhap : (r.nvNhap || '');
+      var rNgayCham = (u && u.ngayCham) ? u.ngayCham : (r.ngayCham || '');
+
       if (state.tuyen && r.tuyen !== state.tuyen) return false;
       if (state.ap && (r.ap || '') !== state.ap) return false;
+      if (state.nvNhapFilter && rNvNhap !== state.nvNhapFilter) return false;
+      if (state.ngayChamFilter && rNgayCham !== state.ngayChamFilter) return false;
+      
       if (state.filter === 'DUE') { if (!isDue(r)) return false; }
       else if (state.filter !== 'all' && effSt(r) !== state.filter) return false;
       if (!q) return true;
@@ -1000,6 +1034,7 @@ button{cursor:pointer;border:0;background:none}
     else if (state.sort === 'so') rows.sort(function (a, b) { return soNum(a) - soNum(b); });
     return rows;
   }
+  
   function counts(rows) {
     var c = { total: rows.length, CHUA: 0, DONGY: 0, KHONG: 0, HEN: 0, SAI: 0, DUE: 0 };
     rows.forEach(function (r) { c[effSt(r)]++; if (isDue(r)) c.DUE++; });
@@ -1067,7 +1102,9 @@ button{cursor:pointer;border:0;background:none}
     }).join('');
   }
 
-  function activeFilterCount() { return (state.tuyen ? 1 : 0) + (state.ap ? 1 : 0); }
+  function activeFilterCount() { 
+    return (state.tuyen ? 1 : 0) + (state.ap ? 1 : 0) + (state.nvNhapFilter ? 1 : 0) + (state.ngayChamFilter ? 1 : 0); 
+  }
 
   function filterCounts() {
     var t = {}, a = {};
@@ -1095,7 +1132,40 @@ button{cursor:pointer;border:0;background:none}
       var parts = [];
       if (state.tuyen) parts.push('Tuyến ' + state.tuyen);
       if (state.ap) parts.push('Ấp ' + state.ap);
+      if (state.nvNhapFilter) parts.push('Người nhập: ' + state.nvNhapFilter);
+      if (state.ngayChamFilter) parts.push('Ngày chạm: ' + state.ngayChamFilter);
       sum.textContent = parts.join(' · ');
+    }
+
+    // Cập nhật dữ liệu cho 2 nút Lọc Nhanh
+    var nvNhapMap = {};
+    var ngayChamMap = {};
+    
+    state.rows.forEach(function (r) { 
+      var u = upd(r.key);
+      var kNv = (u && u.nvNhap) ? u.nvNhap : r.nvNhap; 
+      if (kNv) nvNhapMap[kNv] = 1;
+      var kNg = (u && u.ngayCham) ? u.ngayCham : r.ngayCham; 
+      if (kNg) ngayChamMap[kNg] = 1;
+    });
+
+    var nvNhaps = Object.keys(nvNhapMap).sort(function (a, b) { return a.localeCompare(b, 'vi'); });
+    var ngayChams = Object.keys(ngayChamMap).sort(function (a, b) {
+      var pa = a.split('/'); var pb = b.split('/');
+      if (pa.length === 3 && pb.length === 3) {
+        return new Date(pb[2], pb[1]-1, pb[0]) - new Date(pa[2], pa[1]-1, pa[0]); // Ngày mới nhất lên trên
+      }
+      return b.localeCompare(a, 'vi');
+    });
+
+    var selNv = $('#fastFilterNvNhap');
+    var selNg = $('#fastFilterNgayCham');
+    
+    if (selNv) {
+      selNv.innerHTML = '<option value="">Lọc Người nhập</option>' + nvNhaps.map(function(v) { return '<option value="' + esc(v) + '"' + (state.nvNhapFilter === v ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('');
+    }
+    if (selNg) {
+      selNg.innerHTML = '<option value="">Lọc Ngày chạm</option>' + ngayChams.map(function(v) { return '<option value="' + esc(v) + '"' + (state.ngayChamFilter === v ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('');
     }
   }
 
@@ -1112,10 +1182,26 @@ button{cursor:pointer;border:0;background:none}
     };
     var tuyen = ten('tuyen');
 
-    // ấp: đếm cả nhóm "chưa rõ"
     var apMap = {};
-    rows.forEach(function (r) { var k = r.ap || '(chưa ghi ấp)'; apMap[k] = (apMap[k] || 0) + 1; });
+    var nvNhapMap = {};
+    var ngayChamMap = {};
+    
+    rows.forEach(function (r) { 
+      var u = upd(r.key);
+      var kAp = r.ap || '(chưa ghi ấp)'; apMap[kAp] = (apMap[kAp] || 0) + 1; 
+      var kNv = (u && u.nvNhap) ? u.nvNhap : r.nvNhap; kNv = kNv || '(chưa rõ)'; nvNhapMap[kNv] = (nvNhapMap[kNv] || 0) + 1;
+      var kNg = (u && u.ngayCham) ? u.ngayCham : r.ngayCham; kNg = kNg || '(chưa rõ)'; ngayChamMap[kNg] = (ngayChamMap[kNg] || 0) + 1;
+    });
+
     var aps = Object.keys(apMap).sort(function (a, b) { return a.localeCompare(b, 'vi'); });
+    var nvNhaps = Object.keys(nvNhapMap).sort(function (a, b) { return a.localeCompare(b, 'vi'); });
+    var ngayChams = Object.keys(ngayChamMap).sort(function (a, b) {
+      var pa = a.split('/'); var pb = b.split('/');
+      if (pa.length === 3 && pb.length === 3) {
+        return new Date(pb[2], pb[1]-1, pb[0]) - new Date(pa[2], pa[1]-1, pa[0]); // Mới nhất lên trên
+      }
+      return b.localeCompare(a, 'vi');
+    });
 
     var h = '<div class="fgroup"><h3>Sắp xếp theo</h3>';
     [['file', 'Thứ tự trong file'], ['tuyen', 'Tên đường (A→Z)'], ['ap', 'Ấp (A→Z)'], ['so', 'Số nhà (tăng dần)']]
@@ -1124,6 +1210,24 @@ button{cursor:pointer;border:0;background:none}
           '<span class="chk-mark">' + (state.sort === o[0] ? '✓' : '') + '</span>' + o[1] + '</button>';
       });
     h += '</div>';
+
+    h += '<div class="fgroup"><h3>Người nhập (' + nvNhaps.length + ')</h3>' +
+      '<button class="frow' + (!state.nvNhapFilter ? ' on' : '') + '" data-fnvnhap=""><span class="chk-mark">' +
+      (!state.nvNhapFilter ? '✓' : '') + '</span>Tất cả<span class="fc">' + rows.length + '</span></button>' +
+      nvNhaps.map(function (v) {
+        return '<button class="frow' + (state.nvNhapFilter === v ? ' on' : '') + '" data-fnvnhap="' + esc(v) + '">' +
+          '<span class="chk-mark">' + (state.nvNhapFilter === v ? '✓' : '') + '</span>' + esc(v) +
+          '<span class="fc">' + nvNhapMap[v] + '</span></button>';
+      }).join('') + '</div>';
+
+    h += '<div class="fgroup"><h3>Ngày chạm (' + ngayChams.length + ')</h3>' +
+      '<button class="frow' + (!state.ngayChamFilter ? ' on' : '') + '" data-fngaycham=""><span class="chk-mark">' +
+      (!state.ngayChamFilter ? '✓' : '') + '</span>Tất cả<span class="fc">' + rows.length + '</span></button>' +
+      ngayChams.map(function (v) {
+        return '<button class="frow' + (state.ngayChamFilter === v ? ' on' : '') + '" data-fngaycham="' + esc(v) + '">' +
+          '<span class="chk-mark">' + (state.ngayChamFilter === v ? '✓' : '') + '</span>' + esc(v) +
+          '<span class="fc">' + ngayChamMap[v] + '</span></button>';
+      }).join('') + '</div>';
 
     h += '<div class="fgroup"><h3>Tuyến đường (' + tuyen.length + ')</h3>' +
       '<button class="frow' + (!state.tuyen ? ' on' : '') + '" data-ftuyen=""><span class="chk-mark">' +
@@ -1248,8 +1352,18 @@ button{cursor:pointer;border:0;background:none}
   }
 
   function renderSummary() {
-    var c = counts(scopeRows());
-    var mineTk = tickets().filter(function (t) { return state.tech === '__ALL__' || t.row.nv === state.tech; }).length;
+    var sRows = summaryRows();
+    var c = counts(sRows);
+    var mineTk = tickets().filter(function (t) { 
+      var matchTech = state.tech === '__ALL__' || t.row.nv === state.tech;
+      if (!matchTech) return false;
+      var rNvNhap = (t.u && t.u.nvNhap) ? t.u.nvNhap : (t.row.nvNhap || '');
+      var rNgayCham = (t.u && t.u.ngayCham) ? t.u.ngayCham : (t.row.ngayCham || '');
+      if (state.nvNhapFilter && rNvNhap !== state.nvNhapFilter) return false;
+      if (state.ngayChamFilter && rNgayCham !== state.ngayChamFilter) return false;
+      return true;
+    }).length;
+
     var html = ticketSectionHTML() + '<div class="sec"><h2>Tổng hợp phạm vi đang chọn</h2><div class="in">' +
       row2('Tổng số nhà', c.total) +
       row2('Chưa chạm', c.CHUA, 'wait') +
@@ -1271,19 +1385,22 @@ button{cursor:pointer;border:0;background:none}
     }
 
     var statsByNvNhap = {};
-    state.rows.forEach(function (r) {
+    sRows.forEach(function (r) {
       var u = upd(r.key);
       var st = effSt(r);
-      // Ưu tiên người nhập thao tác trên web, nếu chưa có thì lấy từ file gốc
+      
+      // Người nhập
       var name = (u && u.nvNhap) ? u.nvNhap : r.nvNhap;
       var dVi = (u && u.donVi) ? u.donVi : r.donVi;
+      var date = (u && u.ngayCham) ? u.ngayCham : r.ngayCham;
       
       if (name) {
-        if (!statsByNvNhap[name]) {
-          statsByNvNhap[name] = { name: name, total: 0, dongy: 0, donVi: dVi || '' };
+        var k = name + '|' + (date || 'Chưa rõ');
+        if (!statsByNvNhap[k]) {
+          statsByNvNhap[k] = { name: name, date: date || 'Chưa rõ', total: 0, dongy: 0, donVi: dVi || '' };
         }
-        statsByNvNhap[name].total++;
-        if (st === 'DONGY') statsByNvNhap[name].dongy++;
+        statsByNvNhap[k].total++;
+        if (st === 'DONGY') statsByNvNhap[k].dongy++;
       }
     });
 
@@ -1292,45 +1409,50 @@ button{cursor:pointer;border:0;background:none}
     });
 
     html += '<div class="sec"><h2><span>Thống kê theo người nhập</span><button class="btn-s ghost" id="btnCsvNvNhap" title="Tải dữ liệu bảng này">⬇ Xuất CSV</button></h2><table class="tbl"><thead><tr>' +
-      '<th>Người nhập</th><th>Đơn vị</th><th class="num">Đã nhập</th><th class="num">Đồng ý</th></tr></thead><tbody>';
+      '<th>Người nhập</th><th>Ngày chạm</th><th>Đơn vị</th><th class="num">Đã nhập</th><th class="num">Đồng ý</th></tr></thead><tbody>';
       
     if (nvNhapKeys.length > 0) {
       html += nvNhapKeys.map(function (k) {
         var o = statsByNvNhap[k];
         return '<tr><td style="font-weight:600">' + esc(o.name) + '</td>' +
+          '<td><span class="tag route">' + esc(o.date) + '</span></td>' +
           '<td><span class="tag">' + esc(o.donVi) + '</span></td>' +
           '<td class="num">' + o.total + '</td><td class="num" style="color:var(--success-d)">' + o.dongy + '</td>' +
           '</tr>';
       }).join('');
     } else {
-      html += '<tr><td colspan="4" style="text-align:center;color:var(--ink-3);padding:24px 12px">Chưa có kết quả nào được cập nhật</td></tr>';
+      html += '<tr><td colspan="5" style="text-align:center;color:var(--ink-3);padding:24px 12px">Chưa có kết quả nào được cập nhật</td></tr>';
     }
     html += '</tbody></table></div>';
 
     // Bảng mới: Thống kê theo Nhân viên (Kỹ thuật phụ trách)
     var statsByNv = {};
-    scopeRows().forEach(function (r) {
-      var k = r.nv || '(không rõ)';
-      var o = statsByNv[k] = statsByNv[k] || { t: 0, d: 0, handled: 0 };
+    sRows.forEach(function (r) {
+      var u = upd(r.key);
+      var date = (u && u.ngayCham) ? u.ngayCham : r.ngayCham;
+      var name = r.nv || '(không rõ)';
+      var k = name + '|' + (date || 'Chưa rõ');
+      
+      var o = statsByNv[k] = statsByNv[k] || { name: name, date: date || 'Chưa rõ', t: 0, d: 0, handled: 0 };
       o.t++;
       var st = effSt(r);
       if (st !== 'CHUA') o.handled++;
       if (st === 'DONGY') o.d++;
     });
     
-    // Sắp xếp theo tên (A-Z) để đảm bảo đúng logic "theo tổ" nếu tên có tiền tố tổ
     var nvk = Object.keys(statsByNv).sort(function(a, b) {
-      return a.localeCompare(b, 'vi');
+      return statsByNv[a].name.localeCompare(statsByNv[b].name, 'vi');
     });
 
     html += '<div class="sec"><h2><span>Thống kê theo Kỹ thuật (TÊN_NV)</span><button class="btn-s ghost" id="btnCsvNv" title="Tải dữ liệu bảng này">⬇ Xuất CSV</button></h2><table class="tbl"><thead><tr>' +
-      '<th>Nhân viên</th><th class="num">Tổng</th><th class="num">Đã chạm</th><th class="num">Đồng ý</th><th>Tỷ lệ chốt</th></tr></thead><tbody>';
+      '<th>Nhân viên</th><th>Ngày chạm</th><th class="num">Tổng</th><th class="num">Đã chạm</th><th class="num">Đồng ý</th><th>Tỷ lệ chốt</th></tr></thead><tbody>';
     
     if (nvk.length > 0) {
       html += nvk.map(function (k) {
         var o = statsByNv[k];
         var p = o.handled ? Math.round((o.d * 100) / o.handled) : 0;
-        return '<tr data-tech="' + esc(k) + '"><td style="font-weight:600; color:var(--primary-d); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="' + esc(k) + '">' + esc(k) + '</td>' +
+        return '<tr data-tech="' + esc(o.name) + '"><td style="font-weight:600; color:var(--primary-d); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="' + esc(o.name) + '">' + esc(o.name) + '</td>' +
+          '<td><span class="tag route">' + esc(o.date) + '</span></td>' +
           '<td class="num">' + o.t + '</td>' +
           '<td class="num">' + o.handled + '</td>' +
           '<td class="num" style="color:var(--success-d)">' + o.d + '</td>' +
@@ -1338,24 +1460,29 @@ button{cursor:pointer;border:0;background:none}
           '</tr>';
       }).join('');
     } else {
-      html += '<tr><td colspan="5" style="text-align:center;color:var(--ink-3);padding:24px 12px">Không có dữ liệu</td></tr>';
+      html += '<tr><td colspan="6" style="text-align:center;color:var(--ink-3);padding:24px 12px">Không có dữ liệu</td></tr>';
     }
     html += '</tbody></table></div>';
 
     // Bảng thống kê theo tuyến
     var routes = {};
-    scopeRows().forEach(function (r) {
-      var k = r.tuyen || '(không rõ tuyến)';
-      var o = routes[k] = routes[k] || { t: 0, d: 0 };
+    sRows.forEach(function (r) {
+      var u = upd(r.key);
+      var date = (u && u.ngayCham) ? u.ngayCham : r.ngayCham;
+      var kName = r.tuyen || '(không rõ tuyến)';
+      var k = kName + '|' + (date || 'Chưa rõ');
+      
+      var o = routes[k] = routes[k] || { name: kName, date: date || 'Chưa rõ', t: 0, d: 0 };
       o.t++; if (effSt(r) === 'DONGY') o.d++;
     });
     var rk = Object.keys(routes).sort(function (a, b) { return routes[b].t - routes[a].t || routes[b].d - routes[a].d; });
     html += '<div class="sec"><h2><span>Theo tuyến (phạm vi đang chọn)</span><button class="btn-s ghost" id="btnCsvTuyen" title="Tải dữ liệu bảng này">⬇ Xuất CSV</button></h2><table class="tbl"><thead><tr>' +
-      '<th>Tuyến</th><th class="num">Nhà</th><th class="num">Đồng ý</th><th>Tỷ lệ</th></tr></thead><tbody>' +
+      '<th>Tuyến</th><th>Ngày chạm</th><th class="num">Nhà</th><th class="num">Đồng ý</th><th>Tỷ lệ</th></tr></thead><tbody>' +
       rk.map(function (k) {
         var o = routes[k], p2 = Math.round(o.d * 100 / o.t);
-        return '<tr><td style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
-          esc(k) + '</td><td class="num">' + o.t + '</td><td class="num" style="color:var(--success-d)">' + o.d + '</td>' +
+        return '<tr><td style="max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(o.name) + '</td>' +
+          '<td><span class="tag route">' + esc(o.date) + '</span></td>' +
+          '<td class="num">' + o.t + '</td><td class="num" style="color:var(--success-d)">' + o.d + '</td>' +
           '<td><div class="progcell"><div class="mini"><i style="width:' + p2 + '%"></i></div><span>' + p2 + '%</span></div></td></tr>';
       }).join('') + '</tbody></table></div>';
 
@@ -1485,6 +1612,7 @@ button{cursor:pointer;border:0;background:none}
     u.ticket = s.opt === 'DONGY' ? (u.ticket || nextTicket()) : '';
     u.nvNhap = nvNhap;
     u.donVi = donVi;
+    u.ngayCham = todayVn();
     u.synced = false;
     state.updates[key] = u;
     writeJSON(LS.up, state.updates);
@@ -1544,15 +1672,16 @@ button{cursor:pointer;border:0;background:none}
   function exportSheetMatrix(sep) {
     var head = ['STT', 'TÊN_NV', 'NV NHẬP', 'ĐƠN VỊ', 'Số nhà', 'Địa chỉ chi tiết', 'Nhà mạng hiện tại',
       'Tuyến đường có khả năng PTM', 'Tập KH tiếp thị từ Nhà Mạng Khác (nguyên văn)',
-      'KẾT QUẢ', 'SỐ ĐT', 'NGÀY HẸN LẠI', 'GHI CHÚ'];
+      'KẾT QUẢ', 'SỐ ĐT', 'NGÀY HẸN LẠI', 'GHI CHÚ', 'NGÀY CHẠM'];
     var lines = [head];
     state.rows.forEach(function (r) {
       var u = upd(r.key) || {}, st = effSt(r);
-      lines.push([r.stt, r.nv, u.nvNhap || '', u.donVi || '', r.so, r.dc, r.net, r.tuyen, r.goc,
+      lines.push([r.stt, r.nv, u.nvNhap || r.nvNhap || '', u.donVi || r.donVi || '', r.so, r.dc, r.net, r.tuyen, r.goc,
         st === 'CHUA' ? '' : STATUS[st].label,
         u.phone || '',
         (u.st === 'HEN' && u.hen) ? fmtDateY(u.hen) : '',
-        u.note || '']);
+        u.note || '',
+        u.ngayCham || r.ngayCham || '']);
     });
     return lines.map(function (line) {
       return line.map(function (c) {
@@ -1567,14 +1696,14 @@ button{cursor:pointer;border:0;background:none}
     var head = ['STT', 'TÊN_NV', 'NV NHẬP', 'ĐƠN VỊ', 'Số nhà', 'Địa chỉ chi tiết', 'Nhà mạng hiện tại',
       'Tuyến đường có khả năng PTM', 'Tập KH tiếp thị từ Nhà Mạng Khác (nguyên văn)',
       'KẾT QUẢ', 'SỐ ĐT', 'NGÀY HẸN LẠI', 'GHI CHÚ', 'Mã phiếu',
-      'Thời gian chạm', 'Kỹ thuật cập nhật'];
+      'Thời gian chạm', 'Kỹ thuật cập nhật', 'NGÀY CHẠM'];
     var lines = [head];
     state.rows.forEach(function (r) {
       var u = upd(r.key) || {}, st = effSt(r);
-      lines.push([r.stt, r.nv, u.nvNhap || '', u.donVi || '', r.so, r.dc, r.net, r.tuyen, r.goc,
+      lines.push([r.stt, r.nv, u.nvNhap || r.nvNhap || '', u.donVi || r.donVi || '', r.so, r.dc, r.net, r.tuyen, r.goc,
         st === 'CHUA' ? '' : STATUS[st].label,
         u.phone || '', (u.st === 'HEN' && u.hen) ? fmtDateY(u.hen) : '',
-        u.note || '', u.ticket || '', u.ts ? fmtFull(u.ts) : '', u.by || '']);
+        u.note || '', u.ticket || '', u.ts ? fmtFull(u.ts) : '', u.by || '', u.ngayCham || r.ngayCham || '']);
     });
     return lines.map(function (line) {
       return line.map(function (c) {
@@ -1589,17 +1718,17 @@ button{cursor:pointer;border:0;background:none}
     var head = ['KEY', 'TÊN_NV', 'NV NHẬP', 'ĐƠN VỊ', 'Số nhà', 'Địa chỉ chi tiết', 'Nhà mạng hiện tại',
       'Tuyến đường có khả năng PTM', 'Tập KH tiếp thị từ Nhà Mạng Khác (nguyên văn)',
       'KẾT QUẢ', 'SỐ ĐT', 'NGÀY HẸN LẠI', 'Mã phiếu', 'GHI CHÚ',
-      'Thời gian chạm', 'Kỹ thuật cập nhật'];
+      'Thời gian chạm', 'Kỹ thuật cập nhật', 'NGÀY CHẠM'];
     return {
       sheet: 'CAP_NHAT',
       generatedAt: new Date().toISOString(),
       headers: head,
       rows: state.rows.map(function (r) {
         var u = upd(r.key) || {}, st = effSt(r);
-        return [r.key, r.nv, u.nvNhap || '', u.donVi || '', r.so, r.dc, r.net, r.tuyen, r.goc,
+        return [r.key, r.nv, u.nvNhap || r.nvNhap || '', u.donVi || r.donVi || '', r.so, r.dc, r.net, r.tuyen, r.goc,
           st === 'CHUA' ? '' : STATUS[st].label,
           u.phone || '', (u.st === 'HEN' && u.hen) ? fmtDateY(u.hen) : '',
-          u.ticket || '', u.note || '', u.ts ? fmtFull(u.ts) : '', u.by || ''];
+          u.ticket || '', u.note || '', u.ts ? fmtFull(u.ts) : '', u.by || '', u.ngayCham || r.ngayCham || ''];
       })
     };
   }
@@ -1677,7 +1806,8 @@ button{cursor:pointer;border:0;background:none}
         var u = upd(r.key) || {};
         return {
           key: r.key, nv: r.nv, so: r.so, tuyen: r.tuyen,
-          nvNhap: u.nvNhap || '', donVi: u.donVi || '',
+          nvNhap: u.nvNhap || r.nvNhap || '', donVi: u.donVi || r.donVi || '',
+          ngayCham: u.ngayCham || r.ngayCham || '',
           status: (u.st && u.st !== 'CHUA' && STATUS[u.st]) ? STATUS[u.st].label : '',
           note: u.note || '', hen: (u.st === 'HEN' && u.hen) ? fmtDateY(u.hen) : '',
           phone: u.phone || '', ticket: u.ticket || '',
@@ -1839,24 +1969,46 @@ button{cursor:pointer;border:0;background:none}
         state.ap = b.dataset.fap; localStorage.setItem('chamkh.v3.ap', state.ap);
         rerenderFilter(); renderActiveFilters(); renderList(); return;
       }
+      if ((b = e.target.closest('[data-fnvnhap]'))) {
+        state.nvNhapFilter = b.dataset.fnvnhap; localStorage.setItem('chamkh.v3.nvNhapFilter', state.nvNhapFilter);
+        rerenderFilter(); renderActiveFilters(); renderList(); return;
+      }
+      if ((b = e.target.closest('[data-fngaycham]'))) {
+        state.ngayChamFilter = b.dataset.fngaycham; localStorage.setItem('chamkh.v3.ngayChamFilter', state.ngayChamFilter);
+        rerenderFilter(); renderActiveFilters(); renderList(); return;
+      }
       if ((b = e.target.closest('[data-fsort]'))) {
         state.sort = b.dataset.fsort; localStorage.setItem(LS.sort, state.sort);
         rerenderFilter(); renderList(); return;
       }
     });
+
+    $('#fastFilterNvNhap').addEventListener('change', function (e) {
+      state.nvNhapFilter = e.target.value; localStorage.setItem('chamkh.v3.nvNhapFilter', state.nvNhapFilter);
+      renderActiveFilters(); renderList(); if (state.tab === 'summary') renderSummary();
+    });
+    $('#fastFilterNgayCham').addEventListener('change', function (e) {
+      state.ngayChamFilter = e.target.value; localStorage.setItem('chamkh.v3.ngayChamFilter', state.ngayChamFilter);
+      renderActiveFilters(); renderList(); if (state.tab === 'summary') renderSummary();
+    });
+
     $('#btnFilterClear').addEventListener('click', function () {
-      state.tuyen = ''; state.ap = ''; state.sort = 'file';
+      state.tuyen = ''; state.ap = ''; state.sort = 'file'; state.nvNhapFilter = ''; state.ngayChamFilter = '';
       localStorage.setItem('chamkh.v3.tuyen', ''); localStorage.setItem('chamkh.v3.ap', '');
+      localStorage.setItem('chamkh.v3.nvNhapFilter', ''); localStorage.setItem('chamkh.v3.ngayChamFilter', '');
       localStorage.setItem(LS.sort, 'file');
-      rerenderFilter(); renderActiveFilters(); renderList();
+      rerenderFilter(); renderActiveFilters(); renderList(); 
+      if (state.tab === 'summary') renderSummary();
       toast('Đã xoá bộ lọc');
     });
     $('#filterClearInline').addEventListener('click', function (e) {
       e.stopPropagation();
-      state.tuyen = ''; state.ap = '';
+      state.tuyen = ''; state.ap = ''; state.nvNhapFilter = ''; state.ngayChamFilter = '';
       localStorage.setItem('chamkh.v3.tuyen', ''); localStorage.setItem('chamkh.v3.ap', '');
-      renderActiveFilters(); renderList();
-      toast('Đã bỏ bộ lọc tuyến / ấp');
+      localStorage.setItem('chamkh.v3.nvNhapFilter', ''); localStorage.setItem('chamkh.v3.ngayChamFilter', '');
+      renderActiveFilters(); renderList(); 
+      if (state.tab === 'summary') renderSummary();
+      toast('Đã bỏ bộ lọc mở rộng');
     });
 
     $('#chips').addEventListener('click', function (e) {
@@ -1917,23 +2069,25 @@ button{cursor:pointer;border:0;background:none}
     $('#summary').addEventListener('click', function (e) {
       if (e.target.closest('#btnCsvNvNhap')) {
         var stats = {};
-        state.rows.forEach(function (r) {
+        summaryRows().forEach(function (r) {
           var u = upd(r.key);
           var st = effSt(r);
           var name = (u && u.nvNhap) ? u.nvNhap : r.nvNhap;
           var dVi = (u && u.donVi) ? u.donVi : r.donVi;
+          var date = (u && u.ngayCham) ? u.ngayCham : r.ngayCham;
           
           if (name) {
-            if (!stats[name]) stats[name] = { name: name, total: 0, dongy: 0, donVi: dVi || '' };
-            stats[name].total++;
-            if (st === 'DONGY') stats[name].dongy++;
+            var k = name + '|' + (date || 'Chưa rõ');
+            if (!stats[k]) stats[k] = { name: name, date: date || 'Chưa rõ', total: 0, dongy: 0, donVi: dVi || '' };
+            stats[k].total++;
+            if (st === 'DONGY') stats[k].dongy++;
           }
         });
         var keys = Object.keys(stats).sort(function(a, b) {
           return stats[b].total - stats[a].total || stats[b].dongy - stats[a].dongy;
         });
-        var head = 'Người nhập;Đơn vị;Đã nhập;Đồng ý';
-        var lines = keys.map(function(k) { return [stats[k].name, stats[k].donVi, stats[k].total, stats[k].dongy].join(';'); });
+        var head = 'Người nhập;Ngày chạm;Đơn vị;Đã nhập;Đồng ý';
+        var lines = keys.map(function(k) { return [stats[k].name, stats[k].date, stats[k].donVi, stats[k].total, stats[k].dongy].join(';'); });
         download('tk_nguoi_nhap_' + stamp() + '.csv', [head].concat(lines).join('\r\n'), 'text/csv', true);
         toast('Đã tải CSV Thống kê người nhập');
         return;
@@ -1942,21 +2096,25 @@ button{cursor:pointer;border:0;background:none}
       // XỬ LÝ NÚT XUẤT CSV TÊN NHÂN VIÊN MỚI
       if (e.target.closest('#btnCsvNv')) {
         var statsByNv = {};
-        scopeRows().forEach(function (r) {
-          var k = r.nv || '(không rõ)';
-          var o = statsByNv[k] = statsByNv[k] || { t: 0, d: 0, handled: 0 };
+        summaryRows().forEach(function (r) {
+          var u = upd(r.key);
+          var date = (u && u.ngayCham) ? u.ngayCham : r.ngayCham;
+          var name = r.nv || '(không rõ)';
+          var k = name + '|' + (date || 'Chưa rõ');
+          
+          var o = statsByNv[k] = statsByNv[k] || { name: name, date: date || 'Chưa rõ', t: 0, d: 0, handled: 0 };
           o.t++;
           var st = effSt(r);
           if (st !== 'CHUA') o.handled++;
           if (st === 'DONGY') o.d++;
         });
-        var nvk = Object.keys(statsByNv).sort(function(a, b) { return a.localeCompare(b, 'vi'); });
+        var nvk = Object.keys(statsByNv).sort(function(a, b) { return statsByNv[a].name.localeCompare(statsByNv[b].name, 'vi'); });
         
-        var head = 'Nhân viên;Tổng nhà;Đã chạm;Đồng ý;Tỷ lệ chốt';
+        var head = 'Nhân viên;Ngày chạm;Tổng nhà;Đã chạm;Đồng ý;Tỷ lệ chốt';
         var lines = nvk.map(function(k) {
           var o = statsByNv[k];
           var p = o.handled ? Math.round(o.d * 100 / o.handled) : 0;
-          return [k, o.t, o.handled, o.d, p + '%'].join(';');
+          return [o.name, o.date, o.t, o.handled, o.d, p + '%'].join(';');
         });
         download('tk_nhan_vien_' + stamp() + '.csv', [head].concat(lines).join('\r\n'), 'text/csv', true);
         toast('Đã tải CSV Thống kê nhân viên');
@@ -1965,14 +2123,18 @@ button{cursor:pointer;border:0;background:none}
 
       if (e.target.closest('#btnCsvTuyen')) {
         var routes = {};
-        scopeRows().forEach(function (r) {
-          var k = r.tuyen || '(không rõ tuyến)';
-          var o = routes[k] = routes[k] || { t: 0, d: 0 };
+        summaryRows().forEach(function (r) {
+          var u = upd(r.key);
+          var date = (u && u.ngayCham) ? u.ngayCham : r.ngayCham;
+          var kName = r.tuyen || '(không rõ tuyến)';
+          var k = kName + '|' + (date || 'Chưa rõ');
+          
+          var o = routes[k] = routes[k] || { name: kName, date: date || 'Chưa rõ', t: 0, d: 0 };
           o.t++; if (effSt(r) === 'DONGY') o.d++;
         });
         var rk = Object.keys(routes).sort(function (a, b) { return routes[b].t - routes[a].t || routes[b].d - routes[a].d; });
-        var head = 'Tuyến;Nhà;Đồng ý;Tỷ lệ';
-        var lines = rk.map(function(k) { return [k, routes[k].t, routes[k].d, Math.round(routes[k].d * 100 / routes[k].t) + '%'].join(';'); });
+        var head = 'Tuyến;Ngày chạm;Nhà;Đồng ý;Tỷ lệ';
+        var lines = rk.map(function(k) { return [routes[k].name, routes[k].date, routes[k].t, routes[k].d, Math.round(routes[k].d * 100 / routes[k].t) + '%'].join(';'); });
         download('tk_tuyen_' + stamp() + '.csv', [head].concat(lines).join('\r\n'), 'text/csv', true);
         toast('Đã tải CSV Thống kê theo tuyến');
         return;
@@ -2013,7 +2175,6 @@ button{cursor:pointer;border:0;background:none}
         return;
       }
       
-      // Cho phép bấm vào dòng nhân viên trong bảng mới để chuyển tab lọc theo nhân viên đó
       var tr = e.target.closest('tr[data-tech]');
       if (!tr) return;
       state.tech = tr.dataset.tech; localStorage.setItem(LS.tech, state.tech);
