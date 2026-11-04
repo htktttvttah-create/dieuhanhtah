@@ -1272,7 +1272,12 @@ function drawerHtml(r, g) {
       <div class="status-chips">${chips}</div>
     </div>
   </div>`;
-
+const actionButtons = `
+    <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 25px;">
+      <button type="button" class="btn" data-act="close-drawer" style="flex: 1; padding: 12px; justify-content: center; font-size: 15px; font-weight: bold;">Hủy</button>
+      <button type="button" class="btn primary" data-act="save-touch" id="btn-save" style="flex: 2; padding: 12px; justify-content: center; font-size: 15px; font-weight: bold;">💾 Lưu phiếu</button>
+    </div>
+  `;
   if (FORM_MODE === 'appt') {
     const apDate = active ? active.ngay_hen : todayISO();
     const apGio = active ? (active.gio_hen || '') : '';
@@ -1313,7 +1318,8 @@ function drawerHtml(r, g) {
           <div class="mini-note">Có thể chọn nhiều dịch vụ. Không bắt buộc nếu khách chỉ hẹn thay modem.</div>
         </div>
       </div>
-      ${apptHistory}`;
+      ${actionButtons}
+  ${apptHistory}`;
   }
 
   return `${modeTabs}${customerSec}
@@ -1355,6 +1361,8 @@ function drawerHtml(r, g) {
       <div class="mini-note">Chọn <b>Tư vấn</b> khi đã giới thiệu; chọn <b>Đồng ý</b> khi khách chấp thuận để đưa vào thống kê chốt dịch vụ.</div>
     </div>
   </div>
+
+  ${actionButtons}
 
   <div class="sec">${scripts}</div>
   ${history}`;
