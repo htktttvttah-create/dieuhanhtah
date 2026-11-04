@@ -1273,9 +1273,9 @@ function drawerHtml(r, g) {
     </div>
   </div>`;
 const actionButtons = `
-    <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 25px; justify-content: center;">
-      <button type="button" class="btn" data-act="close-drawer" style="width: 120px; padding: 12px; justify-content: center; font-size: 15px; font-weight: bold;">Hủy</button>
-      <button type="button" class="btn primary" data-act="save-touch" id="btn-save" style="width: 200px; padding: 12px; justify-content: center; font-size: 15px; font-weight: bold;">💾 Lưu phiếu</button>
+    <div style="display: flex; gap: 10px; margin-top: 12px; padding-top: 15px; border-top: 1px dashed var(--line); justify-content: center;">
+      <button type="button" class="btn" data-act="close-drawer" style="width: 120px; padding: 10px; justify-content: center; font-size: 14px; font-weight: bold;">Hủy</button>
+      <button type="button" class="btn primary" data-act="save-touch" id="btn-save" style="width: 200px; padding: 10px; justify-content: center; font-size: 14px; font-weight: bold;">💾 Lưu phiếu</button>
     </div>
   `;
   if (FORM_MODE === 'appt') {
@@ -1312,13 +1312,14 @@ const actionButtons = `
         </div>
       </div>
       <div class="sec">
+        <div class="sec">
         <div class="sec-title">Dịch vụ tiếp thị kèm theo (nếu có)</div>
         <div class="panel">
           <div class="svc-rows appt-svc-rows">${apptRows}</div>
           <div class="mini-note">Có thể chọn nhiều dịch vụ. Không bắt buộc nếu khách chỉ hẹn thay modem.</div>
+          ${actionButtons}
         </div>
       </div>
-      ${actionButtons}
   ${apptHistory}`;
   }
 
@@ -1359,11 +1360,9 @@ const actionButtons = `
     <div class="panel">
       <div class="svc-rows">${touchRows}</div>
       <div class="mini-note">Chọn <b>Tư vấn</b> khi đã giới thiệu; chọn <b>Đồng ý</b> khi khách chấp thuận để đưa vào thống kê chốt dịch vụ.</div>
+      ${actionButtons}
     </div>
   </div>
-
-  ${actionButtons}
-
   <div class="sec">${scripts}</div>
   ${history}`;
 }
