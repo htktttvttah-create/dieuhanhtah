@@ -1312,7 +1312,6 @@ const actionButtons = `
         </div>
       </div>
       <div class="sec">
-        <div class="sec">
         <div class="sec-title">Dịch vụ tiếp thị kèm theo (nếu có)</div>
         <div class="panel">
           <div class="svc-rows appt-svc-rows">${apptRows}</div>
