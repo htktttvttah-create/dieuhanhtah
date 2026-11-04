@@ -685,17 +685,45 @@ to {
                             </a>
                         </li>                      
 <!-- THÊM MENU: CHẠM NMK TỔNG LỰC -->
-                        <li>
-                            <a href="#" onclick="switchView('view-nmk-tong-luc')" id="nav-nmk-tong-luc" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
-                                <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 border border-transparent transition-all">
-                                    <i class="fa-solid fa-satellite-dish"></i>
-                                </div>
-                                <div class="pt-0.5">
-                                    <span class="title-text block text-[13px] font-semibold text-gray-600 leading-none mb-1">Chạm NMK Tổng lực</span>
-                                    <span class="sub-text block text-[11px] text-gray-400 leading-tight">Cập nhật chạm NMK</span>
-                                </div>
-                            </a>
-                        </li>             
+<li>
+    <a href="#" onclick="switchView('view-nmk-tong-luc')" id="nav-nmk-tong-luc" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-300 group relative overflow-hidden bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 hover:shadow-md hover:border-emerald-300">
+        <!-- Chấm đỏ nhấp nháy góc phải -->
+        <span class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+        </span>
+        
+        <!-- Icon nền Gradient -->
+        <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm transition-all group-hover:scale-105">
+            <i class="fa-solid fa-satellite-dish animate-pulse"></i>
+        </div>
+        
+        <div class="pt-0.5">
+            <span class="title-text block text-[13px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-teal-700 leading-none mb-1">Chạm NMK Tổng lực</span>
+            <span class="sub-text block text-[11px] text-teal-600 font-semibold leading-tight">Cập nhật chạm NMK</span>
+        </div>
+    </a>
+</li>
+<!-- THÊM MENU: CHẠM TIẾP THỊ THAY MODEM (NỔI BẬT) -->
+<li>
+    <a href="#" onclick="switchView('view-cham-modem')" id="nav-cham-modem" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-300 group relative overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 hover:shadow-md hover:border-blue-300">
+        <!-- Chấm đỏ nhấp nháy góc phải -->
+        <span class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+        </span>
+        
+        <!-- Icon nền Gradient -->
+        <div class="icon-box w-8 h-8 rounded-md flex items-center justify-center mr-3 shrink-0 bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-sm transition-all group-hover:scale-105">
+            <i class="fa-solid fa-wifi animate-pulse"></i>
+        </div>
+        
+        <div class="pt-0.5">
+            <span class="title-text block text-[13px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-700 leading-none mb-1">Chạm tiếp thị modem</span>
+            <span class="sub-text block text-[11px] text-indigo-600 font-semibold leading-tight">Cập nhật trực tiếp</span>
+        </div>
+    </a>
+</li>             
                         <!-- DANH SÁCH THU CƯỚC MENU ITEM -->
                         <li>
                             <a href="#" onclick="switchView('view-ds-thu-cuoc')" id="nav-ds-thu-cuoc" class="sidebar-item flex items-start p-2.5 rounded-lg transition-all duration-200 group">
@@ -926,6 +954,10 @@ to {
             <div id="view-nmk-tong-luc" class="max-w-7xl mx-auto h-[calc(100vh-100px)] hidden animate-fade-in pb-4">
                 <iframe src="https://htktttvttah-create.github.io/dieuhanhtah/nmktongluc.html" class="w-full h-full bg-white rounded-xl shadow-sm border border-slate-200" frameborder="0"></iframe>
             </div>
+<!-- ================= THÊM KHUNG HIỂN THỊ: CHẠM TIẾP THỊ MODEM ================= -->
+<div id="view-cham-modem" class="max-w-7xl mx-auto h-[calc(100vh-100px)] hidden animate-fade-in pb-4">
+    <iframe src="https://htktttvttah-create.github.io/dieuhanhtah/modemvnpt.html" class="w-full h-full bg-white rounded-xl shadow-sm border border-slate-200" frameborder="0"></iframe>
+</div>
             <!-- ================= NEW VIEW: BÁO CÁO & DANH SÁCH CSTC ================= -->
             <div id="view-cstc" class="max-w-7xl mx-auto space-y-6 hidden animate-fade-in pb-10">
                 <!-- Tiêu đề trang -->
@@ -5872,10 +5904,11 @@ const fallbackMockData = {
         }
         function switchView(viewId) {
             const views = [
-                'view-dashboard', 'view-dpsc-file1', 'view-dpsc', 'view-bao-cao', 'view-gia-han', 
+    'view-dashboard', 'view-dpsc-file1', 'view-dpsc', 'view-bao-cao', 'view-gia-han', 
     'view-tyle-dpsc', 'view-npsc', 'view-tyle-npsc', 'view-thu-cuoc', 'view-tiep-thi',
-    'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-bc-modem', 'view-tra-cuu', 'view-giao-viec', 'view-nmk-tong-luc', 'view-giao-san-luong'
-            ];
+    'view-cstc', 'view-ds-thu-cuoc', 'view-ds-gia-han', 'view-thay-modem', 'view-bc-modem', 'view-tra-cuu', 'view-giao-viec', 'view-nmk-tong-luc', 'view-giao-san-luong',
+    'view-cham-modem'
+];
             
             views.forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
             document.querySelectorAll('.sidebar-item').forEach(item => { if(!item.classList.contains('cursor-not-allowed')) item.classList.remove('active'); });
