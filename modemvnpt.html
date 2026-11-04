@@ -752,15 +752,8 @@ tr.appt-today:hover td{background:#fff5df}
         <button type="button" class="pw-eye" id="login-eye" title="Hiện/ẩn mật khẩu">👁</button>
       </div>
     </div>
-    <details class="login-adv">
-      <summary>Mã truy cập API (nếu có)</summary>
-      <input id="login-code" type="password" placeholder="Để trống nếu không đặt mã" autocomplete="off">
-    </details>
     <button type="button" class="btn primary login-btn" id="login-btn">Đăng nhập</button>
-    <div class="login-links">
-      <button type="button" data-act="open-api-settings">Cấu hình API</button>
-      <span>·</span><span>Mật khẩu mặc định: <b>123456</b></span>
-    </div>
+    <div class="login-links"><span>Mật khẩu mặc định: <b>123456</b></span></div>
     <div class="login-note">Tài khoản do quản trị cấp theo phân ô địa bàn. Quên mật khẩu, liên hệ giám đốc/HTKT.</div>
   </div>
   <div class="login-foot">Dữ liệu đọc và ghi trực tiếp vào Google Sheet</div>
@@ -791,7 +784,6 @@ tr.appt-today:hover td{background:#fff5df}
           <div class="um-areas" id="um-areas"></div>
         </div>
         <button type="button" data-act="change-password">🔑 Đổi mật khẩu</button>
-        <button type="button" data-act="open-api-settings">⚙ Cấu hình API</button>
         <button type="button" class="um-logout" data-act="logout">↪ Đăng xuất</button>
       </div>
     </div>
@@ -1023,33 +1015,6 @@ tr.appt-today:hover td{background:#fff5df}
   <div class="modal-foot">
     <button type="button" class="btn" data-act="confirm-no">Hủy</button>
     <button type="button" class="btn danger" data-act="confirm-yes" id="confirm-yes">Đồng ý xóa</button>
-  </div>
-</div>
-
-<div class="overlay confirm" id="api-overlay"></div>
-<div class="modal api-modal" id="api-modal" role="dialog" aria-modal="true">
-  <h3>Kết nối API Google Apps Script</h3>
-  <p id="api-desc">Dán URL web app Apps Script (kết thúc bằng /exec) để tải dữ liệu từ Google Sheet.</p>
-  <div class="form-field">
-    <label for="api-url">API URL <span class="req">*</span></label>
-    <input id="api-url" type="url" placeholder="https://script.google.com/macros/s/AKfy…/exec" autocomplete="off" spellcheck="false">
-  </div>
-  <div class="form-field">
-    <label for="api-code">Mã truy cập (nếu có)</label>
-    <input id="api-code" type="text" placeholder="Để trống nếu không đặt mã" autocomplete="off">
-  </div>
-  <div class="api-status" id="api-status"></div>
-  <details class="script-item" style="margin-bottom:12px">
-    <summary>Lấy URL /exec ở đâu?</summary>
-    <div class="script-txt">
-      Trong Google Sheet → <b>Tiện ích mở rộng → Apps Script</b> → dán <code>Code.gs</code> → <b>Triển khai → Ứng dụng web</b> (Thực thi: Tôi, Truy cập: Bất kỳ ai) → sao chép URL kết thúc bằng <code>/exec</code>.
-      Xem chi tiết trong <code>README.md</code> của repo GitHub.
-    </div>
-  </details>
-  <div class="modal-foot">
-    <button type="button" class="btn" data-act="api-cancel" id="api-cancel">Đóng</button>
-    <button type="button" class="btn" data-act="api-test">Kiểm tra kết nối</button>
-    <button type="button" class="btn primary" data-act="api-save">Lưu &amp; kết nối</button>
   </div>
 </div>
 
@@ -1328,17 +1293,12 @@ function stamp() {
    ============================================================ */
 const GAS_RUN = (typeof google !== 'undefined' && google.script && google.script.run) ? google.script.run : null;
 
-const LS_API = 'ctt_api_v2';
 const LS_TOKEN = 'ctt_token_v1';
-const SS_CODE = 'ctt_code_v1';
 
-function readApiConfig() {
-  let saved = null;
-  try { saved = JSON.parse(localStorage.getItem(LS_API) || 'null'); } catch (e) { saved = null; }
+/* API CỐ ĐỊNH — đọc duy nhất từ config.js (window.APP_CONFIG) */
+function fixedApiConfig() {
   const cfg = (typeof window !== 'undefined' && window.APP_CONFIG) ? window.APP_CONFIG : {};
-  const url = (saved && saved.url) ? saved.url : (cfg.API_URL || '');
-  const code = (saved && saved.code != null) ? saved.code : (cfg.ACCESS_CODE || '');
-  return { url: String(url || '').trim(), code: String(code || '') };
+  return { url: String(cfg.API_URL || '').trim(), code: String(cfg.ACCESS_CODE || '') };
 }
 
 function isValidApiUrl(u) {
@@ -1404,19 +1364,12 @@ const API = {
       try { this.code = sessionStorage.getItem(SS_CODE) || ''; } catch (e) {}
     } else {
       this.mode = 'http';
-      const c = readApiConfig();
+      const c = fixedApiConfig();
       this.url = c.url;
       this.code = c.code;
       this.available = !!this.url && isValidApiUrl(this.url);
     }
     try { this.token = localStorage.getItem(LS_TOKEN) || ''; } catch (e) { this.token = ''; }
-  },
-
-  saveConfig(url, code) {
-    this.url = String(url || '').trim();
-    this.code = String(code || '');
-    this.available = !!this.url && isValidApiUrl(this.url);
-    try { localStorage.setItem(LS_API, JSON.stringify({ url: this.url, code: this.code })); } catch (e) {}
   },
 
   setToken(t) {
@@ -1717,8 +1670,8 @@ function showLoadError(err) {
   const m = String((err && err.message) || err || '');
   let html = '';
   if (m === 'NO_GAS' || m === 'NO_API') {
-    html = `<h4>Chưa kết nối được API Google Apps Script</h4>
-      <p>Dán URL web app đã triển khai (kết thúc bằng <code>/exec</code>) vào phần cấu hình API.</p>`;
+    html = `<h4>Chưa cấu hình API</h4>
+      <p>Mở file <code>config.js</code> của website và điền <code>API_URL</code> (URL <code>/exec</code> đã triển khai). Chỉ quản trị sửa một lần; nhân viên không phải nhập.</p>`;
   } else if (/quyền|authoriz|permission|cấp quyền/i.test(m)) {
     html = `<h4>Chưa cấp quyền truy cập</h4><p>${esc(m)}</p><p>Mở lại link web app API và bấm <b>Cho phép</b> khi Google hỏi quyền truy cập Sheet.</p>`;
   } else if (/mã truy cập/i.test(m)) {
@@ -1733,9 +1686,7 @@ function showLoadError(err) {
   $('#load-spin').classList.add('hidden');
   $('#load-title').textContent = 'Có lỗi khi tải dữ liệu';
   $('#load-sub').textContent = 'Chi tiết bên dưới.';
-  const apiBtn = API.mode === 'http'
-    ? `<button type="button" class="btn" data-act="open-api-settings">⚙ Cấu hình API</button>` : '';
-  box.innerHTML = html + `<div style="margin-top:12px;display:flex;gap:8px">${apiBtn}<button type="button" class="btn primary" data-act="retry-load">Thử lại</button></div>`;
+  box.innerHTML = html + `<div style="margin-top:12px;display:flex;gap:8px"><button type="button" class="btn primary" data-act="retry-load">Thử lại</button></div>`;
   box.classList.remove('hidden');
 }
 
@@ -1781,12 +1732,7 @@ async function loadData() {
       showLogin(e.message);
       return;
     }
-    const msg = String(e.message || e);
-    if (API.mode === 'http' && (/NO_API|Mất kết nối|Không tải được API|API không phản hồi/i.test(msg) || !API.available)) {
-      openApiSettings(true, msg);
-    } else {
-      showLoadError(e);
-    }
+    showLoadError(e);
   }
 }
 
@@ -3156,17 +3102,14 @@ function renderGuide() {
   const hist = META.historySheet || 'CHAM_TIEP_THI';
   const isHttp = API.mode === 'http';
   const apiBanner = isHttp ? `<div class="notice" style="align-items:center;flex-wrap:wrap">
-      <span>🌐 Trang tĩnh trên <b>GitHub Pages</b> · API: <b>${esc(API.host() || 'chưa cấu hình')}</b></span>
-      <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
-        <button type="button" class="btn sm" data-act="test-api-guide">Kiểm tra API</button>
-        <button type="button" class="btn sm" data-act="open-api-settings">Đổi API / mã</button>
-      </span>
+      <span>🌐 Trang tĩnh trên <b>GitHub Pages</b> · API cố định: <b>${esc(API.host() || 'chưa cấu hình')}</b></span>
+      <span style="margin-left:auto;color:var(--gray);font-size:12px">Quản trị sửa 1 lần trong <code>config.js</code>; nhân viên không phải nhập.</span>
     </div>` : '';
   const steps = isHttp ? `
       <ol>
         <li>Đưa thư mục web lên GitHub → <b>Settings → Pages</b> → chọn nhánh có <code>index.html</code>.</li>
         <li>Triển khai <code>Code.gs</code> thành <b>Ứng dụng web</b> (Thực thi: Tôi, Truy cập: Bất kỳ ai) → lấy URL <code>/exec</code>.</li>
-        <li>Mở trang GitHub Pages → dán URL <code>/exec</code> vào <b>Cấu hình API</b> và bấm Kiểm tra.</li>
+        <li>Quản trị dán URL <code>/exec</code> vào <code>config.js</code> (một lần). Tất cả nhân viên dùng chung, không phải nhập API.</li>
         <li>Đăng nhập bằng tài khoản được phân (mật khẩu mặc định <b>123456</b>) và đổi mật khẩu ngay.</li>
         <li>Chạm khách → chọn dịch vụ đã tư vấn / khách đồng ý → <b>Lưu</b>. Hoặc chọn <b>Gọi hẹn thay</b> để đưa khách sang tab KH hẹn thay.</li>
       </ol>` : `
@@ -3189,7 +3132,7 @@ function renderGuide() {
     ${spread ? `<a class="btn" href="${esc(spread)}" target="_blank" rel="noopener" style="align-self:center">↗ Mở Google Sheet</a>` : ''}
   </div>
   ${apiBanner}
-  ${isHttp && !API.code ? `<div class="callout warn" style="margin-bottom:16px">⚠ <b>Chưa đặt mã truy cập API.</b> Nếu website công khai, bất kỳ ai có link cũng xem được danh sách khách hàng và ghi chạm. Nên đặt <code>ACCESS_CODE</code> trong <code>Code.gs</code>, triển khai phiên bản mới rồi bấm <b>Đổi API / mã</b> để nhập mã.</div>` : ''}
+  ${isHttp ? `<div class="callout warn" style="margin-bottom:16px">🔒 API đã cố định trong <code>config.js</code>. Nếu website công khai, nên đặt <code>ACCESS_CODE</code> trong <code>Code.gs</code> và <code>config.js</code>; nhân viên vẫn chỉ cần đăng nhập.</div>` : ''}
 
   <div class="two-col">
     <div class="card"><div class="card-h"><div class="card-title">📌 Cách hoạt động</div></div><div class="card-b guide">
@@ -3665,8 +3608,6 @@ function showLogin(msg) {
   }
   const btn = $('#login-btn');
   if (btn) { btn.disabled = false; btn.textContent = 'Đăng nhập'; }
-  const codeEl = $('#login-code');
-  if (codeEl && !codeEl.value) codeEl.value = API.code || '';
   setTimeout(() => {
     const u = $('#login-user');
     if (u && !u.value) u.focus();
@@ -3681,8 +3622,6 @@ function hideLogin() {
 async function handleLogin() {
   const u = ($('#login-user').value || '').trim();
   const p = $('#login-pass').value || '';
-  const code = ($('#login-code').value || '').trim();
-  if (code) API.code = code;
   if (!u || !p) { showLogin('Nhập tài khoản và mật khẩu.'); return; }
   const btn = $('#login-btn');
   btn.disabled = true;
@@ -3697,9 +3636,6 @@ async function handleLogin() {
     btn.disabled = false;
     btn.textContent = 'Đăng nhập';
     showLogin(e.message);
-    if (e.code === 'AUTH' || /mã truy cập/i.test(e.message)) {
-      if (API.mode === 'http') openApiSettings(false, 'Nếu API đặt mã truy cập, nhập mã ở đây rồi đăng nhập lại.');
-    }
   }
 }
 
@@ -3918,7 +3854,6 @@ function bindEvents() {
     if (!el) {
       if (e.target.id === 'overlay') closeDrawer();
       if (e.target.id === 'confirm-overlay') closeConfirm(false);
-      if (e.target.id === 'api-overlay') closeApiSettings();
       if (e.target.id === 'pw-overlay') closePasswordModal();
       if (!e.target.closest('#qf-emp')) closeEmpPanel();
       return;
@@ -3956,11 +3891,6 @@ function bindEvents() {
         renderStats(); break;
       }
       case 'reset-stats': UI.stats = { from: '', to: '', unit: '' }; renderStats(); break;
-      case 'open-api-settings': openApiSettings(false, ''); break;
-      case 'api-cancel': closeApiSettings(); break;
-      case 'api-test': testApiFromModal(); break;
-      case 'api-save': saveApiFromModal(); break;
-      case 'test-api-guide': testApiQuick(); break;
       case 'change-password': openPasswordModal(); break;
       case 'logout': doLogout(); break;
       case 'pw-cancel': closePasswordModal(); break;
@@ -4003,8 +3933,7 @@ function bindEvents() {
       if ($('#user-menu').classList.contains('show')) { closeUserMenu(); return; }
       if ($('#pw-modal').classList.contains('show')) { closePasswordModal(); return; }
       if ($('#qf-emp-pop').classList.contains('show')) { closeEmpPanel(); return; }
-      if ($('#api-modal').classList.contains('show')) closeApiSettings();
-      else if ($('#confirm-modal').classList.contains('show')) closeConfirm(false);
+      if ($('#confirm-modal').classList.contains('show')) closeConfirm(false);
       else if ($('#drawer').classList.contains('open')) closeDrawer();
     }
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && $('#drawer').classList.contains('open')) {
@@ -4017,93 +3946,16 @@ function bindEvents() {
   });
 }
 
-/* ---------- cấu hình API (GitHub Pages) ---------- */
-let API_REQUIRED = false;
-
-function openApiSettings(required, message) {
-  API_REQUIRED = !!required;
-  const urlEl = $('#api-url'), codeEl = $('#api-code');
-  if (!urlEl) return;
-  urlEl.value = API.url || (window.APP_CONFIG && window.APP_CONFIG.API_URL) || '';
-  codeEl.value = API.code || '';
-  $('#api-status').textContent = message || '';
-  $('#api-status').className = 'api-status' + (message ? ' err' : '');
-  $('#api-cancel').style.display = required ? 'none' : '';
-  $('#api-desc').textContent = required
-    ? 'Chưa cấu hình API nên chưa tải được danh sách. Dán URL web app Apps Script (kết thúc bằng /exec) để bắt đầu.'
-    : 'Đổi địa chỉ API hoặc mã truy cập. Cấu hình được lưu trên trình duyệt này.';
-  $('#api-overlay').classList.add('show');
-  $('#api-modal').classList.add('show');
-  setTimeout(() => urlEl.focus(), 120);
-}
-
-function closeApiSettings() {
-  if (API_REQUIRED) return;
-  $('#api-overlay').classList.remove('show');
-  $('#api-modal').classList.remove('show');
-}
-
-async function testApiFromModal() {
-  const url = ($('#api-url').value || '').trim();
-  const code = ($('#api-code').value || '').trim();
-  const st = $('#api-status');
-  if (!isValidApiUrl(url)) {
-    st.className = 'api-status err';
-    st.textContent = 'URL không hợp lệ. Dán URL dạng https://script.google.com/macros/s/…/exec';
-    return;
-  }
-  const prev = { url: API.url, code: API.code };
-  API.url = url; API.code = code;
-  st.className = 'api-status';
-  st.textContent = 'Đang kiểm tra kết nối…';
-  try {
-    const r = await API.ping();
-    st.className = 'api-status ok';
-    st.textContent = `✓ Kết nối OK · ${nf(r.rows)} hộ · sheet ${r.sheetName || ''}`;
-  } catch (e) {
-    API.url = prev.url; API.code = prev.code;
-    st.className = 'api-status err';
-    st.textContent = '✕ ' + e.message;
-  }
-}
-
-function saveApiFromModal() {
-  const url = ($('#api-url').value || '').trim();
-  const code = ($('#api-code').value || '').trim();
-  if (!isValidApiUrl(url)) {
-    const st = $('#api-status');
-    st.className = 'api-status err';
-    st.textContent = 'URL không hợp lệ. Dán URL dạng https://script.google.com/macros/s/…/exec';
-    return;
-  }
-  API.saveConfig(url, code);
-  location.reload();
-}
-
-async function testApiQuick() {
-  try {
-    const r = await API.ping();
-    toast(`Kết nối OK · ${nf(r.rows)} hộ`, 'ok');
-  } catch (e) {
-    toast('Lỗi kết nối: ' + e.message, 'err', 6000);
-  }
-}
-
 /* ---------- khởi động ---------- */
 async function boot() {
   loadLocal();
   API.init();
   bindEvents();
 
-  // Ẩn các nút cấu hình API khi chạy trong Apps Script
-  if (API.mode === 'gas') {
-    $$('[data-act="open-api-settings"]').forEach(b => { b.style.display = 'none'; });
-  }
-
   if (API.mode === 'http' && !API.available) {
-    hideLoading();
-    showLogin();
-    openApiSettings(true);
+    hideLogin();
+    showLoading();
+    showLoadError({ message: 'NO_API' });
     return;
   }
   if (!API.token) {
