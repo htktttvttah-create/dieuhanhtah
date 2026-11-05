@@ -7,7 +7,7 @@
 <meta name="description" content="Chạm tiếp thị thay modem — TTVT phối hợp VNPT. Dữ liệu đọc và ghi trực tiếp vào Google Sheet qua Apps Script API.">
 <title>Chạm tiếp thị thay modem — TTVT × VNPT</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b5cab'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='21' font-weight='bold' fill='white' text-anchor='middle'%3EVNPT%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=3">
 </head>
 <body>
 <div class="login-screen" id="login-screen">
@@ -52,6 +52,7 @@
         <span class="user-meta"><b id="user-name">—</b><small id="user-role">—</small></span>
         <span class="user-caret">▾</span>
       </button>
+      <button type="button" class="user-logout" data-act="logout" title="Đăng xuất" aria-label="Đăng xuất">↪ <span class="logout-lbl">Đăng xuất</span></button>
       <div class="user-menu" id="user-menu">
         <div class="um-head">
           <div class="um-name" id="um-name">—</div>
@@ -99,6 +100,8 @@
   <button type="button" class="tab-btn" data-tab="appt">📅 KH hẹn thay <span class="tab-badge" id="badge-appt">0</span></button>
   <button type="button" class="tab-btn" data-tab="ttvt">🟠 TTVT đã chạm <span class="tab-badge" id="badge-ttvt">0</span></button>
   <button type="button" class="tab-btn" data-tab="vnpt">🔵 VNPT KV đã chạm <span class="tab-badge" id="badge-vnpt">0</span></button>
+  <button type="button" class="tab-btn" data-tab="ttvt-chot">🟠 TTVT chốt <span class="tab-badge" id="badge-ttvt-chot">0</span></button>
+  <button type="button" class="tab-btn" data-tab="vnpt-chot">🔵 VNPT KV chốt <span class="tab-badge" id="badge-vnpt-chot">0</span></button>
   <button type="button" class="tab-btn" data-tab="report">📑 Báo cáo chi tiết <span class="tab-badge" id="badge-report">0</span></button>
   <button type="button" class="tab-btn" data-tab="stats">📈 Thống kê</button>
   <button type="button" class="tab-btn" data-tab="guide">🗂 Cấu trúc sheet &amp; hướng dẫn</button>
@@ -221,9 +224,6 @@
 
     <div class="result-bar">
       <div class="result-count"><b id="result-count">0</b> hộ phù hợp <span id="result-extra"></span></div>
-      <div class="result-actions">
-        <button type="button" class="btn sm" data-act="export-list">⬇ Xuất Excel danh sách</button>
-      </div>
     </div>
 
     <div class="card table-card">
@@ -256,6 +256,8 @@
   <section class="tab-pane" id="tab-appt"><div id="appt-root"></div></section>
   <section class="tab-pane" id="tab-ttvt"><div id="unit-ttvt"></div></section>
   <section class="tab-pane" id="tab-vnpt"><div id="unit-vnpt"></div></section>
+  <section class="tab-pane" id="tab-ttvt-chot"><div id="closed-ttvt"></div></section>
+  <section class="tab-pane" id="tab-vnpt-chot"><div id="closed-vnpt"></div></section>
 
   <!-- ============ BÁO CÁO ============ -->
   <section class="tab-pane" id="tab-report"><div id="report-root"></div></section>
@@ -327,6 +329,6 @@
 <div class="toast-wrap" id="toasts"></div>
 
 <script src="config.js"></script>
-<script src="assets/app.js?v=2"></script>
+<script src="assets/app.js?v=3"></script>
 </body>
 </html>
