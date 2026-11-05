@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#083b6b">
+<meta name="description" content="Web nhập phiếu tiếp thị Bưu điện — lưu trực tiếp Google Sheet, báo Telegram và tra cứu gói cước bằng AI.">
+<title>Tiếp thị Bưu điện — TTVT × Bưu điện</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23083b6b'/%3E%3Cpath d='M16 23l16 11 16-11v20H16z' fill='%23fff'/%3E%3Cpath d='M16 21h32L32 33z' fill='%23f08a24'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   1. NỀN TẢNG
+   ============================================================ */
+:root{
+  --ink:#102a43; --ink-2:#334e68; --muted:#627d98; --muted-2:#829ab1;
+  --line:#d9e2ec; --line-strong:#bcccdc; --bg:#f3f7fb; --card:#ffffff;
+  --blue:#0b5cab; --blue-d:#073a6e; --blue-2:#0e7fb3; --blue-l:#e8f1fb;
+  --cyan:#0e8f8f; --cyan-l:#e4f5f3;
+  --orange:#e9821e; --orange-l:#fff3e4;
+  --green:#0f8a5f; --green-l:#e6f7ef;
+  --red:#d64545; --red-l:#fdecec;
+  --purple:#6b5bd2; --purple-l:#eeecfd;
+  --shadow-sm:0 1px 2px rgba(16,42,67,.05);
+  --shadow:0 2px 4px rgba(16,42,67,.04), 0 12px 28px rgba(16,42,67,.07);
+  --shadow-lg:0 20px 50px rgba(7,37,64,.18);
+  --radius:16px; --radius-sm:10px; --radius-lg:24px;
+  --font:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font); background:var(--bg); color:var(--ink);
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+body.no-scroll{overflow:hidden}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3,h4{letter-spacing:-.02em; line-height:1.22}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+svg{display:block}
+.hidden{display:none !important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.mono{font-family:var(--mono)}
+.muted{color:var(--muted)}
+.nowrap{white-space:nowrap}
+::selection{background:#cfe4ff;color:var(--blue-d)}
+:focus-visible{outline:3px solid rgba(11,92,171,.35);outline-offset:2px}
+
+/* ============================================================
+   2. THÀNH PHẦN CHUNG
+   ============================================================ */
+.btn{
+  border:1px solid var(--line); background:#fff; color:var(--ink);
+  border-radius:10px; padding:9px 14px; font-weight:650; font-size:13.5px;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+  white-space:nowrap; user-select:none;
+}
+.btn:hover{border-color:#b9cee2;background:#f8fbfe}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn.primary{
+  background:linear-gradient(135deg,#0b5cab,#0d74ad 60%,#0e8f8f);
+  border-color:transparent;color:#fff; box-shadow:0 4px 14px rgba(11,92,171,.26);
+}
+.btn.primary:hover{filter:brightness(1.06);background:linear-gradient(135deg,#0b5cab,#0d74ad 60%,#0e8f8f)}
+.btn.orange{background:linear-gradient(135deg,#e9821e,#f2a23c);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(233,130,30,.24)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{background:#eef4fa;color:var(--ink)}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:8px}
+.btn.lg{padding:13px 20px;font-size:15px;border-radius:12px}
+.btn.block{width:100%}
+.btn .ic{width:17px;height:17px;flex:none}
+.btn.loading{pointer-events:none;opacity:.8}
+.btn.loading .btn-label{opacity:.65}
+.spinner{
+  width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.4);
+  border-top-color:#fff;animation:spin .7s linear infinite;flex:none;
+}
+.spinner.dark{border-color:rgba(11,92,171,.2);border-top-color:var(--blue)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.icon-btn{
+  width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
+  background:#fff;display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2);
+  transition:.15s;flex:none;
+}
+.icon-btn:hover{background:#f2f8fd;border-color:#b9cee2;color:var(--blue)}
+.icon-btn svg{width:18px;height:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--blue);
+}
+.eyebrow::before{content:"";width:18px;height:2px;background:var(--orange);border-radius:2px}
+.alert{
+  border-radius:10px;padding:11px 13px;font-size:13px;display:flex;gap:9px;align-items:flex-start;
+  line-height:1.45;
+}
+.alert svg{width:17px;height:17px;flex:none;margin-top:1px}
+.alert.danger{background:var(--red-l);color:#9f2f2f;border:1px solid #f3caca}
+.alert.warning{background:var(--orange-l);color:#92510c;border:1px solid #f5d9b4}
+.alert.info{background:var(--blue-l);color:#0a4b8c;border:1px solid #cfe2f6}
+.alert.success{background:var(--green-l);color:#086646;border:1px solid #c6ead9}
+
+/* ============================================================
+   3. THÀNH PHẦN DÙNG CHUNG
+   ============================================================ */
+.brand-mark{
+  width:42px;height:42px;border-radius:12px;background:linear-gradient(145deg,#083b6b,#0b5cab 65%,#0e8f8f);
+  color:#fff;display:flex;align-items:center;justify-content:center;flex:none;
+  box-shadow:0 6px 16px rgba(8,59,107,.22);
+}
+.brand-mark svg{width:24px;height:24px}
+.brand-name{font-weight:800;color:var(--ink);font-size:14.5px;letter-spacing:-.01em;line-height:1.2}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-size:12px;font-weight:750;color:var(--ink-2);display:flex;align-items:center;gap:5px}
+.field label b{color:var(--red);font-weight:800}
+input,textarea,select{
+  width:100%;border:1px solid var(--line);background:#fbfdff;border-radius:10px;
+  padding:11px 12px;outline:none;transition:.16s;color:var(--ink);min-width:0;
+}
+input::placeholder,textarea::placeholder{color:#9aafc2}
+input:hover,textarea:hover,select:hover{border-color:#c5d5e5}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(11,92,171,.1)}
+textarea{resize:vertical;min-height:78px;line-height:1.55}
+input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--red);background:#fffafa}
+input[aria-invalid="true"]:focus,textarea[aria-invalid="true"]:focus{box-shadow:0 0 0 3px rgba(214,69,69,.1)}
+.field-error{font-size:11.5px;color:var(--red);min-height:0;display:none;line-height:1.4}
+.field-error.show{display:block}
+.field-help{font-size:11.5px;color:var(--muted);line-height:1.45}
+/* ============================================================
+   4. APP HEADER + TABS
+   ============================================================ */
+.app-header{
+  background:
+    radial-gradient(700px 260px at 88% -40%, rgba(14,143,143,.55), rgba(14,143,143,0) 70%),
+    linear-gradient(118deg,#05223e 0%,#073a6e 52%,#0b5cab 100%);
+  color:#fff;padding:14px 24px;display:flex;align-items:center;gap:18px;
+  position:relative;overflow:hidden;
+}
+.app-header::after{
+  content:"";position:absolute;right:8%;top:-80px;width:280px;height:280px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.09);box-shadow:0 0 0 38px rgba(255,255,255,.025),0 0 0 76px rgba(255,255,255,.018);
+  pointer-events:none;
+}
+.app-brand{display:flex;align-items:center;gap:12px;min-width:0;position:relative;z-index:1}
+.app-brand .brand-mark{width:44px;height:44px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.app-brand .brand-name{color:#fff;font-size:16.5px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.app-brand .brand-sub{color:rgba(226,240,255,.7);font-size:11px;margin-top:2px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;position:relative;z-index:2}
+.header-date{
+  display:flex;align-items:center;gap:7px;font-size:11.5px;color:rgba(234,245,255,.75);
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:7px 10px;
+}
+.header-date svg{width:14px;height:14px;opacity:.8}
+.header-today{
+  display:inline-flex;align-items:baseline;gap:4px;background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:6px 10px;color:#fff;
+}
+.header-today span{font-size:10px;color:rgba(234,245,255,.72);font-weight:600}
+.header-today b{font-size:16px;font-weight:800;line-height:1;letter-spacing:-.02em}
+.header-today small{font-size:9px;color:rgba(234,245,255,.65)}
+.ai-quick{
+  display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.09);color:#fff;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:650;
+}
+.ai-quick:hover{background:rgba(255,255,255,.16)}
+.ai-quick svg{width:15px;height:15px}
+.tabbar{
+  display:flex;gap:3px;padding:0 20px;background:rgba(255,255,255,.96);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(10px);overflow-x:auto;scrollbar-width:none;
+}
+.tabbar::-webkit-scrollbar{display:none}
+.tab-btn{
+  border:0;background:transparent;padding:14px 15px 12px;font-size:13px;font-weight:700;color:var(--muted);
+  border-bottom:3px solid transparent;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex:none;
+}
+.tab-btn svg{width:16px;height:16px;opacity:.8}
+.tab-btn:hover{color:var(--blue);background:#f8fbfe}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-btn.active svg{opacity:1}
+.tab-badge{background:#eef4fa;color:var(--muted);border-radius:99px;padding:1px 7px;font-size:10px;font-weight:800}
+.tab-btn.active .tab-badge{background:var(--blue-l);color:var(--blue)}
+.setup-banner{background:linear-gradient(90deg,#fff4e3,#fffaf2);border-bottom:1px solid #f3d9b6}
+.setup-banner-inner{
+  max-width:1200px;margin:0 auto;padding:11px 24px;display:flex;align-items:flex-start;gap:9px;
+  font-size:12px;color:#8a4d0a;line-height:1.5;
+}
+.setup-banner-inner svg{width:17px;height:17px;flex:none;margin-top:1px}
+.setup-banner-inner b{color:#6f3d06}
+.app-main{max-width:1200px;margin:0 auto;padding:22px 24px 48px}
+.tab-pane{display:none;animation:fadeUp .22s ease}
+.tab-pane.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 18px;flex-wrap:wrap}
+.page-head h1{font-size:25px;font-weight:800;letter-spacing:-.035em;margin-top:6px}
+.page-head p{font-size:12.5px;color:var(--muted);margin-top:5px;max-width:650px}
+.page-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.required-note{
+  display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);
+  background:#fff;border:1px solid var(--line);border-radius:99px;padding:6px 10px;
+}
+.required-note b{color:var(--red)}
+.required-note svg{width:13px;height:13px}
+
+/* ============================================================
+   5. FORM NHẬP PHIẾU
+   ============================================================ */
+.form-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
+.form-card{overflow:hidden}
+.card-head{
+  padding:17px 20px 15px;border-bottom:1px solid #edf2f7;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.card-head .ch-icon{
+  width:34px;height:34px;border-radius:10px;background:var(--blue-l);color:var(--blue);
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.card-head .ch-icon svg{width:18px;height:18px}
+.card-head h2{font-size:15px;font-weight:800}
+.card-head p{font-size:11.5px;color:var(--muted);margin-top:2px}
+.form-body{padding:20px}
+.form-section{padding:0 0 20px;margin-bottom:20px;border-bottom:1px dashed #e5edf5}
+.form-section:last-of-type{border-bottom:0;margin-bottom:0;padding-bottom:2px}
+.section-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;margin-bottom:13px;color:var(--ink)}
+.section-title .num{
+  width:23px;height:23px;border-radius:7px;background:var(--blue-l);color:var(--blue);
+  display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex:none;
+}
+.section-title .sub{font-size:11px;font-weight:500;color:var(--muted);margin-left:auto}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:750;color:var(--ink-2)}
+.field label .req{color:var(--red);font-weight:800}
+.field label .hint{font-size:10.5px;font-weight:500;color:var(--muted);margin-left:auto}
+.input-note{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);line-height:1.45}
+.input-note .ok{color:var(--green);font-weight:650}
+.input-note .warn{color:#a35a0a}
+.addr-guide{
+  margin-top:2px;padding:10px 12px;border-radius:9px;background:#f7fafd;border:1px solid #e7eef6;
+  font-size:11.5px;color:var(--muted);line-height:1.5;
+}
+.addr-guide strong{color:var(--ink-2)}
+.addr-guide .addr-status{display:flex;align-items:flex-start;gap:6px}
+.addr-guide .addr-status svg{width:14px;height:14px;flex:none;margin-top:1px}
+.addr-guide .ok{color:var(--green);font-weight:600}
+.addr-guide .warn{color:#a35a0a;font-weight:600}
+.addr-examples{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.addr-examples span{font-size:10.5px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:3px 7px;color:var(--muted)}
+.account-box{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e3ebf4;border-radius:10px;
+  background:#f8fbfe;min-height:42px;
+}
+.account-box .mini-avatar{
+  width:30px;height:30px;border-radius:8px;background:var(--blue-l);color:var(--blue);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex:none;
+}
+.account-box b{font-size:12px;display:block;line-height:1.2}
+.account-box small{font-size:10.5px;color:var(--muted);display:block;margin-top:2px}
+.last-phone-btn{
+  border:0;background:transparent;color:var(--blue);font-size:10.5px;font-weight:700;padding:0;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.form-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:16px;border-top:1px solid #edf2f7}
+.form-progress{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.form-progress .dots{display:flex;gap:4px}
+.form-progress .dots i{width:6px;height:6px;border-radius:50%;background:#dbe5ef;display:block;transition:.2s}
+.form-progress .dots i.on{background:var(--green)}
+.form-footer .btn.lg{min-width:230px}
+.form-side{display:flex;flex-direction:column;gap:14px;position:sticky;top:70px}
+.side-card{padding:16px}
+.today-card{
+  background:
+    radial-gradient(280px 180px at 110% -20%, rgba(84,212,176,.35), rgba(84,212,176,0) 70%),
+    linear-gradient(135deg,#073a6e,#0b5cab 58%,#0e7f8f);
+  color:#fff;border:0;border-radius:var(--radius);box-shadow:0 10px 26px rgba(7,58,110,.2);
+  padding:18px;position:relative;overflow:hidden;
+}
+.today-card::after{content:"";position:absolute;right:-38px;bottom:-58px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(255,255,255,.13);box-shadow:0 0 0 25px rgba(255,255,255,.035)}
+.today-top{display:flex;align-items:center;justify-content:space-between;gap:8px;position:relative;z-index:1}
+.today-top span{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(230,245,255,.7)}
+.today-top .live{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:#a9efd9;background:rgba(255,255,255,.1);padding:3px 7px;border-radius:99px;letter-spacing:0}
+.live i{width:5px;height:5px;border-radius:50%;background:#54d4b0;display:block}
+.today-num{display:flex;align-items:baseline;gap:8px;margin-top:11px;position:relative;z-index:1}
+.today-num b{font-size:43px;line-height:1;font-weight:800;letter-spacing:-.05em}
+.today-num small{font-size:12px;color:rgba(230,245,255,.7)}
+.today-sub{font-size:11.5px;color:rgba(230,245,255,.8);margin-top:4px;position:relative;z-index:1}
+.progress{margin-top:13px;height:7px;border-radius:99px;background:rgba(255,255,255,.19);overflow:hidden;position:relative;z-index:1}
+.progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#6fe0c2,#f6c46a);transition:width .6s ease}
+.today-meta{display:flex;justify-content:space-between;gap:8px;margin-top:7px;font-size:10.5px;color:rgba(230,245,255,.67);position:relative;z-index:1}
+.today-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;position:relative;z-index:1}
+.today-grid div{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:8px 9px}
+.today-grid span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:rgba(230,245,255,.6)}
+.today-grid b{display:block;font-size:15px;margin-top:2px}
+.side-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;margin-bottom:12px}
+.side-title svg{width:16px;height:16px;color:var(--blue)}
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:10px;position:relative;padding-bottom:15px}
+.step:last-child{padding-bottom:0}
+.step:not(:last-child)::before{content:"";position:absolute;left:11px;top:25px;bottom:2px;width:1px;background:#e3ebf4}
+.step .sn{
+  width:23px;height:23px;border-radius:50%;background:#f1f6fb;border:1px solid #dce7f1;color:var(--blue);
+  font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;z-index:1;
+}
+.step.done .sn{background:var(--green-l);border-color:#c7e9d9;color:var(--green)}
+.step b{display:block;font-size:11.5px;line-height:1.35}
+.step p{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+.tip-card{background:linear-gradient(135deg,#fffaf1,#fff);border-color:#f3dfc0}
+.tip-card .side-title svg{color:var(--orange)}
+.tip-card p{font-size:11px;color:#79501e;line-height:1.55}
+.tip-card b{color:#6b4112}
+.form-banner{margin-bottom:14px}
+.form-banner:empty{display:none}
+
+/* ============================================================
+   6. THỐNG KÊ
+   ============================================================ */
+.stats-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.kpi.primary{background:linear-gradient(135deg,#073a6e,#0b5cab 62%,#0e7f8f);border-color:transparent;color:#fff}
+.kpi-lbl{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px}
+.kpi.primary .kpi-lbl{color:rgba(231,245,255,.72)}
+.kpi-val{font-size:29px;font-weight:800;letter-spacing:-.045em;margin-top:5px;line-height:1.1}
+.kpi-val small{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:3px}
+.kpi.primary .kpi-val small{color:rgba(231,245,255,.65)}
+.kpi-sub{font-size:10.5px;color:var(--muted);margin-top:4px}
+.kpi.primary .kpi-sub{color:rgba(231,245,255,.65)}
+.kpi .mini-bar{height:4px;border-radius:99px;background:#eef3f8;margin-top:9px;overflow:hidden}
+.kpi.primary .mini-bar{background:rgba(255,255,255,.18)}
+.kpi .mini-bar i{display:block;height:100%;background:linear-gradient(90deg,#6fe0c2,#f6c46a);border-radius:99px;transition:width .5s}
+.stats-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;margin-bottom:16px;align-items:stretch}
+.chart-card{overflow:hidden}
+.chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:17px 19px 0;flex-wrap:wrap}
+.chart-head h2{font-size:15px;font-weight:800}
+.chart-head p{font-size:11.5px;color:var(--muted);margin-top:3px}
+.range-tabs{display:inline-flex;background:#f0f5fa;border-radius:8px;padding:3px;gap:2px}
+.range-tabs button{border:0;background:transparent;border-radius:6px;padding:5px 9px;font-size:10.5px;font-weight:750;color:var(--muted)}
+.range-tabs button.active{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(16,42,67,.1)}
+.chart-wrap{padding:18px 18px 8px;min-height:260px;display:flex;flex-direction:column}
+.chart-bars{
+  flex:none;display:flex;align-items:flex-end;gap:6px;height:240px;padding:0 2px;
+  border-bottom:1px solid #e5edf5;position:relative;
+}
+.chart-bars::before,.chart-bars::after{
+  content:"";position:absolute;left:0;right:0;height:1px;background:#edf3f8;pointer-events:none;
+}
+.chart-bars::before{top:33%}
+.chart-bars::after{top:66%}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;min-width:0;position:relative;z-index:1;gap:5px}
+.bar-col .bar-val{font-size:9px;font-weight:800;color:var(--blue);opacity:.8;min-height:11px;transition:.2s;flex:none}
+.bar-track{flex:1;width:100%;min-height:0;display:flex;align-items:flex-end;justify-content:center}
+.bar-col .bar{
+  width:100%;max-width:34px;border-radius:6px 6px 3px 3px;min-height:2px;
+  background:linear-gradient(180deg,#2d8fce,#0b5cab);opacity:.9;transition:height .5s ease, background .2s;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2);
+}
+.bar-col:hover .bar{background:linear-gradient(180deg,#f3a340,#e9821e);opacity:1}
+.bar-col.today .bar{background:linear-gradient(180deg,#2fc49f,#0e8f7f)}
+.bar-col .bar-lbl{font-size:9px;color:var(--muted-2);white-space:nowrap;margin-top:2px;flex:none;height:13px}
+.bar-col.zero .bar{background:#e8eef5}
+.chart-empty{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-size:12px;color:var(--muted);padding:20px;z-index:2;pointer-events:none;
+}
+.chart-legend{display:flex;align-items:center;gap:12px;padding:8px 2px 0;font-size:10px;color:var(--muted);flex-wrap:wrap}
+.chart-legend span{display:inline-flex;align-items:center;gap:5px}
+.legend-dot{width:7px;height:7px;border-radius:2px;background:linear-gradient(180deg,#2d8fce,#0b5cab)}
+.legend-dot.today{background:linear-gradient(180deg,#2fc49f,#0e8f7f)}
+.insight-card{padding:17px 18px;display:flex;flex-direction:column}
+.insight-card h2{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px}
+.insight-card h2 svg{width:16px;height:16px;color:var(--orange)}
+.insight-list{display:flex;flex-direction:column;gap:0;margin-top:12px}
+.insight-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed #e8eef5}
+.insight-item:last-child{border-bottom:0}
+.insight-ic{width:31px;height:31px;border-radius:9px;background:#f3f8fc;display:flex;align-items:center;justify-content:center;color:var(--blue);flex:none}
+.insight-ic svg{width:15px;height:15px}
+.insight-item .ii-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.insight-item b{display:block;font-size:13px;margin-top:1px}
+.insight-note{margin-top:auto;padding-top:12px;font-size:10px;color:var(--muted-2);line-height:1.5}
+.table-card{overflow:hidden}
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 19px;border-bottom:1px solid #edf2f7;flex-wrap:wrap}
+.table-head h2{font-size:15px;font-weight:800}
+.table-head p{font-size:11.5px;color:var(--muted);margin-top:2px}
+.table-wrap{overflow:auto;max-height:480px}
+table{width:100%;border-collapse:collapse;min-width:620px}
+thead th{
+  position:sticky;top:0;background:#f7fafd;z-index:2;text-align:left;padding:10px 14px;
+  font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid #e3ebf4;
+}
+tbody td{padding:10px 14px;border-bottom:1px solid #f0f5f9;font-size:12px;color:var(--ink-2)}
+tbody tr:hover td{background:#fbfdff}
+tbody tr.today-row td{background:#f1fbf7}
+tbody tr.today-row td:first-child{box-shadow:inset 3px 0 0 var(--green)}
+td.num{font-weight:800;color:var(--ink)}
+td.num.zero{font-weight:500;color:#a7b8c8}
+.weekday-pill{display:inline-flex;min-width:25px;justify-content:center;background:#f0f5fa;border-radius:5px;padding:2px 5px;font-size:9.5px;font-weight:800;color:var(--muted)}
+.staff-cell{color:var(--muted);font-size:11px}
+.privacy-foot{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--muted-2);margin:12px 2px 0;line-height:1.5}
+.privacy-foot svg{width:13px;height:13px;flex:none}
+
+/* ============================================================
+   7. AI GÓI CƯỚC
+   ============================================================ */
+.ai-hero{
+  background:
+    radial-gradient(460px 240px at 92% -50%, rgba(107,91,210,.35), rgba(107,91,210,0) 70%),
+    linear-gradient(120deg,#1b1747,#32286f 55%,#0b5cab);
+  color:#fff;border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;position:relative;overflow:hidden;
+  display:flex;align-items:center;gap:15px;flex-wrap:wrap;
+}
+.ai-hero::after{content:"";position:absolute;right:-30px;top:-80px;width:220px;height:220px;border-radius:50%;border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 35px rgba(255,255,255,.03)}
+.ai-hero .ai-orb{
+  width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;flex:none;position:relative;z-index:1;
+}
+.ai-hero .ai-orb svg{width:25px;height:25px}
+.ai-hero h2{font-size:18px;font-weight:800;position:relative;z-index:1}
+.ai-hero p{font-size:11.5px;color:rgba(232,238,255,.75);margin-top:3px;position:relative;z-index:1;max-width:580px}
+.ai-hero .btn{margin-left:auto;position:relative;z-index:1;background:#fff;color:#32286f;border-color:transparent}
+.ai-card{overflow:hidden}
+.ai-toolbar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f8fbfd;border-bottom:1px solid #e7eef6;flex-wrap:wrap}
+.ai-toolbar .dots{display:flex;gap:4px;margin-right:2px}
+.ai-toolbar .dots i{width:7px;height:7px;border-radius:50%;background:#d5e0eb}
+.ai-toolbar .dots i:nth-child(1){background:#f3a3a3}.ai-toolbar .dots i:nth-child(2){background:#f5d08a}.ai-toolbar .dots i:nth-child(3){background:#9ed9bf}
+.ai-url{
+  font-family:var(--mono);font-size:10px;color:var(--muted);background:#fff;border:1px solid #e5edf5;
+  border-radius:6px;padding:4px 8px;max-width:56%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ai-toolbar .spacer{margin-left:auto}
+.ai-frame-wrap{position:relative;height:min(72vh,760px);min-height:480px;background:#fff}
+.ai-frame-wrap iframe{width:100%;height:100%;border:0;display:block}
+.ai-loading{
+  position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;font-size:12px;color:var(--muted);z-index:2;
+}
+.ai-loading .spinner.dark{width:26px;height:26px;border-width:3px}
+.ai-note{padding:11px 15px;font-size:10.5px;color:var(--muted);border-top:1px solid #edf2f7;display:flex;gap:6px;align-items:flex-start;line-height:1.5}
+.ai-note svg{width:13px;height:13px;flex:none;margin-top:1px}
+.ai-note a{font-weight:700}
+
+/* ============================================================
+   8. MODAL / TOAST
+   ============================================================ */
+.overlay{
+  position:fixed;inset:0;background:rgba(6,28,49,.52);backdrop-filter:blur(4px);
+  z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;
+  animation:overlayIn .18s ease;
+}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:#fff;border-radius:18px;box-shadow:var(--shadow-lg);width:100%;max-width:480px;
+  max-height:92vh;overflow:auto;animation:modalIn .2s ease;border:1px solid rgba(217,226,236,.9);
+}
+.modal.wide{max-width:580px}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.modal-head{display:flex;align-items:flex-start;gap:11px;padding:20px 20px 0}
+.modal-head .mh-icon{
+  width:38px;height:38px;border-radius:11px;background:var(--blue-l);color:var(--blue);
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.modal-head .mh-icon svg{width:19px;height:19px}
+.modal-head h3{font-size:16px;font-weight:800;padding-top:1px}
+.modal-head p{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.modal-close{
+  margin-left:auto;width:30px;height:30px;border:0;background:#f4f8fc;border-radius:8px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.modal-close:hover{background:#eaf1f8;color:var(--ink)}
+.modal-close svg{width:15px;height:15px}
+.modal-body{padding:18px 20px 20px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.modal-actions .btn{min-width:90px}
+.modal .field{margin-bottom:12px}
+.modal .alert{margin-bottom:12px}
+.success-modal{text-align:center;max-width:440px}
+.success-mark{
+  width:68px;height:68px;border-radius:50%;background:var(--green-l);color:var(--green);
+  display:flex;align-items:center;justify-content:center;margin:24px auto 12px;
+  animation:successPop .35s cubic-bezier(.2,1.4,.5,1);border:1px solid #c6ead9;
+}
+@keyframes successPop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.success-mark svg{width:31px;height:31px}
+.success-title{font-size:20px;font-weight:800;letter-spacing:-.025em}
+.success-sub{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5}
+.success-detail{
+  margin:17px 0 0;background:#f8fbfd;border:1px solid #e7eef6;border-radius:11px;padding:2px 13px;text-align:left;
+}
+.sd-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed #e5edf5;font-size:11.5px}
+.sd-row:last-child{border-bottom:0}
+.sd-row span{color:var(--muted);flex:none}
+.sd-row b{text-align:right;font-weight:700;word-break:break-word}
+.sd-row .code{font-family:var(--mono);font-size:10.5px;color:var(--blue);display:inline-flex;align-items:center;gap:5px}
+.copy-btn{border:0;background:transparent;color:var(--muted);padding:0;display:inline-flex}
+.copy-btn:hover{color:var(--blue)}
+.copy-btn svg{width:12px;height:12px}
+.success-tg{
+  display:flex;align-items:flex-start;gap:7px;text-align:left;margin-top:12px;padding:9px 11px;border-radius:8px;
+  font-size:10.5px;line-height:1.5;
+}
+.success-tg.ok{background:var(--green-l);color:#086646;border:1px solid #c6ead9}
+.success-tg.warn{background:var(--orange-l);color:#8a4d0a;border:1px solid #f3d9b6}
+.success-tg svg{width:14px;height:14px;flex:none;margin-top:1px}
+.success-actions{display:flex;gap:8px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.toast-wrap{position:fixed;right:18px;bottom:18px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:calc(100vw - 36px)}
+.toast{
+  display:flex;align-items:flex-start;gap:8px;background:#0e2238;color:#fff;border-radius:10px;
+  padding:10px 13px;font-size:12px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.22);
+  animation:toastIn .22s ease;max-width:390px;
+}
+.toast.out{animation:toastOut .2s ease forwards}
+.toast svg{width:15px;height:15px;flex:none;margin-top:1px}
+.toast.success svg{color:#6fe0c2}
+.toast.error svg{color:#ffb4b4}
+.toast.info svg{color:#9bd4ff}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
+
+/* ============================================================
+   10. RESPONSIVE
+   ============================================================ */
+@media (max-width:1080px){
+  .form-layout{grid-template-columns:minmax(0,1fr) 300px}
+  .stats-grid{grid-template-columns:minmax(0,1fr) 275px}
+}
+@media (max-width:920px){
+  .form-layout{grid-template-columns:1fr}
+  .form-side{position:static;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-side .today-card{grid-column:1/-1}
+  .stats-kpis{grid-template-columns:1fr 1fr}
+  .stats-grid{grid-template-columns:1fr}
+  .insight-card{min-height:0}
+  .insight-list{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  .insight-note{margin-top:10px}
+  .app-main{padding:18px 18px 40px}
+  .app-header{padding:12px 18px}
+  .header-date{display:none}
+  .tabbar{padding:0 12px}
+}
+@media (max-width:680px){
+  body{font-size:13.5px}
+  input,textarea,select{font-size:16px}
+  .app-brand .brand-sub{max-width:150px}
+  .ai-quick{display:none}
+  .app-header{padding:10px 14px;gap:10px}
+  .app-brand .brand-mark{width:38px;height:38px}
+  .app-brand .brand-name{font-size:14px}
+  .app-brand .brand-sub{font-size:9.5px;max-width:185px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .header-right{gap:7px}
+  .ai-quick{padding:7px 9px;font-size:0}
+  .ai-quick svg{width:17px;height:17px}
+  .tabbar{padding:0 6px}
+  .header-today{padding:5px 8px;gap:3px}
+  .header-today span{font-size:9px}
+  .header-today b{font-size:14px}
+  .setup-banner-inner{padding:10px 14px;font-size:11.5px}
+  .tab-btn{padding:12px 10px 10px;font-size:12px;gap:5px}
+  .tab-btn svg{width:15px;height:15px}
+  .app-main{padding:15px 12px 34px}
+  .page-head{margin-bottom:13px}
+  .page-head h1{font-size:22px}
+  .page-head p{font-size:11.5px}
+  .page-actions{width:100%}
+  .form-body{padding:15px}
+  .card-head{padding:14px 15px}
+  .grid-2,.grid-3{grid-template-columns:1fr;gap:12px}
+  .form-section{padding-bottom:16px;margin-bottom:16px}
+  .form-footer{flex-direction:column-reverse;align-items:stretch}
+  .form-footer .btn.lg{width:100%;min-width:0}
+  .form-progress{justify-content:center}
+  .form-side{grid-template-columns:1fr}
+  .form-side .today-card{grid-column:auto}
+  .today-num b{font-size:38px}
+  .stats-kpis{grid-template-columns:1fr 1fr;gap:9px}
+  .kpi{padding:12px}
+  .kpi-val{font-size:24px}
+  .insight-list{grid-template-columns:1fr}
+  .chart-head{padding:14px 14px 0}
+  .chart-wrap{padding:14px 12px 8px;min-height:225px}
+  .chart-bars{gap:4px;height:180px}
+  .bar-col .bar-lbl{font-size:8px}
+  .bar-col .bar-val{font-size:8px}
+  .table-head{padding:14px}
+  table{min-width:0}
+  thead th,tbody td{padding:9px 8px}
+  thead th:nth-child(5),tbody td:nth-child(5){display:none}
+  thead th:first-child,tbody td:first-child{padding-left:12px}
+  .ai-hero{padding:16px}
+  .ai-hero .btn{margin-left:0;width:100%}
+  .ai-frame-wrap{height:70vh;min-height:420px}
+  .ai-url{max-width:50%}
+  .modal{max-height:94vh}
+  .modal-head{padding:16px 16px 0}
+  .modal-body{padding:15px 16px 17px}
+  .toast-wrap{right:12px;bottom:12px;left:12px;max-width:none}
+  .success-detail{padding:2px 11px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     CẤU HÌNH WEB — CHỈ SỬA 2 DÒNG DƯỚI ĐÂY
+     API_URL: link Apps Script kết thúc bằng /exec
+     API_KEY: đúng API key đã đặt trong Apps Script (KHÔNG phải token bot)
+     Người dùng cuối không cần nhập gì; chỉ quản trị viên điền 2 dòng này.
+     Lưu ý: API key nằm trong file công khai, chỉ là lớp chặn kỹ thuật.
+     ============================================================ -->
+<script>
+window.APP_CONFIG = {
+  API_URL: "https://script.google.com/macros/s/AKfycbzQsvM_LDkR20ak6ol_eFA-g7mSTFzBDDe5GArQ-HajnXdoCdfOh6WXbYWUEv0FvOOM/exec",
+  API_KEY: "1906311157",
+  AI_URL: "https://htktttvttah-create.github.io/dieuhanhtah/trolygoicuoc.html"
+};
+</script>
+
+<!-- ============================================================
+     ỨNG DỤNG
+     ============================================================ -->
+<div id="app">
+  <header class="app-header">
+    <div class="app-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9 6 9-6"/><path d="M3 7h18v12H3z"/><path d="M3 7l9 6 9-6" opacity=".45"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">Tiếp thị Bưu điện</div>
+        <div class="brand-sub">TTVT × Bưu điện · Nhập phiếu công khai, không cần đăng nhập</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-date">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+        <span id="header-date">—</span>
+      </div>
+      <div class="header-today" title="Số máy hôm nay">
+        <span>Hôm nay</span><b id="header-today">0</b><small>máy</small>
+      </div>
+      <button type="button" class="ai-quick" data-tab="ai" title="AI tra cứu gói cước">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8L12 14.6 7 18.2l1.9-5.8L4 8.8h6.1z"/></svg>
+        AI gói cước
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabbar" id="tabbar" aria-label="Điều hướng chính">
+    <button type="button" class="tab-btn active" data-tab="form">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+      Nhập phiếu
+    </button>
+    <button type="button" class="tab-btn" data-tab="stats">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      Thống kê
+      <span class="tab-badge" id="stats-badge">0</span>
+    </button>
+    <button type="button" class="tab-btn" data-tab="ai">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8L12 14.6 7 18.2l1.9-5.8L4 8.8h6.1z"/></svg>
+      AI gói cước
+    </button>
+  </nav>
+
+  <div class="setup-banner hidden" id="setup-banner">
+    <div class="setup-banner-inner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+      <div><b>Chưa cấu hình API.</b> <span id="setup-banner-text">Quản trị viên cần điền API_URL và API_KEY ở đầu file Index.html.</span></div>
+    </div>
+  </div>
+
+  <main class="app-main">
+    <!-- ================= NHẬP PHIẾU ================= -->
+    <section class="tab-pane active" id="tab-form">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Nhập liệu tiếp thị</span>
+          <h1>Phiếu tiếp thị mới</h1>
+          <p>Nhập đủ 4 thông tin bắt buộc. Phiếu được lưu vào Google Sheet và gửi Telegram ngay sau khi gửi.</p>
+        </div>
+        <div class="page-actions">
+          <span class="required-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+            <b>*</b> Tất cả trường đều bắt buộc
+          </span>
+        </div>
+      </div>
+
+      <div class="form-layout">
+        <section class="card form-card">
+          <div class="card-head">
+            <div class="ch-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+            </div>
+            <div>
+              <h2>Thông tin phiếu</h2>
+              <p>Ghi đúng thông tin khách hàng để bưu điện và TTVT phối hợp hiệu quả.</p>
+            </div>
+          </div>
+
+          <div class="form-body">
+            <div class="form-banner" id="form-banner"></div>
+            <form id="phieu-form" novalidate autocomplete="off">
+              <div class="form-section">
+                <div class="section-title"><span class="num">01</span> Thông tin khách hàng <span class="sub">Bắt buộc</span></div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="ten-khach">Họ tên khách hàng <span class="req">*</span></label>
+                    <input id="ten-khach" name="ten_khach_hang" maxlength="80" placeholder="Ví dụ: Nguyễn Văn An" autocomplete="off">
+                    <div class="field-error" id="err-ten-khach"></div>
+                  </div>
+                  <div class="field">
+                    <label for="so-lien-he">Số liên hệ <span class="req">*</span></label>
+                    <input id="so-lien-he" name="so_lien_he" type="tel" inputmode="tel" maxlength="15" placeholder="Ví dụ: 0901 234 567" autocomplete="off">
+                    <div class="field-error" id="err-so-lien-he"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title"><span class="num">02</span> Địa chỉ <span class="sub">Số nhà · tên đường · ấp</span></div>
+                <div class="field">
+                  <label for="dia-chi">Địa chỉ khách hàng <span class="req">*</span> <span class="hint" id="dia-chi-count">0/300</span></label>
+                  <textarea id="dia-chi" name="dia_chi" maxlength="300" rows="2" placeholder="Ví dụ: 123 Nguyễn Văn X, Ấp 2"></textarea>
+                  <div class="addr-guide" id="addr-guide">
+                    <div class="addr-status">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                      <span>Nhập theo thứ tự: <strong>số nhà → tên đường → ấp</strong>. Giúp đối chiếu địa bàn và hạn chế sai sót.</span>
+                    </div>
+                    <div class="addr-examples"><span>123 Nguyễn Văn X, Ấp 2</span><span>45/7 Đường 713, Ấp Trung Bình</span></div>
+                  </div>
+                  <div class="field-error" id="err-dia-chi"></div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title"><span class="num">03</span> Người nhập <span class="sub">Phục vụ đối chiếu</span></div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="sdt-nguoi-nhap">Số di động người nhập <span class="req">*</span></label>
+                    <input id="sdt-nguoi-nhap" name="so_di_dong_nguoi_nhap" type="tel" inputmode="tel" maxlength="15" placeholder="Ví dụ: 0987 654 321" autocomplete="off">
+                    <div class="input-note">
+                      <span>Số của người trực tiếp nhập phiếu.</span>
+                      <button type="button" class="last-phone-btn hidden" id="use-last-phone">Dùng lại số trước</button>
+                    </div>
+                    <div class="field-error" id="err-sdt-nguoi-nhap"></div>
+                  </div>
+                  <div class="field">
+                    <label>Nguồn ghi nhận</label>
+                    <div class="account-box">
+                      <div class="mini-avatar">BĐ</div>
+                      <div>
+                        <b>Bưu điện nhập phiếu</b>
+                        <small>Không cần đăng nhập · Lưu trực tiếp vào Google Sheet</small>
+                      </div>
+                    </div>
+                    <div class="field-help">Hệ thống tự ghi nguồn và thời gian gửi.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-footer">
+                <div class="form-progress">
+                  <span class="dots" id="form-dots"><i></i><i></i><i></i><i></i></span>
+                  <span id="form-progress-text">0/4 thông tin</span>
+                </div>
+                <button type="submit" class="btn primary lg" id="btn-submit">
+                  <span class="btn-label">Gửi phiếu &amp; báo Telegram</span>
+                  <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <aside class="form-side">
+          <div class="today-card">
+            <div class="today-top"><span>Hôm nay</span><span class="live"><i></i> Đang cập nhật</span></div>
+            <div class="today-num"><b id="side-today-count">0</b><small>máy</small></div>
+            <div class="today-sub" id="side-today-sub">Chưa có phiếu nào hôm nay</div>
+            <div class="progress"><i id="side-progress" style="width:0%"></i></div>
+            <div class="today-meta"><span id="side-target-text">Mục tiêu 20 máy/ngày</span><span id="side-percent">0%</span></div>
+            <div class="today-grid">
+              <div><span>Lượt nhập</span><b id="side-today-rows">0</b></div>
+              <div><span>Người nhập</span><b id="side-today-staff">0</b></div>
+            </div>
+          </div>
+
+          <div class="card side-card">
+            <div class="side-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/><path d="M8 5l4 4-3 3 4 4 3-3 4 4"/></svg>
+              Quy trình 3 bước
+            </div>
+            <div class="steps">
+              <div class="step done"><div class="sn">1</div><div><b>Nhập đủ 4 thông tin</b><p>Tên khách, số liên hệ, địa chỉ, số người nhập.</p></div></div>
+              <div class="step"><div class="sn">2</div><div><b>Lưu Sheet &amp; báo Telegram</b><p>Hệ thống tự ghi phiếu và gửi cho anh Lư Uy Bình.</p></div></div>
+              <div class="step"><div class="sn">3</div><div><b>Tư vấn bằng AI</b><p>Mở tab AI gói cước để tra cứu nhanh tại chỗ.</p></div></div>
+            </div>
+          </div>
+
+          <div class="card side-card tip-card">
+            <div class="side-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7c.7.6 1 1.4 1 2.3h6c0-.9.3-1.7 1-2.3A7 7 0 0012 2z"/></svg>
+              Mẹo nhập nhanh
+            </div>
+            <p>Địa chỉ nên có <b>số nhà</b> và <b>ấp</b> để đối chiếu đúng địa bàn. Nếu khách không nhớ số nhà, ghi mốc gần nhất, ví dụ: <b>“gần 45 Đường 713, Ấp Trung Bình”</b>.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ================= THỐNG KÊ ================= -->
+    <section class="tab-pane" id="tab-stats">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Báo cáo tổng hợp</span>
+          <h1>Thống kê hàng ngày</h1>
+          <p>Số điện thoại đã nhập theo ngày. Không hiển thị danh sách khách hàng để bảo mật dữ liệu.</p>
+        </div>
+        <div class="page-actions">
+          <span class="required-note" id="stats-updated">Cập nhật: —</span>
+          <button type="button" class="btn sm" id="btn-refresh-stats">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+            Làm mới
+          </button>
+        </div>
+      </div>
+
+      <div class="stats-kpis">
+        <div class="kpi primary">
+          <div class="kpi-lbl">Hôm nay</div>
+          <div class="kpi-val"><span id="kpi-today">0</span><small>máy</small></div>
+          <div class="kpi-sub" id="kpi-today-sub">0 lượt nhập hôm nay</div>
+          <div class="mini-bar"><i id="kpi-today-bar" style="width:0%"></i></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl">7 ngày gần nhất</div>
+          <div class="kpi-val"><span id="kpi-7">0</span><small>máy</small></div>
+          <div class="kpi-sub" id="kpi-7-sub">Trung bình 0 máy/ngày</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl">Tháng này</div>
+          <div class="kpi-val"><span id="kpi-month">0</span><small>máy</small></div>
+          <div class="kpi-sub" id="kpi-month-sub">0 lượt nhập</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl">Tổng phiếu đã nhập</div>
+          <div class="kpi-val"><span id="kpi-total">0</span><small>phiếu</small></div>
+          <div class="kpi-sub" id="kpi-total-sub">0 số điện thoại duy nhất</div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <section class="card chart-card">
+          <div class="chart-head">
+            <div>
+              <h2>Số máy theo ngày</h2>
+              <p>Đếm số điện thoại duy nhất của khách hàng trong từng ngày.</p>
+            </div>
+            <div class="range-tabs" id="range-tabs">
+              <button type="button" data-range="7">7 ngày</button>
+              <button type="button" data-range="14" class="active">14 ngày</button>
+              <button type="button" data-range="30">30 ngày</button>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-bars" id="chart-bars"></div>
+            <div class="chart-legend">
+              <span><i class="legend-dot"></i> Số máy</span>
+              <span><i class="legend-dot today"></i> Hôm nay</span>
+              <span class="muted">Rê chuột để xem chi tiết</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="card insight-card">
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2H22l-6 4.5 2.3 7.3-6.3-4.6-6.3 4.6L8 13.7 2 9.2h7.6z"/></svg>
+            Điểm nổi bật
+          </h2>
+          <div class="insight-list">
+            <div class="insight-item">
+              <div class="insight-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 01-10 0z"/><path d="M17 5h3v2a3 3 0 01-3 3M7 5H4v2a3 3 0 003 3"/></svg></div>
+              <div><div class="ii-lbl">Ngày cao nhất 30 ngày</div><b id="insight-best">—</b></div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div>
+              <div><div class="ii-lbl">Trung bình 7 ngày</div><b id="insight-avg">0 máy/ngày</b></div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/><path d="M16 11a3 3 0 100-6M21 20c0-2.2-1.5-3.8-3.5-4.4"/></svg></div>
+              <div><div class="ii-lbl">Người nhập hôm nay</div><b id="insight-staff">0 người</b></div>
+            </div>
+            <div class="insight-item">
+              <div class="insight-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>
+              <div><div class="ii-lbl">Số phiếu hôm nay</div><b id="insight-today-count">0 phiếu</b></div>
+            </div>
+          </div>
+          <div class="insight-note">Số liệu được tổng hợp trực tiếp từ sheet phiếu. Không có tên, số điện thoại hay địa chỉ khách hàng trong báo cáo này.</div>
+        </aside>
+      </div>
+
+      <section class="card table-card">
+        <div class="table-head">
+          <div>
+            <h2>Chi tiết 30 ngày</h2>
+            <p>Ngày mới nhất ở trên cùng · Số máy là số điện thoại duy nhất</p>
+          </div>
+          <span class="required-note">Chỉ số liệu tổng hợp</span>
+        </div>
+        <div class="table-wrap">
+          <table aria-label="Thống kê số máy theo ngày">
+            <thead>
+              <tr><th>Ngày</th><th>Thứ</th><th>Số máy</th><th>Lượt nhập</th><th>Người nhập</th></tr>
+            </thead>
+            <tbody id="stats-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+      <div class="privacy-foot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        Báo cáo chỉ hiển thị số liệu tổng hợp. Danh sách khách hàng được lưu trong Google Sheet và không xuất ra web.
+      </div>
+    </section>
+
+    <!-- ================= AI GÓI CƯỚC ================= -->
+    <section class="tab-pane" id="tab-ai">
+      <div class="ai-hero">
+        <div class="ai-orb">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8L12 14.6 7 18.2l1.9-5.8L4 8.8h6.1z"/></svg>
+        </div>
+        <div>
+          <h2>AI tra cứu gói cước</h2>
+          <p>Tra cứu nhanh gói cước, tốc độ và giá — dùng ngay khi đang tư vấn khách hàng.</p>
+        </div>
+        <a class="btn" data-ai-link href="https://htktttvttah-create.github.io/dieuhanhtah/trolygoicuoc.html" target="_blank" rel="noopener noreferrer">
+          Mở tab mới
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+        </a>
+      </div>
+
+      <div class="card ai-card">
+        <div class="ai-toolbar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <span class="ai-url" id="ai-url">htktttvttah-create.github.io/dieuhanhtah/trolygoicuoc.html</span>
+          <div class="spacer"></div>
+          <button type="button" class="btn sm" id="btn-reload-ai">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+            Tải lại
+          </button>
+          <a class="btn sm" data-ai-link href="https://htktttvttah-create.github.io/dieuhanhtah/trolygoicuoc.html" target="_blank" rel="noopener noreferrer">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+            Mở rộng
+          </a>
+        </div>
+        <div class="ai-frame-wrap" id="ai-frame-wrap">
+          <div class="ai-loading" id="ai-loading">
+            <div class="spinner dark"></div>
+            <span>Đang tải trợ lý gói cước…</span>
+          </div>
+          <iframe id="ai-frame" title="Trợ lý AI tra cứu gói cước" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <div class="ai-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+          <span>Trang tra cứu do bộ phận kỹ thuật cung cấp. Nếu khung bên trong không hiển thị, bấm <a data-ai-link href="https://htktttvttah-create.github.io/dieuhanhtah/trolygoicuoc.html" target="_blank" rel="noopener noreferrer">mở tab mới</a>.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================================
+     MODAL THÀNH CÔNG
+     ============================================================ -->
+<div class="overlay hidden" id="success-modal" data-overlay="success">
+  <div class="modal success-modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
+    <div class="success-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="success-title" id="success-title">Đã gửi phiếu!</div>
+    <div class="success-sub" id="success-sub">Thông tin đã được lưu vào Google Sheet và báo Telegram.</div>
+    <div class="success-detail">
+      <div class="sd-row"><span>Mã phiếu</span><b><span class="code" id="success-code">—</span><button type="button" class="copy-btn" id="btn-copy-code" title="Sao chép mã phiếu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></b></div>
+      <div class="sd-row"><span>Khách hàng</span><b id="success-customer">—</b></div>
+      <div class="sd-row"><span>Số liên hệ</span><b id="success-phone">—</b></div>
+      <div class="sd-row"><span>Thời gian</span><b id="success-time">—</b></div>
+    </div>
+    <div class="success-tg ok" id="success-tg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+      <span id="success-tg-text">Đã báo Telegram cho anh Lư Uy Bình.</span>
+    </div>
+    <div class="success-actions">
+      <button type="button" class="btn" id="btn-success-stats">Xem thống kê</button>
+      <button type="button" class="btn primary" id="btn-success-next">Nhập phiếu tiếp</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+/* ============================================================
+   TIẾP THỊ BƯU ĐIỆN — FRONTEND CÔNG KHAI
+   Không đăng nhập, không cần build, không dùng thư viện ngoài.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  const APP_CONFIG = window.APP_CONFIG || {};
+  const CFG = {
+    API_URL: String(APP_CONFIG.API_URL || '').trim(),
+    API_KEY: String(APP_CONFIG.API_KEY || '').trim(),
+    AI_URL: APP_CONFIG.AI_URL || 'https://htktttvttah-create.github.io/dieuhanhtah/trolygoicuoc.html'
+  };
+
+  const LS = { STAFF_PHONE: 'ttbd_staff_phone' };
+
+  const state = {
+    stats: null,
+    chartRange: 14,
+    activeTab: 'form',
+    aiLoaded: false,
+    submitting: false,
+    bootstrapping: false,
+    clientId: ''
+  };
+
+  const $ = function (sel, root) { return (root || document).querySelector(sel); };
+  const $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
+  function icon(name, cls) {
+    const paths = {
+      check: '<path d="M20 6L9 17l-5-5"/>',
+      alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/>',
+      info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+      send: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>'
+    };
+    return '<svg class="' + (cls || 'ic') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (paths[name] || '') + '</svg>';
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function num(value) {
+    return new Intl.NumberFormat('vi-VN').format(Number(value) || 0);
+  }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function todayLabel() {
+    const d = new Date();
+    const weekday = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'][d.getDay()];
+    return weekday + ', ' + pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear();
+  }
+
+  function shortToday() {
+    const d = new Date();
+    return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear();
+  }
+
+  function configReady() {
+    return !!CFG.API_URL && !!CFG.API_KEY;
+  }
+
+  function showToast(message, type) {
+    type = type || 'info';
+    const wrap = $('#toast-wrap');
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.innerHTML = icon(type === 'success' ? 'check' : (type === 'error' ? 'alert' : 'info')) +
+      '<span>' + escapeHtml(message) + '</span>';
+    wrap.appendChild(el);
+    setTimeout(function () {
+      el.classList.add('out');
+      setTimeout(function () { el.remove(); }, 230);
+    }, 4200);
+  }
+
+  /* ---------------- API JSONP ---------------- */
+  function apiCall(action, payload) {
+    return new Promise(function (resolve, reject) {
+      if (!CFG.API_URL) {
+        reject({ code: 'NO_CONFIG', message: 'Chưa cấu hình API_URL trong Index.html.' });
+        return;
+      }
+      if (!CFG.API_KEY) {
+        reject({ code: 'NO_CONFIG', message: 'Chưa cấu hình API_KEY trong Index.html.' });
+        return;
+      }
+
+      const cbName = '__ttbd_cb_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 100000);
+      let settled = false;
+      let script = null;
+      const timer = setTimeout(function () {
+        finish(reject, { code: 'TIMEOUT', message: 'Máy chủ phản hồi quá lâu. Vui lòng thử lại.' });
+      }, 28000);
+
+      function cleanup() {
+        clearTimeout(timer);
+        try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+      }
+      function finish(fn, value) {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        fn(value);
+      }
+
+      window[cbName] = function (data) {
+        if (!data) {
+          finish(reject, { code: 'BAD_RESPONSE', message: 'API trả về dữ liệu rỗng.' });
+          return;
+        }
+        if (data.ok === false) {
+          finish(reject, {
+            code: data.code || 'API_ERROR',
+            message: data.error || 'API báo lỗi.'
+          });
+          return;
+        }
+        finish(resolve, data);
+      };
+
+      try {
+        const url = new URL(CFG.API_URL, window.location.href);
+        url.searchParams.set('action', action);
+        url.searchParams.set('api_key', CFG.API_KEY);
+        url.searchParams.set('callback', cbName);
+        url.searchParams.set('_', String(Date.now()));
+        if (payload) url.searchParams.set('payload', JSON.stringify(payload));
+        script = document.createElement('script');
+        script.src = url.toString();
+        script.async = true;
+        script.onerror = function () {
+          finish(reject, { code: 'NETWORK', message: 'Không kết nối được API. Kiểm tra mạng hoặc link /exec.' });
+        };
+        document.head.appendChild(script);
+      } catch (e) {
+        finish(reject, { code: 'BAD_URL', message: 'API URL không hợp lệ.' });
+      }
+    });
+  }
+
+  function api(action, payload) {
+    return apiCall(action, payload);
+  }
+
+  function showSetupBanner(message) {
+    const banner = $('#setup-banner');
+    if (!banner) return;
+    $('#setup-banner-text').textContent = message || 'Quản trị viên cần điền API_URL và API_KEY ở đầu file Index.html.';
+    banner.classList.remove('hidden');
+    const btn = $('#btn-submit');
+    if (btn) btn.disabled = true;
+  }
+
+  function clearSetupBanner() {
+    $('#setup-banner').classList.add('hidden');
+    const btn = $('#btn-submit');
+    if (btn) btn.disabled = false;
+  }
+
+  function handleApiError(err, fallback) {
+    const message = (err && err.message) || fallback || 'Có lỗi xảy ra.';
+    if (err && (err.code === 'API_KEY' || err.code === 'NO_API_KEY' || err.code === 'NO_CONFIG' || err.code === 'BAD_URL')) {
+      showSetupBanner(message);
+    }
+    showToast(message, 'error');
+  }
+
+  /* ---------------- TAB ---------------- */
+  function switchTab(name, silent) {
+    if (name === 'stats' && !state.stats) loadBootstrap();
+    state.activeTab = name;
+    $$('.tab-btn').forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-tab') === name);
+    });
+    $$('.tab-pane').forEach(function (pane) {
+      pane.classList.toggle('active', pane.id === 'tab-' + name);
+    });
+    if (name === 'ai') loadAI(false);
+    if (!silent) {
+      try { history.replaceState(null, '', '#' + name); } catch (e) { }
+    }
+  }
+
+  /* ---------------- THỐNG KÊ ---------------- */
+  function applyTarget() {
+    const target = (state.stats && state.stats.target) || 20;
+    $('#side-target-text').textContent = 'Mục tiêu ' + target + ' máy/ngày';
+  }
+
+  function renderAllStats() {
+    const s = state.stats;
+    if (!s) return;
+    const target = s.target || 20;
+    const todayUnique = Number(s.todayUnique) || 0;
+    const todayCount = Number(s.todayCount) || 0;
+    const todayStaff = Number(s.todayStaff) || 0;
+    const last7 = Number(s.last7Unique) || 0;
+    const month = Number(s.monthUnique) || 0;
+    const total = Number(s.totalRows) || 0;
+    const allUnique = Number(s.allUnique) || 0;
+    const pct = Math.min(100, Math.round(todayUnique / target * 100));
+
+    $('#header-today').textContent = num(todayUnique);
+    $('#kpi-today').textContent = num(todayUnique);
+    $('#kpi-today-sub').textContent = num(todayCount) + ' lượt nhập hôm nay';
+    $('#kpi-today-bar').style.width = pct + '%';
+    $('#kpi-7').textContent = num(last7);
+    $('#kpi-7-sub').textContent = 'Trung bình ' + (Number(s.avg7) || 0).toLocaleString('vi-VN') + ' máy/ngày';
+    $('#kpi-month').textContent = num(month);
+    $('#kpi-month-sub').textContent = num(s.monthCount) + ' lượt nhập trong tháng';
+    $('#kpi-total').textContent = num(total);
+    $('#kpi-total-sub').textContent = num(allUnique) + ' số điện thoại duy nhất';
+    $('#stats-updated').textContent = 'Cập nhật: ' + (s.generatedAt || '—');
+    $('#stats-badge').textContent = num(todayUnique);
+
+    $('#side-today-count').textContent = num(todayUnique);
+    $('#side-today-rows').textContent = num(todayCount);
+    $('#side-today-staff').textContent = num(todayStaff);
+    $('#side-progress').style.width = pct + '%';
+    $('#side-percent').textContent = pct + '%';
+    $('#side-today-sub').textContent = todayUnique
+      ? (todayCount + ' lượt nhập · ' + todayStaff + ' người nhập')
+      : 'Chưa có phiếu nào hôm nay';
+
+    $('#insight-best').textContent = s.bestDay ? (s.bestDay.label + ' · ' + s.bestDay.unique + ' máy') : 'Chưa có dữ liệu';
+    $('#insight-avg').textContent = (Number(s.avg7) || 0).toLocaleString('vi-VN') + ' máy/ngày';
+    $('#insight-staff').textContent = num(todayStaff) + ' người';
+    $('#insight-today-count').textContent = num(todayCount) + ' phiếu';
+
+    renderChart();
+    renderTable();
+  }
+
+  function renderChart() {
+    const s = state.stats;
+    const wrap = $('#chart-bars');
+    if (!s || !Array.isArray(s.days)) {
+      wrap.innerHTML = '<div class="chart-empty">Chưa có dữ liệu thống kê.</div>';
+      return;
+    }
+    const count = Math.min(state.chartRange, s.days.length);
+    const days = s.days.slice(-count);
+    const max = Math.max.apply(null, days.map(function (d) { return Number(d.unique) || 0; }).concat([1]));
+    const showLabels = count <= 14;
+    let html = '';
+    days.forEach(function (d, i) {
+      const value = Number(d.unique) || 0;
+      const h = value ? Math.max(5, Math.round(value / max * 100)) : 2;
+      const todayClass = d.isToday ? ' today' : '';
+      const zeroClass = value ? '' : ' zero';
+      const label = showLabels ? d.label : (i % 3 === 0 || d.isToday ? d.label : '');
+      html += '<div class="bar-col' + todayClass + zeroClass + '" title="' + escapeHtml(d.label + ' · ' + value + ' máy · ' + d.count + ' lượt') + '">' +
+        '<span class="bar-val">' + (value ? value : '') + '</span>' +
+        '<div class="bar-track"><i class="bar" style="height:' + h + '%"></i></div>' +
+        '<span class="bar-lbl">' + escapeHtml(label) + '</span>' +
+        '</div>';
+    });
+    wrap.innerHTML = html;
+    if (!days.some(function (d) { return Number(d.unique) > 0; })) {
+      wrap.insertAdjacentHTML('beforeend', '<div class="chart-empty">Chưa có số máy nào trong khoảng thời gian này.</div>');
+    }
+    $$('#range-tabs button').forEach(function (b) {
+      b.classList.toggle('active', Number(b.getAttribute('data-range')) === state.chartRange);
+    });
+  }
+
+  function renderTable() {
+    const s = state.stats;
+    const tbody = $('#stats-table-body');
+    if (!s || !Array.isArray(s.days)) {
+      tbody.innerHTML = '';
+      return;
+    }
+    const rows = s.days.slice().reverse();
+    tbody.innerHTML = rows.map(function (d) {
+      const cls = d.isToday ? ' class="today-row"' : '';
+      return '<tr' + cls + '>' +
+        '<td><b>' + escapeHtml(d.label) + '</b>' + (d.isToday ? ' <span class="weekday-pill" style="background:#dff5eb;color:#0f8a5f">Hôm nay</span>' : '') + '</td>' +
+        '<td><span class="weekday-pill">' + escapeHtml(d.weekday) + '</span></td>' +
+        '<td class="num' + (d.unique ? '' : ' zero') + '">' + num(d.unique) + '</td>' +
+        '<td class="num' + (d.count ? '' : ' zero') + '">' + num(d.count) + '</td>' +
+        '<td class="staff-cell">' + num(d.staff) + ' người</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function loadBootstrap() {
+    if (!configReady()) {
+      showSetupBanner('Quản trị viên cần điền API_URL và API_KEY ở đầu file Index.html.');
+      return Promise.resolve(null);
+    }
+    if (state.bootstrapping) return Promise.resolve(null);
+    state.bootstrapping = true;
+    return api('bootstrap').then(function (data) {
+      state.stats = data.stats || null;
+      renderAllStats();
+      applyTarget();
+      clearSetupBanner();
+      return data;
+    }).catch(function (err) {
+      if (err && (err.code === 'API_KEY' || err.code === 'NO_API_KEY' || err.code === 'NO_CONFIG' || err.code === 'BAD_URL')) {
+        showSetupBanner(err.message);
+      }
+      showToast((err && err.message) || 'Không tải được dữ liệu thống kê.', 'error');
+      return null;
+    }).finally(function () {
+      state.bootstrapping = false;
+    });
+  }
+
+  function refreshStats() {
+    const btn = $('#btn-refresh-stats');
+    if (btn) btn.classList.add('loading');
+    api('getStats', { force: true }).then(function (data) {
+      state.stats = data.stats;
+      renderAllStats();
+      applyTarget();
+      clearSetupBanner();
+      showToast('Đã cập nhật thống kê mới nhất.', 'success');
+    }).catch(function (err) {
+      handleApiError(err, 'Không cập nhật được thống kê.');
+    }).finally(function () {
+      if (btn) btn.classList.remove('loading');
+    });
+  }
+
+  /* ---------------- FORM ---------------- */
+  function normalizePhone(value) {
+    let digits = String(value == null ? '' : value).replace(/\D/g, '');
+    if (digits.indexOf('84') === 0 && digits.length >= 11) digits = '0' + digits.slice(2);
+    if (digits.length === 9 && digits.charAt(0) !== '0') digits = '0' + digits;
+    return digits;
+  }
+
+  function fieldError(id, message) {
+    const err = $('#err-' + id);
+    const input = $('#' + id);
+    if (err) {
+      err.textContent = message || '';
+      err.classList.toggle('show', !!message);
+    }
+    if (input) input.setAttribute('aria-invalid', message ? 'true' : 'false');
+  }
+
+  function validateForm(show) {
+    const name = $('#ten-khach').value.trim();
+    const phoneRaw = $('#so-lien-he').value.trim();
+    const address = $('#dia-chi').value.trim();
+    const staffPhoneRaw = $('#sdt-nguoi-nhap').value.trim();
+    const phone = normalizePhone(phoneRaw);
+    const staffPhone = normalizePhone(staffPhoneRaw);
+    const errors = {};
+
+    if (!name) errors['ten-khach'] = 'Nhập họ tên khách hàng.';
+    else if (name.length < 2) errors['ten-khach'] = 'Tên khách hàng quá ngắn.';
+    else if (name.length > 80) errors['ten-khach'] = 'Tên khách hàng quá dài (tối đa 80 ký tự).';
+
+    if (!phoneRaw) errors['so-lien-he'] = 'Nhập số liên hệ của khách.';
+    else if (!/^0\d{8,10}$/.test(phone)) errors['so-lien-he'] = 'Số liên hệ chưa đúng. Nhập số bắt đầu bằng 0 (9–11 chữ số).';
+
+    if (!address) errors['dia-chi'] = 'Nhập địa chỉ khách hàng.';
+    else if (address.length < 8) errors['dia-chi'] = 'Địa chỉ quá ngắn. Ghi rõ số nhà, tên đường, ấp.';
+    else if (address.length > 300) errors['dia-chi'] = 'Địa chỉ tối đa 300 ký tự.';
+
+    if (!staffPhoneRaw) errors['sdt-nguoi-nhap'] = 'Nhập số di động của người nhập phiếu.';
+    else if (!/^0\d{8,10}$/.test(staffPhone)) errors['sdt-nguoi-nhap'] = 'Số người nhập chưa đúng. Nhập số bắt đầu bằng 0 (9–11 chữ số).';
+
+    if (show) {
+      fieldError('ten-khach', errors['ten-khach']);
+      fieldError('so-lien-he', errors['so-lien-he']);
+      fieldError('dia-chi', errors['dia-chi']);
+      fieldError('sdt-nguoi-nhap', errors['sdt-nguoi-nhap']);
+    }
+    return {
+      ok: Object.keys(errors).length === 0,
+      errors: errors,
+      values: {
+        ten_khach_hang: name,
+        so_lien_he: phone,
+        dia_chi: address,
+        so_di_dong_nguoi_nhap: staffPhone
+      }
+    };
+  }
+
+  function updateFormProgress() {
+    const filled = [
+      $('#ten-khach').value.trim(),
+      normalizePhone($('#so-lien-he').value),
+      $('#dia-chi').value.trim(),
+      normalizePhone($('#sdt-nguoi-nhap').value)
+    ].filter(function (v) { return !!v; }).length;
+    $('#form-progress-text').textContent = filled + '/4 thông tin';
+    $$('#form-dots i').forEach(function (dot, i) {
+      dot.classList.toggle('on', i < filled);
+    });
+  }
+
+  function updateAddressGuide() {
+    const raw = $('#dia-chi').value;
+    const value = raw.trim();
+    $('#dia-chi-count').textContent = value.length + '/300';
+    const guide = $('#addr-guide');
+    if (!value) {
+      guide.innerHTML = '<div class="addr-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Nhập theo thứ tự: <strong>số nhà → tên đường → ấp</strong>. Giúp đối chiếu địa bàn và hạn chế sai sót.</span></div><div class="addr-examples"><span>123 Nguyễn Văn X, Ấp 2</span><span>45/7 Đường 713, Ấp Trung Bình</span></div>';
+      return;
+    }
+    const hasNumber = /\d/.test(value);
+    const hasAp = /(^|\s)(ấp|ap)(\s|$)/i.test(value);
+    const parts = [];
+    if (hasNumber) parts.push('đã có số nhà');
+    else parts.push('thiếu số nhà');
+    if (hasAp) parts.push('đã có ấp');
+    else parts.push('chưa thấy ấp');
+    const ok = hasNumber && hasAp;
+    const cls = ok ? 'ok' : 'warn';
+    guide.innerHTML = '<div class="addr-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
+      (ok ? '<path d="M20 6L9 17l-5-5"/>' : '<circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/>') +
+      '</svg><span class="' + cls + '">' + (ok ? 'Địa chỉ đã có số nhà và ấp. Kiểm tra lại tên đường trước khi gửi.' : 'Gợi ý: ' + parts.join(', ') + '. Nên ghi rõ số nhà, tên đường và ấp.') + '</span></div>';
+  }
+
+  function setSubmitLoading(loading) {
+    state.submitting = loading;
+    const btn = $('#btn-submit');
+    btn.disabled = loading;
+    btn.classList.toggle('loading', loading);
+    const label = $('.btn-label', btn);
+    if (label) label.textContent = loading ? 'Đang lưu & gửi Telegram…' : 'Gửi phiếu & báo Telegram';
+    let sp = $('.spinner', btn);
+    if (loading && !sp) {
+      sp = document.createElement('span');
+      sp.className = 'spinner';
+      btn.insertBefore(sp, btn.firstChild);
+    } else if (!loading && sp) {
+      sp.remove();
+    }
+  }
+
+  function makeClientId() {
+    return 'web-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+  }
+
+  function submitForm(event) {
+    event.preventDefault();
+    if (state.submitting) return;
+    if (!configReady()) {
+      showSetupBanner('Quản trị viên cần điền API_URL và API_KEY ở đầu file Index.html.');
+      showToast('Chưa cấu hình API, chưa thể gửi phiếu.', 'error');
+      return;
+    }
+    const result = validateForm(true);
+    if (!result.ok) {
+      const first = Object.keys(result.errors)[0];
+      const el = $('#' + first);
+      if (el) el.focus();
+      showToast('Vui lòng kiểm tra lại các trường còn thiếu hoặc chưa đúng.', 'error');
+      return;
+    }
+
+    state.clientId = state.clientId || makeClientId();
+    const payload = Object.assign({ client_id: state.clientId }, result.values);
+    setSubmitLoading(true);
+    $('#form-banner').innerHTML = '';
+
+    api('savePhieu', payload).then(function (data) {
+      setSubmitLoading(false);
+      try { localStorage.setItem(LS.STAFF_PHONE, result.values.so_di_dong_nguoi_nhap); } catch (e) { }
+      updateLastPhoneButton();
+      if (data.stats) {
+        state.stats = data.stats;
+        renderAllStats();
+        applyTarget();
+      } else {
+        refreshStats();
+      }
+      showSuccess(data, result.values);
+    }).catch(function (err) {
+      setSubmitLoading(false);
+      if (err && (err.code === 'API_KEY' || err.code === 'NO_API_KEY' || err.code === 'NO_CONFIG')) {
+        handleApiError(err);
+        return;
+      }
+      const message = (err && err.message) || 'Không gửi được phiếu. Vui lòng thử lại.';
+      $('#form-banner').innerHTML = '<div class="alert danger">' + icon('alert') + '<span>' + escapeHtml(message) + '</span></div>';
+      showToast(message, 'error');
+    });
+  }
+
+  function showSuccess(data, values) {
+    const phieu = data.phieu || {};
+    const tg = data.telegram || {};
+    const duplicate = !!data.duplicate;
+    $('#success-title').textContent = duplicate ? 'Phiếu đã được ghi trước đó' : 'Đã gửi phiếu!';
+    $('#success-sub').textContent = duplicate
+      ? 'Hệ thống nhận ra phiếu này đã lưu, không tạo thêm dòng trùng.'
+      : 'Thông tin đã được lưu vào Google Sheet và báo Telegram.';
+    $('#success-code').textContent = phieu.ma || '—';
+    $('#success-customer').textContent = values.ten_khach_hang || '—';
+    $('#success-phone').textContent = values.so_lien_he || '—';
+    $('#success-time').textContent = phieu.thoi_gian || shortToday();
+
+    const box = $('#success-tg');
+    const text = $('#success-tg-text');
+    if (tg.pending) {
+      box.className = 'success-tg warn';
+      text.textContent = 'Phiếu đã lưu, Telegram đang được gửi. Có thể làm mới thống kê sau ít giây.';
+    } else if (tg.ok) {
+      box.className = 'success-tg ok';
+      text.textContent = 'Đã báo Telegram cho anh Lư Uy Bình.';
+    } else {
+      box.className = 'success-tg warn';
+      text.textContent = 'Phiếu đã lưu nhưng chưa gửi được Telegram: ' + (tg.error || 'kiểm tra cấu hình bot.');
+    }
+
+    openModal('success');
+    state.clientId = '';
+    resetForm(false);
+  }
+
+  function resetForm(focus) {
+    ['ten-khach', 'so-lien-he', 'dia-chi', 'sdt-nguoi-nhap'].forEach(function (id) {
+      const el = $('#' + id);
+      if (el) el.value = '';
+      fieldError(id, '');
+    });
+    $('#form-banner').innerHTML = '';
+    state.clientId = '';
+    updateFormProgress();
+    updateAddressGuide();
+    const saved = getSavedStaffPhone();
+    if (saved) $('#sdt-nguoi-nhap').value = saved;
+    updateFormProgress();
+    if (focus) setTimeout(function () { $('#ten-khach').focus(); }, 80);
+  }
+
+  function getSavedStaffPhone() {
+    try { return localStorage.getItem(LS.STAFF_PHONE) || ''; } catch (e) { return ''; }
+  }
+
+  function updateLastPhoneButton() {
+    const saved = getSavedStaffPhone();
+    const btn = $('#use-last-phone');
+    if (!btn) return;
+    if (saved) {
+      btn.textContent = 'Dùng lại ' + saved;
+      btn.classList.remove('hidden');
+    } else {
+      btn.classList.add('hidden');
+    }
+  }
+
+  /* ---------------- AI ---------------- */
+  function loadAI(force) {
+    const frame = $('#ai-frame');
+    if (!frame) return;
+    if (state.aiLoaded && !force) return;
+    state.aiLoaded = true;
+    $('#ai-loading').classList.remove('hidden');
+    frame.src = CFG.AI_URL + (CFG.AI_URL.indexOf('?') === -1 ? '?' : '&') + 'embed=1';
+    $('#ai-url').textContent = CFG.AI_URL.replace(/^https?:\/\//, '');
+  }
+
+  /* ---------------- MODAL / COPY ---------------- */
+  let lastFocus = null;
+  function openModal(name) {
+    lastFocus = document.activeElement;
+    const el = $('#' + name + '-modal');
+    if (!el) return;
+    el.classList.remove('hidden');
+    document.body.classList.add('no-scroll');
+    const focusable = el.querySelector('button, input, a');
+    if (focusable) setTimeout(function () { focusable.focus(); }, 60);
+  }
+
+  function closeModal(name) {
+    const el = $('#' + name + '-modal');
+    if (!el) return;
+    el.classList.add('hidden');
+    if (!$$('.overlay:not(.hidden)').length) document.body.classList.remove('no-scroll');
+    if (lastFocus && lastFocus.focus) {
+      try { lastFocus.focus(); } catch (e) { }
+    }
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast('Đã sao chép mã phiếu.', 'success');
+      }).catch(function () { fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToast('Đã sao chép mã phiếu.', 'success');
+    } catch (e) {
+      showToast('Không sao chép được. Mã phiếu: ' + text, 'info');
+    }
+  }
+
+  /* ---------------- SỰ KIỆN ---------------- */
+  function bindEvents() {
+    $$('.tab-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { switchTab(btn.getAttribute('data-tab')); });
+    });
+    $$('[data-tab="ai"]').forEach(function (el) {
+      if (!el.classList.contains('tab-btn')) {
+        el.addEventListener('click', function () { switchTab('ai'); });
+      }
+    });
+
+    $('#phieu-form').addEventListener('submit', submitForm);
+    ['ten-khach', 'so-lien-he', 'dia-chi', 'sdt-nguoi-nhap'].forEach(function (id) {
+      const el = $('#' + id);
+      el.addEventListener('input', function () {
+        if (el.getAttribute('aria-invalid') === 'true') fieldError(id, '');
+        updateFormProgress();
+      });
+    });
+    $('#dia-chi').addEventListener('input', updateAddressGuide);
+    $('#so-lien-he').addEventListener('blur', function () {
+      const digits = normalizePhone(this.value);
+      if (digits) this.value = digits;
+    });
+    $('#sdt-nguoi-nhap').addEventListener('blur', function () {
+      const digits = normalizePhone(this.value);
+      if (digits) this.value = digits;
+    });
+    $('#use-last-phone').addEventListener('click', function () {
+      const saved = getSavedStaffPhone();
+      if (saved) {
+        $('#sdt-nguoi-nhap').value = saved;
+        updateFormProgress();
+      }
+    });
+
+    $('#btn-refresh-stats').addEventListener('click', refreshStats);
+    $$('#range-tabs button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.chartRange = Number(btn.getAttribute('data-range'));
+        renderChart();
+      });
+    });
+
+    $('#btn-reload-ai').addEventListener('click', function () { loadAI(true); });
+    $('#ai-frame').addEventListener('load', function () {
+      $('#ai-loading').classList.add('hidden');
+    });
+
+    $('#btn-success-next').addEventListener('click', function () {
+      closeModal('success');
+      switchTab('form');
+      setTimeout(function () { $('#ten-khach').focus(); }, 100);
+    });
+    $('#btn-success-stats').addEventListener('click', function () {
+      closeModal('success');
+      switchTab('stats');
+    });
+    $('#btn-copy-code').addEventListener('click', function () {
+      copyText($('#success-code').textContent);
+    });
+
+    $$('[data-close]').forEach(function (btn) {
+      btn.addEventListener('click', function () { closeModal(btn.getAttribute('data-close')); });
+    });
+    $$('.overlay').forEach(function (ov) {
+      ov.addEventListener('click', function (e) {
+        if (e.target === ov) closeModal(ov.getAttribute('data-overlay'));
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        const open = $$('.overlay:not(.hidden)').pop();
+        if (open) closeModal(open.getAttribute('data-overlay'));
+      }
+    });
+  }
+
+  /* ---------------- KHỞI ĐỘNG ---------------- */
+  function init() {
+    $('#header-date').textContent = todayLabel();
+    $$('[data-ai-link]').forEach(function (a) { a.href = CFG.AI_URL; });
+    bindEvents();
+    updateAddressGuide();
+    updateFormProgress();
+    updateLastPhoneButton();
+
+    const savedPhone = getSavedStaffPhone();
+    if (savedPhone) $('#sdt-nguoi-nhap').value = savedPhone;
+    updateFormProgress();
+
+    const hash = (window.location.hash || '').replace('#', '');
+    if (['form', 'stats', 'ai'].indexOf(hash) !== -1) state.activeTab = hash;
+    switchTab(state.activeTab, true);
+
+    if (configReady()) loadBootstrap();
+    else showSetupBanner('Quản trị viên cần điền API_URL và API_KEY ở đầu file Index.html.');
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
