@@ -617,7 +617,7 @@ td.num.zero{font-weight:500;color:#a7b8c8}
 <script>
 window.APP_CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbzQsvM_LDkR20ak6ol_eFA-g7mSTFzBDDe5GArQ-HajnXdoCdfOh6WXbYWUEv0FvOOM/exec",
-  API_KEY: "1906311157",
+  API_KEY: "",
   AI_URL: "https://htktttvttah-create.github.io/dieuhanhtah/trolygoicuoc.html"
 };
 </script>
@@ -1154,19 +1154,31 @@ window.APP_CONFIG = {
     return apiCall(action, payload);
   }
 
+  function configHint(message) {
+    const base = message || 'Chưa cấu hình API.';
+    return base + ' Mở Google Sheet → menu 📞 Tiếp thị Bưu điện → Cấu hình API key & Telegram để đặt API key, ' +
+      'sau đó dán đúng API key đó vào API_KEY ở đầu file web và tải lại trang (Ctrl+F5).';
+  }
+
   function showSetupBanner(message) {
+    const text = configHint(message);
     const banner = $('#setup-banner');
-    if (!banner) return;
-    $('#setup-banner-text').textContent = message || 'Quản trị viên cần điền API_URL và API_KEY ở đầu file Index.html.';
-    banner.classList.remove('hidden');
-    const btn = $('#btn-submit');
-    if (btn) btn.disabled = true;
+    if (banner) {
+      $('#setup-banner-text').textContent = text;
+      banner.classList.remove('hidden');
+    }
+    // Hiện lỗi ngay cạnh nút gửi để không bị bỏ sót.
+    const formBanner = $('#form-banner');
+    if (formBanner) {
+      formBanner.innerHTML = '<div class="alert warning">' + icon('alert') + '<span>' + escapeHtml(text) + '</span></div>';
+    }
+    // Không khóa nút: người dùng vẫn bấm được và sẽ thấy lỗi rõ ràng.
   }
 
   function clearSetupBanner() {
     $('#setup-banner').classList.add('hidden');
-    const btn = $('#btn-submit');
-    if (btn) btn.disabled = false;
+    const formBanner = $('#form-banner');
+    if (formBanner && formBanner.querySelector('.alert.warning')) formBanner.innerHTML = '';
   }
 
   function handleApiError(err, fallback) {
@@ -1456,7 +1468,9 @@ window.APP_CONFIG = {
     event.preventDefault();
     if (state.submitting) return;
     if (!configReady()) {
-      showSetupBanner('Quản trị viên cần điền API_URL và API_KEY ở đầu file Index.html.');
+      showSetupBanner('Chưa cấu hình API.');
+      const fb = $('#form-banner');
+      if (fb) fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
       showToast('Chưa cấu hình API, chưa thể gửi phiếu.', 'error');
       return;
     }
