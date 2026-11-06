@@ -2876,31 +2876,67 @@ async function apptSetStatus(id, status) {
   if (!a) return;
   const done = status === 'DA_THAY';
   const c = { ten: a.ten, ngay: a.ngay_hen, gio: a.gio_hen };
+  
+  // Kiểm tra xem lúc hẹn khách có đồng ý dịch vụ nào không
+  const hasSvc = a.dich_vu && a.dich_vu.length > 0;
+
   const ok = await confirmDialog({
     title: done ? 'Xác nhận đã thay modem?' : 'Hủy hẹn thay?',
     msg: done
-      ? `Hộ <b>${esc(c.ten)}</b> — hẹn ngày <b>${fmtDate(c.ngay)} ${esc(c.gio || '')}</b>. Xác nhận modem đã được thay? Trạng thái hộ sẽ chuyển sang <b>Đã thay</b>.`
+      ? `Hộ <b>${esc(c.ten)}</b> — hẹn ngày <b>${fmtDate(c.ngay)} ${esc(c.gio || '')}</b>. Xác nhận modem đã được thay?<br><br><span style="color:var(--green);font-size:12px">Hệ thống sẽ tự động tạo phiếu và chuyển sang tab <b>${hasSvc ? 'Đã chốt' : 'Đã chạm'}</b> của <b>${esc(unitLabel(a.donvi))}</b>.</span>`
       : `Hủy hẹn của hộ <b>${esc(c.ten)}</b> ngày <b>${fmtDate(c.ngay)}</b>? Hộ sẽ trở lại danh sách chưa hẹn.`,
     yes: done ? 'Đã thay modem' : 'Hủy hẹn'
   });
   if (!ok) return;
+  
   try {
+    // 1. Cập nhật trạng thái hẹn thay thành DA_THAY
     await API.updateAppointment({ id: id, status: status });
     a.trang_thai = status;
     a.cap_nhat = nowHHMM();
+
     if (done) {
+      // Đánh dấu đã thay modem trong danh sách hiển thị
       const r = BY_MA.get(a.ma);
       if (r) r.daThay = true;
+
+      // 2. Tự động khởi tạo một Phiếu Chạm mới
+      const touchPayload = {
+        ma: a.ma,
+        ngay: todayISO(),
+        gio: nowHHMM(),
+        ket_qua: hasSvc ? 'DA_CHOT' : 'QUAN_TAM',
+        tu_van: a.dich_vu || [],
+        dong_y: a.dich_vu || [], // Đưa dịch vụ hẹn vào mục đồng ý để nhảy sang tab Đã chốt
+        ghi_chu: `[Tự động tạo từ cập nhật Đã thay modem] ${a.ghi_chu || ''}`,
+        donvi: a.donvi, // Bám theo đúng đơn vị của người nhập hẹn thay
+        nguoi: a.nguoi, // Bám theo tên của người nhập hẹn thay
+        client_id: apiUid()
+      };
+
+      try {
+        const resTouch = await API.saveTouch(touchPayload);
+        if (resTouch && resTouch.touch) {
+          // Ép lại đơn vị và người tạo trên frontend để không bị ghi đè bởi người đang thao tác
+          resTouch.touch.donvi = a.donvi;
+          resTouch.touch.nguoi = a.nguoi;
+          TOUCHES.push(resTouch.touch);
+          recomputeTouches();
+        }
+      } catch(errTouch) {
+        console.error('Lỗi khi tự động tạo phiếu chạm:', errTouch);
+      }
     }
+    
+    // 3. Render lại toàn bộ giao diện
     recomputeAppointments();
     renderAll();
-    toast(done ? 'Đã xác nhận thay modem' : 'Đã hủy hẹn', 'ok');
+    toast(done ? 'Đã xác nhận thay modem và tự động chuyển tab' : 'Đã hủy hẹn', 'ok');
   } catch (e) {
     if (e.code === 'AUTH') { API.clearToken(); showLogin(e.message); return; }
     toast('Không cập nhật được hẹn: ' + e.message, 'err', 6000);
   }
 }
-
 /* ---------- sự kiện ---------- */
 function bindEvents() {
   /* đăng nhập */
