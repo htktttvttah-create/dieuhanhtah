@@ -6,6 +6,6 @@
       không ai phải nhập API trên giao diện nữa.
    ============================================================ */
 window.APP_CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbw7dG9eQi5sWaxH2ejWTl6VbCRD62G5xn97EJOEp-Yav00A-QaN6_PdL2njLlVhms8JnQ/exec",            // <-- dán URL /exec vào đây
+  API_URL: "https://script.google.com/macros/s/AKfycbzYeJVNuJgguz__nkE0vo15gSYvFfwZSwYI_V5ZGbC0HRSqAg6R0GJ1lfkWFqLs201OKw/exec",            // <-- dán URL /exec vào đây
   ACCESS_CODE: ""         // để trống nếu Code.gs không đặt mã
 };
