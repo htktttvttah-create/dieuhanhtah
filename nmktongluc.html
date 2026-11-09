@@ -445,6 +445,7 @@ button{cursor:pointer;border:0;background:none}
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
       <input id="searchInput" type="search" placeholder="Tìm số nhà, đường, ấp…" autocomplete="off">
     </div>
+    <button type="button" class="btn pri add-customer-btn" id="btnAddCustomer">＋ Thêm khách hàng mới</button>
 
     <div class="filter-bar" id="btnFilter" role="button" tabindex="0" title="Lọc theo tuyến đường, ấp và sắp xếp">
       <span class="fb-ic">
@@ -605,6 +606,40 @@ button{cursor:pointer;border:0;background:none}
     <div class="sheet-foot">
       <button class="btn grow" id="btnFilterClear">Xoá bộ lọc</button>
       <button class="btn pri grow" data-close>Xong</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: THÊM KHÁCH HÀNG MỚI ============ -->
+<div id="newCustomerWrap" class="sheet-wrap hidden">
+  <div class="sheet-back" data-new-close></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="newCustomerTitle">
+    <div class="sheet-head">
+      <div>
+        <b id="newCustomerTitle">Thêm khách hàng mới</b>
+        <div class="hint">Lưu thẳng vào Google Sheet để lần sau tiếp tục đi chạm</div>
+      </div>
+      <button class="x" data-new-close aria-label="Đóng">✕</button>
+    </div>
+    <div class="sheet-body">
+      <label class="fld"><span>TÊN_NV – Nhân viên quản lý <span class="req">*</span></span>
+        <select id="newNv" required><option value="">-- Chọn nhân viên quản lý --</option></select>
+      </label>
+      <label class="fld"><span>Số nhà <span class="req">*</span></span>
+        <input id="newSo" type="text" required maxlength="80" placeholder="VD: 123 hoặc 123/4">
+      </label>
+      <label class="fld"><span>Địa chỉ chi tiết <span class="req">*</span></span>
+        <textarea id="newDc" required rows="2" placeholder="Nhập tên đường, ấp/khu phố và thông tin địa chỉ..."></textarea>
+      </label>
+      <label class="fld"><span>Nhà mạng hiện tại <span class="req">*</span></span>
+        <input id="newNet" type="text" required maxlength="120" placeholder="VD: Viettel, FPT, VNPT, không rõ...">
+      </label>
+      <p class="hint">Cả 4 thông tin đều bắt buộc. Khách mới sẽ được thêm vào danh sách với trạng thái <b>Chưa chạm</b>. Không cần nhập tuyến PTM.</p>
+      <div id="newCustomerErr" class="err hidden" role="alert"></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn pri grow" id="newCustomerSave">Lưu khách hàng vào Sheet</button>
+      <button class="btn" data-new-close>Huỷ</button>
     </div>
   </div>
 </div>
@@ -1559,6 +1594,121 @@ button{cursor:pointer;border:0;background:none}
     document.body.classList.remove('lock');
   }
 
+  // ------------------------- THÊM KHÁCH HÀNG MỚI -------------------------
+  function employeeNames() {
+    var found = {};
+    state.rows.forEach(function (r) { if (r.nv) found[String(r.nv).trim()] = true; });
+    return Object.keys(found).sort(function (a, b) { return a.localeCompare(b, 'vi'); });
+  }
+
+  function openNewCustomer() {
+    var names = employeeNames();
+    var sel = $('#newNv');
+    sel.innerHTML = '<option value="">-- Chọn nhân viên quản lý --</option>' +
+      names.map(function (n) { return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+    $('#newSo').value = '';
+    $('#newDc').value = '';
+    $('#newNet').value = '';
+    $('#newCustomerErr').classList.add('hidden');
+    $('#newCustomerSave').disabled = false;
+    $('#newCustomerSave').textContent = 'Lưu khách hàng vào Sheet';
+    if (!names.length) {
+      $('#newCustomerErr').textContent = 'Chưa tải được danh sách TÊN_NV từ Google Sheet. Hãy tải lại dữ liệu trước.';
+      $('#newCustomerErr').classList.remove('hidden');
+    }
+    $('#newCustomerWrap').classList.remove('hidden');
+    document.body.classList.add('lock');
+  }
+
+  function countCustomerMatches(rows, customer) {
+    return rows.filter(function (r) {
+      return norm(r.nv) === norm(customer.nv) &&
+        norm(r.so) === norm(customer.so) &&
+        norm(r.dc) === norm(customer.dc);
+    }).length;
+  }
+
+  function verifyNewCustomerOnSheet(customer, beforeCount, tries) {
+    tries = tries || 0;
+    return loadCSV().then(function (rows) {
+      // Chỉ xác nhận thành công khi số dòng trùng thông tin tăng lên sau lần gửi.
+      // Tránh báo thành công nhầm nếu khách đã tồn tại từ trước hoặc Apps Script bỏ qua trùng.
+      if (countCustomerMatches(rows, customer) > beforeCount) return rows;
+      if (tries >= 6) throw new Error('Chưa tìm thấy dòng mới được thêm vào Google Sheet.');
+      return new Promise(function (resolve) { setTimeout(resolve, 1500); })
+        .then(function () { return verifyNewCustomerOnSheet(customer, beforeCount, tries + 1); });
+    });
+  }
+
+  function saveNewCustomer() {
+    var customer = {
+      nv: $('#newNv').value.trim(),
+      so: $('#newSo').value.trim(),
+      dc: $('#newDc').value.trim(),
+      net: $('#newNet').value.trim()
+    };
+    var err = [];
+    var names = employeeNames();
+    if (!customer.nv || names.indexOf(customer.nv) < 0) err.push('Chọn TÊN_NV trong danh sách xổ xuống.');
+    if (!customer.so) err.push('Nhập Số nhà.');
+    if (!customer.dc) err.push('Nhập Địa chỉ chi tiết.');
+    if (!customer.net) err.push('Nhập Nhà mạng hiện tại.');
+    if (!state.syncUrl) err.push('Chưa cấu hình URL Apps Script để ghi vào Google Sheet.');
+
+    // Không cho trùng khoá NV + Số nhà, vì ứng dụng dùng cặp này để nhận diện khách.
+    var duplicate = state.rows.some(function (r) {
+      return norm(r.nv) === norm(customer.nv) && norm(r.so) === norm(customer.so);
+    });
+    if (duplicate) err.push('Nhân viên này đã có Số nhà trên trong danh sách. Bạn hãy kiểm tra lại để tránh tạo trùng khách.');
+
+    if (err.length) {
+      $('#newCustomerErr').innerHTML = err.map(function (e) { return '• ' + esc(e); }).join('<br>');
+      $('#newCustomerErr').classList.remove('hidden');
+      return;
+    }
+
+    var btn = $('#newCustomerSave');
+    btn.disabled = true;
+    btn.textContent = 'Đang ghi vào Google Sheet…';
+    $('#newCustomerErr').classList.add('hidden');
+
+    // newCustomers được Apps Script xử lý bằng appendRow vào tab GID=0.
+    var body = JSON.stringify({
+      sheetId: SHEET_ID,
+      newCustomers: [{ nv: customer.nv, so: customer.so, dc: customer.dc, net: customer.net }]
+    });
+
+    // Chụp số dòng hiện có trước khi gửi để xác nhận Apps Script thật sự append thêm một hàng.
+    loadCSV()
+      .then(function (beforeRows) {
+        var beforeCount = countCustomerMatches(beforeRows, customer);
+        if (beforeCount > 0) throw new Error('Khách này đã có trong Google Sheet.');
+        return fetch(state.syncUrl, { method: 'POST', mode: 'no-cors', body: body })
+          .then(function () { return verifyNewCustomerOnSheet(customer, beforeCount, 0); });
+      })
+      .then(function (rows) {
+        // Chuyển về đúng nhân viên và trạng thái Chưa chạm để khách mới hiện ngay.
+        state.tech = customer.nv; localStorage.setItem(LS.tech, state.tech);
+        state.filter = 'CHUA'; localStorage.setItem(LS.filter, state.filter);
+        state.tuyen = ''; state.ap = ''; state.nvNhapFilter = ''; state.ngayChamFilter = ''; state.q = '';
+        localStorage.setItem('chamkh.v3.tuyen', ''); localStorage.setItem('chamkh.v3.ap', '');
+        localStorage.setItem('chamkh.v3.nvNhapFilter', ''); localStorage.setItem('chamkh.v3.ngayChamFilter', '');
+        $('#searchInput').value = '';
+        finish(rows, 'csv');
+        closeModal('newCustomerWrap');
+        go('list');
+        renderAll();
+        toast('Đã thêm khách hàng mới vào Google Sheet. Lần sau mở app vẫn có dữ liệu này.');
+      })
+      .catch(function (error) {
+        $('#newCustomerErr').textContent = (error && error.message ? error.message + ' ' : '') +
+          'Chưa xác nhận được khách mới trong Sheet. Hãy kiểm tra Apps Script v6 đã được triển khai và URL /exec đang sử dụng đúng chưa. Ứng dụng chưa báo lưu thành công.';
+        $('#newCustomerErr').classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Thử lưu lại vào Sheet';
+      });
+  }
+
   function saveOutcome() {
     var s = state.sheet, key = s.key;
     var row = state.rows.filter(function (x) { return x.key === key; })[0];
@@ -1930,6 +2080,11 @@ button{cursor:pointer;border:0;background:none}
 
   // ------------------------- SỰ KIỆN -------------------------
   function bind() {
+    $('#btnAddCustomer').addEventListener('click', openNewCustomer);
+    $('#newCustomerWrap').addEventListener('click', function (e) {
+      if (e.target.closest('[data-new-close]')) { closeModal('newCustomerWrap'); return; }
+    });
+    $('#newCustomerSave').addEventListener('click', saveNewCustomer);
     $('#techBtn').addEventListener('click', openTechSheet);
     $('#techSearch').addEventListener('input', function (e) {
       var q = norm(e.target.value);
