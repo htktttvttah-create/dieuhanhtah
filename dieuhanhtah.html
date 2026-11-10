@@ -1800,8 +1800,8 @@ to {
                                     <th class="px-4 py-3 font-semibold w-24 border-r border-gray-200">MA_KV</th>
                                     <th class="px-4 py-3 font-semibold border-r border-gray-200">DOIVT</th>
                                     <th class="px-4 py-3 font-semibold text-center w-32 border-r border-gray-200">% HOÀN THÀNH</th>
-                                    <th class="px-4 py-3 font-semibold text-center w-48 border-r border-gray-200">SL FIBER CẦN XỬ LÝ ĐỂ ĐẠT 99%</th>
-                                    <th class="px-4 py-3 font-semibold text-center w-48">SL MYTV CẦN XỬ LÝ ĐỂ ĐẠT 99%</th>
+                                    <th class="px-4 py-3 font-semibold text-center w-48 border-r border-gray-200">SL FIBER CẦN XỬ LÝ ĐỂ ĐẠT 99,5%</th>
+                                    <th class="px-4 py-3 font-semibold text-center w-48">SL MYTV CẦN XỬ LÝ ĐỂ ĐẠT 99,5%</th>
                                 </tr>
                             </thead>
                             <tbody id="tc-detail-body" class="divide-y divide-gray-100 bg-white">
@@ -1824,8 +1824,8 @@ to {
                                 <tr>
                                     <th class="px-4 py-3 font-semibold border-r border-gray-200">Tên Tổ / Nhóm (DOIVT)</th>
                                     <th class="px-4 py-3 font-semibold text-center w-32 border-r border-gray-200">% TB HOÀN THÀNH</th>
-                                    <th class="px-4 py-3 font-semibold text-center border-r border-gray-200">TỔNG FIBER CẦN XỬ LÝ (99%)</th>
-                                    <th class="px-4 py-3 font-semibold text-center">TỔNG MYTV CẦN XỬ LÝ (99%)</th>
+                                    <th class="px-4 py-3 font-semibold text-center border-r border-gray-200">TỔNG FIBER CẦN XỬ LÝ (99,5%)</th>
+                                    <th class="px-4 py-3 font-semibold text-center">TỔNG MYTV CẦN XỬ LÝ (99,5%)</th>
                                 </tr>
                             </thead>
                             <tbody id="tc-summary-body" class="divide-y divide-gray-100 bg-white">
@@ -3614,7 +3614,7 @@ const fallbackMockData = {
         }
 
         function getThuCuocColorClass(pct) {
-            if (pct >= 99) return "text-green-700 bg-green-50";                  
+            if (pct >= 99.5) return "text-green-700 bg-green-50";                  
             if (pct >= 95) return "text-blue-600";                               
             if (pct >= 90) return "text-orange-500";                             
             if (pct >= 80) return "text-red-600 bg-red-50";                      
