@@ -399,6 +399,99 @@ button{cursor:pointer;border:0;background:none}
   .wrap,.bar-in,.tabbar-in{max-width:1140px}
   .list{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:16px;}
 }
+
+/* ===== CHẠM KH · GIAO DIỆN PRO 2026 ===== */
+:root{
+  --bg:#f3f6fb;--card:#fff;--ink:#17243a;--ink-2:#34445f;--ink-3:#71809a;
+  --line:#e3eaf4;--line-2:#f7f9fc;
+  --primary:#2458d8;--primary-d:#173fa8;--primary-soft:#edf3ff;
+  --success:#0e9f83;--success-d:#087c68;--success-soft:#e3f7f1;--success-ink:#075e50;
+  --warning:#e59a20;--warning-d:#b9770e;--warning-soft:#fff6e4;--warning-ink:#80520a;
+  --danger:#df4b55;--danger-d:#bd303b;--danger-soft:#fff0f1;--danger-ink:#982630;
+  --info:#7863d8;--info-d:#5c49b7;--info-soft:#f0edff;--info-ink:#483a99;
+  --radius:14px;--radius-sm:10px;--radius-lg:20px;
+  --shadow:0 2px 8px rgba(24,48,86,.055),0 1px 2px rgba(24,48,86,.04);
+  --shadow-lg:0 18px 50px rgba(15,35,70,.18),0 4px 12px rgba(15,35,70,.08);
+}
+body{background:linear-gradient(180deg,#f6f8fc 0%,var(--bg) 240px);color:var(--ink)}
+.bar{background:linear-gradient(112deg,#142f61 0%,#1e4da9 54%,#2458d8 100%);box-shadow:0 5px 18px rgba(20,47,97,.18)}
+.logo{border:1px solid rgba(255,255,255,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.icon-btn{border:1px solid rgba(255,255,255,.15);border-radius:12px;font-size:23px}
+.wrap{padding-left:14px;padding-right:14px}
+.who,.kpi,.search,.filter-bar,.card,.sec{border-color:var(--line);box-shadow:var(--shadow)}
+.who{border-radius:16px;padding:14px 16px}
+.who-ic{background:linear-gradient(135deg,#eaf1ff,#dce8ff);border:1px solid #d7e4ff}
+.kpi{border-radius:15px;padding:15px 10px;background:linear-gradient(180deg,#fff 0%,#fbfcff 100%)}
+.kpi b{letter-spacing:-.4px}
+.progress{height:9px;background:#e5ebf5;border:1px solid #e0e7f2}
+.progress i{background:linear-gradient(90deg,#2458d8 0%,#4d83f5 100%)}
+.toolbar{border-bottom-color:#e5eaf2;background:rgba(243,246,251,.94);backdrop-filter:blur(12px)}
+.search{border-radius:12px;padding:11px 14px}
+.search:focus-within{border-color:#8eafff;box-shadow:0 0 0 4px rgba(36,88,216,.10)}
+.filter-bar{border-radius:13px;padding:10px 13px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.filter-bar:hover{border-color:#bfd0f5;box-shadow:0 5px 14px rgba(36,88,216,.08)}
+.fb-ic{border-radius:10px;background:#eef2f8}
+.chips{padding-top:13px}
+.chip{border-radius:999px;padding:8px 15px;border-color:#e0e7f1;background:#fff;box-shadow:0 1px 3px rgba(20,40,80,.04)}
+.chip.on{background:#1e355d;border-color:#1e355d;box-shadow:0 4px 10px rgba(30,53,93,.16)}
+.card{border-radius:16px;transition:transform .18s,box-shadow .18s}
+.card:hover{box-shadow:0 8px 22px rgba(24,48,86,.09);transform:translateY(-1px)}
+.card::before{width:5px}
+.hnum{border-radius:11px;background:#f4f7fc;border-color:#e6ebf3}
+.tag{border-radius:7px}
+.st-badge{border-radius:8px}
+.acts{gap:9px}
+.act{min-height:44px;border-radius:11px;border-color:#e1e8f2;background:#fff;transition:all .16s ease}
+.act:hover{border-color:#b9c9e5;transform:translateY(-1px);box-shadow:0 4px 10px rgba(25,48,84,.06)}
+.act.main{background:linear-gradient(110deg,#2458d8,#3974ee);border-color:#2458d8;box-shadow:0 4px 10px rgba(36,88,216,.18)}
+.act.on-dongy{background:linear-gradient(110deg,#0b997d,#16b394);border-color:#0b997d}
+.act.on-khong{background:linear-gradient(110deg,#d83e4b,#ed626b);border-color:#d83e4b}
+.act.on-hen{background:linear-gradient(110deg,#d78b16,#edae3f);border-color:#d78b16}
+.act.on-sai{background:linear-gradient(110deg,#7059ce,#927ce8);border-color:#7059ce}
+.btn,.btn-s{border-radius:11px;font-weight:650;letter-spacing:.05px;transition:transform .16s,box-shadow .16s,background .16s,border-color .16s;}
+.btn{min-height:43px;padding:11px 16px;background:#fff;border-color:#dfe6f0;box-shadow:0 1px 2px rgba(20,40,80,.035)}
+.btn:hover,.btn-s:hover{transform:translateY(-1px);box-shadow:0 5px 13px rgba(24,48,86,.10)}
+.btn:active,.btn-s:active{transform:translateY(0) scale(.985)}
+.btn.pri,.btn-s.pri{color:#fff;background:linear-gradient(110deg,#2458d8 0%,#3975ef 100%);border-color:#2458d8;box-shadow:0 4px 11px rgba(36,88,216,.18)}
+.btn.pri:hover,.btn-s.pri:hover{background:linear-gradient(110deg,#1e4fc5,#2d68df);box-shadow:0 7px 16px rgba(36,88,216,.23)}
+.btn.danger{background:#fff1f2;border-color:#ffd1d5;color:#a62a35}
+.btn:disabled,.btn-s:disabled{opacity:.58;cursor:wait;transform:none;box-shadow:none}
+.add-customer-btn{min-height:46px;padding:11px 18px;border-radius:12px;font-weight:700;letter-spacing:.1px;box-shadow:0 6px 14px rgba(36,88,216,.2)}
+.add-customer-btn:hover{box-shadow:0 9px 19px rgba(36,88,216,.26)}
+.sheet-wrap{padding:16px}
+.sheet{border:1px solid rgba(220,229,242,.9);border-radius:22px;box-shadow:var(--shadow-lg);overflow:hidden}
+.sheet-head{padding:19px 21px 16px;background:linear-gradient(180deg,#fff 0%,#fbfcff 100%)}
+.sheet-head b{font-size:17px;letter-spacing:-.2px}
+.sheet-body{padding:18px 21px}
+.sheet-foot{padding:14px 21px 18px;background:#fff}
+.x{border:1px solid #e5eaf2;border-radius:10px;background:#f5f7fb;transition:all .15s}
+.x:hover{background:#eaf0fa;border-color:#d4deed}
+.fld input,.fld textarea,.fld select{border-radius:10px!important;border-color:#dce4f0!important;background:#fff;}
+.fld input:focus,.fld textarea:focus,.fld select:focus{border-color:#8eafff!important;box-shadow:0 0 0 4px rgba(36,88,216,.09)!important}
+.fld>span{font-weight:650;color:#34445f}
+.opt{border-radius:13px;padding:13px;border-color:#e4eaf3}
+.opt:hover{border-color:#c6d4ed;box-shadow:0 3px 10px rgba(30,55,95,.05)}
+.opt.on{border-color:#6d95ed;background:linear-gradient(110deg,#edf3ff,#f8faff);box-shadow:0 0 0 2px rgba(36,88,216,.09)}
+.sub-row{border-radius:13px;background:#f7f9fd;border-color:#e5ebf4}
+.qchip{border-radius:999px;border-color:#dfe7f2;background:#fff}
+.qchip:hover{background:#edf3ff;border-color:#bfd0f5;color:#214eb6}
+.err{border-radius:11px;line-height:1.55}
+.tabbar{box-shadow:0 -5px 18px rgba(20,40,80,.06);border-top-color:#e4eaf3}
+.tabbar button{padding:11px 0 10px;transition:color .16s,background .16s}
+.tabbar button.on{color:var(--primary);font-weight:700}
+.tabbar button.on:before{content:"";position:absolute;top:0;left:28%;right:28%;height:3px;border-radius:0 0 4px 4px;background:var(--primary)}
+.sec{border-radius:15px}
+.sec h2{background:#f8faff;color:#34445f}
+.tbl th{background:#f6f8fc}
+.btn-s{border-radius:8px}
+.trow,.frow{border-radius:10px}
+.trow.on,.frow.on{background:#edf3ff;color:#214eb6}
+.toast{border:1px solid rgba(255,255,255,.08);border-radius:12px;box-shadow:0 12px 30px rgba(16,34,66,.22)}
+#newCustomerSave{min-height:46px}
+#newCustomerWrap .hint b{color:#0b8a73}
+@media(min-width:560px){.sheet{margin-bottom:0;max-height:min(88vh,820px)}.sheet-wrap{align-items:center}.sheet-head{padding:20px 22px 16px}}
+@media(max-width:559px){.sheet-wrap{padding:0}.sheet{border-radius:22px 22px 0 0}.sheet-foot{padding-bottom:calc(15px + env(safe-area-inset-bottom))}.add-customer-btn{width:100%}}
+
 </style>
 </head>
 <body>
@@ -1634,7 +1727,7 @@ button{cursor:pointer;border:0;background:none}
       // Chỉ xác nhận thành công khi số dòng trùng thông tin tăng lên sau lần gửi.
       // Tránh báo thành công nhầm nếu khách đã tồn tại từ trước hoặc Apps Script bỏ qua trùng.
       if (countCustomerMatches(rows, customer) > beforeCount) return rows;
-      if (tries >= 6) throw new Error('Chưa tìm thấy dòng mới được thêm vào Google Sheet.');
+      if (tries >= 10) throw new Error('Đã gửi yêu cầu nhưng chưa đọc thấy dòng mới trong Google Sheet sau khi kiểm tra lại 10 lần.');
       return new Promise(function (resolve) { setTimeout(resolve, 1500); })
         .then(function () { return verifyNewCustomerOnSheet(customer, beforeCount, tries + 1); });
     });
@@ -1675,6 +1768,7 @@ button{cursor:pointer;border:0;background:none}
     // newCustomers được Apps Script xử lý bằng appendRow vào tab GID=0.
     var body = JSON.stringify({
       sheetId: SHEET_ID,
+      action: 'addCustomers',
       newCustomers: [{ nv: customer.nv, so: customer.so, dc: customer.dc, net: customer.net }]
     });
 
@@ -1702,7 +1796,7 @@ button{cursor:pointer;border:0;background:none}
       })
       .catch(function (error) {
         $('#newCustomerErr').textContent = (error && error.message ? error.message + ' ' : '') +
-          'Chưa xác nhận được khách mới trong Sheet. Hãy kiểm tra Apps Script v6 đã được triển khai và URL /exec đang sử dụng đúng chưa. Ứng dụng chưa báo lưu thành công.';
+          'Chưa xác nhận được dữ liệu đã ghi. Hãy kiểm tra Apps Script đã có xử lý newCustomers, đã triển khai dạng Ứng dụng web và URL /exec trong app là URL của bản triển khai mới. Ứng dụng chưa báo lưu thành công.';
         $('#newCustomerErr').classList.remove('hidden');
         btn.disabled = false;
         btn.textContent = 'Thử lưu lại vào Sheet';
