@@ -1,0 +1,3069 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảng điều hành chỉ tiêu – TTVT Tân An Hội</title>
+<meta name="description" content="Bảng điều hành chỉ tiêu ngày của Trung tâm Kinh doanh Tân An Hội: gia hạn, thu cước, tiếp thị, NPSC, DPSC, CSTC, modem, bán kèm. Dữ liệu trực tiếp từ Google Sheets.">
+<style>
+:root{
+  --navy:#071E35; --navy2:#0B2F52; --blue:#0068B7; --blue2:#0EA5E9;
+  --bg:#EDF3F9; --card:#FFFFFF; --line:#DCE6F0; --line2:#EAF0F6;
+  --text:#0F172A; --muted:#64748B; --muted2:#94A3B8;
+  --green:#15803D; --green-bg:#DCFCE7; --green-soft:#ECFDF5;
+  --amber:#B45309; --amber-bg:#FEF3C7; --amber-soft:#FFFBEB;
+  --red:#B91C1C; --red-bg:#FEE2E2; --red-soft:#FEF2F2;
+  --sky:#0369A1; --sky-bg:#E0F2FE;
+  --shadow:0 1px 2px rgba(15,23,42,.04), 0 10px 30px -18px rgba(15,23,42,.28);
+  --shadow-lg:0 24px 70px -24px rgba(2,6,23,.45);
+  --r:12px; --r-sm:8px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:"Segoe UI","Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  font-size:13px; line-height:1.45; -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3,h4,p{margin:0}
+svg.icon{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.muted{color:var(--muted)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.nowrap{white-space:nowrap}
+.spacer{flex:1}
+.hidden{display:none!important}
+.wrap{max-width:1600px;margin:0 auto;padding:16px 20px 40px}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  position:sticky; top:0; z-index:60;
+  display:flex; align-items:center; gap:18px;
+  padding:10px 20px; min-height:64px; color:#fff;
+  background:
+    radial-gradient(900px 180px at 8% -80%, rgba(14,165,233,.35), transparent 65%),
+    linear-gradient(105deg,#06182B 0%,#0A2A49 48%,#0B3B67 100%);
+  border-bottom:1px solid rgba(255,255,255,.09);
+  box-shadow:0 8px 30px -18px rgba(2,6,23,.8);
+}
+.topbar::after{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.55;
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 32%,#000 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 32%,#000 100%);
+}
+.topbar > *{position:relative; z-index:1}
+.brand{display:flex;align-items:center;gap:11px;min-width:310px}
+.brand-mark{
+  width:52px;height:38px;border-radius:9px;background:#fff;color:#005BAA;
+  display:grid;place-items:center;font-weight:900;font-size:13px;letter-spacing:.4px;
+  box-shadow:inset 0 -3px 0 #F59E0B, 0 6px 16px -8px rgba(0,0,0,.6);
+}
+.brand-text h1{font-size:16px;font-weight:800;letter-spacing:.2px;line-height:1.2;text-transform:uppercase}
+.brand-text p{font-size:10px;color:#9FB6CC;margin-top:2px;letter-spacing:.3px}
+.top-center{display:flex;align-items:center;gap:10px;flex:1;justify-content:center}
+.cp-switch{
+  display:flex;gap:2px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:3px;
+  backdrop-filter:blur(6px);
+}
+.cp-btn{
+  border:0;background:transparent;color:#B9CFE4;padding:5px 10px;border-radius:7px;
+  display:flex;flex-direction:column;line-height:1.15;min-width:86px;text-align:left;
+  transition:background .15s,color .15s;
+}
+.cp-btn b{font-size:12px;color:#fff;letter-spacing:.2px}
+.cp-btn span{font-size:8.5px;letter-spacing:.55px;text-transform:uppercase;margin-top:1px}
+.cp-btn:hover{background:rgba(255,255,255,.08)}
+.cp-btn.active{background:#fff;color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.cp-btn.active b{color:var(--navy)}
+.cp-btn.active span{color:var(--muted)}
+.date-box{
+  display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:6px 9px;
+}
+.date-box svg{color:#9FB6CC;font-size:14px}
+.date-box input{
+  background:transparent;border:0;outline:0;color:#fff;font-size:12px;width:112px;
+  color-scheme:dark;font-weight:600;
+}
+.date-box .day{font-size:10px;color:#9FB6CC;border-left:1px solid rgba(255,255,255,.15);padding-left:8px;white-space:nowrap}
+.top-actions{display:flex;align-items:center;gap:7px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:1px solid var(--line);background:#fff;color:var(--text);
+  border-radius:8px;padding:7px 11px;font-weight:650;font-size:12px;
+  transition:background .15s,border-color .15s,transform .1s,box-shadow .15s;
+  white-space:nowrap;
+}
+.btn:hover{background:#F8FAFC;border-color:#CBD5E1}
+.btn:active{transform:translateY(1px)}
+.btn svg{font-size:15px}
+.btn-primary{
+  background:linear-gradient(135deg,#0B7BC1,#005BAA);color:#fff;border-color:transparent;
+  box-shadow:0 6px 18px -6px rgba(0,91,170,.65);
+}
+.btn-primary:hover{background:linear-gradient(135deg,#0E8AD6,#0068B7);border-color:transparent}
+.btn-dark{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16);color:#fff}
+.btn-dark:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.25)}
+.icon-btn{width:34px;height:34px;padding:0;justify-content:center;flex:0 0 auto}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ===== STATUS BAR ===== */
+.statusbar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:7px 20px;background:#fff;border-bottom:1px solid var(--line);
+  font-size:10.5px;color:var(--muted);
+  box-shadow:0 2px 10px -8px rgba(15,23,42,.3);
+}
+.live{display:inline-flex;align-items:center;gap:6px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.5px;font-size:9.5px}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(21,128,61,.14);animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(21,128,61,.14)}50%{box-shadow:0 0 0 6px rgba(21,128,61,.04)}}
+.sep{width:1px;height:12px;background:var(--line)}
+.statusbar b{color:var(--text);font-weight:700}
+.statusbar .warn-text{color:var(--amber);font-weight:700}
+.statusbar .err-text{color:var(--red);font-weight:700}
+.link{border:0;background:none;color:var(--blue);padding:0;font-weight:700;font-size:10.5px}
+.link:hover{text-decoration:underline}
+.switch{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-weight:600;color:var(--muted)}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.switch .track{width:28px;height:16px;border-radius:20px;background:#CBD5E1;position:relative;transition:.18s;flex:0 0 auto}
+.switch .track::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.18s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.switch input:checked + .track{background:var(--blue)}
+.switch input:checked + .track::after{transform:translateX(12px)}
+.switch input:focus-visible + .track{outline:2px solid var(--blue2);outline-offset:2px}
+
+/* ===== SECTION HEAD ===== */
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin:18px 2px 9px}
+.section-head h2{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#20364D}
+.section-head h2 .accent{color:var(--blue)}
+.section-head p{font-size:10.5px;color:var(--muted);margin-top:2px}
+.cp-note{font-size:10.5px;color:var(--muted);display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);padding:5px 9px;border-radius:20px}
+.cp-note b{color:var(--blue)}
+
+/* ===== KPI CARDS ===== */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.kpi{
+  position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:11px 11px 9px;overflow:hidden;text-align:left;box-shadow:0 1px 2px rgba(15,23,42,.03);
+  transition:transform .16s,box-shadow .16s,border-color .16s;
+}
+.kpi::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--kc)}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#C9D8E6}
+.kpi.is-active{border-color:var(--kc);box-shadow:0 0 0 2px color-mix(in srgb,var(--kc) 18%, transparent),var(--shadow)}
+.k-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.k-ico{width:25px;height:25px;border-radius:7px;background:var(--ksoft);color:var(--kc);display:grid;place-items:center;font-size:13px}
+.k-label{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.35px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-target{font-size:9px;font-weight:800;color:var(--kc);background:var(--ksoft);border-radius:4px;padding:1px 4px;flex:0 0 auto}
+.k-value{font-size:20px;font-weight:850;letter-spacing:-.4px;line-height:1.15;margin-top:7px;white-space:nowrap}
+.k-value small{font-size:11px;font-weight:600;color:var(--muted2);letter-spacing:0}
+.k-bar{height:4px;border-radius:4px;background:#EDF2F7;margin-top:7px;overflow:hidden}
+.k-bar i{display:block;height:100%;border-radius:4px;background:var(--kc);transition:width .45s ease}
+.k-foot{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:6px;font-size:9.5px;color:var(--muted);white-space:nowrap}
+.k-foot .pill{font-size:9px;font-weight:800;padding:1px 5px;border-radius:10px;background:var(--ksoft);color:var(--kc)}
+.k-foot .pill.red{background:var(--red-bg);color:var(--red)}
+.k-foot .pill.amber{background:var(--amber-bg);color:var(--amber)}
+.k-foot .pill.green{background:var(--green-bg);color:var(--green)}
+
+/* ===== ALERTS ===== */
+.alert-strip{
+  margin-top:10px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;
+  background:linear-gradient(100deg,#FFF9EC,#FFFDF8);border:1px solid #F5DFAE;
+  border-radius:var(--r);padding:9px 12px;box-shadow:0 1px 2px rgba(180,83,9,.05);
+}
+.alert-strip.ok{background:linear-gradient(100deg,#F0FDF4,#F8FFFA);border-color:#BBF7D0}
+.alert-main{display:flex;align-items:center;gap:9px;min-width:240px}
+.alert-ico{
+  width:28px;height:28px;border-radius:9px;background:#FDE68A;color:#92400E;
+  display:grid;place-items:center;font-weight:900;font-size:15px;flex:0 0 auto;
+}
+.alert-strip.ok .alert-ico{background:#BBF7D0;color:#166534}
+.alert-main b{font-size:12px;color:#7C2D12}
+.alert-strip.ok .alert-main b{color:#166534}
+.alert-main span{display:block;font-size:10px;color:#9A6A2F}
+.alert-strip.ok .alert-main span{color:#3F7A57}
+.alert-tags{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.a-tag{font-size:9.5px;font-weight:700;background:#fff;border:1px solid #F1D9A7;color:#8A5A1D;border-radius:20px;padding:2px 7px;white-space:nowrap}
+.a-tag b{color:#7C2D12}
+.alert-panel{
+  margin-top:7px;background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px;
+  box-shadow:var(--shadow);
+}
+.alert-item{
+  display:flex;align-items:flex-start;gap:7px;text-align:left;border:1px solid var(--line2);
+  background:#FCFDFE;border-radius:8px;padding:7px 8px;transition:.12s;
+}
+.alert-item:hover{border-color:#C7D9E9;background:#F8FBFE}
+.alert-item .ai-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex:0 0 auto}
+.alert-item.red .ai-dot{background:var(--red)}
+.alert-item.amber .ai-dot{background:var(--amber)}
+.alert-item .ai-name{font-size:11px;font-weight:800;line-height:1.25}
+.alert-item .ai-text{font-size:9.5px;color:var(--muted);margin-top:1px;line-height:1.35}
+.alert-item .ai-meta{font-size:8.5px;color:var(--muted2);margin-top:2px}
+
+/* ===== FILTER PANEL ===== */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 1px 2px rgba(15,23,42,.03)}
+.filter-panel{margin-top:12px;padding:9px 11px 8px}
+.toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.search{position:relative;flex:1 1 240px;max-width:340px}
+.search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:14px}
+.search input{
+  width:100%;height:32px;border:1px solid var(--line);border-radius:8px;background:#F8FAFC;
+  padding:0 34px 0 30px;outline:0;font-size:12px;transition:.15s;
+}
+.search input:focus{border-color:var(--blue2);background:#fff;box-shadow:0 0 0 3px rgba(14,165,233,.12)}
+.search kbd{position:absolute;right:7px;top:7px;font-size:9px;color:var(--muted2);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 4px;background:#fff}
+select,.input{
+  height:32px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:0 26px 0 8px;
+  font-size:11.5px;outline:0;transition:.15s;max-width:100%;
+}
+select:focus,.input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(14,165,233,.12)}
+.check{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-weight:600;cursor:pointer;user-select:none;height:32px;padding:0 4px}
+.check input{accent-color:var(--blue);width:14px;height:14px}
+.count{font-size:10.5px;color:var(--muted);font-weight:600;margin-left:auto;white-space:nowrap}
+.team-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+.tchip{
+  display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;
+  border-radius:20px;padding:4px 9px 4px 7px;font-size:10.5px;font-weight:700;color:#3B5268;
+  transition:.13s;white-space:nowrap;
+}
+.tchip:hover{border-color:#B9CCDD;background:#F8FBFE}
+.tchip.active{background:var(--tc,#0B2F52);border-color:var(--tc,#0B2F52);color:#fff;box-shadow:0 4px 10px -6px rgba(2,6,23,.5)}
+.tchip .dot{width:7px;height:7px;border-radius:50%;background:var(--tc);flex:0 0 auto}
+.tchip.active .dot{background:#fff}
+.tchip .n{font-size:9px;background:#F1F5F9;color:var(--muted);border-radius:8px;padding:0 4px;min-width:15px;text-align:center}
+.tchip.active .n{background:rgba(255,255,255,.2);color:#fff}
+
+/* ===== TABLE ===== */
+.table-panel{margin-top:10px;overflow:hidden}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.panel-head h3{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#20364D}
+.panel-head p{font-size:10px;color:var(--muted);margin-top:1px}
+.legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:9.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.legend .g{background:var(--green)} .legend .a{background:var(--amber)} .legend .r{background:var(--red)} .legend .n{background:var(--muted2)}
+.table-wrap{max-height:calc(100vh - 300px);min-height:320px;overflow:auto;overscroll-behavior:contain}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1280px;table-layout:fixed}
+thead th{
+  position:sticky;z-index:5;background:#F7FAFD;color:#496178;font-size:9.5px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.4px;text-align:left;padding:7px 8px;
+  border-bottom:1px solid var(--line);white-space:nowrap;
+}
+thead tr.group th{
+  top:0;z-index:6;background:#E9F2FA;color:#1E4467;border-bottom:1px solid #D3E3F1;
+  font-size:9px;letter-spacing:.7px;padding:5px 8px;
+}
+thead tr.cols th{top:27px;z-index:6}
+thead th.person-col{left:0;z-index:8;background:#F7FAFD;box-shadow:1px 0 0 var(--line)}
+thead tr.group th.person-col{background:#E9F2FA;z-index:9}
+th.sortable{cursor:pointer}
+th.sortable:hover{color:var(--blue)}
+th.sortable.active{color:var(--blue);background:#EDF6FE}
+th .sort-ind{font-size:8px;margin-left:2px;opacity:.6}
+tbody td{border-bottom:1px solid var(--line2);padding:6px 8px;vertical-align:middle;background:#fff}
+tbody tr.p-row{cursor:pointer}
+tbody tr.p-row:hover td{background:#F8FBFE}
+tbody tr.p-row:hover td.person-col{background:#F2F8FD}
+td.person-col{position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 var(--line);width:225px;min-width:225px;max-width:225px}
+tr.team-row td{background:linear-gradient(90deg,#EAF3FA,#F5FAFE);border-top:2px solid #CFE3F3;border-bottom:1px solid #DCEAF6;padding-top:7px;padding-bottom:7px}
+tr.team-row td.person-col{background:#EAF3FA;z-index:3}
+tr.team-row:hover td{background:linear-gradient(90deg,#E3EFF8,#F1F8FD)}
+.t-name{display:flex;align-items:center;gap:7px;min-width:0}
+.t-name .chev{width:18px;height:18px;border:0;background:#fff;border:1px solid #C9DEEF;border-radius:5px;display:grid;place-items:center;color:#356A96;padding:0;flex:0 0 auto}
+.t-name .chev svg{font-size:10px;transition:transform .15s}
+.t-name.collapsed .chev svg{transform:rotate(-90deg)}
+.t-name .tt{font-size:11.5px;font-weight:850;color:#123B63;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-name .tm{font-size:8.5px;font-weight:800;color:#fff;background:var(--tc,#0B2F52);border-radius:4px;padding:1px 4px;flex:0 0 auto}
+.t-name .cnt{font-size:8.5px;color:var(--muted);font-weight:600;flex:0 0 auto}
+.p-main{display:flex;align-items:center;gap:8px;min-width:0}
+.avatar{
+  width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;
+  font-size:10px;font-weight:850;letter-spacing:.2px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--ac,#0B2F52),var(--ac2,#1E5A96));
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.12);
+}
+.p-info{min-width:0}
+.p-name{font-size:11.5px;font-weight:800;color:#122A42;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.p-meta{display:flex;gap:3px;align-items:center;margin-top:2px;flex-wrap:nowrap;overflow:hidden}
+.tag{
+  display:inline-flex;align-items:center;gap:2px;padding:1px 4px;border-radius:4px;
+  font-size:8px;font-weight:800;letter-spacing:.15px;background:#F1F5F9;color:#52677D;
+  border:1px solid #E2E8F0;white-space:nowrap;line-height:1.35;
+}
+.tag.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:7.5px;letter-spacing:0;background:#F8FAFC}
+.tag.leader{background:#FEF3C7;color:#92400E;border-color:#FDE68A}
+.tag.team{background:var(--tsoft,#E0F2FE);color:var(--tc,#0369A1);border-color:transparent}
+.mc{width:118px;min-width:118px;max-width:118px}
+.mc-top{display:flex;align-items:baseline;gap:3px;line-height:1.15}
+.mc-top .dot{width:6px;height:6px;border-radius:50%;flex:0 0 auto;margin-right:1px;position:relative;top:-1px}
+.mc-top b{font-size:12.5px;font-weight:850;letter-spacing:-.2px}
+.mc-top .plan{font-size:9.5px;color:var(--muted2);font-weight:600}
+.mc .bar{height:3px;border-radius:3px;background:#EDF2F7;margin-top:4px;overflow:hidden}
+.mc .bar i{display:block;height:100%;border-radius:3px;transition:width .4s}
+.mc-sub{font-size:9px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.mc.green .dot{background:var(--green)} .mc.green .bar i{background:var(--green)}
+.mc.amber .dot{background:var(--amber)} .mc.amber .bar i{background:var(--amber)}
+.mc.red .dot{background:var(--red)} .mc.red .bar i{background:var(--red)}
+.mc.na .dot{background:var(--muted2)} .mc.na .bar i{background:var(--muted2)}
+.mc.na{opacity:.55}
+.mc.red{background:linear-gradient(180deg,#FFFDFD,#FFF7F7)}
+tr.p-row:hover .mc.red{background:#FFF1F1}
+.mc.amber{background:linear-gradient(180deg,#FFFEFB,#FFFCF3)}
+tr.p-row:hover .mc.amber{background:#FFFAEB}
+.warn-cell{width:92px;min-width:92px;max-width:92px}
+.warn-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;padding:0 5px;border-radius:9px;font-size:9.5px;font-weight:900;background:#EEF2F6;color:#64748B}
+.warn-badge.red{background:var(--red-bg);color:var(--red)}
+.warn-badge.amber{background:var(--amber-bg);color:var(--amber)}
+.warn-text{font-size:8.5px;color:var(--muted);margin-top:2px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty-row td{padding:40px 20px;text-align:center;color:var(--muted);font-size:12px}
+.table-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 12px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);flex-wrap:wrap;background:#FBFDFF}
+.table-foot .note{display:flex;align-items:center;gap:5px}
+.table-foot svg{font-size:12px;color:var(--blue)}
+
+/* ===== TEAM CARDS ===== */
+.team-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.team-card{
+  position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:12px;box-shadow:0 1px 2px rgba(15,23,42,.03);overflow:hidden;
+}
+.team-card::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--tc)}
+.tc-head{display:flex;align-items:center;gap:6px}
+.tc-dot{width:9px;height:9px;border-radius:3px;background:var(--tc);flex:0 0 auto}
+.tc-head h4{font-size:12px;font-weight:850;color:#17324D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-head .tag{flex:0 0 auto}
+.tc-sub{font-size:9.5px;color:var(--muted);margin-top:2px;display:flex;justify-content:space-between;gap:4px}
+.tc-warn{font-size:9px;font-weight:800;padding:1px 5px;border-radius:8px;background:var(--amber-bg);color:var(--amber)}
+.tc-warn.ok{background:var(--green-bg);color:var(--green)}
+.tc-stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:9px 0 7px}
+.tc-stat{background:#F8FAFC;border:1px solid var(--line2);border-radius:7px;padding:5px 6px}
+.tc-stat .l{font-size:8px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted2);font-weight:700}
+.tc-stat .v{font-size:13px;font-weight:850;color:#17324D;line-height:1.2;white-space:nowrap}
+.tc-stat .v small{font-size:9px;color:var(--muted2);font-weight:600}
+.tc-rows{display:flex;flex-direction:column;gap:4px}
+.tc-row{display:grid;grid-template-columns:58px 1fr 58px;gap:6px;align-items:center;font-size:9px}
+.tc-row .l{color:#52677D;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-row .b{height:4px;background:#EDF2F7;border-radius:3px;overflow:hidden}
+.tc-row .b i{display:block;height:100%;border-radius:3px;background:var(--tc)}
+.tc-row .v{text-align:right;font-weight:800;color:#334E68;font-size:8.5px;white-space:nowrap}
+.tc-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:9px;padding-top:7px;border-top:1px dashed var(--line)}
+.tc-foot .who{font-size:8.5px;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-foot .btn{padding:4px 7px;font-size:9.5px;border-radius:6px}
+
+/* ===== METHOD & FOOTER ===== */
+details.method{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:0 1px 2px rgba(15,23,42,.03)}
+details.method summary{
+  list-style:none;cursor:pointer;padding:11px 14px;font-size:11px;font-weight:800;color:#20364D;
+  display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.4px;
+}
+details.method summary::-webkit-details-marker{display:none}
+details.method summary::after{content:"+";margin-left:auto;font-size:16px;color:var(--muted2);font-weight:400}
+details.method[open] summary::after{content:"–"}
+.method-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;padding:0 14px 14px;border-top:1px solid var(--line2)}
+.method-grid h4{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--blue);margin:12px 0 5px}
+.method-grid ul{margin:0;padding-left:16px;font-size:10.5px;color:#42576C;line-height:1.65}
+.method-grid li{margin-bottom:2px}
+.method-grid code{background:#F1F5F9;border:1px solid #E2E8F0;border-radius:3px;padding:0 3px;font-size:9.5px;font-family:ui-monospace,Menlo,monospace}
+.src-list{display:flex;flex-direction:column;gap:4px}
+.src-item{display:flex;align-items:center;gap:6px;font-size:10px;padding:4px 0;border-bottom:1px dashed var(--line2)}
+.src-item:last-child{border-bottom:0}
+.src-item .st{width:7px;height:7px;border-radius:50%;background:var(--green);flex:0 0 auto}
+.src-item .st.err{background:var(--red)}
+.src-item a{font-weight:700}
+.src-item .sp{color:var(--muted2);margin-left:auto;font-size:9px}
+footer.page-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:18px 2px 0;color:var(--muted2);font-size:9.5px}
+footer.page-foot b{color:var(--muted)}
+
+/* ===== DRAWER ===== */
+.overlay{position:fixed;inset:0;background:rgba(3,15,30,.45);backdrop-filter:blur(2px);z-index:78;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;height:100%;width:min(490px,100%);background:#F3F7FB;z-index:80;
+  transform:translateX(102%);transition:transform .24s cubic-bezier(.2,.8,.2,1);
+  display:flex;flex-direction:column;box-shadow:-24px 0 70px rgba(2,6,23,.32);
+}
+.drawer.open{transform:none}
+.dr-head{
+  position:relative;color:#fff;padding:14px 16px 13px;flex:0 0 auto;
+  background:radial-gradient(500px 120px at 20% -40%,rgba(14,165,233,.4),transparent 70%),linear-gradient(120deg,#071E35,#0C3A63);
+}
+.dr-head .close{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.12);border:0;color:#fff;width:28px;height:28px;border-radius:7px;display:grid;place-items:center}
+.dr-head .close:hover{background:rgba(255,255,255,.22)}
+.dr-id{display:flex;align-items:center;gap:10px;padding-right:30px}
+.dr-id .avatar{width:46px;height:46px;font-size:14px}
+.dr-head h3{font-size:15px;font-weight:850;line-height:1.25}
+.dr-head .sub{font-size:10px;color:#AFC6DB;margin-top:2px;display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.dr-head .sub .tag{background:rgba(255,255,255,.12);border-color:transparent;color:#DCEAF6}
+.dr-body{flex:1;overflow:auto;padding:12px 14px 20px}
+.dr-section{margin-bottom:14px}
+.dr-section h4{font-size:9.5px;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);margin:0 0 6px 2px;font-weight:800}
+.dr-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.dr-kpi{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 9px;position:relative;overflow:hidden}
+.dr-kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc,var(--muted2))}
+.dr-kpi .l{font-size:8.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);font-weight:800;display:flex;justify-content:space-between;gap:3px}
+.dr-kpi .v{font-size:16px;font-weight:850;margin-top:2px;line-height:1.2}
+.dr-kpi .v small{font-size:9.5px;color:var(--muted2);font-weight:600}
+.dr-kpi .s{font-size:8.5px;color:var(--muted);margin-top:1px;line-height:1.3}
+.dr-kpi .bar{height:3px;background:#EDF2F7;border-radius:3px;margin-top:5px;overflow:hidden}
+.dr-kpi .bar i{display:block;height:100%;background:var(--sc,var(--muted2));border-radius:3px}
+.dr-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden;font-size:9px}
+.dr-table th{background:#F7FAFD;color:var(--muted);font-size:8px;text-transform:uppercase;letter-spacing:.3px;padding:5px 5px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+.dr-table th:first-child{text-align:left}
+.dr-table td{padding:5px 5px;text-align:right;border-bottom:1px solid var(--line2);white-space:nowrap}
+.dr-table td:first-child{text-align:left;font-weight:700;color:#334E68}
+.dr-table tr:last-child td{border-bottom:0}
+.dr-table .red{color:var(--red);font-weight:800}
+.dr-table .amber{color:var(--amber);font-weight:800}
+.dr-table .green{color:var(--green);font-weight:800}
+.dr-alert{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 9px;font-size:10px;color:#42576C;line-height:1.5}
+.dr-alert .ai{display:flex;gap:6px;align-items:flex-start;padding:3px 0;border-bottom:1px dashed var(--line2)}
+.dr-alert .ai:last-child{border-bottom:0}
+.dr-alert .ad{width:6px;height:6px;border-radius:50%;margin-top:5px;flex:0 0 auto}
+.dr-alert .ad.red{background:var(--red)} .dr-alert .ad.amber{background:var(--amber)}
+.dr-actions{display:flex;gap:6px;margin-top:14px}
+.dr-actions .btn{flex:1}
+
+/* ===== MODAL ===== */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(3,15,30,.58);backdrop-filter:blur(4px);z-index:95;
+  display:grid;place-items:center;padding:16px;
+}
+.modal{
+  width:min(900px,100%);max-height:92vh;background:#fff;border-radius:15px;
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);
+  animation:pop .18s ease-out;
+}
+.modal-sm{width:min(520px,100%)}
+@keyframes pop{from{transform:scale(.97) translateY(6px);opacity:0}to{transform:none;opacity:1}}
+.modal-head{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--line);background:linear-gradient(100deg,#F8FBFE,#fff)}
+.modal-head .mi{width:30px;height:30px;border-radius:8px;background:#E0F2FE;color:var(--blue);display:grid;place-items:center;font-size:15px}
+.modal-head h3{font-size:13px;font-weight:850;color:#17324D}
+.modal-head p{font-size:9.5px;color:var(--muted);margin-top:1px}
+.modal-head .close{margin-left:auto;width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:#fff;display:grid;place-items:center;color:var(--muted)}
+.modal-head .close:hover{background:#F1F5F9;color:var(--text)}
+.modal-body{overflow:auto;padding:13px 16px;background:#FBFDFF}
+.modal-foot{display:flex;align-items:center;gap:9px;padding:10px 16px;border-top:1px solid var(--line);background:#fff;flex-wrap:wrap}
+.modal-foot .hint{font-size:9.5px;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:9px;text-transform:uppercase;letter-spacing:.45px;color:var(--muted);font-weight:800}
+.field .input{width:100%;padding-right:8px}
+.token-row{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}
+.token-row .field{flex:1;min-width:240px}
+.tg-note{display:flex;gap:7px;align-items:flex-start;background:#EFF8FF;border:1px solid #CBE7FA;border-radius:8px;padding:7px 9px;font-size:10px;color:#1E5A7A;line-height:1.45;margin-top:8px}
+.tg-note svg{color:#0284C7;margin-top:1px}
+.rec-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 5px}
+.rec-head h4{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:850}
+.rec-head .mini{font-size:9px;color:var(--blue);font-weight:700;border:0;background:none;padding:0}
+.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.rec{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 7px;cursor:pointer;transition:.12s}
+.rec:hover{border-color:#C7D9E9;background:#F8FBFE}
+.rec input{accent-color:var(--blue);width:14px;height:14px;flex:0 0 auto}
+.rec .rn{font-size:10.5px;font-weight:800;line-height:1.2}
+.rec .rr{font-size:8.5px;color:var(--muted);line-height:1.25}
+.rec .rc{margin-left:auto;font-size:8px;color:var(--muted2);font-family:ui-monospace,Menlo,monospace}
+.preview{margin-top:11px}
+.preview-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+.ptab{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:6px;padding:3px 7px;font-size:9px;font-weight:700}
+.ptab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.preview pre{
+  margin:0;background:#081F35;color:#D9E8F5;padding:11px 12px;border-radius:9px;
+  font-size:10px;line-height:1.55;white-space:pre-wrap;word-break:break-word;
+  max-height:235px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  border:1px solid #123A5B;
+}
+.preview pre b{color:#fff}
+.preview-meta{display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:9px;color:var(--muted2)}
+.send-log{font-size:9.5px;color:var(--muted);max-height:64px;overflow:auto;flex:1;min-width:180px}
+.send-log .ok{color:var(--green);font-weight:700}
+.send-log .err{color:var(--red);font-weight:700}
+.bot-ok{font-size:9.5px;color:var(--green);font-weight:700}
+.bot-err{font-size:9.5px;color:var(--red);font-weight:700}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line2)}
+.settings-row:last-child{border-bottom:0}
+.settings-row .sl{font-size:11px;font-weight:700}
+.settings-row .sd{font-size:9px;color:var(--muted);margin-top:1px}
+.settings-row .btn{padding:5px 8px;font-size:10px}
+.src-table{width:100%;border-collapse:collapse;font-size:9.5px;margin-top:4px}
+.src-table td{padding:4px 3px;border-bottom:1px solid var(--line2)}
+.src-table td:last-child{text-align:right;color:var(--muted2)}
+.src-table .ok{color:var(--green);font-weight:800}
+.src-table .er{color:var(--red);font-weight:800}
+
+/* ===== TOAST / LOADING ===== */
+.toast{
+  position:fixed;right:18px;bottom:18px;z-index:130;background:#0B2F52;color:#fff;
+  border-radius:10px;padding:10px 13px;font-size:11px;font-weight:600;max-width:360px;
+  box-shadow:0 18px 50px -12px rgba(2,6,23,.6);display:flex;align-items:flex-start;gap:8px;
+  opacity:0;transform:translateY(12px);pointer-events:none;transition:.22s;
+}
+.toast.show{opacity:1;transform:none}
+.toast.err{background:#7F1D1D}
+.toast.ok{background:#14532D}
+.toast svg{margin-top:1px;font-size:14px}
+.loading{
+  position:fixed;inset:0;z-index:200;display:grid;place-items:center;color:#fff;
+  background:radial-gradient(700px 300px at 50% 0%,#0D3F6A,#06182B 70%);
+  transition:opacity .35s,visibility .35s;
+}
+.loading.hide{opacity:0;visibility:hidden;pointer-events:none}
+.loader-card{width:320px;text-align:center}
+.loader-logo{width:66px;height:46px;border-radius:10px;background:#fff;color:#005BAA;display:grid;place-items:center;font-weight:900;font-size:16px;margin:0 auto 16px;box-shadow:inset 0 -4px 0 #F59E0B,0 10px 30px -10px rgba(0,0,0,.6)}
+.spinner{width:26px;height:26px;border:3px solid rgba(255,255,255,.16);border-top-color:#38BDF8;border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-card h2{font-size:14px;font-weight:800;letter-spacing:.3px}
+.loader-card p{font-size:10px;color:#9FB6CC;margin-top:4px;height:14px}
+.load-track{height:4px;background:rgba(255,255,255,.12);border-radius:4px;margin-top:14px;overflow:hidden}
+.load-track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#38BDF8,#22D3EE);border-radius:4px;transition:width .25s}
+.load-count{font-size:9px;color:#7E9AB2;margin-top:7px;letter-spacing:.5px}
+.err-banner{display:none;margin-top:10px;background:#FEF2F2;border:1px solid #FECACA;border-radius:9px;padding:8px 11px;font-size:10.5px;color:#991B1B;align-items:flex-start;gap:7px}
+.err-banner.show{display:flex}
+.err-banner svg{margin-top:1px}
+.err-banner b{font-weight:800}
+.err-banner button{border:0;background:none;color:#991B1B;text-decoration:underline;font-weight:800;padding:0;font-size:10px;margin-left:4px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1400px){
+  .kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .team-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:1150px){
+  .brand{min-width:0;flex:1}
+  .brand-text p{display:none}
+  .top-center{justify-content:flex-end}
+  .topbar{flex-wrap:wrap;gap:10px}
+  .top-actions{order:2}
+  .top-center{order:3;flex-basis:100%;justify-content:space-between}
+  .table-wrap{max-height:calc(100vh - 260px)}
+}
+@media(max-width:820px){
+  .wrap{padding:12px 12px 30px}
+  .topbar{padding:9px 12px}
+  .brand-text h1{font-size:13.5px}
+  .brand-mark{width:46px;height:34px;font-size:11px}
+  .cp-btn{min-width:58px;padding:4px 7px}
+  .cp-btn span{display:none}
+  .date-box .day{display:none}
+  .top-actions .btn span{display:none}
+  .top-actions .btn{padding:7px 9px}
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi{padding:10px}
+  .k-value{font-size:18px}
+  .statusbar{gap:7px;padding:6px 12px;font-size:9.5px}
+  .statusbar .sep{display:none}
+  .section-head{flex-wrap:wrap;margin-top:14px}
+  .section-head h2{font-size:11.5px}
+  .alert-main{min-width:0;flex:1}
+  .alert-tags{flex-basis:100%;order:3}
+  .filter-panel{padding:8px}
+  .search{flex:1 1 100%;max-width:none}
+  .toolbar select{flex:1;min-width:120px}
+  .count{margin-left:0;flex-basis:100%}
+  .team-grid{grid-template-columns:1fr 1fr}
+  .method-grid{grid-template-columns:1fr}
+  .rec-grid{grid-template-columns:1fr}
+  .table-wrap{max-height:calc(100vh - 240px)}
+  .panel-head{padding:9px 10px}
+  .legend{display:none}
+}
+@media(max-width:560px){
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:7px}
+  .k-value{font-size:17px}
+  .team-grid{grid-template-columns:1fr}
+  .brand-text h1{font-size:12px;letter-spacing:0}
+  .cp-btn b{font-size:11px}
+  .date-box input{width:102px;font-size:11px}
+  .dr-grid{grid-template-columns:1fr 1fr}
+  .modal-backdrop{padding:0}
+  .modal{max-height:100vh;height:100%;border-radius:0;width:100%}
+  .modal-body{padding:11px}
+  .toast{left:12px;right:12px;bottom:12px;max-width:none}
+  .loading .loader-card{width:86%}
+  .table-wrap{max-height:68vh}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+@media print{
+  body{background:#fff;font-size:10px}
+  .topbar,.statusbar,.toolbar,.team-chips,.alert-strip,.alert-panel,.top-actions,.table-foot,.team-grid,.method,.section-head .cp-note,footer.page-foot,.cp-switch,.date-box{display:none!important}
+  .wrap{max-width:none;padding:0}
+  .kpi-grid{grid-template-columns:repeat(4,1fr);gap:6px}
+  .kpi{box-shadow:none;border-color:#ccc;break-inside:avoid}
+  .panel,.table-panel{box-shadow:none;border:0}
+  .table-wrap{max-height:none;overflow:visible}
+  table{min-width:0;font-size:8px}
+  thead th{position:static}
+  td.person-col{position:static;box-shadow:none}
+  tbody tr{break-inside:avoid}
+  .mc{width:auto;min-width:0}
+  .filter-panel{display:none}
+  .panel-head{padding:0 0 6px}
+  .drawer,.overlay,.modal-backdrop,.toast{display:none!important}
+}
+
+/* ---- bổ sung: cảnh báo, bảng mini, cột bảng ---- */
+th.person-col{width:225px;min-width:225px;max-width:225px}
+th.warn-cell{width:92px;min-width:92px}
+.total-row td{background:#F1F7FC!important;border-top:2px solid #B9CCDD}
+.total-row .person-col{background:#E9F2FA!important}
+.ah{font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.55px;color:var(--muted);margin:0 0 5px}
+.alert-list{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow:auto}
+.empty-mini{font-size:10px;color:var(--muted2);padding:12px;text-align:center;border:1px dashed var(--line);border-radius:8px}
+.mini-table{width:100%;border-collapse:collapse;font-size:9px}
+.mini-table th{font-size:8px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);font-weight:800;text-align:left;padding:3px 4px;border-bottom:1px solid var(--line);background:#F8FBFE}
+.mini-table td{padding:3px 4px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.mini-table tr:last-child td{border-bottom:0}
+.tc-head h4{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src-item .st.err{background:var(--red)}
+.src-item a{color:inherit;text-decoration:none}
+.src-item a:hover{color:var(--blue)}
+.rec input:checked + div .rn{color:var(--navy)}
+@media(max-width:720px){
+  th.person-col{width:180px;min-width:180px;max-width:180px}
+  .rec-grid{grid-template-columns:1fr}
+  .alert-panel .panel-body > div{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.2.6.76 1 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 3 14h8l-1 8 10-12h-8l1-8z"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+</svg>
+
+<div class="loading" id="loading">
+  <div class="loader-card">
+    <div class="loader-logo">TTVT</div>
+    <div class="spinner"></div>
+    <h2>Đang kết nối 8 nguồn dữ liệu</h2>
+    <p id="loadingText">Khởi tạo bảng điều hành…</p>
+    <div class="load-track"><i id="loadingBar"></i></div>
+    <div class="load-count" id="loadingCount">0 / 8</div>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">TTVT</div>
+    <div class="brand-text">
+      <h1>Bảng điều hành chỉ tiêu</h1>
+      <p>Trung tâm Kinh doanh Tân An Hội · TP. Hồ Chí Minh</p>
+    </div>
+  </div>
+
+  <div class="top-center">
+    <div class="cp-switch stage-switch" id="stageSwitch" role="group" aria-label="Lấy dữ liệu theo buổi">
+      <button class="cp-btn stage-btn" data-stage="morning" type="button"><b>Đầu ngày</b><span>Lấy dữ liệu</span></button>
+      <button class="cp-btn stage-btn" data-stage="noon" type="button"><b>Buổi trưa</b><span>Lấy dữ liệu</span></button>
+      <button class="cp-btn stage-btn" data-stage="evening" type="button"><b>Buổi tối</b><span>Lấy dữ liệu</span></button>
+    </div>
+    <div class="date-box">
+      <svg class="icon"><use href="#i-calendar"/></svg>
+      <input type="date" id="dateInput" min="2026-11-02" max="2026-12-31" aria-label="Ngày điều hành">
+      <span class="day" id="topDay">—</span>
+    </div>
+  </div>
+
+  <div class="top-actions">
+    <button class="btn btn-dark icon-btn" id="btnRefresh" type="button" title="Tải lại dữ liệu" aria-label="Tải lại dữ liệu">
+      <svg class="icon"><use href="#i-refresh"/></svg>
+    </button>
+    <button class="btn btn-dark icon-btn" id="btnSettings" type="button" title="Cấu hình" aria-label="Cấu hình">
+      <svg class="icon"><use href="#i-gear"/></svg>
+    </button>
+    <button class="btn btn-dark" id="btnDownload" type="button" title="Tải báo cáo Excel">
+      <svg class="icon"><use href="#i-download"/></svg><span>Tải báo cáo</span>
+    </button>
+    <button class="btn btn-primary" id="btnTelegram" type="button">
+      <svg class="icon"><use href="#i-send"/></svg><span>Gửi báo cáo</span>
+    </button>
+  </div>
+</header>
+
+<div class="statusbar">
+  <span class="live"><i></i> Trực tiếp</span>
+  <span>Cập nhật <b id="lastUpdate">đang tải…</b></span>
+  <span class="sep"></span>
+  <span id="sourceStatus">0/8 nguồn</span>
+  <span class="sep"></span>
+  <span id="baselineNote">Chưa lấy dữ liệu đầu ngày</span>
+  <span class="spacer"></span>
+  <label class="switch" title="Tự động tải lại mỗi 5 phút">
+    <input type="checkbox" id="autoRefresh" checked><span class="track"></span> Tự động 5′
+  </label>
+  <span id="nextRefresh"></span>
+  <button class="link" id="btnDataInfo" type="button">Nguồn dữ liệu</button>
+</div>
+
+<main class="wrap">
+  <div class="err-banner" id="dataErr">
+    <svg class="icon"><use href="#i-warn"/></svg>
+    <div><b>Một số nguồn dữ liệu không tải được.</b> <span id="dataErrText"></span>
+      <button type="button" id="btnRetryErr">Thử lại</button>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div>
+      <h2>Toàn cảnh trung tâm <span class="accent">· 8 chỉ tiêu</span></h2>
+      <p id="kpiSub">Số lũy kế và kế hoạch ngày, cập nhật trực tiếp từ Google Sheets</p>
+    </div>
+    <div class="cp-note" id="cpNote"><svg class="icon"><use href="#i-clock"/></svg> <span>—</span></div>
+  </div>
+
+  <section class="kpi-grid" id="kpiGrid" aria-label="Chỉ tiêu toàn trung tâm"></section>
+
+  <section class="alert-strip" id="alertStrip">
+    <div class="alert-main">
+      <div class="alert-ico" id="alertIco">!</div>
+      <div><b id="alertCount">Đang tính cảnh báo…</b><span id="alertPeople"></span></div>
+    </div>
+    <div class="alert-tags" id="alertTags"></div>
+    <button class="btn" id="btnAlerts" type="button" style="padding:5px 9px;font-size:10.5px">Chi tiết</button>
+  </section>
+  <div class="alert-panel hidden" id="alertPanel"></div>
+
+  <section class="panel filter-panel">
+    <div class="toolbar">
+      <div class="search">
+        <svg class="icon"><use href="#i-search"/></svg>
+        <input type="search" id="filterSearch" placeholder="Tìm tên, mã TAH, mã nhân viên…" autocomplete="off">
+        <kbd>/</kbd>
+      </div>
+      <select id="filterArea" aria-label="Lọc mã khu vực">
+        <option value="all">Mã khu vực: tất cả</option>
+      </select>
+      <select id="filterRole" aria-label="Lọc vai trò">
+        <option value="all">Vai trò: tất cả</option>
+        <option value="leader">Tổ trưởng</option>
+        <option value="staff">Nhân viên</option>
+      </select>
+      <label class="check"><input type="checkbox" id="filterWarn"> Chỉ chưa đạt</label>
+      <select id="sortBy" aria-label="Sắp xếp">
+        <option value="team">Sắp xếp: theo tổ</option>
+        <option value="risk">Sắp xếp: rủi ro cao trước</option>
+        <option value="name">Sắp xếp: tên A–Z</option>
+        <option value="pct">Sắp xếp: % hoàn thành thấp</option>
+      </select>
+      <span class="count" id="resultCount"></span>
+      <button class="btn" id="btnExport" type="button" title="Xuất CSV">
+        <svg class="icon"><use href="#i-download"/></svg><span>CSV</span>
+      </button>
+    </div>
+    <div class="team-chips" id="teamChips"></div>
+  </section>
+
+  <section class="panel table-panel">
+    <div class="panel-head">
+      <div>
+        <h3>Bảng chỉ tiêu theo cá nhân</h3>
+        <p>Nhấn vào dòng để xem chi tiết · dùng ô “Sắp xếp” để đổi thứ tự · tag tổ và tag cá nhân hiển thị ngay trên bảng</p>
+      </div>
+      <div class="legend">
+        <span><i class="g"></i> Đạt / an toàn</span>
+        <span><i class="a"></i> Cần chú ý</span>
+        <span><i class="r"></i> Chưa đạt</span>
+        <span><i class="n"></i> Chưa có số</span>
+      </div>
+    </div>
+    <div class="table-wrap" id="tableWrap">
+      <table id="mainTable" aria-label="Bảng chỉ tiêu theo cá nhân">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+        <tfoot id="tableFoot"></tfoot>
+      </table>
+    </div>
+    <div class="table-foot">
+      <div class="note"><svg class="icon"><use href="#i-bolt"/></svg> <span id="tableNote">Bấm “Đầu ngày” để chốt mốc giao việc, sau đó bấm “Buổi trưa”/“Buổi tối” để chấm phát sinh.</span></div>
+      <div id="tableStamp"></div>
+    </div>
+  </section>
+
+  <div class="section-head">
+    <div>
+      <h2>Tổng hợp theo tổ <span class="accent">· 5 tổ</span></h2>
+      <p>So sánh tổ, khoanh vùng cảnh báo và gửi báo cáo riêng cho tổ trưởng</p>
+    </div>
+    <button class="btn" id="btnSendAll" type="button"><svg class="icon"><use href="#i-send"/></svg><span>Gửi tất cả báo cáo</span></button>
+  </div>
+  <section class="team-grid" id="teamGrid"></section>
+
+  <details class="method" id="method">
+    <summary><svg class="icon" style="color:var(--blue)"><use href="#i-db"/></svg> Phương pháp tính &amp; nguồn dữ liệu</summary>
+    <div class="method-grid">
+      <div>
+        <h4>Công thức đang áp dụng</h4>
+        <ul>
+          <li><b>Gia hạn (GHTT):</b> chỉ tiêu = <code>85% × TỔNG</code>; đã làm = THÀNH CÔNG; còn lại = chỉ tiêu − đã làm. Kế hoạch ngày lấy từ sheet <code>sanluong</code>.</li>
+          <li><b>Thu cước:</b> chỉ tiêu <code>99,5%</code>. Quy mô thuê bao được suy ra từ cột “cần xử lý để đạt 99%”: <code>quy mô = cần xử lý ÷ (99% − % hiện tại)</code>; từ đó tính số còn lại để đạt 99,5%.</li>
+          <li><b>Tiếp thị:</b> chỉ tiêu <code>100%</code> tổng giao 5 sản phẩm (Fiber, XGSPON, MyTV, Mesh, Camera); đã làm = tổng TT 5 sản phẩm. Kế hoạch ngày lấy từ <code>sanluong</code>.</li>
+          <li><b>NPSC:</b> “Thực tăng” phải <code>≥ 0</code> và <code>%NPSC ≤ 0,53%</code>. Trạng thái đỏ khi thực tăng âm; vàng khi thực tăng không âm nhưng tỉ lệ vượt 0,53%.</li>
+          <li><b>DPSC:</b> <code>TH ÷ KH ≥ 100%</code>. Số còn lại = KH − TH (nếu dương).</li>
+          <li><b>CSTC:</b> tồn = số phiếu chưa có ngày đóng; chỉ tiêu <code>0</code>. Kế hoạch ngày = tồn ÷ số ngày làm việc còn lại đến 31/12.</li>
+          <li><b>Modem:</b> đã thay ÷ tổng tập giao; còn lại = chưa thay. Kế hoạch ngày lấy từ <code>sanluong</code> (fallback sheet <code>modem</code>).</li>
+          <li><b>Bán kèm:</b> PTM Mesh + Camera + MyTV ÷ tổng kế hoạch “Bán chéo” đến 31/12; kế hoạch ngày lấy từ <code>sanluong</code>.</li>
+          <li><b>Chỉ tiêu không có trong file kế hoạch</b> (NPSC, DPSC, CSTC): lấy số còn lại chia đều cho số ngày làm việc còn lại đến 31/12 (bỏ Chủ nhật).</li>
+          <li><b>3 nút lấy dữ liệu:</b> <b>Đầu ngày</b> chốt mốc giao việc; <b>Buổi trưa</b> chấm 50% kế hoạch ngày; <b>Buổi tối</b> chấm 100% và chốt báo cáo. Thời gian bấm tự do, không phụ thuộc giờ cố định.</li>
+          <li><b>Các chỉ tiêu trừ modem, bán kèm:</b> kế hoạch ngày = số còn lại ÷ số ngày làm việc còn lại <b>trong tháng hiện tại</b>. Modem và bán kèm lấy kế hoạch ngày từ sheet <code>sanluong</code> đến 31/12.</li>
+          <li><b>DPSC:</b> báo theo số <b>TH</b>; TH phải <b>bằng hoặc dưới KH</b>, vượt KH là chưa đạt.</li>
+        </ul>
+        <h4>Ghi chú về 3 lần lấy dữ liệu</h4>
+        <ul>
+          <li>Mỗi lần bấm nút, trình duyệt chụp số lũy kế hiện tại của cả 29 người vào <code>localStorage</code>; không gửi lên máy chủ.</li>
+          <li>Số “hôm nay” của buổi trưa/tối = số hiện tại − mốc <b>Đầu ngày</b>. Nếu chưa bấm Đầu ngày, cột này để trống và chưa chấm được.</li>
+          <li>Bấm lại cùng một buổi sẽ hỏi và thay mốc cũ. Nên bấm Đầu ngày trước khi nhân viên bắt đầu làm.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>8 nguồn Google Sheets (công khai)</h4>
+        <div class="src-list" id="sourceList"></div>
+        <h4>Gửi Telegram</h4>
+        <ul>
+          <li>Dùng Telegram Bot API, token chỉ lưu trên trình duyệt của bạn, không gửi lên máy chủ nào khác.</li>
+          <li>Ban lãnh đạo nhận báo cáo toàn cảnh (trung tâm + 5 tổ + cảnh báo tổ còn thiếu bao nhiêu).</li>
+          <li>Tổ trưởng nhận báo cáo tổ mình: tổng tổ, từng cá nhân, danh sách cá nhân chưa đạt.</li>
+          <li>Người nhận phải bấm <code>/start</code> bot ít nhất một lần thì bot mới nhắn được.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <footer class="page-foot">
+    <div>TTVT Tân An Hội · Bảng điều hành nội bộ · Dữ liệu đọc trực tiếp từ Google Sheets, không qua máy chủ trung gian.</div>
+    <div>Phiên bản <b>1.0</b> · <span id="footStamp">—</span></div>
+  </footer>
+</main>
+
+<div class="overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dr-head">
+    <button class="close" id="drawerClose" type="button" aria-label="Đóng"><svg class="icon"><use href="#i-close"/></svg></button>
+    <div class="dr-id" id="drawerId"></div>
+  </div>
+  <div class="dr-body" id="drawerBody"></div>
+</aside>
+
+<div class="modal-backdrop hidden" id="tgModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tgTitle">
+    <div class="modal-head">
+      <div class="mi"><svg class="icon"><use href="#i-send"/></svg></div>
+      <div><h3 id="tgTitle">Gửi báo cáo qua Telegram</h3><p>Mỗi người nhận đúng phạm vi phụ trách · nội dung lấy từ số liệu đang hiển thị</p></div>
+      <button class="close" id="tgClose" type="button" aria-label="Đóng"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="token-row">
+        <div class="field">
+          <label for="botToken">Bot token (từ @BotFather)</label>
+          <input class="input" type="password" id="botToken" placeholder="123456789:AA…" autocomplete="off" spellcheck="false">
+        </div>
+        <button class="btn" id="btnSaveToken" type="button">Lưu token</button>
+        <button class="btn" id="btnTestBot" type="button">Kiểm tra</button>
+        <span id="botStatus" class="muted" style="font-size:9.5px"></span>
+      </div>
+      <div class="tg-note">
+        <svg class="icon"><use href="#i-warn"/></svg>
+        <div>Token chỉ lưu trong <code>localStorage</code> của trình duyệt này. Người nhận cần bấm <b>/start</b> bot trước khi gửi. Không nhập token vào máy lạ.</div>
+      </div>
+
+      <div class="rec-head">
+        <h4>Người nhận</h4>
+        <div><button class="mini" id="btnRecAll" type="button">Chọn tất cả</button> · <button class="mini" id="btnRecNone" type="button">Bỏ chọn</button></div>
+      </div>
+      <div id="recList"></div>
+
+      <div class="preview">
+        <div class="rec-head"><h4>Xem trước nội dung</h4><span class="muted" style="font-size:9px">Telegram HTML · tối đa 4.096 ký tự</span></div>
+        <div class="preview-tabs" id="previewTabs"></div>
+        <pre id="previewText">Đang tạo nội dung…</pre>
+        <div class="preview-meta">
+          <span id="charCount">0 ký tự</span>
+          <button class="btn" id="btnCopy" type="button" style="padding:3px 7px;font-size:9.5px"><svg class="icon"><use href="#i-copy"/></svg> Copy</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" id="btnSend" type="button"><svg class="icon"><use href="#i-send"/></svg><span id="sendLabel">Gửi báo cáo</span></button>
+      <span class="hint" id="sendProgress"></span>
+      <div class="send-log" id="sendLog"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="settingsModal">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <div class="modal-head">
+      <div class="mi"><svg class="icon"><use href="#i-gear"/></svg></div>
+      <div><h3 id="setTitle">Cấu hình bảng điều hành</h3><p>Dữ liệu, 3 lần lấy số và các nguồn đang kết nối</p></div>
+      <button class="close" id="setClose" type="button" aria-label="Đóng"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-row">
+        <div><div class="sl">Tự động tải lại</div><div class="sd">Mỗi 5 phút, giữ nguyên bộ lọc và buổi đang xem</div></div>
+        <label class="switch"><input type="checkbox" id="autoRefresh2" checked><span class="track"></span></label>
+      </div>
+      <div class="settings-row">
+        <div><div class="sl">Dữ liệu đang xem</div><div class="sd" id="snapInfo">Chưa lấy dữ liệu</div></div>
+        <span class="muted" style="font-size:9px">Bấm 3 nút trên đầu trang</span>
+      </div>
+      <div class="settings-row">
+        <div><div class="sl">Bộ nhớ trình duyệt</div><div class="sd">Xóa token, 3 mốc đã lấy và bộ lọc đã lưu</div></div>
+        <button class="btn" id="btnClearAll" type="button">Xóa dữ liệu</button>
+      </div>
+      <div class="settings-row" style="display:block">
+        <div class="sl" style="margin-bottom:5px">Nguồn dữ liệu</div>
+        <table class="src-table" id="srcTable"></table>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="hint">Thay đổi sheet sẽ tự động phản ánh sau lần tải kế tiếp.</span>
+      <button class="btn btn-primary" id="setDone" type="button">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+'use strict';
+
+/* =====================================================================
+   1. CẤU HÌNH NGUỒN DỮ LIỆU
+   ===================================================================== */
+const SHEETS = {
+  giahan:  { id: '1aQAvHRpgi2R4pxaJHFVLBCZkf9eVRo2TX9pXTI6zQqU', sheet: 'GIAHAN',           label: 'Gia hạn',        short: 'GIAHAN' },
+  thucuoc: { id: '1kJ0xljSnO6pagqODe9FSYSRFfimFHe_XtQvC4MD6x9A', sheet: 'BAOCAOTHUCUOC',   label: 'Thu cước',       short: 'THUCUOC' },
+  tiepthi: { id: '1Giwkw7dpso3zvNiGFaaxjb7wOlKnTZiyafWzTUxsAu4', sheet: 'BAOCAOTIEPTHI',   label: 'Tiếp thị',       short: 'TIEPTHI' },
+  npsc:    { id: '1PdQmHb5JieJul3rl9US5fi3RGl76JvJR_SDMV8BaoFQ', sheet: 'Trang tính1',     label: 'NPSC',           short: 'NPSC' },
+  dpsc:    { id: '1FBWxpC8EqNTA6cgvOsA1SdxHm4azPOzBfH1kZ3mkGpg', sheet: 'tnhdpsc',         label: 'DPSC',           short: 'DPSC' },
+  cstc:    { id: '1HMmRVxZn3dfScN6_yFFOQI8C-uDc6XkisqYfGMNyIpY', sheet: 'CSTC',            label: 'CSTC',           short: 'CSTC' },
+  modem:   { id: '19ankzA_pG7ybX-yB2i73RHlx5cchwkBCA-p91ngmTLY', sheet: 'modem',           label: 'Thay modem',     short: 'MODEM' },
+  plan:    { id: '1D3XoBIGZqumRmfelHkVK_Layj-fXvFyiBgao6k5hugc', sheet: 'sanluong',        label: 'Kế hoạch ngày',  short: 'SANLUONG' }
+};
+
+const TEAMS = {
+  ANT: { code: 'ANT', name: 'An Nhơn Tây', full: 'Tổ Kỹ thuật Địa bàn An Nhơn Tây', leader: 'Đinh Trường Giang', tg: '1321511356', color: '#0b63ce' },
+  NDU: { code: 'NDU', name: 'Nhuận Đức',   full: 'Tổ Kinh doanh Nhuận Đức',          leader: 'Lê Quang Trường',   tg: '5988011339', color: '#7c3aed' },
+  AH1: { code: 'AH1', name: 'Tân An Hội 1', full: 'Tổ Kinh doanh Tân An Hội 1',      leader: 'Lê Hữu Thạnh',      tg: '8745184441', color: '#0e9f6e' },
+  AH2: { code: 'AH2', name: 'Tân An Hội 2', full: 'Tổ Kinh doanh Tân An Hội 2',      leader: 'Nguyễn Phương Tính',tg: '1614838513', color: '#d97706' },
+  TMY: { code: 'TMY', name: 'Thái Mỹ',      full: 'Tổ Kinh doanh Thái Mỹ',           leader: 'Phạm Công Vinh',    tg: '5876745141', color: '#dc2626' }
+};
+const TEAM_ORDER = ['ANT', 'NDU', 'AH1', 'AH2', 'TMY'];
+
+const LEADERS = [
+  { name: 'Lê Văn Dược',    role: 'Giám đốc',        scope: 'center', tg: '5432548153' },
+  { name: 'Hồ Văn Sáu',     role: 'Phó Giám đốc',    scope: 'center', tg: '1349216311' },
+  { name: 'Lưu Uy Bình',    role: 'HTKT',            scope: 'center', tg: '1906311157' },
+  { name: 'Đinh Trường Giang', role: 'Tổ trưởng ANT', scope: 'team', team: 'ANT', tg: '1321511356' },
+  { name: 'Lê Quang Trường',   role: 'Tổ trưởng NDU', scope: 'team', team: 'NDU', tg: '5988011339' },
+  { name: 'Lê Hữu Thạnh',      role: 'Tổ trưởng AH1', scope: 'team', team: 'AH1', tg: '8745184441' },
+  { name: 'Nguyễn Phương Tính',role: 'Tổ trưởng AH2', scope: 'team', team: 'AH2', tg: '1614838513' },
+  { name: 'Phạm Công Vinh',    role: 'Tổ trưởng TMY', scope: 'team', team: 'TMY', tg: '5876745141' }
+];
+
+const METRICS = [
+  { key: 'ghtt',     label: 'Gia hạn',   icon: 'i-refresh',  unit: 'hồ sơ',   kind: 'daily' },
+  { key: 'thucuoc',  label: 'Thu cước',  icon: 'i-db',       unit: 'lượt',    kind: 'daily' },
+  { key: 'tiepthi',  label: 'Tiếp thị',  icon: 'i-trend',    unit: 'sản phẩm',kind: 'daily' },
+  { key: 'npsc',     label: 'NPSC',      icon: 'i-target',   unit: 'TB',      kind: 'net' },
+  { key: 'dpsc',     label: 'DPSC',      icon: 'i-bolt',     unit: 'TB',      kind: 'month' },
+  { key: 'cstc',     label: 'CSTC',      icon: 'i-copy',     unit: 'phiếu',   kind: 'zero' },
+  { key: 'modem',    label: 'Modem',     icon: 'i-users',    unit: 'máy',     kind: 'daily' },
+  { key: 'bankem',   label: 'Bán kèm',   icon: 'i-filter',   unit: 'TB',      kind: 'daily' }
+];
+
+const DAY_MS = 86400000;
+const CHECKPOINTS = {
+  morning: { key: 'morning', label: '07:00 Giao việc', short: 'Giao việc',        factor: 0,   hour: 7 },
+  noon:    { key: 'noon',    label: '11:30 Sơ kết sáng', short: 'Sơ kết sáng',    factor: 0.5, hour: 11.5 },
+  close:   { key: 'close',   label: '17:30 Quyết toán', short: 'Quyết toán ngày', factor: 1,   hour: 17.5 }
+};
+
+/* =====================================================================
+   2. TIỆN ÍCH
+   ===================================================================== */
+function stripDiacritics(str) {
+  return String(str == null ? '' : str)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+}
+function normName(str) {
+  return stripDiacritics(str).toLowerCase().replace(/\s+/g, ' ').trim();
+}
+function cleanName(str) {
+  return String(str == null ? '' : str).normalize('NFC').replace(/\s+/g, ' ').trim();
+}
+function teamFromText(text) {
+  const n = stripDiacritics(text || '').toLowerCase();
+  if (n.includes('an nhon tay')) return 'ANT';
+  if (n.includes('nhuan duc')) return 'NDU';
+  if (n.includes('an hoi 1')) return 'AH1';
+  if (n.includes('an hoi 2')) return 'AH2';
+  if (n.includes('thai my')) return 'TMY';
+  return '';
+}
+function cellValue(c) {
+  if (!c) return null;
+  if (c.v !== undefined && c.v !== null && c.v !== '') return c.v;
+  if (c.f !== undefined && c.f !== null && c.f !== '') return c.f;
+  return null;
+}
+function num(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  let t = String(v).trim().replace(/\s/g, '').replace(/[đ₫]/gi, '');
+  if (!t) return 0;
+  t = t.replace(/%/g, '');
+  if (t.includes(',') && t.includes('.')) {
+    if (t.lastIndexOf(',') > t.lastIndexOf('.')) t = t.replace(/\./g, '').replace(',', '.');
+    else t = t.replace(/,/g, '');
+  } else if (t.includes('.')) {
+    if (/^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+  } else if (t.includes(',')) {
+    t = t.replace(',', '.');
+  }
+  const n = parseFloat(t);
+  return isFinite(n) ? n : 0;
+}
+function pctVal(v) {
+  if (typeof v === 'string' && v.includes('%')) return num(v);
+  return num(v);
+}
+function text(v) { return v === null || v === undefined ? '' : String(v).trim(); }
+function idxOf(cols, needles, fallback) {
+  const cs = cols.map(c => stripDiacritics(c).toLowerCase());
+  for (const needle of needles) {
+    const n = stripDiacritics(needle).toLowerCase();
+    const i = cs.findIndex(c => c.includes(n));
+    if (i >= 0) return i;
+  }
+  return fallback;
+}
+function isoOf(d) {
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+function parseVnDate(s) {
+  const m = String(s || '').match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
+  if (!m) return '';
+  const d = Number(m[1]), mo = Number(m[2]);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return '';
+  return '2026-' + String(mo).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+}
+function fromIso(iso) {
+  const [y, m, d] = String(iso).split('-').map(Number);
+  return new Date(y, m - 1, d, 12, 0, 0);
+}
+function addDays(iso, n) { return isoOf(new Date(fromIso(iso).getTime() + n * DAY_MS)); }
+function countWorkdays(startIso, endIso) {
+  let cur = startIso, n = 0, guard = 0;
+  while (cur <= endIso && guard < 800) {
+    if (fromIso(cur).getDay() !== 0) n++;
+    cur = addDays(cur, 1); guard++;
+  }
+  return Math.max(1, n);
+}
+function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+function fmtN(n) {
+  if (n === null || n === undefined || !isFinite(n)) return '–';
+  return Math.round(n).toLocaleString('vi-VN');
+}
+function fmtPct(n, digits = 1) {
+  if (n === null || n === undefined || !isFinite(n)) return '–';
+  return (Math.round(n * Math.pow(10, digits)) / Math.pow(10, digits)).toLocaleString('vi-VN', { maximumFractionDigits: digits }) + '%';
+}
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* =====================================================================
+   3. TẢI GOOGLE SHEETS BẰNG JSONP (gviz)
+   ===================================================================== */
+let cbSeq = 0;
+function loadSheet(key, timeoutMs) {
+  const meta = SHEETS[key];
+  return new Promise((resolve, reject) => {
+    const cb = '__gviz_' + key + '_' + (++cbSeq) + '_' + Date.now();
+    const script = document.createElement('script');
+    let done = false;
+    const started = performance.now();
+    const timer = setTimeout(() => cleanup(new Error('Quá thời gian tải ' + meta.label)), timeoutMs || 30000);
+
+    function cleanup(err) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+      script.remove();
+      if (err) reject(err);
+    }
+    window[cb] = function (resp) {
+      try {
+        const table = resp && resp.table;
+        if (!table || !table.rows) throw new Error('Không có dữ liệu');
+        const cols = (table.cols || []).map(c => text(c && c.label));
+        const rows = table.rows.map(r => (r.c || []).map(cellValue));
+        cleanup();
+        resolve({ key, cols, rows, rowsCount: table.rows.length, ms: Math.round(performance.now() - started) });
+      } catch (e) {
+        cleanup(new Error('Dữ liệu ' + meta.label + ' không hợp lệ: ' + e.message));
+      }
+    };
+    script.onerror = () => cleanup(new Error('Không kết nối được ' + meta.label));
+    const url = 'https://docs.google.com/spreadsheets/d/' + meta.id +
+      '/gviz/tq?tqx=out:json;responseHandler:' + encodeURIComponent(cb) +
+      '&headers=1&sheet=' + encodeURIComponent(meta.sheet) + '&_=' + Date.now();
+    script.src = url;
+    document.head.appendChild(script);
+  });
+}
+
+async function loadAll(onProgress) {
+  const keys = Object.keys(SHEETS);
+  const raw = {}, errors = [];
+  let finished = 0;
+  await Promise.all(keys.map(async key => {
+    try {
+      raw[key] = await loadSheet(key);
+    } catch (e) {
+      errors.push({ key, message: e.message });
+    } finally {
+      finished++;
+      if (onProgress) onProgress(finished, keys.length, key);
+    }
+  }));
+  return { raw, errors };
+}
+
+/* =====================================================================
+   4. CHUẨN HÓA DỮ LIỆU
+   ===================================================================== */
+function emptyPerson(code, name, team) {
+  return {
+    key: normName(name), name: cleanName(name), codes: code ? [code] : [], code: code || '',
+    team: team || '', role: 'staff', roleLabel: 'Nhân viên',
+    ghtt: { target: 0, actual: 0, total: 0, rate: 0 },
+    thucuoc: { target: 0, actual: 0, pct: 0, need: 0, base: 0 },
+    tiepthi: { target: 0, actual: 0, parts: { fiber: 0, xgspon: 0, mytv: 0, mesh: 0, cam: 0 } },
+    npsc: { net: 0, pct: 0, need: 0, ptm: 0, npsc: 0, psc: 0 },
+    dpsc: { kh: 0, th: 0 },
+    cstc: { open: 0 },
+    modem: { assigned: 0, done: 0, remain: 0, planDay: 0, todaySheet: 0, ptmMesh: 0, ptmCamera: 0, ptmMytv: 0, ptm: 0 },
+    plan: { modem: 0, thu: 0, tiepthi: 0, bancheo: 0, ghtt: 0 }
+  };
+}
+
+function buildModel(raw, selectedDate) {
+  const people = [];
+  const byKey = new Map();
+  const byCode = new Map();
+  const warnings = [];
+
+  function findOrCreate(code, name, team) {
+    const nm = cleanName(name);
+    if (!nm) return null;
+    const key = normName(nm);
+    let p = byKey.get(key);
+    if (!p) {
+      p = emptyPerson(code, nm, team);
+      byKey.set(key, p);
+      people.push(p);
+    }
+    if (code && /^TAH\d+/i.test(code) && !p.codes.includes(code)) p.codes.push(code);
+    if (!p.code && code && /^TAH\d+/i.test(code)) p.code = code;
+    if (!p.team && team) p.team = team;
+    if (code && /^TAH\d+/i.test(code)) byCode.set(code, p);
+    return p;
+  }
+
+  /* --- S1: danh sách, tổ, chỉ tiêu gia hạn --- */
+  const s1 = raw.giahan;
+  if (s1) {
+    const cCode = idxOf(s1.cols, ['mã nhân viên', 'ma nhan vien'], 1);
+    const cName = idxOf(s1.cols, ['họ tên', 'ho ten'], 2);
+    const cTeam = idxOf(s1.cols, ['tổ/nhóm', 'to/nhom'], 3);
+    const cTotal = idxOf(s1.cols, ['tổng'], 4);
+    const cDone = idxOf(s1.cols, ['thành công', 'thanh cong'], 5);
+    const cRate = idxOf(s1.cols, ['tỷ lệ', 'ty le'], 7);
+    for (const r of s1.rows) {
+      const code = text(r[cCode]);
+      const name = text(r[cName]);
+      if (!/^TAH\d+/i.test(code) || !name) continue;
+      if (normName(name).includes('tong cong')) continue;
+      const p = findOrCreate(code, name, teamFromText(r[cTeam]));
+      if (!p) continue;
+      p.ghtt.total += num(r[cTotal]);
+      p.ghtt.actual += num(r[cDone]);
+      p.ghtt.rate = Math.max(p.ghtt.rate, pctVal(r[cRate]));
+    }
+  }
+
+  /* --- S2: thu cước --- */
+  const s2 = raw.thucuoc;
+  if (s2) {
+    const cName = idxOf(s2.cols, ['tennv', 'tên nhân viên', 'tên nv'], 0);
+    const cCode = idxOf(s2.cols, ['ma_kv', 'mã kv'], 1);
+    const cPct = idxOf(s2.cols, ['% hoàn thành', '% hoan thanh'], 3);
+    const cNeed = idxOf(s2.cols, ['fiber cần xử lý', 'fiber can xu ly'], 4);
+    for (const r of s2.rows) {
+      const name = text(r[cName]);
+      if (!name || normName(name).includes('tổng')) continue;
+      const p = findOrCreate(text(r[cCode]), name, teamFromText(r[2]));
+      if (!p) continue;
+      const pct = pctVal(r[cPct]);
+      const need = num(r[cNeed]);
+      let base = 0;
+      if (pct > 0 && pct < 99.5 && need > 0) base = need / ((99 - pct) / 100);
+      else if (need > 0) base = need / 0.01;
+      p.thucuoc.need += need;
+      if (base > 0) {
+        p.thucuoc.base += base;
+        p.thucuoc.actual += base * pct / 100;
+        p.thucuoc.target += base * 0.995;
+      } else {
+        p.thucuoc.target += need;
+      }
+    }
+  }
+
+  /* --- S3: tiếp thị --- */
+  const s3 = raw.tiepthi;
+  if (s3) {
+    const cName = idxOf(s3.cols, ['nvkt', 'nhân viên'], 0);
+    const cTeam = idxOf(s3.cols, ['tổ'], 1);
+    for (const r of s3.rows) {
+      const name = text(r[cName]);
+      if (!name || normName(name).includes('tổng')) continue;
+      const p = findOrCreate('', name, teamFromText(r[cTeam]));
+      if (!p) continue;
+      const giao = [2, 3, 4, 5, 6].reduce((a, i) => a + num(r[i]), 0);
+      const tt = [7, 8, 9, 10, 11].reduce((a, i) => a + num(r[i]), 0);
+      p.tiepthi.target = giao;
+      p.tiepthi.actual = tt;
+      p.tiepthi.parts = {
+        fiber: num(r[7]), xgspon: num(r[8]), mytv: num(r[9]), mesh: num(r[10]), cam: num(r[11])
+      };
+    }
+  }
+
+  /* --- S4: NPSC --- */
+  const s4 = raw.npsc;
+  if (s4) {
+    const cTeam = idxOf(s4.cols, ['tổ'], 0);
+    const cCode = idxOf(s4.cols, ['makvcu', 'mã kv'], 1);
+    const cName = idxOf(s4.cols, ['ktđb', 'ktdb'], 3);
+    const cNet = idxOf(s4.cols, ['thực tăng'], 8);
+    const cPct = idxOf(s4.cols, ['%npsc'], 7);
+    const cNeed = idxOf(s4.cols, ['số npsc fiber'], 9);
+    const cPsc = (() => { const i = s4.cols.findIndex(c => stripDiacritics(c).trim().toLowerCase() === 'psc'); return i >= 0 ? i : 6; })();
+    const cPtm = idxOf(s4.cols, ['ptm'], 4);
+    const cNpsc = idxOf(s4.cols, ['npsc'], 5);
+    for (const r of s4.rows) {
+      const name = text(r[cName]);
+      if (!name) continue;
+      const p = findOrCreate(text(r[cCode]), name, teamFromText(r[cTeam]));
+      if (!p) continue;
+      p.npsc.net += num(r[cNet]);
+      p.npsc.need += num(r[cNeed]);
+      p.npsc.psc += num(r[cPsc]);
+      p.npsc.ptm += num(r[cPtm]);
+      p.npsc.npsc += num(r[cNpsc]);
+    }
+  }
+
+  /* --- S5: DPSC --- */
+  const s5 = raw.dpsc;
+  if (s5) {
+    const cTeam = idxOf(s5.cols, ['tổ'], 0);
+    const cCode = idxOf(s5.cols, ['makvcu', 'mã kv'], 1);
+    const cName = idxOf(s5.cols, ['ktđb', 'ktdb'], 3);
+    const cKh = idxOf(s5.cols, ['kh'], 4);
+    const cTh = idxOf(s5.cols, ['th'], 5);
+    for (const r of s5.rows) {
+      const name = text(r[cName]);
+      if (!name) continue;
+      const p = findOrCreate(text(r[cCode]), name, teamFromText(r[cTeam]));
+      if (!p) continue;
+      p.dpsc.kh += num(r[cKh]);
+      p.dpsc.th += num(r[cTh]);
+    }
+  }
+
+  /* --- S6: CSTC còn tồn --- */
+  const s6 = raw.cstc;
+  if (s6) {
+    const cName = idxOf(s6.cols, ['ten_nv', 'tên nv'], 6);
+    const cClose = idxOf(s6.cols, ['ngaydong', 'ngày đóng'], 15);
+    const cStatus = idxOf(s6.cols, ['trangthai_phieu', 'trạng thái phiếu'], 14);
+    for (const r of s6.rows) {
+      const name = text(r[cName]);
+      if (!name) continue;
+      const closed = !!text(r[cClose]);
+      const st = normName(r[cStatus]);
+      const isOpen = !closed && !st.includes('dong') && !st.includes('hoan thanh') && !st.includes('huy');
+      if (!isOpen) continue;
+      const p = byKey.get(normName(name));
+      if (p) p.cstc.open++;
+    }
+  }
+
+  /* --- S7: modem + bán kèm --- */
+  const s7 = raw.modem;
+  if (s7) {
+    let team = '';
+    for (const r of s7.rows) {
+      const teamText = text(r[2]);
+      if (teamText) team = teamFromText(teamText) || team;
+      const name = text(r[3]);
+      const nm = normName(name);
+      if (!name || nm === 'ten_nvkv' || nm.includes('tong cong') || nm.includes('subtotal')) continue;
+      if (nm.startsWith('tong')) continue;
+      const p = findOrCreate('', name, team);
+      if (!p) continue;
+      const assigned = num(r[7]);
+      if (assigned || num(r[11]) || num(r[12])) {
+        p.modem.assigned = assigned;
+        p.modem.done = num(r[11]);
+        p.modem.remain = num(r[12]);
+        p.modem.planDay = num(r[8]);
+        p.modem.todaySheet = num(r[9]);
+        p.modem.ptmMesh = num(r[14]);
+        p.modem.ptmCamera = num(r[15]);
+        p.modem.ptmMytv = num(r[16]);
+        p.modem.ptm = num(r[17]) || (p.modem.ptmMesh + p.modem.ptmCamera + p.modem.ptmMytv);
+      }
+    }
+  }
+
+  /* --- S8: kế hoạch ngày --- */
+  const plan = { byDate: {}, byPerson: {}, byPersonDate: {}, totals: { modem: 0, thu: 0, tiepthi: 0, bancheo: 0, ghtt: 0 }, dates: [] };
+  const s8 = raw.plan;
+  if (s8) {
+    const cCode = idxOf(s8.cols, ['mã nv', 'ma nv'], 1);
+    const cName = idxOf(s8.cols, ['họ và tên', 'ho va ten'], 2);
+    const cDate = idxOf(s8.cols, ['ngày', 'ngay'], 5);
+    for (const r of s8.rows) {
+      const iso = parseVnDate(r[cDate]);
+      if (!iso) continue;
+      const rec = {
+        modem: num(r[6]), thu: num(r[7]), tiepthi: num(r[8]), bancheo: num(r[9]), ghtt: num(r[10])
+      };
+      if (!plan.byDate[iso]) plan.byDate[iso] = { modem: 0, thu: 0, tiepthi: 0, bancheo: 0, ghtt: 0 };
+      const d = plan.byDate[iso];
+      for (const k of Object.keys(rec)) { d[k] += rec[k]; plan.totals[k] += rec[k]; }
+      const code = text(r[cCode]);
+      const name = text(r[cName]);
+      const p = (code && byCode.get(code)) || byKey.get(normName(name));
+      if (p) {
+        if (!plan.byPerson[p.key]) plan.byPerson[p.key] = { modem: 0, thu: 0, tiepthi: 0, bancheo: 0, ghtt: 0 };
+        const bp = plan.byPerson[p.key];
+        for (const k of Object.keys(rec)) bp[k] += rec[k];
+        if (!plan.byPersonDate[p.key]) plan.byPersonDate[p.key] = {};
+        if (!plan.byPersonDate[p.key][iso]) plan.byPersonDate[p.key][iso] = { modem: 0, thu: 0, tiepthi: 0, bancheo: 0, ghtt: 0 };
+        const bd = plan.byPersonDate[p.key][iso];
+        for (const k of Object.keys(rec)) bd[k] += rec[k];
+      }
+    }
+    plan.dates = Object.keys(plan.byDate).sort();
+  }
+
+  /* --- Gán vai trò, tag, target phái sinh --- */
+  const leaderByName = new Map(LEADERS.map(l => [normName(l.name), l]));
+  for (const p of people) {
+    const l = leaderByName.get(p.key);
+    if (l) {
+      p.role = 'leader';
+      p.roleLabel = l.role;
+      p.isCenterLeader = l.scope === 'center';
+      if (l.team && !p.team) p.team = l.team;
+    }
+    if (p.codes.length > 1) p.code = p.codes.join(' + ');
+    p.ghtt.target = Math.ceil(p.ghtt.total * 0.85);
+    p.thucuoc.pct = p.thucuoc.base > 0 ? p.thucuoc.actual / p.thucuoc.base * 100 : 0;
+    p.npsc.pct = p.npsc.psc > 0 ? p.npsc.npsc / p.npsc.psc * 100 : 0;
+    p.ghtt.actual = Math.min(p.ghtt.actual, p.ghtt.total || p.ghtt.actual);
+    if (plan.byPerson[p.key]) p.plan = plan.byPerson[p.key];
+    if (!p.modem.remain && p.modem.assigned) p.modem.remain = Math.max(0, p.modem.assigned - p.modem.done);
+    if (!p.modem.ptm) p.modem.ptm = p.modem.ptmMesh + p.modem.ptmCamera + p.modem.ptmMytv;
+    if (!p.team) warnings.push('Chưa xác định tổ: ' + p.name);
+  }
+
+  // Bổ sung người có trong kế hoạch nhưng chưa có trong S1 (hiếm)
+  for (const key of Object.keys(plan.byPerson)) {
+    if (byKey.has(key)) continue;
+    const nm = key;
+    if (!nm) continue;
+  }
+
+  const teams = {};
+  for (const code of TEAM_ORDER) teams[code] = [];
+  for (const p of people) if (teams[p.team]) teams[p.team].push(p);
+
+  return {
+    people, byKey, byCode, teams, plan, warnings, selectedDate,
+    generatedAt: new Date().toISOString(),
+    counts: { people: people.length }
+  };
+}
+
+</script>
+<script>
+'use strict';
+
+/* =====================================================================
+   5. MÔ HÌNH TÍNH TOÁN THEO 3 LẦN LẤY DỮ LIỆU
+   Thời gian tự do: mỗi lần bấm nút sẽ chụp số liệu hiện tại vào bộ nhớ
+   trình duyệt. Đầu ngày lưu mốc giao; trưa/tối so với mốc đầu ngày.
+   ===================================================================== */
+const TODAY_ISO = isoOf(new Date());
+const PREFS_KEY = 'tah_prefs_v1';
+const SNAP_KEY = 'tah_stage_snaps_v1';
+const CAMPAIGN_START = '2026-11-02';
+const CAMPAIGN_END = '2026-12-31';
+
+const STAGES = {
+  morning: { key: 'morning', label: 'Đầu ngày', short: 'Sáng', factor: 0, title: 'BÁO CÁO ĐẦU NGÀY' },
+  noon: { key: 'noon', label: 'Buổi trưa', short: 'Trưa', factor: 0.5, title: 'BÁO CÁO BUỔI TRƯA' },
+  evening: { key: 'evening', label: 'Buổi tối', short: 'Tối', factor: 1, title: 'BÁO CÁO CUỐI NGÀY' }
+};
+
+function zeroPlan() { return { modem: 0, thu: 0, tiepthi: 0, bancheo: 0, ghtt: 0 }; }
+
+function endOfMonth(date) {
+  const d = fromIso(date);
+  const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  return isoOf(last);
+}
+function daysLeftThisMonth(date) {
+  return Math.max(1, countWorkdays(date, endOfMonth(date)));
+}
+function daysLeftCampaign(date) {
+  return Math.max(1, countWorkdays(date, CAMPAIGN_END));
+}
+
+function loadSnaps() {
+  try { const o = JSON.parse(localStorage.getItem(SNAP_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; }
+}
+function saveSnaps(o) {
+  try { localStorage.setItem(SNAP_KEY, JSON.stringify(o)); } catch (e) { /* ignore */ }
+}
+function stageSnapshot(snaps, date, stage) {
+  const day = snaps[date] || {};
+  return day[stage] || null;
+}
+function morningSnapshot(snaps, date) {
+  const day = snaps[date] || {};
+  return day.morning || null;
+}
+function latestStage(snaps, date) {
+  const day = snaps[date] || {};
+  if (day.evening) return 'evening';
+  if (day.noon) return 'noon';
+  if (day.morning) return 'morning';
+  return 'morning';
+}
+
+function makeContext(model, date, stage, snaps) {
+  const st = STAGES[stage] || STAGES.morning;
+  const base = morningSnapshot(snaps, date);
+  const d = fromIso(date);
+  return {
+    date, stage: st.key, stageLabel: st.label, stageTitle: st.title, factor: st.factor,
+    daysLeftMonth: daysLeftThisMonth(date),
+    daysLeftCampaign: daysLeftCampaign(date),
+    isWorkday: d.getDay() !== 0,
+    isToday: date === TODAY_ISO,
+    planToday: model.plan.byDate[date] || zeroPlan(),
+    hasPlanDate: !!model.plan.byDate[date],
+    base,
+    baseTs: base ? base.ts : null,
+    hasMorning: !!base,
+    snaps,
+    model
+  };
+}
+
+function paceStatus(actual, target, expected) {
+  if (target <= 0) return actual > 0 ? 'ok' : 'nodata';
+  if (actual >= target) return 'ok';
+  const r = expected > 0 ? actual / expected : 0;
+  if (r >= 0.9) return 'ok';
+  if (r >= 0.7) return 'warn';
+  return 'bad';
+}
+
+function cumValue(p, key) {
+  switch (key) {
+    case 'ghtt': return p.ghtt.actual;
+    case 'thucuoc': return p.thucuoc.actual;
+    case 'tiepthi': return p.tiepthi.actual;
+    case 'npsc': return p.npsc.net;
+    case 'dpsc': return p.dpsc.th;
+    case 'cstc': return p.cstc.open;
+    case 'modem': return p.modem.done;
+    case 'bankem': return p.modem.ptm;
+    default: return 0;
+  }
+}
+
+function personMetric(p, key, ctx) {
+  const dayPlan = (ctx.model.plan.byPersonDate[p.key] || {})[ctx.date] || zeroPlan();
+  const bv = ctx.base ? ctx.base.values[p.key + '|' + key] : null;
+  const out = {
+    key, target: 0, actual: 0, remain: 0, daily: 0, planDaily: 0, requiredDaily: 0,
+    expected: 0, short: 0, pct: 0, status: 'ok', today: null,
+    needToday: 0, doneToday: 0, meta: {}
+  };
+  const cum = cumValue(p, key);
+  if (ctx.factor > 0 && bv !== null && bv !== undefined) out.today = cum - bv;
+
+  if (key === 'ghtt' || key === 'thucuoc' || key === 'tiepthi' || key === 'modem' || key === 'bankem') {
+    if (key === 'ghtt') { out.target = p.ghtt.target; out.actual = p.ghtt.actual; out.planDaily = dayPlan.ghtt; }
+    if (key === 'thucuoc') { out.target = p.thucuoc.target; out.actual = p.thucuoc.actual; out.planDaily = dayPlan.thu; }
+    if (key === 'tiepthi') { out.target = p.tiepthi.target; out.actual = p.tiepthi.actual; out.planDaily = dayPlan.tiepthi; }
+    if (key === 'modem') { out.target = p.modem.assigned; out.actual = p.modem.done; out.planDaily = dayPlan.modem; out.meta = { remainSheet: p.modem.remain, todaySheet: p.modem.todaySheet }; }
+    if (key === 'bankem') { out.target = p.plan.bancheo; out.actual = p.modem.ptm; out.planDaily = dayPlan.bancheo; out.meta = { mesh: p.modem.ptmMesh, camera: p.modem.ptmCamera, mytv: p.modem.ptmMytv }; }
+    out.remain = Math.max(0, out.target - out.actual);
+    out.pct = out.target > 0 ? out.actual / out.target * 100 : (out.actual > 0 ? 100 : 0);
+    /* Chỉ modem & bán kèm lấy kế hoạch ngày từ sheet sanluong; còn lại chia số còn lại cho ngày làm việc trong tháng */
+    if (key === 'modem' || key === 'bankem') {
+      out.daily = out.planDaily;
+      if (!out.daily && ctx.hasPlanDate) out.daily = 0;
+      if (!out.daily && !ctx.hasPlanDate && out.remain > 0) out.daily = Math.ceil(out.remain / ctx.daysLeftMonth);
+    } else {
+      out.daily = out.remain > 0 ? Math.ceil(out.remain / ctx.daysLeftMonth) : 0;
+    }
+    const frozen = ctx.base && ctx.base.targets ? ctx.base.targets[p.key + '|' + key] : undefined;
+    if (ctx.stage !== 'morning' && frozen !== undefined) out.daily = frozen;
+    out.requiredDaily = out.daily;
+    out.needToday = Math.ceil(out.daily * ctx.factor);
+    if (ctx.stage === 'morning') out.status = out.target <= 0 ? 'nodata' : (out.remain > 0 ? 'info' : 'ok');
+    else if (!out.daily) out.status = 'ok';
+    else if (out.today === null) out.status = 'nodata';
+    else {
+      const r = out.today / (out.daily * ctx.factor);
+      out.status = r >= 1 ? 'ok' : r >= 0.5 ? 'warn' : 'bad';
+    }
+    out.short = out.status === 'bad' || out.status === 'warn' ? Math.max(0, out.needToday - (out.today || 0)) : 0;
+    return out;
+  }
+
+  if (key === 'npsc') {
+    out.target = 0;
+    out.actual = p.npsc.net;
+    out.remain = Math.max(0, -p.npsc.net);
+    out.pct = p.npsc.psc > 0 ? p.npsc.npsc / p.npsc.psc * 100 : p.npsc.pct;
+    out.daily = out.remain > 0 ? Math.ceil(out.remain / ctx.daysLeftMonth) : 0;
+    const frozen = ctx.base && ctx.base.targets ? ctx.base.targets[p.key + '|' + key] : undefined;
+    if (ctx.stage !== 'morning' && frozen !== undefined) out.daily = frozen;
+    out.needToday = Math.ceil(out.daily * ctx.factor);
+    out.meta = { net: p.npsc.net, pct: p.npsc.pct, need: p.npsc.need, ptm: p.npsc.ptm, npsc: p.npsc.npsc, psc: p.npsc.psc };
+    if (p.npsc.net < 0) out.status = 'bad';
+    else if (p.npsc.pct > 0.53) out.status = 'warn';
+    else out.status = 'ok';
+    out.short = out.status === 'bad' ? out.remain : 0;
+    return out;
+  }
+
+  if (key === 'dpsc') {
+    /* DPSC là chỉ tiêu ngược: TH phải bằng hoặc dưới KH */
+    out.target = p.dpsc.kh;
+    out.actual = p.dpsc.th;
+    out.over = Math.max(0, out.actual - out.target);
+    out.remain = Math.max(0, out.target - out.actual);
+    out.pct = out.target > 0 ? out.actual / out.target * 100 : (out.actual > 0 ? 100 : 0);
+    out.daily = 0;
+    out.needToday = 0;
+    out.meta = { kh: p.dpsc.kh, th: p.dpsc.th, over: out.over };
+    if (out.target <= 0) out.status = out.actual > 0 ? 'bad' : 'nodata';
+    else if (out.actual > out.target) out.status = 'bad';
+    else if (out.actual > out.target * 0.9) out.status = 'warn';
+    else out.status = 'ok';
+    out.short = out.over;
+    return out;
+  }
+
+  if (key === 'cstc') {
+    out.target = 0;
+    out.actual = p.cstc.open;
+    if (ctx.factor > 0 && bv !== null && bv !== undefined) out.today = bv - cum;
+    out.remain = p.cstc.open;
+    out.daily = out.remain > 0 ? Math.ceil(out.remain / ctx.daysLeftMonth) : 0;
+    const frozen = ctx.base && ctx.base.targets ? ctx.base.targets[p.key + '|' + key] : undefined;
+    if (ctx.stage !== 'morning' && frozen !== undefined) out.daily = frozen;
+    out.needToday = Math.ceil(out.daily * ctx.factor);
+    out.pct = out.actual === 0 ? 100 : 0;
+    out.status = out.actual > 0 ? 'bad' : 'ok';
+    out.short = out.actual;
+    return out;
+  }
+  return out;
+}
+
+function aggregateMetrics(list, ctx) {
+  const res = {};
+  for (const m of METRICS) {
+    const key = m.key;
+    const agg = {
+      key, target: 0, actual: 0, remain: 0, daily: 0, planDaily: 0, requiredDaily: 0,
+      expected: 0, short: 0, pct: 0, status: 'ok', today: null, needToday: 0,
+      npsc: 0, psc: 0, warnCount: 0, badCount: 0, over: 0, meta: {}
+    };
+    for (const p of list) {
+      const v = p._m[key];
+      agg.target += v.target || 0;
+      agg.actual += v.actual || 0;
+      agg.remain += v.remain || 0;
+      agg.daily += v.daily || 0;
+      agg.planDaily += v.planDaily || 0;
+      agg.requiredDaily += v.requiredDaily || 0;
+      agg.short += v.short || 0;
+      agg.needToday += v.needToday || 0;
+      if (v.today !== null && v.today !== undefined) { agg.today = (agg.today || 0) + v.today; }
+      if (v.status === 'bad') agg.badCount++;
+      if (v.status === 'warn' || v.status === 'bad') agg.warnCount++;
+      if (key === 'npsc') {
+        agg.npsc += p.npsc.npsc;
+        agg.psc += p.npsc.psc;
+        agg.need = (agg.need || 0) + (p.npsc.need || 0);
+        agg.ptm = (agg.ptm || 0) + (p.npsc.ptm || 0);
+      }
+    }
+
+    if (key === 'npsc') {
+      agg.actual = list.reduce((a, p) => a + p.npsc.net, 0);
+      agg.remain = Math.max(0, -agg.actual);
+      agg.pct = agg.psc > 0 ? agg.npsc / agg.psc * 100 : 0;
+      agg.daily = agg.remain > 0 ? Math.ceil(agg.remain / ctx.daysLeftMonth) : 0;
+      agg.needToday = Math.ceil(agg.daily * ctx.factor);
+      agg.short = agg.actual < 0 ? agg.remain : 0;
+      agg.status = agg.actual < 0 ? 'bad' : (agg.pct > 0.53 ? 'warn' : 'ok');
+      agg.meta = { net: agg.actual, pct: agg.pct, need: agg.need || 0, ptm: agg.ptm || 0 };
+    } else if (key === 'cstc') {
+      agg.actual = list.reduce((a, p) => a + p.cstc.open, 0);
+      agg.remain = agg.actual;
+      agg.pct = agg.actual === 0 ? 100 : 0;
+      agg.daily = agg.remain > 0 ? Math.ceil(agg.remain / ctx.daysLeftMonth) : 0;
+      agg.needToday = Math.ceil(agg.daily * ctx.factor);
+      agg.short = agg.actual;
+      agg.status = agg.actual > 0 ? 'bad' : 'ok';
+    } else if (key === 'dpsc') {
+      agg.pct = agg.target > 0 ? agg.actual / agg.target * 100 : (agg.actual > 0 ? 100 : 0);
+      agg.over = Math.max(0, agg.actual - agg.target);
+      agg.remain = Math.max(0, agg.target - agg.actual);
+      agg.short = agg.over;
+      agg.daily = 0;
+      agg.needToday = 0;
+      agg.status = agg.target <= 0 ? (agg.actual > 0 ? 'bad' : 'nodata') : agg.actual > agg.target ? 'bad' : agg.actual > agg.target * 0.9 ? 'warn' : 'ok';
+    } else {
+      agg.pct = agg.target > 0 ? agg.actual / agg.target * 100 : (agg.actual > 0 ? 100 : 0);
+      agg.remain = Math.max(0, agg.target - agg.actual);
+      agg.daily = agg.daily || (agg.remain > 0 ? Math.ceil(agg.remain / ctx.daysLeftMonth) : 0);
+      agg.needToday = Math.ceil(agg.daily * ctx.factor);
+      if (ctx.stage === 'morning') agg.status = agg.target <= 0 ? 'nodata' : (agg.remain > 0 ? 'info' : 'ok');
+      else {
+        if (agg.today === null) agg.today = null;
+        else if (!agg.daily) agg.status = 'ok';
+        else {
+          const r = agg.today / (agg.daily * ctx.factor);
+          agg.status = r >= 1 ? 'ok' : r >= 0.5 ? 'warn' : 'bad';
+        }
+        if (agg.today === null && agg.daily) agg.status = 'nodata';
+      }
+      agg.short = agg.status === 'bad' || agg.status === 'warn' ? Math.max(0, agg.needToday - (agg.today || 0)) : 0;
+    }
+    res[key] = agg;
+  }
+  return res;
+}
+
+function computeAll(model, date, stage, snaps) {
+  const ctx = makeContext(model, date, stage, snaps || {});
+  for (const p of model.people) {
+    p._m = {};
+    for (const m of METRICS) p._m[m.key] = personMetric(p, m.key, ctx);
+  }
+  const teams = {};
+  for (const code of TEAM_ORDER) {
+    const list = model.teams[code] || [];
+    teams[code] = { code, list, metrics: aggregateMetrics(list, ctx), name: TEAMS[code].name };
+  }
+  const center = aggregateMetrics(model.people, ctx);
+
+  const alerts = [];
+  for (const code of TEAM_ORDER) {
+    const t = teams[code];
+    for (const m of METRICS) {
+      const v = t.metrics[m.key];
+      if (v.short > 0.01 && v.status !== 'ok' && v.status !== 'nodata' && v.status !== 'info') {
+        alerts.push({ type: 'teamShort', team: code, metric: m.key, short: v.short, expected: v.needToday, actual: v.today || 0, status: v.status });
+      }
+    }
+  }
+  alerts.sort((a, b) => b.short - a.short);
+
+  const risky = [];
+  for (const p of model.people) {
+    const bad = [], warn = [];
+    for (const m of METRICS) {
+      const st = p._m[m.key].status;
+      if (st === 'bad') bad.push(m.label);
+      else if (st === 'warn') warn.push(m.label);
+    }
+    if (bad.length || warn.length) risky.push({ person: p, bad, warn });
+  }
+  return { ctx, teams, center, alerts, risky, model, snaps: snaps || {} };
+}
+
+function teamShortfallText(alert) {
+  const m = METRICS.find(x => x.key === alert.metric);
+  return TEAMS[alert.team].name + ' thiếu ' + fmtN(alert.short) + ' ' + m.unit + ' ' + m.label.toLowerCase();
+}
+
+function filterPeople(model, state) {
+  const q = normName(state.q || '');
+  let list = model.people.filter(p => {
+    if (state.team !== 'all' && p.team !== state.team) return false;
+    if (state.area && state.area !== 'all' && !p.codes.includes(state.area)) return false;
+    if (state.role === 'leader' && p.role !== 'leader') return false;
+    if (state.role === 'staff' && p.role === 'leader') return false;
+    if (q) {
+      const hay = normName([p.name, p.code, p.codes.join(' '), TEAMS[p.team] ? TEAMS[p.team].name : '', p.roleLabel].join(' '));
+      if (!hay.includes(q)) return false;
+    }
+    if (state.warn) {
+      const bad = METRICS.some(m => p._m[m.key].status === 'bad' || p._m[m.key].status === 'warn');
+      if (!bad) return false;
+    }
+    return true;
+  });
+  const risk = p => METRICS.reduce((a, m) => a + ({ bad: 3, warn: 2, nodata: 1, info: 0, ok: 0 }[p._m[m.key].status] || 0), 0);
+  if (state.sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+  else if (state.sort === 'risk') list.sort((a, b) => risk(b) - risk(a) || a.name.localeCompare(b.name, 'vi'));
+  else if (state.sort === 'pct') list.sort((a, b) => (a._m.tiepthi.pct || 0) - (b._m.tiepthi.pct || 0) || a.name.localeCompare(b.name, 'vi'));
+  else list.sort((a, b) => TEAM_ORDER.indexOf(a.team) - TEAM_ORDER.indexOf(b.team) || a.name.localeCompare(b.name, 'vi'));
+  return list;
+}
+
+function statusLabel(s) {
+  return ({ ok: 'Đạt', warn: 'Cần chú ý', bad: 'Chưa đạt', nodata: 'Chưa có số', info: 'Đang giao' })[s] || '—';
+}
+function statusClass(s) {
+  return ({ ok: 'ok', warn: 'warn', bad: 'bad', nodata: 'nodata', info: 'info' })[s] || 'nodata';
+}
+function statusIcon(s) {
+  return s === 'ok' ? '✓' : s === 'warn' ? '!' : s === 'bad' ? '✕' : s === 'info' ? '•' : '–';
+}
+function pctClass(pct) {
+  if (pct === null || pct === undefined) return '';
+  if (pct >= 100) return 'ok';
+  if (pct >= 70) return 'warn';
+  return 'bad';
+}
+
+</script>
+<script>
+'use strict';
+
+/* =====================================================================
+   6. GIAO DIỆN
+   ===================================================================== */
+const $ = (sel, root) => (root || document).querySelector(sel);
+const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+const METRIC_COLOR = {
+  ghtt: '#0B63CE', thucuoc: '#0E7490', tiepthi: '#7C3AED', npsc: '#0E9F6E',
+  dpsc: '#D97706', cstc: '#DC2626', modem: '#1E5A96', bankem: '#DB2777'
+};
+const METRIC_SOFT = {
+  ghtt: '#E8F1FC', thucuoc: '#E6F6F9', tiepthi: '#F1EAFE', npsc: '#E7F8F1',
+  dpsc: '#FEF3E2', cstc: '#FDECEC', modem: '#E8F0F7', bankem: '#FCEAF3'
+};
+const WEEKDAY = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+
+const state = {
+  date: TODAY_ISO,
+  stage: 'morning',
+  snaps: {},
+  team: 'all',
+  area: 'all',
+  role: 'all',
+  q: '',
+  warn: false,
+  sort: 'team',
+  autoRefresh: true,
+  model: null,
+  computed: null,
+  loading: false,
+  lastUpdate: null,
+  meta: {},
+  errors: [],
+  collapsed: new Set(),
+  previewScope: 'center',
+  nextRefreshAt: 0,
+  timer: null
+};
+
+function clampDate(iso) {
+  if (!iso) return '2026-11-11';
+  if (iso < '2026-11-02') return '2026-11-02';
+  if (iso > '2026-12-31') return '2026-12-31';
+  return iso;
+}
+function initials(name) {
+  const parts = cleanName(name).split(' ').filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[parts.length - 2][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+function vnDate(iso) {
+  const [y, m, d] = iso.split('-');
+  return d + '/' + m + '/' + y;
+}
+function shortDate(iso) {
+  const [, m, d] = iso.split('-');
+  return d + '/' + m;
+}
+function timeOf(ts) {
+  const d = new Date(ts);
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+function agoText(min) {
+  if (min === null || min === undefined) return '';
+  if (min < 1) return 'vừa xong';
+  if (min < 60) return Math.floor(min) + ' phút trước';
+  return Math.floor(min / 60) + ' giờ trước';
+}
+function teamSoft(code) { return (TEAMS[code] ? TEAMS[code].color : '#0B63CE') + '18'; }
+
+/* =====================================================================
+   6.1 KHỞI TẠO & TẢI DỮ LIỆU
+   ===================================================================== */
+function loadPrefs() {
+  try {
+    const o = JSON.parse(localStorage.getItem(PREFS_KEY) || 'null');
+    if (!o) return;
+    if (['team', 'role'].includes(o.team)) state.team = o.team;
+    if (typeof o.area === 'string') state.area = o.area;
+    if (['all', 'leader', 'staff'].includes(o.role)) state.role = o.role;
+    if (['team', 'risk', 'name', 'pct'].includes(o.sort)) state.sort = o.sort;
+    if (typeof o.warn === 'boolean') state.warn = o.warn;
+    if (typeof o.autoRefresh === 'boolean') state.autoRefresh = o.autoRefresh;
+  } catch (e) { /* ignore */ }
+}
+function savePrefs() {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify({
+      team: state.team, area: state.area, role: state.role, sort: state.sort,
+      warn: state.warn, autoRefresh: state.autoRefresh
+    }));
+  } catch (e) { /* ignore */ }
+}
+
+async function init() {
+  loadPrefs();
+  state.date = clampDate(TODAY_ISO);
+  state.snaps = loadSnaps();
+  state.stage = latestStage(state.snaps, state.date);
+  const di = $('#dateInput');
+  di.value = state.date;
+  di.min = '2026-11-02';
+  di.max = '2026-12-31';
+  if (!state.autoRefresh) { $('#autoRefresh').checked = false; $('#autoRefresh2').checked = false; }
+  buildSourceList();
+  bindEvents();
+  await refresh(true);
+  state.timer = setInterval(tick, 15000);
+}
+
+function buildSourceList() {
+  $('#sourceList').innerHTML = Object.entries(SHEETS).map(([key, s]) =>
+    '<div class="src-item" data-src="' + key + '">' +
+    '<span class="st"></span>' +
+    '<a href="https://docs.google.com/spreadsheets/d/' + s.id + '/edit" target="_blank" rel="noopener">' + escHtml(s.label) + '</a>' +
+    '<span class="sp">' + escHtml(s.sheet) + '</span></div>'
+  ).join('');
+}
+
+async function refresh(initial) {
+  if (state.loading) return;
+  state.loading = true;
+  const btn = $('#btnRefresh');
+  if (btn) btn.disabled = true;
+  if (initial) {
+    $('#loading').classList.remove('hide');
+    $('#loadingBar').style.width = '4%';
+    $('#loadingCount').textContent = '0 / 8';
+    $('#loadingText').textContent = 'Đang kết nối Google Sheets…';
+  } else {
+    toast('Đang tải lại dữ liệu…');
+  }
+
+  const t0 = performance.now();
+  const result = await loadAll((n, total, key) => {
+    if (initial) {
+      $('#loadingCount').textContent = n + ' / ' + total;
+      $('#loadingBar').style.width = (n / total * 100).toFixed(1) + '%';
+      $('#loadingText').textContent = n < total ? 'Đang tải ' + SHEETS[key].label + '…' : 'Đang tính toán chỉ tiêu…';
+    }
+    $('#sourceStatus').textContent = n + '/8 nguồn';
+  });
+  state.errors = result.errors;
+
+  const meta = {};
+  for (const key of Object.keys(SHEETS)) {
+    const r = result.raw[key];
+    meta[key] = r ? { ok: true, rows: r.rowsCount, ms: r.ms } : { ok: false, rows: 0, ms: 0 };
+  }
+  state.meta = meta;
+
+  if (result.raw.giahan) {
+    try {
+      const model = buildModel(result.raw, state.date);
+      state.model = model;
+      state.lastUpdate = Date.now();
+      recompute();
+      renderAll();
+    } catch (e) {
+      console.error(e);
+      $('#dataErr').classList.add('show');
+      $('#dataErrText').textContent = 'Lỗi xử lý dữ liệu: ' + e.message;
+    }
+  } else {
+    $('#dataErr').classList.add('show');
+    $('#dataErrText').textContent = 'Không tải được sheet GIAHAN — kiểm tra quyền chia sẻ công khai của file.';
+  }
+
+  const errLabels = result.errors.map(e => SHEETS[e.key].label);
+  if (errLabels.length) {
+    $('#dataErr').classList.add('show');
+    $('#dataErrText').textContent = 'Không tải được: ' + errLabels.join(', ') + '. Các chỉ tiêu còn lại vẫn được tính.';
+  } else {
+    $('#dataErr').classList.remove('show');
+  }
+
+  state.loading = false;
+  if (btn) btn.disabled = false;
+  state.nextRefreshAt = Date.now() + 300000;
+  updateStatusBar();
+  if (initial) {
+    setTimeout(() => $('#loading').classList.add('hide'), 350);
+  } else {
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    toast('Đã cập nhật ' + Object.keys(result.raw).length + '/8 nguồn (' + secs + 's)', 'ok');
+  }
+}
+
+function recompute() {
+  if (!state.model) return;
+  state.computed = computeAll(state.model, state.date, state.stage, state.snaps);
+}
+
+function tick() {
+  if (state.autoRefresh && state.nextRefreshAt && Date.now() >= state.nextRefreshAt && !state.loading) {
+    refresh(false);
+  }
+  updateStatusBar();
+}
+
+/* =====================================================================
+   6.2 RENDER TỔNG
+   ===================================================================== */
+function renderAll() {
+  fillAreaFilter();
+  if (!state.computed) return;
+  renderTop();
+  renderKpis();
+  renderAlerts();
+  renderChips();
+  renderTable();
+  renderTeams();
+  updateStatusBar();
+  renderSettings();
+  $('#footStamp').textContent = 'Cập nhật ' + (state.lastUpdate ? timeOf(state.lastUpdate) : '—') + ' · ' + shortDate(state.date);
+}
+
+function renderTop() {
+  const d = fromIso(state.date);
+  $('#topDay').textContent = WEEKDAY[d.getDay()] + ', ' + vnDate(state.date);
+  const ctx = state.computed.ctx;
+  $$('#stageSwitch .stage-btn').forEach(b => b.classList.toggle('active', b.dataset.stage === state.stage));
+  const snap = stageSnapshot(state.snaps, state.date, state.stage);
+  const note = $('#cpNote');
+  if (note) {
+    const when = snap ? 'đã lấy ' + timeOf(snap.ts) : 'chưa lấy dữ liệu';
+    const baseTxt = state.stage === 'morning' ? '' : ' · mốc đầu ngày ' + (ctx.hasMorning ? timeOf(ctx.baseTs) : 'chưa có');
+    note.innerHTML = '<svg class="icon"><use href="#i-clock"/></svg><span><b>' + STAGES[state.stage].label + '</b> · ' + when + baseTxt +
+      ' · còn <b>' + ctx.daysLeftMonth + '</b> ngày làm việc trong tháng</span>';
+  }
+  $('#kpiSub').textContent = 'Số lũy kế hiện tại trên sheet · ' + vnDate(state.date) + ' · ' + (state.model ? state.model.people.length : 0) + ' nhân viên · 5 tổ';
+}
+
+function renderKpis() {
+  const c = state.computed.center;
+  const ctx = state.computed.ctx;
+  $('#kpiGrid').innerHTML = METRICS.map(m => {
+    const v = c[m.key];
+    const color = METRIC_COLOR[m.key];
+    const soft = METRIC_SOFT[m.key];
+    const st = v.status;
+    let main = fmtN(v.actual), small = '', target = '', pctText = '', sub = '', pillCls = '', bar = 0;
+
+    if (m.key === 'npsc') {
+      main = (v.actual > 0 ? '+' : '') + fmtN(v.actual);
+      small = '<small> ròng</small>';
+      target = '≥ 0';
+      bar = v.actual >= 0 ? 100 : 12;
+      pctText = '%NPSC ' + fmtPct(v.pct, 2) + ' / ≤0,53%';
+      sub = 'Cần mở thêm ' + fmtN(Math.max(0, -v.actual)) + ' TB · ' + fmtN(v.daily) + '/ngày';
+    } else if (m.key === 'cstc') {
+      main = fmtN(v.actual);
+      small = '<small> phiếu</small>';
+      target = '= 0';
+      bar = v.actual === 0 ? 100 : 0;
+      pctText = v.actual === 0 ? 'Đã xử lý hết' : 'Còn ' + fmtN(v.actual) + ' phiếu tồn';
+      sub = 'Cần xử lý ' + fmtN(v.daily) + '/ngày';
+    } else if (m.key === 'dpsc') {
+      main = fmtN(v.actual);
+      small = '<small> / ' + fmtN(v.target) + ' KH</small>';
+      target = '≤ KH';
+      bar = v.target > 0 ? clamp(v.target / Math.max(v.actual, v.target) * 100, 0, 100) : (v.actual > 0 ? 0 : 100);
+      pctText = 'TH/KH ' + fmtPct(v.pct, 0) + (v.over > 0 ? ' · vượt ' + fmtN(v.over) : ' · trong định mức');
+      sub = v.over > 0 ? 'Vượt ' + fmtN(v.over) + ' · TH phải ≤ KH' : 'TH phải ≤ KH · đang trong định mức';
+    } else {
+      small = '<small> / ' + fmtN(v.target) + '</small>';
+      target = m.key === 'ghtt' ? '85%' : m.key === 'thucuoc' ? '99,5%' : m.key === 'tiepthi' ? '100%' : 'KH';
+      bar = v.target > 0 ? clamp(v.actual / v.target * 100, 0, 100) : (v.actual > 0 ? 100 : 0);
+      pctText = fmtPct(v.pct, 1) + ' · còn ' + fmtN(v.remain) + ' ' + m.unit;
+      if (ctx.stage === 'morning') sub = 'Giao hôm nay ' + fmtN(v.daily) + ' ' + m.unit;
+      else if (v.today === null) sub = 'Chưa có mốc đầu ngày · cần ' + fmtN(v.needToday);
+      else sub = 'Hôm nay ' + fmtN(v.today) + '/' + fmtN(v.needToday) + ' · KH ' + fmtN(v.daily) + '/ngày';
+    }
+    if (st === 'bad') pillCls = 'red';
+    else if (st === 'warn') pillCls = 'amber';
+    else if (st === 'ok') pillCls = 'green';
+    else if (st === 'info') pillCls = '';
+
+    return '<article class="kpi" style="--kc:' + color + ';--ksoft:' + soft + '" title="' + escHtml(m.label + ': ' + statusLabel(st)) + '">' +
+      '<div class="k-top"><div style="display:flex;align-items:center;gap:6px;min-width:0">' +
+      '<div class="k-ico"><svg class="icon" style="font-size:13px"><use href="#' + m.icon + '"/></svg></div>' +
+      '<div class="k-label">' + escHtml(m.label) + '</div></div>' +
+      '<div class="k-target">' + target + '</div></div>' +
+      '<div class="k-value">' + main + small + '</div>' +
+      '<div class="k-bar"><i style="width:' + bar.toFixed(1) + '%"></i></div>' +
+      '<div class="k-foot"><span>' + pctText + '</span><span class="pill ' + pillCls + '">' + statusLabel(st) + '</span></div>' +
+      '<div class="k-foot" style="margin-top:3px"><span>' + sub + '</span></div>' +
+      '</article>';
+  }).join('');
+}
+
+function renderAlerts() {
+  const c = state.computed;
+  const ctx = c.ctx;
+  const shorts = c.alerts || [];
+  const risky = c.risky || [];
+  const strip = $('#alertStrip');
+  const count = $('#alertCount');
+  const people = $('#alertPeople');
+  const tags = $('#alertTags');
+  const panel = $('#alertPanel');
+  const snap = stageSnapshot(state.snaps, state.date, ctx.stage);
+
+  let cls = 'ok';
+  if (shorts.length || risky.some(r => r.bad.length)) cls = 'bad';
+  else if (risky.length) cls = 'warn';
+  strip.className = 'alert-strip' + (cls === 'ok' ? ' ok' : '');
+  strip.style.borderColor = cls === 'bad' ? '#FECACA' : cls === 'warn' ? '#FDE68A' : '';
+  strip.style.background = cls === 'bad' ? 'linear-gradient(100deg,#FEF2F2,#FFF9F9)' : cls === 'warn' ? 'linear-gradient(100deg,#FFFBEB,#FFFEF7)' : '';
+
+  if (ctx.stage === 'morning') {
+    count.textContent = snap ? 'Đã lấy dữ liệu đầu ngày lúc ' + timeOf(snap.ts) : 'Chưa lấy dữ liệu đầu ngày';
+    people.textContent = 'Dữ liệu này dùng làm mốc giao việc; bấm “Buổi trưa” hoặc “Buổi tối” để chấm phần đã làm và cảnh báo.';
+    tags.innerHTML = '<span class="a-tag">' + shortDate(state.date) + ' · ' + (state.model ? state.model.people.length : 0) + ' người</span>' +
+      '<span class="a-tag">Giao hôm nay ' + fmtN(c.center.ghtt.daily) + ' hồ sơ gia hạn</span>' +
+      '<span class="a-tag">' + fmtN(c.center.modem.daily) + ' modem</span>';
+    panel.classList.add('hidden');
+    $('#btnAlerts').textContent = 'Chi tiết';
+    return;
+  }
+
+  const badPeople = risky.filter(r => r.bad.length).length;
+  if (!ctx.hasMorning) {
+    count.textContent = 'Chưa có mốc đầu ngày — chưa chấm được phát sinh';
+    people.textContent = 'Bấm “Đầu ngày” trước, rồi bấm “Buổi trưa”/“Buổi tối” để so sánh và cảnh báo.';
+  } else if (shorts.length) {
+    count.textContent = shorts.length + ' chỉ tiêu tổ chưa đạt mốc ' + STAGES[ctx.stage].short.toLowerCase();
+    people.textContent = 'Có ' + badPeople + ' người đang chậm · nhấn Chi tiết để xem tổ nào còn thiếu bao nhiêu.';
+  } else if (risky.length) {
+    count.textContent = 'Các tổ đã đạt mốc, còn ' + risky.length + ' người cần chú ý';
+    people.textContent = 'Không có tổ nào thiếu số so với mốc ' + STAGES[ctx.stage].short.toLowerCase() + '.';
+  } else {
+    count.textContent = 'Tất cả tổ đang đúng mốc ' + STAGES[ctx.stage].short.toLowerCase();
+    people.textContent = 'Không có cảnh báo.';
+  }
+
+  const teamAgg = {};
+  for (const a of shorts) {
+    if (!teamAgg[a.team]) teamAgg[a.team] = [];
+    teamAgg[a.team].push(a);
+  }
+  const tagItems = Object.keys(teamAgg).slice(0, 3).map(code => {
+    const a = teamAgg[code].sort((x, y) => y.short - x.short)[0];
+    const m = METRICS.find(x => x.key === a.metric);
+    return '<span class="a-tag" style="--tc:' + TEAMS[code].color + '"><b>' + code + '</b> thiếu ' + fmtN(a.short) + ' ' + m.unit + '</span>';
+  });
+  if (!tagItems.length && risky.length) tagItems.push('<span class="a-tag"><b>' + risky.length + '</b> người cần chú ý</span>');
+  tags.innerHTML = tagItems.join('');
+
+  if (panel.classList.contains('hidden')) return;
+
+  let ph = '<div style="display:grid;grid-template-columns:1.15fr 1fr;gap:10px">';
+  ph += '<div><div class="ah">Tổ chưa đạt mốc ' + STAGES[ctx.stage].short.toLowerCase() + '</div>';
+  if (!shorts.length) ph += '<div class="empty-mini">Không có tổ nào thiếu số so với mốc.</div>';
+  else {
+    ph += '<table class="mini-table"><thead><tr><th>Tổ</th><th>Chỉ tiêu</th><th>Cần hôm nay</th><th>Đã làm</th><th>Thiếu</th></tr></thead><tbody>';
+    for (const a of shorts.slice(0, 18)) {
+      const m = METRICS.find(x => x.key === a.metric);
+      ph += '<tr><td><span class="tag team" style="--tc:' + TEAMS[a.team].color + ';--tsoft:' + teamSoft(a.team) + '">' + a.team + '</span></td>' +
+        '<td>' + m.label + '</td><td>' + fmtN(a.expected) + '</td><td>' + fmtN(a.actual) + '</td>' +
+        '<td class="red">' + fmtN(a.short) + '</td></tr>';
+    }
+    ph += '</tbody></table>';
+  }
+  ph += '</div><div><div class="ah">Người cần chú ý (' + risky.length + ')</div><div class="alert-list">';
+  if (!risky.length) ph += '<div class="empty-mini">Chưa có ai bị cảnh báo.</div>';
+  for (const r of risky.slice(0, 10)) {
+    ph += '<div class="alert-item ' + (r.bad.length ? 'red' : 'amber') + '" data-key="' + escHtml(r.person.key) + '">' +
+      '<span class="ai-dot"></span><div><div class="ai-name">' + escHtml(r.person.name) + '</div>' +
+      '<div class="ai-text">' + (r.bad.length ? 'Chưa đạt: ' + r.bad.join(', ') : 'Cần chú ý: ' + r.warn.join(', ')) + '</div>' +
+      '<div class="ai-meta">' + (TEAMS[r.person.team] ? TEAMS[r.person.team].full : '') + ' · ' + r.person.roleLabel + '</div></div></div>';
+  }
+  ph += '</div></div></div>';
+  panel.innerHTML = ph;
+}
+
+function fillAreaFilter() {
+  if (!state.model) return;
+  const sel = $('#filterArea');
+  if (!sel) return;
+  const codes = Array.from(new Set(state.model.people.flatMap(p => p.codes))).sort();
+  sel.innerHTML = '<option value="all">Mã khu vực: tất cả</option>' + codes.map(c => '<option value="' + c + '">' + c + '</option>').join('');
+  sel.value = codes.includes(state.area) ? state.area : 'all';
+  state.area = sel.value;
+}
+
+function renderChips() {
+  const total = state.model ? state.model.people.length : 0;
+  let html = '<button class="tchip ' + (state.team === 'all' ? 'active' : '') + '" data-team="all">Tất cả <span class="n">' + total + '</span></button>';
+  for (const code of TEAM_ORDER) {
+    const n = state.model ? (state.model.teams[code] || []).length : 0;
+    html += '<button class="tchip ' + (state.team === code ? 'active' : '') + '" data-team="' + code + '" style="--tc:' + TEAMS[code].color + ';--tsoft:' + teamSoft(code) + '">' +
+      '<span class="dot"></span>' + code + ' <span class="n">' + n + '</span></button>';
+  }
+  $('#teamChips').innerHTML = html;
+}
+
+function warnSummary(p) {
+  const bad = [], warn = [];
+  for (const m of METRICS) {
+    const st = p._m[m.key].status;
+    if (st === 'bad') bad.push(m.label);
+    else if (st === 'warn') warn.push(m.label);
+  }
+  return { bad, warn, count: bad.length + warn.length };
+}
+
+function mcHtml(v, m, agg) {
+  let cls = 'na';
+  if (v.status === 'bad') cls = 'red';
+  else if (v.status === 'warn') cls = 'amber';
+  else if (v.status === 'ok') cls = 'green';
+  else if (v.status === 'info') cls = 'na';
+
+  let main = fmtN(v.actual), plan = '', sub = '', bar = 0;
+  if (m.key === 'npsc') {
+    main = (v.actual > 0 ? '+' : '') + fmtN(v.actual);
+    plan = '<span class="plan">/ 0</span>';
+    bar = v.actual >= 0 ? 100 : 8;
+    sub = '% ' + fmtPct(v.pct, 2) + ' · cần mở ' + fmtN(v.meta.need || 0);
+  } else if (m.key === 'cstc') {
+    main = fmtN(v.actual);
+    plan = '<span class="plan">phiếu</span>';
+    bar = v.actual === 0 ? 100 : 0;
+    sub = 'Cần ' + fmtN(v.daily) + '/ngày';
+  } else if (m.key === 'dpsc') {
+    plan = '<span class="plan">/ ' + fmtN(v.target) + ' KH</span>';
+    bar = v.target > 0 ? clamp(v.target / Math.max(v.actual, v.target) * 100, 0, 100) : (v.actual > 0 ? 0 : 100);
+    sub = v.over > 0 ? 'Vượt ' + fmtN(v.over) + ' · TH phải ≤ KH' : 'TH ' + fmtPct(v.pct, 0) + ' KH';
+  } else {
+    plan = '<span class="plan">/ ' + fmtN(v.target) + '</span>';
+    bar = v.target > 0 ? clamp(v.actual / v.target * 100, 0, 100) : (v.actual > 0 ? 100 : 0);
+    if (state.computed.ctx.stage === 'morning') sub = v.daily > 0 ? 'Giao ' + fmtN(v.daily) : 'Không giao';
+    else if (v.today === null) sub = 'Chưa có mốc · cần ' + fmtN(v.needToday);
+    else sub = 'Hôm nay ' + fmtN(v.today) + '/' + fmtN(v.needToday) + ' · còn ' + fmtN(v.remain);
+  }
+  const title = m.label + ': KH ' + fmtN(v.target) + ' · TH ' + fmtN(v.actual) + ' · còn ' + fmtN(v.remain) +
+    ' · ' + statusLabel(v.status);
+
+  return '<td class="mc ' + cls + '" title="' + escHtml(title) + '">' +
+    '<div class="mc-top"><span class="dot"></span><b>' + main + '</b>' + plan + '</div>' +
+    '<div class="bar"><i style="width:' + bar.toFixed(1) + '%"></i></div>' +
+    '<div class="mc-sub">' + sub + '</div></td>';
+}
+
+function teamWarnHtml(tm, count) {
+  let n = 0, labels = [], hasBad = false;
+  for (const m of METRICS) {
+    const st = tm[m.key].status;
+    if (st === 'bad' || st === 'warn') { n++; labels.push(m.label); if (st === 'bad') hasBad = true; }
+  }
+  return '<td class="warn-cell">' +
+    (n ? '<span class="warn-badge ' + (hasBad ? 'red' : 'amber') + '">' + n + '</span>' : '<span class="warn-badge">0</span>') +
+    '<div class="warn-text">' + (n ? labels.slice(0, 2).join(', ') : 'Đạt tiến độ') + '</div></td>';
+}
+
+function renderTable() {
+  if (!state.model || !state.computed) return;
+  const list = filterPeople(state.model, state);
+  const head = ['<tr>' +
+    '<th class="person-col">Nhân viên / Tổ</th>' +
+    METRICS.map(m => '<th class="mc" title="' + escHtml(m.label) + '"><span style="display:inline-flex;align-items:center;gap:3px"><svg class="icon" style="font-size:10px"><use href="#' + m.icon + '"/></svg>' + escHtml(m.label) + '</span></th>').join('') +
+    '<th class="warn-cell">Cảnh báo</th></tr>'].join('');
+  $('#tableHead').innerHTML = head;
+
+  let html = '';
+  for (const code of TEAM_ORDER) {
+    const group = list.filter(p => p.team === code);
+    if (!group.length) continue;
+    const t = state.computed.teams[code];
+    const collapsed = state.collapsed.has(code);
+    html += '<tr class="team-row" data-team="' + code + '" style="--tc:' + TEAMS[code].color + '">' +
+      '<td class="person-col"><div class="t-name ' + (collapsed ? 'collapsed' : '') + '">' +
+      '<button class="chev" data-chev="' + code + '" type="button" aria-label="Thu gọn tổ"><svg class="icon"><use href="#i-chevron"/></svg></button>' +
+      '<span class="tm">' + code + '</span><span class="tt">' + escHtml(TEAMS[code].name) + '</span><span class="cnt">' + group.length + ' người</span></div></td>' +
+      METRICS.map(m => mcHtml(t.metrics[m.key], m, true)).join('') +
+      teamWarnHtml(t.metrics, group.length) + '</tr>';
+    if (!collapsed) {
+      for (const p of group) {
+        const w = warnSummary(p);
+        html += '<tr class="p-row" data-key="' + escHtml(p.key) + '" tabindex="0">' +
+          '<td class="person-col"><div class="p-main">' +
+          '<div class="avatar" style="--ac:' + TEAMS[p.team].color + ';--ac2:#0B2F52">' + escHtml(initials(p.name)) + '</div>' +
+          '<div class="p-info"><div class="p-name">' + escHtml(p.name) + '</div>' +
+          '<div class="p-meta"><span class="tag team" style="--tc:' + TEAMS[p.team].color + ';--tsoft:' + teamSoft(p.team) + '">' + p.team + '</span>' +
+          '<span class="tag code">' + escHtml(p.code || '—') + '</span>' +
+          (p.role === 'leader' ? '<span class="tag leader">' + escHtml(p.roleLabel.replace('Tổ trưởng ', 'TT ')) + '</span>' : '') +
+          '</div></div></div></td>' +
+          METRICS.map(m => mcHtml(p._m[m.key], m, false)).join('') +
+          '<td class="warn-cell">' + (w.count ? '<span class="warn-badge ' + (w.bad.length ? 'red' : 'amber') + '">' + w.count + '</span>' : '<span class="warn-badge">0</span>') +
+          '<div class="warn-text">' + (w.bad.length ? w.bad.slice(0, 2).join(', ') : w.warn.length ? w.warn.slice(0, 2).join(', ') : 'Đạt tiến độ') + '</div></td></tr>';
+      }
+    }
+  }
+  if (!html) html = '<tr class="empty-row"><td colspan="10">Không có nhân viên khớp bộ lọc.</td></tr>';
+  $('#tableBody').innerHTML = html;
+
+  const c = state.computed.center;
+  $('#tableFoot').innerHTML = '<tr class="team-row total-row" style="--tc:#0B2F52">' +
+    '<td class="person-col"><div class="t-name"><span class="tm" style="background:#0B2F52">TÂM</span><span class="tt">Toàn trung tâm</span><span class="cnt">' + state.model.people.length + ' người</span></div></td>' +
+    METRICS.map(m => mcHtml(c[m.key], m, true)).join('') +
+    teamWarnHtml(c, state.model.people.length) + '</tr>';
+
+  $('#resultCount').textContent = list.length + '/' + state.model.people.length + ' người';
+  const snap = stageSnapshot(state.snaps, state.date, state.computed.ctx.stage);
+  $('#tableNote').textContent = state.computed.ctx.stage === 'morning'
+    ? 'Số lũy kế hiện tại · bấm “Đầu ngày” để chốt mốc giao việc · nhấn dòng để xem chi tiết.'
+    : (snap ? 'Cột “hôm nay” = phát sinh so với mốc đầu ngày ' + (state.computed.ctx.baseTs ? timeOf(state.computed.ctx.baseTs) : '—') + ' · nhấn dòng để xem chi tiết.' : 'Chưa có mốc đầu ngày — chưa chấm được phát sinh.');
+  $('#tableStamp').textContent = STAGES[state.computed.ctx.stage].label + ' · ' + (snap ? timeOf(snap.ts) : 'chưa lấy') + ' · ' + shortDate(state.date);
+}
+
+function renderTeams() {
+  if (!state.computed) return;
+  $('#teamGrid').innerHTML = TEAM_ORDER.map(code => {
+    const t = state.computed.teams[code];
+    const tm = t.metrics;
+    const alerts = state.computed.alerts.filter(a => a.team === code);
+    const badN = METRICS.filter(m => tm[m.key].status === 'bad' || tm[m.key].status === 'warn').length;
+    const stats = ['ghtt', 'thucuoc', 'tiepthi', 'modem'].map(k => {
+      const m = METRICS.find(x => x.key === k);
+      return '<div class="tc-stat"><div class="l">' + m.label + '</div><div class="v">' + fmtN(tm[k].actual) +
+        '<small>/' + fmtN(tm[k].target) + '</small></div></div>';
+    }).join('');
+    const rows = ['npsc', 'dpsc', 'cstc', 'bankem'].map(k => {
+      const m = METRICS.find(x => x.key === k);
+      const v = tm[k];
+      const bar = k === 'npsc' ? (v.actual >= 0 ? 100 : 8) : k === 'cstc' ? (v.actual === 0 ? 100 : 0) : k === 'dpsc' ? (v.target > 0 ? clamp(v.target / Math.max(v.actual, v.target) * 100, 0, 100) : 0) : v.target > 0 ? clamp(v.actual / v.target * 100, 0, 100) : 0;
+      const val = k === 'npsc' ? (v.actual > 0 ? '+' : '') + fmtN(v.actual) : k === 'cstc' ? fmtN(v.actual) + ' phiếu' : k === 'dpsc' ? fmtN(v.actual) + '/' + fmtN(v.target) : fmtPct(v.pct, 0);
+      return '<div class="tc-row"><span class="l">' + m.label + '</span><span class="b"><i style="width:' + bar.toFixed(0) + '%"></i></span><span class="v">' + val + '</span></div>';
+    }).join('');
+    const warnText = alerts.length ? 'Thiếu ' + fmtN(Math.max.apply(null, alerts.map(a => a.short))) + ' ' + METRICS.find(m => m.key === alerts[0].metric).unit : (badN ? badN + ' chỉ tiêu cần chú ý' : 'Đạt tiến độ');
+    return '<article class="team-card" data-team="' + code + '" style="--tc:' + TEAMS[code].color + '">' +
+      '<div class="tc-head"><span class="tc-dot"></span><h4>' + escHtml(TEAMS[code].name) + '</h4>' +
+      '<span class="tag team" style="--tc:' + TEAMS[code].color + ';--tsoft:' + teamSoft(code) + '">' + code + '</span>' +
+      '<span class="tc-warn ' + (badN || alerts.length ? '' : 'ok') + '">' + (badN || alerts.length ? badN + ' cảnh báo' : 'Đạt') + '</span></div>' +
+      '<div class="tc-sub"><span>' + escHtml(TEAMS[code].full) + '</span><span>' + t.list.length + ' người</span></div>' +
+      '<div class="tc-stats">' + stats + '</div>' +
+      '<div class="tc-rows">' + rows + '</div>' +
+      '<div class="tc-foot"><span class="who">TT: ' + escHtml(TEAMS[code].leader) + '</span>' +
+      '<button class="btn" type="button" data-send-team="' + code + '"><svg class="icon"><use href="#i-send"/></svg> Gửi tổ</button></div>' +
+      '<div style="margin-top:5px" class="tc-' + (alerts.length ? 'warn' : 'warn ok') + '">' + escHtml(warnText) + '</div>' +
+      '</article>';
+  }).join('');
+}
+
+function updateStatusBar() {
+  if (state.lastUpdate) $('#lastUpdate').textContent = timeOf(state.lastUpdate) + ' · ' + shortDate(state.date);
+  const ok = Object.values(state.meta).filter(x => x.ok).length;
+  $('#sourceStatus').textContent = ok + '/8 nguồn';
+  const snap = stageSnapshot(state.snaps, state.date, state.stage);
+  $('#baselineNote').textContent = STAGES[state.stage].label + (snap ? ' lúc ' + timeOf(snap.ts) : ' · chưa lấy dữ liệu');
+  if (state.autoRefresh && state.nextRefreshAt) {
+    const sec = Math.max(0, Math.round((state.nextRefreshAt - Date.now()) / 1000));
+    $('#nextRefresh').textContent = '· tải lại sau ' + Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+  } else {
+    $('#nextRefresh').textContent = '';
+  }
+}
+
+/* =====================================================================
+   6.3 DRAWER CHI TIẾT
+   ===================================================================== */
+function openDrawer(key) {
+  const p = state.model ? state.model.byKey.get(key) : null;
+  if (!p) return;
+  const team = TEAMS[p.team] || { color: '#0B2F52', name: p.team, full: p.team };
+  $('#drawerId').innerHTML =
+    '<div class="avatar" style="--ac:' + team.color + ';--ac2:#0B2F52">' + escHtml(initials(p.name)) + '</div>' +
+    '<div><h3>' + escHtml(p.name) + '</h3><div class="sub">' +
+    '<span class="tag team">' + p.team + ' · ' + escHtml(team.name) + '</span>' +
+    '<span class="tag code">' + escHtml(p.code || '—') + '</span>' +
+    '<span class="tag leader">' + escHtml(p.roleLabel) + '</span></div></div>';
+
+  let body = '<div class="dr-section"><h4>Tổng quan 8 chỉ tiêu · ' + vnDate(state.date) + '</h4><div class="dr-grid">';
+  for (const m of METRICS) {
+    const v = p._m[m.key];
+    const col = v.status === 'bad' ? '#DC2626' : v.status === 'warn' ? '#D97706' : v.status === 'ok' ? '#0E9F6E' : '#64748B';
+    let main = fmtN(v.actual), small = '';
+    if (m.key === 'npsc') { main = (v.actual > 0 ? '+' : '') + fmtN(v.actual); small = '<small> ròng</small>'; }
+    else if (m.key === 'cstc') small = '<small> phiếu</small>';
+    else small = '<small>/' + fmtN(v.target) + '</small>';
+    const bar = m.key === 'npsc' ? (v.actual >= 0 ? 100 : 5) : m.key === 'cstc' ? (v.actual === 0 ? 100 : 0) : v.target > 0 ? clamp(v.actual / v.target * 100, 0, 100) : 0;
+    body += '<div class="dr-kpi" style="--sc:' + col + '"><div class="l"><span>' + m.label + '</span><span>' + statusLabel(v.status) + '</span></div>' +
+      '<div class="v">' + main + small + '</div><div class="bar"><i style="width:' + bar.toFixed(1) + '%"></i></div>' +
+      '<div class="s">' + (v.today === null ? 'Hôm nay: –' : 'Hôm nay: ' + (v.today > 0 ? '+' : '') + fmtN(v.today)) + ' · còn ' + fmtN(v.remain) + '</div></div>';
+  }
+  body += '</div></div>';
+
+  body += '<div class="dr-section"><h4>Chi tiết tính toán</h4><table class="dr-table"><thead><tr><th>Chỉ tiêu</th><th>KH</th><th>Thực</th><th>Còn</th><th>Hôm nay</th><th>Trạng thái</th></tr></thead><tbody>';
+  for (const m of METRICS) {
+    const v = p._m[m.key];
+    const cls = v.status === 'bad' ? 'red' : v.status === 'warn' ? 'amber' : v.status === 'ok' ? 'green' : '';
+    body += '<tr><td>' + m.label + '</td><td>' + (m.key === 'npsc' ? '≥0' : m.key === 'dpsc' ? '≤ ' + fmtN(v.target) : fmtN(v.target)) + '</td><td>' + fmtN(v.actual) + '</td><td>' + fmtN(v.remain) + '</td>' +
+      '<td>' + (v.today === null ? '–' : (v.today > 0 ? '+' : '') + fmtN(v.today)) + '</td><td class="' + cls + '">' + statusLabel(v.status) + '</td></tr>';
+  }
+  body += '</tbody></table></div>';
+
+  const w = warnSummary(p);
+  body += '<div class="dr-section"><h4>Cảnh báo</h4><div class="dr-alert">';
+  if (!w.count) body += '<div class="ai"><span class="ad" style="background:#0E9F6E"></span><div>Không có chỉ tiêu nào cần chú ý.</div></div>';
+  else {
+    if (w.bad.length) body += '<div class="ai"><span class="ad red"></span><div><b>Chưa đạt:</b> ' + w.bad.join(', ') + '</div></div>';
+    if (w.warn.length) body += '<div class="ai"><span class="ad amber"></span><div><b>Cần chú ý:</b> ' + w.warn.join(', ') + '</div></div>';
+  }
+  body += '</div></div>';
+
+  const next = [];
+  let cur = state.date;
+  for (let i = 0; i < 10 && next.length < 5; i++) {
+    const pdate = (state.model.plan.byPersonDate[p.key] || {})[cur];
+    if (pdate && (pdate.modem || pdate.thu || pdate.tiepthi || pdate.bancheo || pdate.ghtt)) next.push({ date: cur, p: pdate });
+    cur = addDays(cur, 1);
+  }
+  if (next.length) {
+    body += '<div class="dr-section"><h4>Kế hoạch ngày tới</h4><table class="dr-table"><thead><tr><th>Ngày</th><th>GH</th><th>Thu</th><th>TT</th><th>Modem</th><th>BK</th></tr></thead><tbody>';
+    for (const x of next) body += '<tr><td>' + shortDate(x.date) + '</td><td>' + fmtN(x.p.ghtt) + '</td><td>' + fmtN(x.p.thu) + '</td><td>' + fmtN(x.p.tiepthi) + '</td><td>' + fmtN(x.p.modem) + '</td><td>' + fmtN(x.p.bancheo) + '</td></tr>';
+    body += '</tbody></table></div>';
+  }
+  body += '<div class="dr-actions"><button class="btn btn-primary" type="button" data-dr-send="' + escHtml(p.team) + '"><svg class="icon"><use href="#i-send"/></svg> Gửi báo cáo tổ</button>' +
+    '<button class="btn" type="button" data-dr-close>Đóng</button></div>';
+
+  $('#drawerBody').innerHTML = body;
+  $('#drawer').classList.add('open');
+  $('#drawerOverlay').classList.add('show');
+  $('#drawer').setAttribute('aria-hidden', 'false');
+  $('#drawerBody').scrollTop = 0;
+}
+function closeDrawer() {
+  $('#drawer').classList.remove('open');
+  $('#drawerOverlay').classList.remove('show');
+  $('#drawer').setAttribute('aria-hidden', 'true');
+}
+
+/* =====================================================================
+   6.4 SỰ KIỆN
+   ===================================================================== */
+function takeSnapshot(stage) {
+  if (!state.model) { toast('Dữ liệu chưa tải xong', 'err'); return; }
+  const all = loadSnaps();
+  all[state.date] = all[state.date] || {};
+  if (all[state.date][stage] && !confirm('Đã có dữ liệu ' + STAGES[stage].label + ' hôm nay. Lấy lại sẽ thay mốc cũ. Tiếp tục?')) return;
+  const values = {};
+  for (const p of state.model.people) for (const m of METRICS) values[p.key + '|' + m.key] = cumValue(p, m.key);
+  let targets = {};
+  if (stage === 'morning') {
+    const tmp = computeAll(state.model, state.date, 'morning', {});
+    for (const p of tmp.model.people) for (const m of METRICS) targets[p.key + '|' + m.key] = p._m[m.key].daily;
+  } else if (all[state.date].morning) {
+    targets = all[state.date].morning.targets || {};
+  }
+  all[state.date][stage] = { ts: Date.now(), values, targets };
+  saveSnaps(all);
+  state.snaps = all;
+  state.stage = stage;
+  recompute(); renderAll();
+  toast('Đã lấy dữ liệu ' + STAGES[stage].label + ' lúc ' + timeOf(all[state.date][stage].ts), 'ok');
+}
+
+function bindEvents() {
+  $('#dateInput').addEventListener('change', e => {
+    state.date = clampDate(e.target.value);
+    e.target.value = state.date;
+    state.stage = latestStage(state.snaps, state.date);
+    recompute(); renderAll();
+  });
+
+  $('#stageSwitch').addEventListener('click', e => {
+    const b = e.target.closest('.stage-btn');
+    if (b) takeSnapshot(b.dataset.stage);
+  });
+
+  $('#btnRefresh').addEventListener('click', () => refresh(false));
+  $('#btnRetryErr').addEventListener('click', () => refresh(false));
+
+  $('#btnSettings').addEventListener('click', () => { renderSettings(); $('#settingsModal').classList.remove('hidden'); });
+  $('#setClose').addEventListener('click', () => $('#settingsModal').classList.add('hidden'));
+  $('#setDone').addEventListener('click', () => $('#settingsModal').classList.add('hidden'));
+  $('#settingsModal').addEventListener('click', e => { if (e.target.id === 'settingsModal') $('#settingsModal').classList.add('hidden'); });
+
+  $('#autoRefresh').addEventListener('change', e => setAutoRefresh(e.target.checked));
+  $('#autoRefresh2').addEventListener('change', e => setAutoRefresh(e.target.checked));
+
+  $('#btnClearAll').addEventListener('click', () => {
+    if (!confirm('Xóa token Telegram và bộ lọc đã lưu trên trình duyệt này?')) return;
+    try {
+      localStorage.removeItem(PREFS_KEY);
+      localStorage.removeItem(SNAP_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+    } catch (e) { /* ignore */ }
+    location.reload();
+  });
+
+  $('#filterSearch').addEventListener('input', e => { state.q = e.target.value; renderChips(); renderTable(); });
+  $('#filterArea').addEventListener('change', e => { state.area = e.target.value; savePrefs(); renderTable(); });
+  $('#filterRole').addEventListener('change', e => { state.role = e.target.value; savePrefs(); renderTable(); });
+  $('#filterWarn').addEventListener('change', e => { state.warn = e.target.checked; savePrefs(); renderTable(); });
+  $('#sortBy').addEventListener('change', e => { state.sort = e.target.value; savePrefs(); renderTable(); });
+  $('#btnExport').addEventListener('click', exportCsv);
+  $('#btnDownload').addEventListener('click', downloadReport);
+
+  $('#teamChips').addEventListener('click', e => {
+    const b = e.target.closest('.tchip');
+    if (!b) return;
+    state.team = b.dataset.team;
+    savePrefs(); renderChips(); renderTable();
+  });
+
+  $('#teamGrid').addEventListener('click', e => {
+    const send = e.target.closest('[data-send-team]');
+    if (send) { openTelegram(send.dataset.sendTeam); return; }
+    const card = e.target.closest('.team-card');
+    if (card) {
+      state.team = card.dataset.team;
+      savePrefs(); renderChips(); renderTable();
+      document.querySelector('.table-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  $('#btnAlerts').addEventListener('click', () => {
+    const p = $('#alertPanel');
+    p.classList.toggle('hidden');
+    $('#btnAlerts').textContent = p.classList.contains('hidden') ? 'Chi tiết' : 'Ẩn chi tiết';
+    if (!p.classList.contains('hidden')) renderAlerts();
+  });
+
+  $('#tableBody').addEventListener('click', e => {
+    const chev = e.target.closest('[data-chev]');
+    if (chev) {
+      e.stopPropagation();
+      const code = chev.dataset.chev;
+      if (state.collapsed.has(code)) state.collapsed.delete(code); else state.collapsed.add(code);
+      renderTable();
+      return;
+    }
+    const row = e.target.closest('.p-row');
+    if (row) openDrawer(row.dataset.key);
+  });
+  $('#tableBody').addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const row = e.target.closest('.p-row');
+      if (row) { e.preventDefault(); openDrawer(row.dataset.key); }
+    }
+  });
+  $('#alertPanel').addEventListener('click', e => {
+    const item = e.target.closest('[data-key]');
+    if (item) openDrawer(item.dataset.key);
+  });
+
+  $('#drawerOverlay').addEventListener('click', closeDrawer);
+  $('#drawerClose').addEventListener('click', closeDrawer);
+  $('#drawerBody').addEventListener('click', e => {
+    if (e.target.closest('[data-dr-close]')) closeDrawer();
+    const s = e.target.closest('[data-dr-send]');
+    if (s) openTelegram(s.dataset.drSend);
+  });
+
+  $('#btnTelegram').addEventListener('click', () => openTelegram('center'));
+  $('#btnSendAll').addEventListener('click', () => openTelegram('center'));
+  bindTelegram();
+
+  $('#btnDataInfo').addEventListener('click', () => { renderSettings(); $('#settingsModal').classList.remove('hidden'); });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeDrawer();
+      $('#tgModal').classList.add('hidden');
+      $('#settingsModal').classList.add('hidden');
+    }
+    if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      $('#filterSearch').focus();
+    }
+  });
+}
+
+function setAutoRefresh(on) {
+  state.autoRefresh = on;
+  $('#autoRefresh').checked = on;
+  $('#autoRefresh2').checked = on;
+  state.nextRefreshAt = on ? Date.now() + 300000 : 0;
+  savePrefs();
+  updateStatusBar();
+  toast(on ? 'Tự động tải lại mỗi 5 phút' : 'Đã tắt tự động tải lại');
+}
+
+function renderSettings() {
+  const si = $('#snapInfo');
+  if (si) { const sn = stageSnapshot(state.snaps, state.date, state.stage); si.textContent = STAGES[state.stage].label + (sn ? ' lúc ' + timeOf(sn.ts) : ' · chưa lấy') + ' · cập nhật ' + (state.lastUpdate ? timeOf(state.lastUpdate) : '—') + ' · ' + (state.model ? state.model.people.length : 0) + ' nhân viên'; }
+  $('#srcTable').innerHTML = Object.entries(SHEETS).map(([key, s]) => {
+    const m = state.meta[key];
+    return '<tr><td>' + escHtml(s.label) + '<div style="font-size:8px;color:#94A3B8">' + escHtml(s.sheet) + '</div></td>' +
+      '<td>' + (m && m.ok ? fmtN(m.rows) + ' dòng · ' + m.ms + 'ms' : (m ? 'Lỗi' : '—')) + '</td>' +
+      '<td class="' + (m && m.ok ? 'ok' : 'er') + '">' + (m ? (m.ok ? 'OK' : 'LỖI') : '—') + '</td></tr>';
+  }).join('');
+}
+
+/* =====================================================================
+   6.5 CSV
+   ===================================================================== */
+function exportCsv() {
+  if (!state.model) return;
+  const list = filterPeople(state.model, state);
+  const head = ['Tổ', 'Mã NV', 'Họ tên', 'Vai trò'];
+  for (const m of METRICS) head.push(m.label + ' - KH', m.label + ' - Thực hiện', m.label + ' - Còn lại', m.label + ' - Hôm nay', m.label + ' - Cần hôm nay', m.label + ' - Thiếu', m.label + ' - Trạng thái');
+  const rows = [head];
+  for (const p of list) {
+    const row = [p.team, p.codes.join('+'), p.name, p.roleLabel];
+    for (const m of METRICS) {
+      const v = p._m[m.key];
+      row.push(Math.round(v.target), Math.round(v.actual), Math.round(v.remain), v.today === null ? '' : Math.round(v.today), Math.round(v.needToday), Math.round(v.short), statusLabel(v.status));
+    }
+    rows.push(row);
+  }
+  const csv = '\uFEFF' + rows.map(r => r.map(x => '"' + String(x).replace(/"/g, '""') + '"').join(';')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'chi_tieu_tan_an_hoi_' + state.date + '.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('Đã xuất CSV ' + list.length + ' người', 'ok');
+}
+
+/* Báo cáo Excel (.xls dạng bảng HTML, mở bằng Excel/LibreOffice) */
+function downloadReport() {
+  if (!state.computed || !state.model) { toast('Dữ liệu chưa tải xong', 'err'); return; }
+  const c = state.computed.center;
+  const ctx = state.computed.ctx;
+  const txt = v => String(v === null || v === undefined ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const stColor = st => st === 'bad' ? '#C00000' : st === 'warn' ? '#B26B00' : st === 'ok' ? '#087F5B' : st === 'info' ? '#0B63CE' : '#666666';
+  const cell = (v, extra) => '<td style="border:1px solid #B7C4D2;padding:4px 6px;"' + (extra ? ' ' + extra : '') + '>' + txt(v) + '</td>';
+  const hcell = v => '<th style="border:1px solid #7A94AD;background:#17324D;color:#fff;padding:5px 7px;font-size:10pt;text-align:center">' + txt(v) + '</th>';
+
+  function summaryTable() {
+    let h = '<table border="1" cellspacing="0" cellpadding="3" style="border-collapse:collapse;font-family:Arial;font-size:10pt"><tr>' +
+      ['Chỉ tiêu', 'Kế hoạch', 'Thực hiện', '% hoàn thành', 'Còn lại', 'Cần hôm nay', 'Đã làm hôm nay', 'Thiếu', 'Trạng thái'].map(hcell).join('') + '</tr>';
+    for (const m of METRICS) {
+      const v = c[m.key];
+      let kh = v.target, th = v.actual, pct = fmtPct(v.pct, 1), con = v.remain, thieu = v.short;
+      if (m.key === 'npsc') { kh = '≥ 0'; th = (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' ròng'; pct = '%NPSC ' + fmtPct(v.pct, 2); }
+      else if (m.key === 'cstc') { kh = '0'; th = fmtN(v.actual) + ' phiếu'; }
+      else if (m.key === 'dpsc') { kh = '≤ ' + fmtN(v.target); pct = 'TH/KH ' + fmtPct(v.pct, 0); }
+      h += '<tr>' + cell(m.label, 'style="font-weight:bold"') + cell(kh) + cell(th) + cell(pct) + cell(con) + cell(v.needToday) + cell(v.today === null ? '–' : v.today) + cell(thieu) + cell(statusLabel(v.status), 'style="color:' + stColor(v.status) + ';font-weight:bold"') + '</tr>';
+    }
+    return h + '</table>';
+  }
+
+  function teamTable() {
+    let h = '<table border="1" cellspacing="0" cellpadding="3" style="border-collapse:collapse;font-family:Arial;font-size:9pt"><tr>' +
+      [hcell('Tổ')].concat(METRICS.map(m => hcell(m.label + ' (TH/KH)'))).concat([hcell('Cảnh báo')]).join('') + '</tr>';
+    for (const code of TEAM_ORDER) {
+      const t = state.computed.teams[code];
+      h += '<tr>' + cell(code + ' — ' + t.name, 'style="font-weight:bold;white-space:nowrap"');
+      for (const m of METRICS) {
+        const v = t.metrics[m.key];
+        let str;
+        if (m.key === 'npsc') str = (v.actual > 0 ? '+' : '') + fmtN(v.actual);
+        else if (m.key === 'cstc') str = fmtN(v.actual) + ' phiếu';
+        else if (m.key === 'dpsc') str = fmtN(v.actual) + '/' + fmtN(v.target) + ' (≤KH)';
+        else str = fmtN(v.actual) + '/' + fmtN(v.target);
+        h += cell(str, 'style="text-align:right;color:' + stColor(v.status) + ';font-weight:' + (v.status === 'bad' ? 'bold' : 'normal') + '"');
+      }
+      const shorts = state.computed.alerts.filter(a => a.team === code);
+      h += cell(shorts.length ? shorts.map(a => METRICS.find(x => x.key === a.metric).label + ' thiếu ' + fmtN(a.short)).join('; ') : 'Đúng mốc', 'style="font-size:8pt"');
+      h += '</tr>';
+    }
+    return h + '</table>';
+  }
+
+  function peopleTable() {
+    let h = '<table border="1" cellspacing="0" cellpadding="3" style="border-collapse:collapse;font-family:Arial;font-size:9pt"><tr>' +
+      [hcell('Tổ'), hcell('Mã'), hcell('Họ tên'), hcell('Vai trò')].concat(METRICS.map(m => hcell(m.label))).concat([hcell('Hôm nay'), hcell('Thiếu'), hcell('Cảnh báo')]).join('') + '</tr>';
+    const list = state.model.people.slice().sort((a, b) => TEAM_ORDER.indexOf(a.team) - TEAM_ORDER.indexOf(b.team) || a.name.localeCompare(b.name, 'vi'));
+    for (const p of list) {
+      h += '<tr>' + cell(p.team) + cell(p.codes.join(' + ')) + cell(p.name, 'style="font-weight:bold"') + cell(p.roleLabel);
+      for (const m of METRICS) {
+        const v = p._m[m.key];
+        let str;
+        if (m.key === 'npsc') str = (v.actual > 0 ? '+' : '') + fmtN(v.actual);
+        else if (m.key === 'cstc') str = fmtN(v.actual);
+        else if (m.key === 'dpsc') str = fmtN(v.actual) + ' / ' + fmtN(v.target) + ' (≤KH)';
+        else str = fmtN(v.actual) + ' / ' + fmtN(v.target);
+        h += cell(str, 'style="text-align:right;color:' + stColor(v.status) + ';font-weight:' + (v.status === 'bad' ? 'bold' : 'normal') + '"');
+      }
+      const todayShort = METRICS.reduce((a, m) => a + (p._m[m.key].short || 0), 0);
+      const w = warnSummary(p);
+      h += cell(p._m.ghtt.today === null ? '–' : p._m.ghtt.today) + cell(todayShort) + cell(w.bad.length ? 'Chưa đạt: ' + w.bad.join(', ') : w.warn.length ? 'Chú ý: ' + w.warn.join(', ') : 'Đạt', 'style="font-size:8pt"');
+      h += '</tr>';
+    }
+    return h + '</table>';
+  }
+
+  function alertTable() {
+    const al = state.computed.alerts;
+    if (!al.length) return '<p style="font-family:Arial;font-size:10pt">Không có tổ nào chưa đạt mốc.</p>';
+    let h = '<table border="1" cellspacing="0" cellpadding="3" style="border-collapse:collapse;font-family:Arial;font-size:9pt"><tr>' +
+      [hcell('Tổ'), hcell('Chỉ tiêu'), hcell('Cần hôm nay'), hcell('Đã làm'), hcell('Thiếu'), hcell('Trạng thái')].join('') + '</tr>';
+    for (const a of al) {
+      const m = METRICS.find(x => x.key === a.metric);
+      h += '<tr>' + cell(a.team) + cell(m.label) + cell(Math.round(a.expected)) + cell(Math.round(a.actual)) + cell(Math.round(a.short), 'style="color:#C00000;font-weight:bold"') + cell(statusLabel(a.status), 'style="color:' + stColor(a.status) + '"') + '</tr>';
+    }
+    return h + '</table>';
+  }
+
+  const snap = stageSnapshot(state.snaps, state.date, ctx.stage);
+  const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">' +
+    '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">' +
+    '<style>@page{size:A4 landscape;margin:10mm} body{font-family:Arial} h1{font-size:16pt;color:#17324D;margin:0 0 4px} h2{font-size:11pt;color:#0B63CE;margin:14px 0 5px} p{font-size:9pt;margin:3px 0}</style></head><body>' +
+    '<h1>BÁO CÁO CHỈ TIÊU — TTVT TÂN AN HỘI</h1>' +
+    '<p><b>' + STAGES[ctx.stage].title + '</b> · ' + vnDate(state.date) + (snap ? ' · lấy dữ liệu lúc ' + timeOf(snap.ts) : '') + ' &nbsp;·&nbsp; <b>Cập nhật:</b> ' + (state.lastUpdate ? timeOf(state.lastUpdate) : '—') + '</p>' +
+    '<p>Còn <b>' + ctx.daysLeftMonth + '</b> ngày làm việc trong tháng · nguồn: 8 Google Sheets công khai.</p>' +
+    '<h2>1. TỔNG HỢP TRUNG TÂM</h2>' + summaryTable() +
+    '<h2>2. TỔNG HỢP THEO TỔ</h2>' + teamTable() +
+    '<h2>3. CHI TIẾT CÁ NHÂN</h2>' + peopleTable() +
+    '<h2>4. CẢNH BÁO TỔ CHƯA ĐẠT</h2>' + alertTable() +
+    '<p style="margin-top:12px;color:#666">Ghi chú: các chỉ tiêu (trừ modem, bán kèm) lấy số còn lại chia cho số ngày làm việc còn lại trong tháng. Modem và bán kèm lấy kế hoạch ngày từ sheet sanluong. DPSC báo theo TH và phải bằng hoặc dưới KH.</p>' +
+    '</body></html>';
+
+  const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bao_cao_tan_an_hoi_' + state.date + '.xls';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  toast('Đã tải báo cáo Excel · ' + state.model.people.length + ' nhân viên', 'ok');
+}
+
+/* =====================================================================
+   6.6 TOAST
+   ===================================================================== */
+let toastTimer = null;
+function toast(msg, type) {
+  const el = $('#toast');
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  el.innerHTML = '<svg class="icon"><use href="#' + (type === 'err' ? 'i-warn' : type === 'ok' ? 'i-check' : 'i-bolt') + '"/></svg><div>' + escHtml(msg) + '</div>';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 4200);
+}
+
+</script>
+<script>
+'use strict';
+
+/* =====================================================================
+   7. TELEGRAM BOT API
+   ===================================================================== */
+const TOKEN_KEY = 'tah_bot_token_v1';
+const tgState = { checked: new Set(), sending: false };
+
+function getToken() {
+  try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; }
+}
+function saveToken(t) {
+  try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) { /* ignore */ }
+}
+function tgApi(token, method, payload) {
+  // Dùng form-urlencoded để trình duyệt không gửi preflight OPTIONS
+  // (Telegram trả 501 cho OPTIONS, dù CORS cho phép).
+  const body = new URLSearchParams();
+  Object.entries(payload || {}).forEach(([k, v]) => {
+    if (v !== undefined && v !== null) body.append(k, typeof v === 'string' ? v : String(v));
+  });
+  return fetch('https://api.telegram.org/bot' + token + '/' + method, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body
+  }).then(async res => {
+    let j = null;
+    try { j = await res.json(); } catch (e) { throw new Error('HTTP ' + res.status); }
+    if (!j || !j.ok) throw new Error((j && j.description) || ('HTTP ' + res.status));
+    return j.result;
+  });
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function openTelegram(scope) {
+  if (!state.computed) { toast('Dữ liệu chưa tải xong', 'err'); return; }
+  $('#tgModal').classList.remove('hidden');
+  const saved = getToken();
+  $('#botToken').value = saved;
+  $('#botStatus').textContent = saved ? 'Đã lưu token trên trình duyệt này' : 'Chưa có token';
+  $('#sendLog').innerHTML = '';
+  $('#sendProgress').textContent = '';
+  const target = scope && TEAM_ORDER.includes(scope) ? scope : 'center';
+  state.previewScope = target;
+  tgState.checked = new Set();
+  LEADERS.forEach((l, i) => {
+    if (target === 'center') tgState.checked.add(i);
+    else if (l.team === target) tgState.checked.add(i);
+  });
+  renderRecipients();
+  renderPreviewTabs();
+  updatePreview();
+  updateSendLabel();
+}
+
+function renderRecipients() {
+  const box = $('#recList');
+  box.className = 'rec-grid';
+  box.innerHTML = LEADERS.map((l, i) => {
+    const scopeText = l.scope === 'center' ? 'Toàn cảnh trung tâm + 5 tổ' : 'Chỉ tiêu tổ ' + l.team;
+    return '<label class="rec"><input type="checkbox" data-rec="' + i + '" ' + (tgState.checked.has(i) ? 'checked' : '') + '>' +
+      '<div><div class="rn">' + escHtml(l.name) + '</div><div class="rr">' + escHtml(l.role) + ' · ' + scopeText + '</div></div>' +
+      '<span class="rc">' + l.tg + '</span></label>';
+  }).join('');
+  $$('#recList input[data-rec]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const i = Number(cb.dataset.rec);
+      if (cb.checked) tgState.checked.add(i); else tgState.checked.delete(i);
+      updateSendLabel();
+    });
+  });
+}
+
+function renderPreviewTabs() {
+  const tabs = [{ key: 'center', label: 'Toàn cảnh' }].concat(TEAM_ORDER.map(c => ({ key: c, label: c + ' · ' + TEAMS[c].name })));
+  $('#previewTabs').innerHTML = tabs.map(t =>
+    '<button class="ptab ' + (state.previewScope === t.key ? 'active' : '') + '" type="button" data-preview="' + t.key + '">' + escHtml(t.label) + '</button>'
+  ).join('');
+  $$('#previewTabs .ptab').forEach(b => b.addEventListener('click', () => {
+    state.previewScope = b.dataset.preview;
+    renderPreviewTabs();
+    updatePreview();
+  }));
+}
+
+function metricLine(m, v) {
+  if (m.key === 'npsc') {
+    return '• NPSC: giao <b>0</b> · thực <b>' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + '</b> ròng · %NPSC ' + fmtPct(v.pct, 2) + ' (≤0,53%) · cần mở ' + fmtN(v.meta.need || 0) + ' TB';
+  }
+  if (m.key === 'cstc') {
+    return '• CSTC: tồn <b>' + fmtN(v.actual) + '</b> phiếu · cần xử lý ' + fmtN(v.daily) + '/ngày';
+  }
+  if (m.key === 'dpsc') {
+    const over = v.over || 0;
+    return '• DPSC: <b>TH ' + fmtN(v.actual) + '</b> / KH ' + fmtN(v.target) + ' (' + fmtPct(v.pct, 0) + ') · ' + (over > 0 ? '<b>vượt ' + fmtN(over) + '</b>' : 'trong định mức') + ' · TH phải ≤ KH';
+  }
+  const today = v.today === null ? 'chưa có mốc' : fmtN(v.today) + '/' + fmtN(v.needToday);
+  return '• ' + m.label + ': giao <b>' + fmtN(v.target) + '</b> · đã <b>' + fmtN(v.actual) + '</b> · còn <b>' + fmtN(v.remain) + '</b> · hôm nay ' + today;
+}
+
+function teamBrief(code) {
+  const t = state.computed.teams[code];
+  const g = t.metrics.ghtt;
+  const short = state.computed.alerts.filter(a => a.team === code);
+  let s = '• <b>' + code + '</b> (' + t.list.length + ' người): giao ' + fmtN(g.target) + ' · đã ' + fmtN(g.actual) + ' · còn ' + fmtN(g.remain);
+  if (short.length) {
+    s += ' · thiếu ' + short.slice(0, 3).map(a => {
+      const m = METRICS.find(x => x.key === a.metric);
+      return fmtN(a.short) + ' ' + m.unit + ' ' + m.label.toLowerCase();
+    }).join(', ');
+    if (short.length > 3) s += ', …';
+  } else {
+    s += ' · đạt mốc ' + STAGES[state.computed.ctx.stage].short.toLowerCase();
+  }
+  return s;
+}
+
+function buildCenterMessage() {
+  const c = state.computed.center;
+  const ctx = state.computed.ctx;
+  const lines = [];
+  lines.push('🏢 <b>TTVT TÂN AN HỘI</b>');
+  lines.push('<b>' + STAGES[ctx.stage].title + '</b>');
+  lines.push('📅 ' + vnDate(state.date) + (ctx.baseTs ? ' · mốc đầu ngày ' + timeOf(ctx.baseTs) : ' · chưa có mốc đầu ngày'));
+  lines.push('👥 ' + state.model.people.length + ' nhân viên · 5 tổ · còn ' + ctx.daysLeftMonth + ' ngày làm việc trong tháng');
+  lines.push('━━━━━━━━━━━━━━');
+  lines.push('<b>TRUNG TÂM</b>');
+  for (const m of METRICS) lines.push(metricLine(m, c[m.key]));
+  lines.push('');
+  lines.push('<b>THEO TỔ</b>');
+  for (const code of TEAM_ORDER) lines.push(teamBrief(code));
+  lines.push('');
+  const badPeople = state.computed.risky.filter(r => r.bad.length);
+  lines.push('<b>CẢNH BÁO</b>');
+  lines.push('• ' + state.computed.alerts.length + ' chỉ tiêu tổ chưa đạt mốc');
+  lines.push('• ' + badPeople.length + ' người đang chậm chỉ tiêu' + (state.computed.risky.length ? ' (' + state.computed.risky.length + ' người cần chú ý)' : ''));
+  if (badPeople.length) {
+    lines.push('');
+    for (const r of badPeople.slice(0, 8)) {
+      const detail = r.bad.map(label => {
+        const m = METRICS.find(x => x.label === label);
+        const v = m ? r.person._m[m.key] : null;
+        return label + (v && v.short > 0 ? ' thiếu ' + fmtN(v.short) + ' ' + (m ? m.unit : '') : '');
+      }).join(', ');
+      lines.push('  – ' + escHtml(r.person.name) + ' (' + r.person.team + '): ' + detail);
+    }
+    if (badPeople.length > 8) lines.push('  … và ' + (badPeople.length - 8) + ' người khác');
+  }
+  lines.push('');
+  lines.push('🕒 Cập nhật ' + timeOf(state.lastUpdate || Date.now()) + ' · ' + shortDate(state.date));
+  return lines.join('\n');
+}
+
+function buildTeamMessage(code) {
+  const team = TEAMS[code];
+  const t = state.computed.teams[code];
+  const ctx = state.computed.ctx;
+  const lines = [];
+  lines.push('👥 <b>TỔ ' + code + ' — ' + team.name.toUpperCase() + '</b>');
+  lines.push('👤 Tổ trưởng: ' + escHtml(team.leader));
+  lines.push('📅 ' + vnDate(state.date) + ' · ' + STAGES[ctx.stage].title + (ctx.baseTs ? ' · mốc ' + timeOf(ctx.baseTs) : ''));
+  lines.push('👥 ' + t.list.length + ' nhân viên · còn ' + ctx.daysLeftMonth + ' ngày làm việc trong tháng');
+  lines.push('━━━━━━━━━━━━━━');
+  lines.push('<b>TỔNG TỔ</b>');
+  for (const m of METRICS) lines.push(metricLine(m, t.metrics[m.key]));
+  lines.push('');
+
+  const shorts = state.computed.alerts.filter(a => a.team === code);
+  if (shorts.length) {
+    lines.push('<b>TỔ CÒN THIẾU</b>');
+    for (const a of shorts) {
+      const m = METRICS.find(x => x.key === a.metric);
+      lines.push('• ' + m.label + ': thiếu <b>' + fmtN(a.short) + ' ' + m.unit + '</b>');
+    }
+    lines.push('');
+  }
+
+  lines.push('<b>CHI TIẾT CÁ NHÂN</b>');
+  const members = t.list.slice().sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+  for (const p of members) {
+    const parts = [];
+    for (const m of METRICS) {
+      const v = p._m[m.key];
+      if (m.key === 'npsc') parts.push('NPSC ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual));
+      else if (m.key === 'cstc') parts.push('CSTC ' + fmtN(v.actual) + ' phiếu');
+      else if (m.key === 'dpsc') parts.push('DPSC TH ' + fmtN(v.actual) + '/' + fmtN(v.target));
+      else parts.push(m.label + ' ' + fmtN(v.actual) + '/' + fmtN(v.target) + ' (còn ' + fmtN(v.remain) + ')');
+    }
+    lines.push('• <b>' + escHtml(p.name) + '</b>: ' + parts.join(' · '));
+  }
+
+  const badMembers = members.map(p => ({ p, w: warnSummary(p) })).filter(x => x.w.bad.length);
+  lines.push('');
+  lines.push('<b>CÁ NHÂN CHƯA ĐẠT</b>');
+  if (!badMembers.length) lines.push('• Không có ai chưa đạt.');
+  else for (const x of badMembers) {
+    const detail = x.w.bad.map(label => {
+      const m = METRICS.find(y => y.label === label);
+      const v = m ? x.p._m[m.key] : null;
+      return label + (v && v.short > 0 ? ' thiếu ' + fmtN(v.short) + ' ' + (m ? m.unit : '') : '');
+    }).join(', ');
+    lines.push('• ' + escHtml(x.p.name) + ': ' + detail);
+  }
+
+  lines.push('');
+  lines.push('🕒 Cập nhật ' + timeOf(state.lastUpdate || Date.now()) + ' · ' + shortDate(state.date));
+  return lines.join('\n');
+}
+
+function buildMessage(scope) {
+  return scope === 'center' ? buildCenterMessage() : buildTeamMessage(scope);
+}
+
+function splitMessage(text, limit) {
+  limit = limit || 3900;
+  if (text.length <= limit) return [text];
+  const lines = text.split('\n');
+  const parts = [];
+  let cur = '';
+  for (const line of lines) {
+    if ((cur + '\n' + line).length > limit && cur) { parts.push(cur); cur = line; }
+    else cur = cur ? cur + '\n' + line : line;
+  }
+  if (cur) parts.push(cur);
+  return parts.map((p, i) => (parts.length > 1 ? '📄 <b>Phần ' + (i + 1) + '/' + parts.length + '</b>\n' : '') + p);
+}
+
+function updatePreview() {
+  const msg = buildMessage(state.previewScope === 'center' ? 'center' : state.previewScope);
+  $('#previewText').innerHTML = msg;
+  const n = msg.length;
+  const parts = splitMessage(msg).length;
+  $('#charCount').textContent = n.toLocaleString('vi-VN') + ' ký tự' + (parts > 1 ? ' · sẽ chia ' + parts + ' tin' : '');
+  $('#charCount').style.color = n > 4096 ? '#B26B00' : '';
+}
+
+function updateSendLabel() {
+  const n = tgState.checked.size;
+  $('#sendLabel').textContent = n ? 'Gửi ' + n + ' báo cáo' : 'Chưa chọn người nhận';
+  $('#btnSend').disabled = !n || tgState.sending;
+}
+
+function bindTelegram() {
+  $('#tgClose').addEventListener('click', () => $('#tgModal').classList.add('hidden'));
+  $('#tgModal').addEventListener('click', e => { if (e.target.id === 'tgModal') $('#tgModal').classList.add('hidden'); });
+
+  $('#btnSaveToken').addEventListener('click', () => {
+    const t = $('#botToken').value.trim();
+    if (!/^\d+:[\w-]{20,}$/.test(t)) { toast('Token chưa đúng định dạng (số:chuỗi).', 'err'); return; }
+    saveToken(t);
+    $('#botStatus').textContent = 'Đã lưu token trên trình duyệt này';
+    toast('Đã lưu bot token', 'ok');
+  });
+
+  $('#btnTestBot').addEventListener('click', async () => {
+    const t = $('#botToken').value.trim() || getToken();
+    if (!t) { $('#botStatus').textContent = 'Chưa nhập token'; return; }
+    $('#botStatus').textContent = 'Đang kiểm tra…';
+    try {
+      const me = await tgApi(t, 'getMe', {});
+      $('#botStatus').className = 'bot-ok';
+      $('#botStatus').textContent = 'OK: @' + me.username + ' (' + me.first_name + ')';
+    } catch (e) {
+      $('#botStatus').className = 'bot-err';
+      $('#botStatus').textContent = 'Lỗi: ' + e.message;
+    }
+  });
+
+  $('#btnRecAll').addEventListener('click', () => {
+    tgState.checked = new Set(LEADERS.map((l, i) => i));
+    $$('#recList input[data-rec]').forEach(cb => { cb.checked = true; });
+    updateSendLabel();
+  });
+  $('#btnRecNone').addEventListener('click', () => {
+    tgState.checked.clear();
+    $$('#recList input[data-rec]').forEach(cb => { cb.checked = false; });
+    updateSendLabel();
+  });
+
+  $('#btnCopy').addEventListener('click', async () => {
+    const text = $('#previewText').innerText;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('Đã copy nội dung', 'ok');
+    } catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
+      toast('Đã copy nội dung', 'ok');
+    }
+  });
+
+  $('#btnSend').addEventListener('click', sendReports);
+}
+
+async function sendReports() {
+  if (tgState.sending) return;
+  const token = ($('#botToken').value.trim() || getToken()).trim();
+  if (!token) { toast('Nhập bot token trước khi gửi.', 'err'); $('#botToken').focus(); return; }
+  const indexes = Array.from(tgState.checked);
+  if (!indexes.length) { toast('Chọn ít nhất một người nhận.', 'err'); return; }
+  if (!confirm('Gửi ' + indexes.length + ' báo cáo qua Telegram? Người nhận phải đã bấm /start bot.')) return;
+
+  tgState.sending = true;
+  updateSendLabel();
+  $('#sendLog').innerHTML = '';
+  let ok = 0, fail = 0;
+  for (let i = 0; i < indexes.length; i++) {
+    const l = LEADERS[indexes[i]];
+    const scope = l.scope === 'center' ? 'center' : l.team;
+    const parts = splitMessage(buildMessage(scope));
+    $('#sendProgress').textContent = 'Đang gửi ' + (i + 1) + '/' + indexes.length + ' · ' + l.name + (parts.length > 1 ? ' (' + parts.length + ' tin)' : '');
+    try {
+      for (const part of parts) {
+        await tgApi(token, 'sendMessage', { chat_id: l.tg, text: part, parse_mode: 'HTML', disable_web_page_preview: true });
+        await sleep(380);
+      }
+      ok++;
+      $('#sendLog').innerHTML += '<div><span class="ok">✓</span> ' + escHtml(l.name) + ' — ' + escHtml(l.role) + (parts.length > 1 ? ' · ' + parts.length + ' tin' : '') + '</div>';
+    } catch (e) {
+      fail++;
+      $('#sendLog').innerHTML += '<div><span class="err">✕</span> ' + escHtml(l.name) + ': ' + escHtml(e.message) + '</div>';
+    }
+    await sleep(420);
+  }
+  tgState.sending = false;
+  updateSendLabel();
+  $('#sendProgress').textContent = 'Xong: ' + ok + ' thành công' + (fail ? ', ' + fail + ' lỗi' : '');
+  toast('Đã gửi ' + ok + '/' + indexes.length + ' báo cáo' + (fail ? ' · ' + fail + ' lỗi' : ''), fail ? 'err' : 'ok');
+}
+
+/* Khởi động */
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+</script>
+</body>
+</html>
