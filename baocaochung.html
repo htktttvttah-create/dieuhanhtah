@@ -1761,7 +1761,7 @@ function emptyPerson(code, name, team) {
     ghtt: { target: 0, goal: 0, actual: 0, total: 0, remain: 0, remainKnown: false, rate: 0, ownerKey: '' },
     thucuoc: { target: 0, actual: 0, pct: 0, sourcePct: null, need: 0, needFiber: 0, needMytv: 0, base: 0, ownerKey: '' },
     tiepthi: { target: 0, actual: 0, parts: { fiber: 0, mytv: 0, mesh: 0, cam: 0 }, ownerKey: '' },
-    npsc: { net: 0, thucTangFiber: 0, pct: 0, pctFiber: 0, pctMytv: 0, need: 0, ptm: 0, npsc: 0, psc: 0, ownerKey: '' },
+    npsc: { net: 0, thucTangFiber: 0, pct: 0, pctFiber: 0, pctMytv: 0, need: 0, needFiber: 0, needMytv: 0, ptm: 0, npsc: 0, psc: 0, ownerKey: '' },
     dpsc: { kh: 0, th: 0, ownerKey: '' },
     cstc: { open: 0, ownerKey: '' },
     modem: { assigned: 0, done: 0, remain: 0, planDay: 0, todaySheet: 0, ptmMesh: 0, ptmCamera: 0, ptmMytv: 0, ptm: 0, bankemTarget: null, ownerKey: '' },
@@ -2003,10 +2003,12 @@ function buildModel(raw, selectedDate) {
       const { name, team, codes } = identity;
       if (!name || normName(name).startsWith('tong')) continue;
       const values = {
-        // Giữ riêng cột I “Thực tăng” (Fiber) để làm điều kiện cảnh báo Telegram.
-        // Chỉ tiêu NPSC tổng hợp trên dashboard vẫn dùng Fiber + Thực tăng 2 (MyTV).
+        // Giữ riêng cột I “Thực tăng” (Fiber) cho số liệu cá nhân và cảnh báo.
+        // NPSC tổng hợp cấp tổ/Trung tâm vẫn giữ Fiber + MyTV.
         thucTangFiber: num(r[cNetFiber]),
         net: num(r[cNetFiber]) + num(r[cNetMytv]),
+        needFiber: num(r[cNeedFiber]),
+        needMytv: num(r[cNeedMytv]),
         need: num(r[cNeedFiber]) + num(r[cNeedMytv]),
         psc: num(r[cPsc]) + num(r[cPscMytv]),
         ptm: num(r[cPtm]) + num(r[cPtmMytv]),
@@ -2018,7 +2020,7 @@ function buildModel(raw, selectedDate) {
       const targets = codes.map(code => findOrCreate(code, name, team, 'NPSC')).filter(Boolean);
       const sharedOwner = targets.length > 1 ? 'npsc:' + (team || targets[0].team || '') + ':' + normName(name) + ':' + codes.join('+') : '';
       for (const p of targets) {
-        p.npsc.net += values.net; p.npsc.thucTangFiber += values.thucTangFiber; p.npsc.need += values.need; p.npsc.psc += values.psc;
+        p.npsc.net += values.net; p.npsc.thucTangFiber += values.thucTangFiber; p.npsc.need += values.need; p.npsc.needFiber += values.needFiber; p.npsc.needMytv += values.needMytv; p.npsc.psc += values.psc;
         p.npsc.ptm += values.ptm; p.npsc.npsc += values.npsc;
         p.npsc.pctFiber = values.pct; p.npsc.pctMytv = values.pctMytv;
         if (sharedOwner) p.npsc.ownerKey = sharedOwner;
@@ -2395,7 +2397,7 @@ function buildModel(raw, selectedDate) {
     const finalTargets = targets.length ? targets : [findOrCreateUnassigned(item.name, item.team, 'NPSC')].filter(Boolean);
     const sharedOwner = finalTargets.length > 1 ? 'npsc:' + (item.team || finalTargets[0].team || '') + ':' + normName(item.name) + ':name-row' : '';
     for (const p of finalTargets) {
-      p.npsc.net += item.values.net; p.npsc.thucTangFiber += item.values.thucTangFiber; p.npsc.need += item.values.need; p.npsc.psc += item.values.psc;
+      p.npsc.net += item.values.net; p.npsc.thucTangFiber += item.values.thucTangFiber; p.npsc.need += item.values.need; p.npsc.needFiber += item.values.needFiber; p.npsc.needMytv += item.values.needMytv; p.npsc.psc += item.values.psc;
       p.npsc.ptm += item.values.ptm; p.npsc.npsc += item.values.npsc;
       p.npsc.pctFiber = item.values.pct; p.npsc.pctMytv = item.values.pctMytv;
       if (sharedOwner) p.npsc.ownerKey = sharedOwner;
@@ -2558,7 +2560,7 @@ function morningSnapshot(snaps, date) {
 function missingMorningBaselineCodes(model, snaps, date) {
   if (!model || !Array.isArray(model.people)) return [];
   const base = morningSnapshot(snaps || {}, date);
-  const dailyKeys = METRICS.map(m => m.key).filter(key => key !== 'dpsc');
+  const dailyKeys = METRICS.map(m => m.key).filter(key => key !== 'dpsc' && key !== 'npsc');
   return model.people.filter(p => {
     const code = (p.code || (p.codes && p.codes.length === 1 ? p.codes[0] : '') || '').toUpperCase();
     if (!/^TAH\d+$/.test(code)) return false;
@@ -2592,6 +2594,7 @@ function makeContext(model, date, stage, snaps) {
     planToday: model.plan.byDate[date] || zeroPlan(),
     hasPlanDate: !!model.plan.byDate[date],
     base,
+    stageSnap: stageSnapshot(snaps, date, st.key),
     baseTs: base ? base.ts : null,
     hasMorning: !!base,
     snaps,
@@ -2613,7 +2616,7 @@ function cumValue(p, key) {
     case 'ghtt': return p.ghtt.actual;
     case 'thucuoc': return p.thucuoc.actual;
     case 'tiepthi': return p.tiepthi.actual;
-    case 'npsc': return p.npsc.net;
+    case 'npsc': return p.npsc.thucTangFiber;
     case 'dpsc': return p.dpsc.th;
     case 'cstc': return p.cstc.open;
     case 'modem': return p.modem.done;
@@ -2624,7 +2627,6 @@ function cumValue(p, key) {
 
 function personMetric(p, key, ctx) {
   const dayPlan = (ctx.model.plan.byPersonDate[p.key] || {})[ctx.date] || zeroPlan();
-  const bv = ctx.base ? ctx.base.values[p.key + '|' + key] : null;
   const out = {
     key, target: 0, actual: 0, remain: 0, daily: 0, planDaily: 0, requiredDaily: 0,
     expected: 0, short: 0, pct: 0, status: 'ok', today: null,
@@ -2633,12 +2635,21 @@ function personMetric(p, key, ctx) {
   const cum = cumValue(p, key);
   const daysForMetric = daysLeftForMetric(key, ctx.date);
   const deadlineForMetric = metricDeadlineIso(key, ctx.date);
-  if (ctx.factor > 0 && bv !== null && bv !== undefined) out.today = cum - bv;
-  // Dùng mốc đầu ngày riêng MA_KV nếu đã chốt; nhờ vậy hạn mức ngày không bị giảm
-  // giữa ngày khi nhân viên đã phát sinh. Nếu chưa có mốc, tạm tính từ số hiện tại.
-  const openingCumRaw = ctx.base && ctx.base.values ? ctx.base.values[p.key + '|' + key] : undefined;
-  const openingCum = openingCumRaw !== undefined && openingCumRaw !== null && Number.isFinite(Number(openingCumRaw))
-    ? Number(openingCumRaw) : cum;
+  const snapshotKey = key === 'npsc' ? 'npscFiber' : key;
+  const openingRaw = ctx.base && ctx.base.values ? ctx.base.values[p.key + '|' + snapshotKey] : undefined;
+  const stageRaw = ctx.stageSnap && ctx.stageSnap.values ? ctx.stageSnap.values[p.key + '|' + snapshotKey] : undefined;
+  const openingValue = openingRaw !== undefined && openingRaw !== null && Number.isFinite(Number(openingRaw)) ? Number(openingRaw) : null;
+  const stageValue = stageRaw !== undefined && stageRaw !== null && Number.isFinite(Number(stageRaw)) ? Number(stageRaw) : null;
+  // Chỉ tính phát sinh khi đã chụp đúng mốc đầu ngày và mốc đang xem (trưa/tối).
+  // CSTC là số phiếu tồn nên giảm tồn được tính là số đã xử lý.
+  if (ctx.factor > 0) {
+    if (openingValue !== null && stageValue !== null) out.today = key === 'cstc' ? openingValue - stageValue : stageValue - openingValue;
+    else out.today = null;
+  }
+  // Định mức/ngày luôn khóa theo số còn lại tại mốc đầu ngày.
+  // Nếu mốc cũ chưa có trường NPSC Fiber riêng, dùng số hiện tại cho định mức tháng,
+  // nhưng không dùng mốc NPSC gộp cũ để tính phát sinh Fiber trong ngày.
+  const openingCum = openingValue !== null ? openingValue : cum;
 
   if (key === 'ghtt') {
     out.target = p.ghtt.total;
@@ -2702,22 +2713,22 @@ function personMetric(p, key, ctx) {
   }
 
   if (key === 'npsc') {
+    // Số liệu cá nhân bám đúng cột I “Thực tăng” Fiber.
+    // Tổng hợp tổ/Trung tâm sẽ cộng net Fiber + MyTV riêng trong aggregateMetrics.
     out.target = 0;
-    out.actual = p.npsc.net;
-    out.remain = Math.max(0, -p.npsc.net);
-    out.pct = p.npsc.psc > 0 ? p.npsc.npsc / p.npsc.psc * 100 : p.npsc.pct;
+    out.actual = p.npsc.thucTangFiber;
+    out.remain = Math.max(0, -out.actual);
+    out.pct = p.npsc.pctFiber || 0;
     const openingDebt = Math.max(0, -openingCum);
-    const openingNeedRaw = ctx.base && ctx.base.values ? ctx.base.values[p.key + '|npscNeed'] : undefined;
+    const openingNeedRaw = ctx.base && ctx.base.values ? ctx.base.values[p.key + '|npscNeedFiber'] : undefined;
     const openingNeed = openingNeedRaw !== undefined && openingNeedRaw !== null && Number.isFinite(Number(openingNeedRaw))
-      ? Math.max(0, Number(openingNeedRaw)) : Math.max(0, p.npsc.need || 0);
+      ? Math.max(0, Number(openingNeedRaw)) : Math.max(0, p.npsc.needFiber || 0);
     const npscWork = Math.max(openingDebt, openingNeed);
     out.daily = npscWork > 0 && daysForMetric > 0 ? Math.ceil(npscWork / daysForMetric) : 0;
     out.requiredDaily = out.daily;
     out.needToday = Math.ceil(out.daily * ctx.factor);
-    out.meta = { net: p.npsc.net, pct: p.npsc.pct, need: p.npsc.need, openingNeed, ptm: p.npsc.ptm, npsc: p.npsc.npsc, psc: p.npsc.psc, deadlineIso: deadlineForMetric, daysRemaining: daysForMetric };
-    // Cảnh báo NPSC ở cấp cá nhân chỉ khi tổng “Thực tăng” (Fiber + MyTV) âm.
-    // %NPSC vẫn hiển thị để tham khảo, nhưng không tạo cảnh báo cá nhân.
-    out.status = p.npsc.net < 0 ? 'bad' : 'ok';
+    out.meta = { net: p.npsc.net, fiber: p.npsc.thucTangFiber, pct: p.npsc.pctFiber, need: p.npsc.needFiber, needFiber: p.npsc.needFiber, needMytv: p.npsc.needMytv, openingNeed, ptm: p.npsc.ptm, npsc: p.npsc.npsc, psc: p.npsc.psc, deadlineIso: deadlineForMetric, daysRemaining: daysForMetric };
+    out.status = out.actual < 0 ? 'bad' : 'ok';
     const dailyShort = out.today === null ? 0 : Math.max(0, out.needToday - out.today);
     out.short = Math.max(out.status === 'bad' ? out.remain : 0, dailyShort);
     return out;
@@ -2738,7 +2749,7 @@ function personMetric(p, key, ctx) {
     out.daily = openingAllowance > 0 && daysForMetric > 0 ? openingAllowance / daysForMetric : 0;
     out.requiredDaily = out.daily;
     out.needToday = ctx.factor > 0 ? out.daily * ctx.factor : 0;
-    out.overToday = out.today === null ? 0 : Math.max(0, out.today - out.needToday);
+    out.overToday = out.today === null ? 0 : Math.max(0, out.today - out.daily);
     out.meta = { kh: p.dpsc.kh, th: p.dpsc.th, over: out.over, openingAllowance, dailyLimit: out.daily, overToday: out.overToday, deadlineIso: deadlineForMetric, daysRemaining: daysForMetric };
     if (out.target <= 0) out.status = out.actual > 0 ? 'bad' : 'nodata';
     else if (out.over > 0 || out.overToday > 0) out.status = 'bad';
@@ -2751,7 +2762,6 @@ function personMetric(p, key, ctx) {
   if (key === 'cstc') {
     out.target = 0;
     out.actual = p.cstc.open;
-    if (ctx.factor > 0 && bv !== null && bv !== undefined) out.today = bv - cum;
     out.remain = p.cstc.open;
     const openingBacklog = Math.max(0, openingCum);
     out.daily = openingBacklog > 0 && daysForMetric > 0 ? Math.ceil(openingBacklog / daysForMetric) : 0;
@@ -2788,7 +2798,7 @@ function aggregateMetrics(list, ctx) {
       const v = p._m[key];
       countedPeople++;
       agg.target += v.target || 0;
-      agg.actual += v.actual || 0;
+      agg.actual += key === 'npsc' ? Number(p.npsc && p.npsc.net || 0) : (v.actual || 0);
       agg.remain += v.remain || 0;
       agg.daily += v.daily || 0;
       agg.planDaily += v.planDaily || 0;
@@ -2856,7 +2866,7 @@ function aggregateMetrics(list, ctx) {
       agg.over = Math.max(0, agg.actual - agg.target);
       agg.remain = Math.max(0, agg.target - agg.actual);
       // agg.daily / agg.needToday đã là tổng hạn mức động từ từng MA_KV.
-      agg.overToday = agg.today === null ? 0 : Math.max(0, agg.today - agg.needToday);
+      agg.overToday = agg.today === null ? 0 : Math.max(0, agg.today - agg.daily);
       agg.short = Math.max(agg.over, agg.overToday);
       agg.status = agg.target <= 0 ? (agg.actual > 0 ? 'bad' : 'nodata') : (agg.over > 0 || agg.overToday > 0) ? 'bad' : agg.actual > agg.target * 0.9 ? 'warn' : 'ok';
     } else if (key === 'bankem' && agg.target <= 0) {
@@ -3420,7 +3430,9 @@ function progressInfo(v, m) {
 
   if (key === 'npsc') {
     monthPctText = '%NPSC ' + fmtPct(v.pct, 2) + ' (ngưỡng ≤0,53%)';
-    monthRemainText = v.actual < 0 ? 'Nợ ròng ' + fmtN(Math.abs(v.actual)) + ' TB' : 'NPSC ròng ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB';
+    monthRemainText = (v.meta && v.meta.fiber !== undefined)
+      ? (v.actual < 0 ? 'Thực tăng Fiber âm ' + fmtN(Math.abs(v.actual)) + ' TB' : 'Thực tăng Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB')
+      : (v.actual < 0 ? 'Nợ ròng Fiber + MyTV ' + fmtN(Math.abs(v.actual)) + ' TB' : 'NPSC ròng Fiber + MyTV ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB');
   } else if (key === 'cstc') {
     monthPctText = 'Không áp dụng % (KH = 0)';
     monthRemainText = v.actual > 0 ? 'Tồn ' + fmtN(v.actual) + ' phiếu' : 'Đã hết phiếu tồn';
@@ -3432,7 +3444,7 @@ function progressInfo(v, m) {
     monthRemainText = 'Còn ' + fmtN(v.remain) + ' ' + m.unit;
   }
 
-  const dayTarget = Math.max(0, Number((Number(v.checkpointFactor || 0) > 0 ? v.needToday : v.daily) || 0));
+  const dayTarget = Math.max(0, Number(v.daily || 0));
   let dayDone = v.today === null || v.today === undefined ? null : Number(v.today || 0);
   let dayPct = null;
   let dayRemain = null;
@@ -3479,17 +3491,18 @@ function missingDayProgressText(info, m) {
   if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
   const base = state && state.snaps ? morningSnapshot(state.snaps, state.date) : null;
   if (info && info.dayDone !== null && info.dayDone !== undefined) return '';
+  if (m && m.key === 'npsc' && base) return 'Mốc đầu ngày cũ chưa lưu riêng Fiber';
   return base ? 'Chưa có số chênh lệch hôm nay' : 'Chưa chụp số đầu ngày';
 }
 
 function reportTarget(v, m) {
-  if (m.key === 'npsc') return 'Net mục tiêu ≥ 0';
+  if (m.key === 'npsc') return v.meta && v.meta.fiber !== undefined ? 'Thực tăng Fiber ≥ 0' : 'Net Fiber + MyTV ≥ 0';
   if (m.key === 'cstc') return '0 phiếu tồn';
   if (m.key === 'dpsc') return '≤ ' + fmtN(v.target) + ' TB';
   return fmtN(v.target) + ' ' + m.unit;
 }
 function reportActual(v, m) {
-  if (m.key === 'npsc') return (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB ròng';
+  if (m.key === 'npsc') return v.meta && v.meta.fiber !== undefined ? 'Thực tăng Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB' : 'Ròng Fiber + MyTV ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB';
   if (m.key === 'cstc') return fmtN(v.actual) + ' phiếu tồn';
   if (m.key === 'dpsc') return fmtN(v.actual) + ' / ' + fmtN(v.target) + ' TB';
   return fmtN(v.actual) + ' ' + m.unit;
@@ -3538,7 +3551,7 @@ function mcHtml(v, m, agg) {
   let monthLine = '', dayLine = '';
   if (m.key === 'npsc') {
     main = (v.actual > 0 ? '+' : '') + fmtN(v.actual);
-    plan = '<span class="plan">ròng</span>';
+    plan = '<span class="plan">' + (agg ? 'ròng tổng' : 'Fiber') + '</span>';
     bar = v.actual >= 0 ? 100 : 8;
     monthLine = '<span class="mc-sub-line"><b>' + info.monthPctText + '</b></span>';
     dayLine = info.dayDone === null
@@ -3718,7 +3731,7 @@ function openDrawer(key) {
     const v = p._m[m.key];
     const col = v.status === 'bad' ? '#DC2626' : v.status === 'warn' ? '#D97706' : v.status === 'ok' ? '#0E9F6E' : '#64748B';
     let main = fmtN(v.actual), small = '';
-    if (m.key === 'npsc') { main = (v.actual > 0 ? '+' : '') + fmtN(v.actual); small = '<small> ròng</small>'; }
+    if (m.key === 'npsc') { main = (v.actual > 0 ? '+' : '') + fmtN(v.actual); small = '<small> Fiber</small>'; }
     else if (m.key === 'cstc') small = '<small> phiếu</small>';
     else small = '<small>/' + fmtN(v.target) + '</small>';
     const bar = m.key === 'npsc' ? (v.actual >= 0 ? 100 : 5) : m.key === 'cstc' ? (v.actual === 0 ? 100 : 0) : v.target > 0 ? clamp(v.actual / v.target * 100, 0, 100) : 0;
@@ -3785,7 +3798,9 @@ function takeSnapshot(stage) {
   const values = {};
   for (const p of state.model.people) {
     for (const m of METRICS) values[p.key + '|' + m.key] = cumValue(p, m.key);
+    values[p.key + '|npscFiber'] = Number(p.npsc && p.npsc.thucTangFiber || 0);
     values[p.key + '|npscNeed'] = Number(p.npsc && p.npsc.need || 0);
+    values[p.key + '|npscNeedFiber'] = Number(p.npsc && p.npsc.needFiber || 0);
   }
   let targets = {};
   if (stage === 'morning') {
@@ -4151,9 +4166,9 @@ function metricCellText(v, m) {
   }
 
   if (m.key === 'npsc') {
-    lines.push('Ròng: ' + reportActual(v, m));
+    lines.push(reportActual(v, m));
     lines.push(reportMonthRate(v, m, info));
-    lines.push('Cần mở: ' + fmtN(v.meta && v.meta.need ? v.meta.need : 0) + ' TB');
+    lines.push('Cần mở Fiber: ' + fmtN(v.meta && v.meta.needFiber ? v.meta.needFiber : 0) + ' TB');
     lines.push('Giao động: ' + fmtN(v.daily) + ' TB/ngày');
     if (info.dayDone === null) lines.push(missingDayProgressText(info, m));
     else lines.push('Ngày: ' + reportDayDone(v, m, info) + ' · ' + reportDayRate(v, m, info));
@@ -4384,7 +4399,7 @@ function downloadReport() {
     baselineNoteHtml +
     (list.some(p => p.areaUnassigned) ? '<p style="color:#B45309"><b>Lưu ý:</b> Có nguồn chỉ cung cấp tên, không có MA_KV hoặc tên trùng nhiều mã; các dòng này được tách riêng là CHƯA GÁN MA_KV, không tự chia số liệu.</p>' : '') +
     '<p>Mỗi dòng là một mã khu vực MA_KV; mỗi cột là một chỉ tiêu. Trong từng ô thể hiện thực hiện/kế hoạch, % tháng hoặc chỉ số đặc thù, số còn lại và tiến độ trong ngày. ' +
-    'NPSC hiển thị %NPSC theo ngưỡng ≤0,53%; DPSC là chỉ tiêu ngược (TH phải ≤ KH); CSTC không tính % tháng do kế hoạch tồn bằng 0.</p>' +
+    'NPSC ở từng cá nhân hiển thị đúng Thực tăng Fiber (cột I); tổng hợp tổ/Trung tâm giữ net Fiber + MyTV. Số thực hiện trong ngày lấy chênh lệch mốc Trưa/Tối so với mốc Đầu ngày; số còn làm = giao/ngày đầu ngày trừ số đã làm. DPSC là chỉ tiêu ngược (TH phải ≤ KH); CSTC không tính % tháng do kế hoạch tồn bằng 0.</p>' +
     table +
     '</body></html>';
 
@@ -4697,7 +4712,7 @@ function metricLine(m, v) {
     return '• Gia hạn: Thành công <b>' + fmtN(v.actual) + '</b> / Tổng <b>' + fmtN(v.target) + '</b> hồ sơ · <b>' + info.monthPctText + '</b> (ngưỡng KPI 85%) · còn lại theo sheet <b>' + fmtN(v.remain) + '</b> hồ sơ · giao động ' + fmtN(v.daily) + '/ngày · ' + dayPrefix + deadline;
   }
   if (m.key === 'npsc') {
-    return '• NPSC: thực tăng <b>' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB</b> · mục tiêu ≥ 0 · <b>' + info.monthPctText + '</b> · ' + info.monthRemainText + ' · ' + dayPrefix + deadline;
+    return '• NPSC: ròng Fiber + MyTV <b>' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB</b> · mục tiêu ≥ 0 · <b>' + info.monthPctText + '</b> · ' + info.monthRemainText + ' · ' + dayPrefix + deadline;
   }
   if (m.key === 'tiepthi') {
     const parts = v.meta && v.meta.parts ? v.meta.parts : {};
@@ -4768,9 +4783,9 @@ function telegramMetricCells(p, m) {
   const info = progressInfo(v, m);
   let actualTarget = '', pct = '', remain = '';
   if (m.key === 'npsc') {
-    actualTarget = 'Ròng ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB';
+    actualTarget = 'Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB';
     pct = fmtPct(v.pct, 2);
-    remain = (v.meta && v.meta.need > 0) ? 'Cần mở ' + fmtN(v.meta.need) : (v.actual < 0 ? 'Cần mở ' + fmtN(Math.abs(v.actual)) : 'Đạt net');
+    remain = (v.meta && v.meta.needFiber > 0) ? 'Cần mở ' + fmtN(v.meta.needFiber) : (v.actual < 0 ? 'Thực tăng âm ' + fmtN(Math.abs(v.actual)) : 'Không âm');
   } else if (m.key === 'dpsc') {
     actualTarget = fmtN(v.actual) + '/' + fmtN(v.target) + ' TB';
     pct = fmtPct(v.pct, 1);
@@ -4954,7 +4969,7 @@ function telegramMonthCell(p, m) {
   const v = p._m[m.key];
   // Bỏ hậu tố Cxx (số còn lại) khỏi bảng Telegram để bảng gọn, dễ đọc.
   if (m.key === 'ghtt') return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 1) + ' (85%)';
-  if (m.key === 'npsc') return (v.actual > 0 ? '+' : '') + fmtN(v.actual) + 'TB ' + tgShortPct(v.pct, 2);
+  if (m.key === 'npsc') return 'Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + 'TB ' + tgShortPct(v.pct, 2);
   if (m.key === 'dpsc') return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 0) + (v.over > 0 ? ' V' + fmtN(v.over) : '');
   if (m.key === 'cstc') return fmtN(v.actual) + ' ton';
   return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 1);
