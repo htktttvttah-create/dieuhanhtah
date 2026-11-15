@@ -2713,24 +2713,19 @@ function personMetric(p, key, ctx) {
   }
 
   if (key === 'npsc') {
-    // Số liệu cá nhân bám đúng cột I “Thực tăng” Fiber.
-    // Tổng hợp tổ/Trung tâm sẽ cộng net Fiber + MyTV riêng trong aggregateMetrics.
+    // Cá nhân chỉ theo dõi cột I “Thực tăng” Fiber; mốc 0 là đạt.
+    // Không phân bổ chỉ tiêu “cần mở” theo ngưỡng 0,53% cho từng nhân viên.
+    // Tổng hợp tổ/Trung tâm vẫn giữ net Fiber + MyTV ở aggregateMetrics.
     out.target = 0;
     out.actual = p.npsc.thucTangFiber;
     out.remain = Math.max(0, -out.actual);
     out.pct = p.npsc.pctFiber || 0;
-    const openingDebt = Math.max(0, -openingCum);
-    const openingNeedRaw = ctx.base && ctx.base.values ? ctx.base.values[p.key + '|npscNeedFiber'] : undefined;
-    const openingNeed = openingNeedRaw !== undefined && openingNeedRaw !== null && Number.isFinite(Number(openingNeedRaw))
-      ? Math.max(0, Number(openingNeedRaw)) : Math.max(0, p.npsc.needFiber || 0);
-    const npscWork = Math.max(openingDebt, openingNeed);
-    out.daily = npscWork > 0 && daysForMetric > 0 ? Math.ceil(npscWork / daysForMetric) : 0;
-    out.requiredDaily = out.daily;
-    out.needToday = Math.ceil(out.daily * ctx.factor);
-    out.meta = { net: p.npsc.net, fiber: p.npsc.thucTangFiber, pct: p.npsc.pctFiber, need: p.npsc.needFiber, needFiber: p.npsc.needFiber, needMytv: p.npsc.needMytv, openingNeed, ptm: p.npsc.ptm, npsc: p.npsc.npsc, psc: p.npsc.psc, deadlineIso: deadlineForMetric, daysRemaining: daysForMetric };
+    out.daily = 0;
+    out.requiredDaily = 0;
+    out.needToday = 0;
+    out.meta = { net: p.npsc.net, fiber: p.npsc.thucTangFiber, pct: p.npsc.pctFiber, ptm: p.npsc.ptm, npsc: p.npsc.npsc, psc: p.npsc.psc, deadlineIso: deadlineForMetric, daysRemaining: daysForMetric };
     out.status = out.actual < 0 ? 'bad' : 'ok';
-    const dailyShort = out.today === null ? 0 : Math.max(0, out.needToday - out.today);
-    out.short = Math.max(out.status === 'bad' ? out.remain : 0, dailyShort);
+    out.short = out.actual < 0 ? Math.abs(out.actual) : 0;
     return out;
   }
 
@@ -2846,8 +2841,8 @@ function aggregateMetrics(list, ctx) {
     } else if (key === 'npsc') {
       agg.remain = Math.max(0, -agg.actual);
       agg.pct = agg.psc > 0 ? agg.npsc / agg.psc * 100 : 0;
-      // agg.daily / agg.needToday đã là tổng giao động theo MA_KV,
-      // bao gồm cả nợ net và số TB cần mở để đưa %NPSC về ngưỡng.
+      // NPSC cá nhân cảnh báo theo Thực tăng Fiber âm; tổng hợp tổ/Trung tâm
+      // vẫn theo dõi số ròng Fiber + MyTV, không giao số lượng cần mở cho cá nhân.
       const npscDailyShort = agg.today === null ? 0 : Math.max(0, agg.needToday - agg.today);
       agg.short = Math.max(agg.short, agg.actual < 0 ? agg.remain : 0, npscDailyShort);
       agg.status = agg.actual < 0 ? 'bad' : (agg.pct > 0.53 || npscDailyShort > 0 ? 'warn' : 'ok');
@@ -3271,7 +3266,7 @@ function renderKpis() {
       target = '≥ 0';
       bar = v.actual >= 0 ? 100 : 12;
       pctText = '%NPSC ' + fmtPct(v.pct, 2) + ' / ≤0,53%';
-      sub = 'Cần mở ' + fmtN(v.meta && v.meta.need || Math.max(0, -v.actual)) + ' TB · giao động ' + fmtN(v.daily) + '/ngày';
+      sub = v.actual < 0 ? 'Chưa đạt mốc 0 · Thực tăng đang âm ' + fmtN(Math.abs(v.actual)) + ' TB' : 'Đạt yêu cầu · Thực tăng ≥ 0';
     } else if (m.key === 'cstc') {
       main = fmtN(v.actual);
       small = '<small> phiếu</small>';
@@ -4168,10 +4163,11 @@ function metricCellText(v, m) {
   if (m.key === 'npsc') {
     lines.push(reportActual(v, m));
     lines.push(reportMonthRate(v, m, info));
-    lines.push('Cần mở Fiber: ' + fmtN(v.meta && v.meta.needFiber ? v.meta.needFiber : 0) + ' TB');
-    lines.push('Giao động: ' + fmtN(v.daily) + ' TB/ngày');
+    lines.push(v.actual < 0
+      ? 'Đánh giá: Chưa đạt mốc 0 (Thực tăng còn âm)'
+      : 'Đánh giá: Đạt yêu cầu (Thực tăng ≥ 0)');
     if (info.dayDone === null) lines.push(missingDayProgressText(info, m));
-    else lines.push('Ngày: ' + reportDayDone(v, m, info) + ' · ' + reportDayRate(v, m, info));
+    else lines.push('Biến động Fiber trong ngày: ' + (info.dayDone > 0 ? '+' : '') + fmtN(info.dayDone) + ' TB');
     lines.push(metricDeadlineText(v, m));
     return lines.filter(Boolean).join('\n');
   }
@@ -4785,7 +4781,7 @@ function telegramMetricCells(p, m) {
   if (m.key === 'npsc') {
     actualTarget = 'Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB';
     pct = fmtPct(v.pct, 2);
-    remain = (v.meta && v.meta.needFiber > 0) ? 'Cần mở ' + fmtN(v.meta.needFiber) : (v.actual < 0 ? 'Thực tăng âm ' + fmtN(Math.abs(v.actual)) : 'Không âm');
+    remain = v.actual < 0 ? 'Chưa đạt mốc 0' : 'Đạt mốc 0';
   } else if (m.key === 'dpsc') {
     actualTarget = fmtN(v.actual) + '/' + fmtN(v.target) + ' TB';
     pct = fmtPct(v.pct, 1);
