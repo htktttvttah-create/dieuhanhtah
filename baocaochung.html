@@ -1761,8 +1761,8 @@ function emptyPerson(code, name, team) {
     ghtt: { target: 0, goal: 0, actual: 0, total: 0, remain: 0, remainKnown: false, rate: 0, ownerKey: '' },
     thucuoc: { target: 0, actual: 0, pct: 0, sourcePct: null, need: 0, needFiber: 0, needMytv: 0, base: 0, ownerKey: '' },
     tiepthi: { target: 0, actual: 0, parts: { fiber: 0, mytv: 0, mesh: 0, cam: 0 }, ownerKey: '' },
-    npsc: { net: 0, thucTangFiber: 0, pct: 0, pctFiber: 0, pctMytv: 0, need: 0, needFiber: 0, needMytv: 0, ptm: 0, npsc: 0, psc: 0, ownerKey: '' },
-    dpsc: { kh: 0, th: 0, ownerKey: '' },
+    npsc: { net: 0, thucTangFiber: 0, pct: 0, pctFiber: 0, pctMytv: 0, need: 0, needFiber: 0, needMytv: 0, ptm: 0, npsc: 0, psc: 0, npscFiber: 0, pscFiber: 0, ownerKey: '' },
+    dpsc: { kh: 0, th: 0, khFiber: 0, thFiber: 0, khMytv: 0, thMytv: 0, ownerKey: '' },
     cstc: { open: 0, ownerKey: '' },
     modem: { assigned: 0, done: 0, remain: 0, planDay: 0, todaySheet: 0, ptmMesh: 0, ptmCamera: 0, ptmMytv: 0, ptm: 0, bankemTarget: null, ownerKey: '' },
     plan: { modem: 0, thu: 0, tiepthi: 0, bancheo: 0, ghtt: 0 }
@@ -2010,8 +2010,10 @@ function buildModel(raw, selectedDate) {
         needFiber: num(r[cNeedFiber]),
         needMytv: num(r[cNeedMytv]),
         need: num(r[cNeedFiber]) + num(r[cNeedMytv]),
+        pscFiber: num(r[cPsc]),
         psc: num(r[cPsc]) + num(r[cPscMytv]),
         ptm: num(r[cPtm]) + num(r[cPtmMytv]),
+        npscFiber: num(r[cNpsc]),
         npsc: num(r[cNpsc]) + num(r[cNpscMytv]),
         pct: pctVal(r[cPct]),
         pctMytv: pctVal(cPctMytv >= 0 ? r[cPctMytv] : null)
@@ -2022,6 +2024,7 @@ function buildModel(raw, selectedDate) {
       for (const p of targets) {
         p.npsc.net += values.net; p.npsc.thucTangFiber += values.thucTangFiber; p.npsc.need += values.need; p.npsc.needFiber += values.needFiber; p.npsc.needMytv += values.needMytv; p.npsc.psc += values.psc;
         p.npsc.ptm += values.ptm; p.npsc.npsc += values.npsc;
+        p.npsc.npscFiber += values.npscFiber; p.npsc.pscFiber += values.pscFiber;
         p.npsc.pctFiber = values.pct; p.npsc.pctMytv = values.pctMytv;
         if (sharedOwner) p.npsc.ownerKey = sharedOwner;
       }
@@ -2043,12 +2046,18 @@ function buildModel(raw, selectedDate) {
       const identity = resolveRowIdentity(r, s5.cols, cName, cCode, cTeam);
       const { name, team, codes } = identity;
       if (!name || normName(name).startsWith('tong')) continue;
-      const values = { kh: num(r[cKh]) + num(r[cKhMytv]), th: num(r[cTh]) + num(r[cThMytv]) };
+      const values = {
+        khFiber: num(r[cKh]), thFiber: num(r[cTh]),
+        khMytv: num(r[cKhMytv]), thMytv: num(r[cThMytv]),
+        kh: num(r[cKh]) + num(r[cKhMytv]), th: num(r[cTh]) + num(r[cThMytv])
+      };
       if (!codes.length) { pendingDpsc.push({ name, team, values }); continue; }
       const targets = codes.map(code => findOrCreate(code, name, team, 'DPSC')).filter(Boolean);
       const sharedOwner = targets.length > 1 ? 'dpsc:' + (team || targets[0].team || '') + ':' + normName(name) + ':' + codes.join('+') : '';
       for (const p of targets) {
         p.dpsc.kh += values.kh; p.dpsc.th += values.th;
+        p.dpsc.khFiber += values.khFiber; p.dpsc.thFiber += values.thFiber;
+        p.dpsc.khMytv += values.khMytv; p.dpsc.thMytv += values.thMytv;
         if (sharedOwner) p.dpsc.ownerKey = sharedOwner;
       }
     }
@@ -2399,6 +2408,7 @@ function buildModel(raw, selectedDate) {
     for (const p of finalTargets) {
       p.npsc.net += item.values.net; p.npsc.thucTangFiber += item.values.thucTangFiber; p.npsc.need += item.values.need; p.npsc.needFiber += item.values.needFiber; p.npsc.needMytv += item.values.needMytv; p.npsc.psc += item.values.psc;
       p.npsc.ptm += item.values.ptm; p.npsc.npsc += item.values.npsc;
+      p.npsc.npscFiber += item.values.npscFiber; p.npsc.pscFiber += item.values.pscFiber;
       p.npsc.pctFiber = item.values.pct; p.npsc.pctMytv = item.values.pctMytv;
       if (sharedOwner) p.npsc.ownerKey = sharedOwner;
     }
@@ -2409,6 +2419,8 @@ function buildModel(raw, selectedDate) {
     const sharedOwner = finalTargets.length > 1 ? 'dpsc:' + (item.team || finalTargets[0].team || '') + ':' + normName(item.name) + ':name-row' : '';
     for (const p of finalTargets) {
       p.dpsc.kh += item.values.kh; p.dpsc.th += item.values.th;
+      p.dpsc.khFiber += item.values.khFiber; p.dpsc.thFiber += item.values.thFiber;
+      p.dpsc.khMytv += item.values.khMytv; p.dpsc.thMytv += item.values.thMytv;
       if (sharedOwner) p.dpsc.ownerKey = sharedOwner;
     }
   }
@@ -2745,7 +2757,17 @@ function personMetric(p, key, ctx) {
     out.requiredDaily = out.daily;
     out.needToday = ctx.factor > 0 ? out.daily * ctx.factor : 0;
     out.overToday = out.today === null ? 0 : Math.max(0, out.today - out.daily);
-    out.meta = { kh: p.dpsc.kh, th: p.dpsc.th, over: out.over, openingAllowance, dailyLimit: out.daily, overToday: out.overToday, deadlineIso: deadlineForMetric, daysRemaining: daysForMetric };
+    const fiberOpeningRaw = ctx.base && ctx.base.values ? ctx.base.values[p.key + '|dpscFiber'] : undefined;
+    const fiberStageRaw = ctx.stageSnap && ctx.stageSnap.values ? ctx.stageSnap.values[p.key + '|dpscFiber'] : undefined;
+    const fiberOpening = fiberOpeningRaw !== undefined && fiberOpeningRaw !== null && Number.isFinite(Number(fiberOpeningRaw)) ? Number(fiberOpeningRaw) : null;
+    const fiberStage = fiberStageRaw !== undefined && fiberStageRaw !== null && Number.isFinite(Number(fiberStageRaw)) ? Number(fiberStageRaw) : null;
+    const fiberToday = ctx.factor > 0 && fiberOpening !== null && fiberStage !== null ? fiberStage - fiberOpening : null;
+    const fiberOpeningCum = fiberOpening !== null ? fiberOpening : Number(p.dpsc.thFiber || 0);
+    const fiberOpeningAllowance = Math.max(0, Number(p.dpsc.khFiber || 0) - fiberOpeningCum);
+    const fiberDailyLimit = fiberOpeningAllowance > 0 && daysForMetric > 0 ? fiberOpeningAllowance / daysForMetric : 0;
+    const fiberOver = Math.max(0, Number(p.dpsc.thFiber || 0) - Number(p.dpsc.khFiber || 0));
+    const fiberPct = Number(p.dpsc.khFiber || 0) > 0 ? Number(p.dpsc.thFiber || 0) / Number(p.dpsc.khFiber || 0) * 100 : (Number(p.dpsc.thFiber || 0) > 0 ? 100 : 0);
+    out.meta = { kh: p.dpsc.kh, th: p.dpsc.th, over: out.over, openingAllowance, dailyLimit: out.daily, overToday: out.overToday, fiberKh: Number(p.dpsc.khFiber || 0), fiberTh: Number(p.dpsc.thFiber || 0), fiberOver, fiberPct, fiberToday, fiberDailyLimit, deadlineIso: deadlineForMetric, daysRemaining: daysForMetric };
     if (out.target <= 0) out.status = out.actual > 0 ? 'bad' : 'nodata';
     else if (out.over > 0 || out.overToday > 0) out.status = 'bad';
     else if (out.actual > out.target * 0.9) out.status = 'warn';
@@ -2814,10 +2836,23 @@ function aggregateMetrics(list, ctx) {
         agg.meta.collectionBase = (agg.meta.collectionBase || 0) + Number(p.thucuoc.base || 0);
       }
       if (key === 'npsc') {
+        agg.meta.fiberActual = (agg.meta.fiberActual || 0) + Number(p.npsc.thucTangFiber || 0);
+        agg.meta.fiberNpsc = (agg.meta.fiberNpsc || 0) + Number(p.npsc.npscFiber || 0);
+        agg.meta.fiberPsc = (agg.meta.fiberPsc || 0) + Number(p.npsc.pscFiber || 0);
         agg.npsc += p.npsc.npsc;
         agg.psc += p.npsc.psc;
         agg.need = (agg.need || 0) + (p.npsc.need || 0);
         agg.ptm = (agg.ptm || 0) + (p.npsc.ptm || 0);
+      }
+      if (key === 'dpsc') {
+        const dm = p._m.dpsc && p._m.dpsc.meta ? p._m.dpsc.meta : {};
+        agg.meta.fiberKh = (agg.meta.fiberKh || 0) + Number(p.dpsc.khFiber || 0);
+        agg.meta.fiberTh = (agg.meta.fiberTh || 0) + Number(p.dpsc.thFiber || 0);
+        agg.meta.fiberDailyLimit = (agg.meta.fiberDailyLimit || 0) + Number(dm.fiberDailyLimit || 0);
+        if (dm.fiberToday !== null && dm.fiberToday !== undefined && Number.isFinite(Number(dm.fiberToday))) {
+          agg.meta.fiberToday = (agg.meta.fiberToday || 0) + Number(dm.fiberToday);
+          agg.meta.fiberTodayCount = (agg.meta.fiberTodayCount || 0) + 1;
+        }
       }
     }
 
@@ -2846,7 +2881,7 @@ function aggregateMetrics(list, ctx) {
       const npscDailyShort = agg.today === null ? 0 : Math.max(0, agg.needToday - agg.today);
       agg.short = Math.max(agg.short, agg.actual < 0 ? agg.remain : 0, npscDailyShort);
       agg.status = agg.actual < 0 ? 'bad' : (agg.pct > 0.53 || npscDailyShort > 0 ? 'warn' : 'ok');
-      agg.meta = { net: agg.actual, pct: agg.pct, need: agg.need || 0, ptm: agg.ptm || 0 };
+      agg.meta = Object.assign({}, agg.meta, { net: agg.actual, fiberActual: Number(agg.meta.fiberActual || 0), fiberPct: Number(agg.meta.fiberPsc || 0) > 0 ? Number(agg.meta.fiberNpsc || 0) / Number(agg.meta.fiberPsc || 0) * 100 : 0, pct: agg.pct, need: agg.need || 0, ptm: agg.ptm || 0 });
     } else if (key === 'cstc') {
       // agg.actual / agg.remain already count shared employee-level tickets once,
       // while the same open-ticket count remains visible on each MA_KV row.
@@ -2864,6 +2899,10 @@ function aggregateMetrics(list, ctx) {
       agg.overToday = agg.today === null ? 0 : Math.max(0, agg.today - agg.daily);
       agg.short = Math.max(agg.over, agg.overToday);
       agg.status = agg.target <= 0 ? (agg.actual > 0 ? 'bad' : 'nodata') : (agg.over > 0 || agg.overToday > 0) ? 'bad' : agg.actual > agg.target * 0.9 ? 'warn' : 'ok';
+      agg.meta.fiberPct = Number(agg.meta.fiberKh || 0) > 0 ? Number(agg.meta.fiberTh || 0) / Number(agg.meta.fiberKh || 0) * 100 : (Number(agg.meta.fiberTh || 0) > 0 ? 100 : 0);
+      agg.meta.fiberOver = Math.max(0, Number(agg.meta.fiberTh || 0) - Number(agg.meta.fiberKh || 0));
+      agg.meta.fiberToday = (Number(agg.meta.fiberTodayCount || 0) === countedPeople) ? Number(agg.meta.fiberToday || 0) : null;
+      agg.meta.fiberOverToday = agg.meta.fiberToday === null ? 0 : Math.max(0, Number(agg.meta.fiberToday || 0) - Number(agg.meta.fiberDailyLimit || 0) * ctx.factor);
     } else if (key === 'bankem' && agg.target <= 0) {
       // Sheet modem hiện có số TH bán kèm (cột R) nhưng không có KH bán kèm.
       // Không được hiển thị 100% giả khi thiếu mẫu số/kế hoạch.
@@ -3794,6 +3833,7 @@ function takeSnapshot(stage) {
   for (const p of state.model.people) {
     for (const m of METRICS) values[p.key + '|' + m.key] = cumValue(p, m.key);
     values[p.key + '|npscFiber'] = Number(p.npsc && p.npsc.thucTangFiber || 0);
+    values[p.key + '|dpscFiber'] = Number(p.dpsc && p.dpsc.thFiber || 0);
     values[p.key + '|npscNeed'] = Number(p.npsc && p.npsc.need || 0);
     values[p.key + '|npscNeedFiber'] = Number(p.npsc && p.npsc.needFiber || 0);
   }
@@ -4276,9 +4316,9 @@ function reportComparisonScore(person, metric) {
     return actual === null ? null : actual; // Âm càng sâu càng yếu; không âm là không cảnh báo.
   }
   if (metric.key === 'dpsc') {
-    const actual = num(v.actual), target = num(v.target), pct = num(v.pct);
-    if (target !== null && target > 0) return -(pct !== null ? pct : (actual || 0) / target * 100);
-    if (actual !== null && actual > 0) return -100000 - actual; // Có phát sinh nhưng không có định mức: yếu nhất.
+    const target = num(person.dpsc && person.dpsc.khFiber), actual = num(person.dpsc && person.dpsc.thFiber);
+    if (target !== null && target > 0) return -(actual || 0) / target * 100;
+    if (actual !== null && actual > 0) return -100000 - actual; // Có phát sinh Fiber nhưng không có định mức: yếu nhất.
     return null;
   }
   if (metric.key === 'cstc') {
@@ -4334,7 +4374,7 @@ function reportComparisonLegendHtml() {
   ];
   return '<p style="margin:8px 0;padding:7px 9px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:8.5pt"><b>MÀU SO SÁNH THEO TỪNG CHỈ TIÊU TRONG TOÀN TRUNG TÂM:</b> ' +
     items.map(x => '<span style="display:inline-block;margin:2px 5px;padding:3px 7px;border-radius:3px;background:' + x[0] + ';color:' + x[1] + ';font-weight:bold">' + x[2] + '</span>').join('') +
-    '<br><span style="color:#475569">Đỏ đậm là nhóm yếu hơn, màu nhạt dần là tiến bộ hơn. DPSC: TH/KH càng cao càng yếu; CSTC: phiếu tồn càng nhiều càng yếu; NPSC chỉ cảnh báo khi Thực tăng âm. Màu là so sánh tương đối, không thay thế ngưỡng KPI.</span></p>';
+    '<br><span style="color:#475569">Đỏ đậm là nhóm yếu hơn, màu nhạt dần là tiến bộ hơn. DPSC Fiber: TH/KH càng cao càng yếu; CSTC: phiếu tồn càng nhiều càng yếu; NPSC chỉ cảnh báo khi Thực tăng âm. Màu là so sánh tương đối, không thay thế ngưỡng KPI.</span></p>';
 }
 
 /* Báo cáo Excel (.xls dạng HTML để mở trực tiếp bằng Excel/LibreOffice) */
@@ -4395,7 +4435,7 @@ function downloadReport() {
     baselineNoteHtml +
     (list.some(p => p.areaUnassigned) ? '<p style="color:#B45309"><b>Lưu ý:</b> Có nguồn chỉ cung cấp tên, không có MA_KV hoặc tên trùng nhiều mã; các dòng này được tách riêng là CHƯA GÁN MA_KV, không tự chia số liệu.</p>' : '') +
     '<p>Mỗi dòng là một mã khu vực MA_KV; mỗi cột là một chỉ tiêu. Trong từng ô thể hiện thực hiện/kế hoạch, % tháng hoặc chỉ số đặc thù, số còn lại và tiến độ trong ngày. ' +
-    'NPSC ở từng cá nhân hiển thị đúng Thực tăng Fiber (cột I); tổng hợp tổ/Trung tâm giữ net Fiber + MyTV. Số thực hiện trong ngày lấy chênh lệch mốc Trưa/Tối so với mốc Đầu ngày; số còn làm = giao/ngày đầu ngày trừ số đã làm. DPSC là chỉ tiêu ngược (TH phải ≤ KH); CSTC không tính % tháng do kế hoạch tồn bằng 0.</p>' +
+    'NPSC và DPSC trong báo cáo Telegram/ảnh chỉ hiển thị Fiber; không cộng MyTV. NPSC cá nhân lấy đúng Thực tăng Fiber (cột I). Số thực hiện trong ngày lấy chênh lệch mốc Trưa/Tối so với mốc Đầu ngày; số còn làm = giao/ngày đầu ngày trừ số đã làm. DPSC là chỉ tiêu ngược (TH phải ≤ KH); CSTC không tính % tháng do kế hoạch tồn bằng 0.</p>' +
     table +
     '</body></html>';
 
@@ -4436,12 +4476,102 @@ function reportImageMetricLines(v, m) {
   return lines;
 }
 
+function reportImagePersonMetricText(person, metric) {
+  if (metric.key === 'dpsc') {
+    const kh = Number(person && person.dpsc && person.dpsc.khFiber || 0);
+    const th = Number(person && person.dpsc && person.dpsc.thFiber || 0);
+    const pct = kh > 0 ? th / kh * 100 : (th > 0 ? 100 : 0);
+    const over = Math.max(0, th - kh);
+    return 'Fiber TH/KH: ' + fmtN(th) + '/' + fmtN(kh) + ' TB\n' + fmtPct(pct, 1) + (over > 0 ? ' · Vượt ' + fmtN(over) + ' TB' : ' · Trong định mức');
+  }
+  if (metric.key === 'npsc') {
+    const v = person && person._m ? person._m.npsc : null;
+    const actual = Number(v && v.actual || 0);
+    return 'Thực tăng Fiber ' + (actual > 0 ? '+' : '') + fmtN(actual) + ' TB\n' + fmtPct(v && v.pct || 0, 2) + ' · Mục tiêu ≥ 0';
+  }
+  return metricCellText(person._m[metric.key], metric);
+}
+
+function uniqueReportTeamPeople(teamCode, metricKey) {
+  const list = state.computed.teams[teamCode].list || [];
+  const seen = new Set();
+  return list.filter(p => {
+    const source = p[metricKey] || (metricKey === 'modem' || metricKey === 'bankem' ? p.modem : null) || {};
+    const ownerKey = source.ownerKey || p.key;
+    if (seen.has(ownerKey)) return false;
+    seen.add(ownerKey);
+    return true;
+  });
+}
+
+function teamReportMetricData(teamCode, metric) {
+  const team = state.computed.teams[teamCode];
+  const agg = team.metrics[metric.key];
+  if (metric.key === 'npsc') {
+    const people = uniqueReportTeamPeople(teamCode, 'npsc');
+    const actual = people.reduce((sum, p) => sum + Number(p.npsc && p.npsc.thucTangFiber || 0), 0);
+    const npsc = people.reduce((sum, p) => sum + Number(p.npsc && p.npsc.npscFiber || 0), 0);
+    const psc = people.reduce((sum, p) => sum + Number(p.npsc && p.npsc.pscFiber || 0), 0);
+    return { actual, target: 0, pct: psc > 0 ? npsc / psc * 100 : 0, text: 'Fiber ' + (actual > 0 ? '+' : '') + fmtN(actual) + ' TB', detail: '%NPSC Fiber ' + fmtPct(psc > 0 ? npsc / psc * 100 : 0, 2) + (actual < 0 ? ' · Âm ' + fmtN(Math.abs(actual)) : ' · Đạt mốc 0') };
+  }
+  if (metric.key === 'dpsc') {
+    const people = uniqueReportTeamPeople(teamCode, 'dpsc');
+    const target = people.reduce((sum, p) => sum + Number(p.dpsc && p.dpsc.khFiber || 0), 0);
+    const actual = people.reduce((sum, p) => sum + Number(p.dpsc && p.dpsc.thFiber || 0), 0);
+    const pct = target > 0 ? actual / target * 100 : (actual > 0 ? 100 : 0);
+    const over = Math.max(0, actual - target);
+    return { actual, target, pct, text: fmtN(actual) + '/' + fmtN(target) + ' TB', detail: fmtPct(pct, 1) + (over > 0 ? ' · Vượt ' + fmtN(over) : ' · Trong định mức') };
+  }
+  if (metric.key === 'cstc') return { actual: agg.actual, target: 0, pct: 0, text: 'Tồn ' + fmtN(agg.actual) + ' phiếu', detail: 'Số phiếu tồn' };
+  return { actual: agg.actual, target: agg.target, pct: agg.pct, text: fmtN(agg.actual) + '/' + fmtN(agg.target), detail: fmtPct(agg.pct, 1) };
+}
+
+function teamReportComparisonScore(teamCode, metric) {
+  const data = teamReportMetricData(teamCode, metric);
+  if (metric.key === 'npsc') return Number(data.actual);
+  if (metric.key === 'dpsc') {
+    if (!(data.target > 0)) return data.actual > 0 ? -100000 - data.actual : null;
+    return -Number(data.pct); // DPSC là chỉ tiêu ngược: TH/KH càng cao càng yếu.
+  }
+  if (metric.key === 'cstc') return -Number(data.actual);
+  return Number.isFinite(Number(data.pct)) && (data.target > 0 || metric.key === 'thucuoc') ? Number(data.pct) : null;
+}
+
+function teamReportComparisonRanks() {
+  const ranks = {};
+  for (const metric of METRICS) {
+    const entries = TEAM_ORDER.map(code => ({ code, score: teamReportComparisonScore(code, metric) }))
+      .filter(x => x.score !== null && Number.isFinite(x.score))
+      .sort((a, b) => a.score - b.score);
+    let i = 0;
+    while (i < entries.length) {
+      let j = i;
+      while (j + 1 < entries.length && Math.abs(entries[j + 1].score - entries[i].score) < 1e-9) j++;
+      const q = entries.length <= 1 ? 0.5 : ((i + j) / 2) / (entries.length - 1);
+      for (let k = i; k <= j; k++) (ranks[entries[k].code] ||= {})[metric.key] = q;
+      i = j + 1;
+    }
+  }
+  return ranks;
+}
+
+function teamReportComparisonStyle(teamCode, metric, ranks) {
+  const q = ranks && ranks[teamCode] ? ranks[teamCode][metric.key] : null;
+  if (q === null || q === undefined) return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa đủ dữ liệu' };
+  if (q <= 0.20) return { bg: '#B91C1C', color: '#FFFFFF', label: 'Yếu nhất trong 5 tổ' };
+  if (q <= 0.40) return { bg: '#FECACA', color: '#7F1D1D', label: 'Yếu hơn' };
+  if (q <= 0.60) return { bg: '#FED7AA', color: '#9A3412', label: 'Trung bình' };
+  if (q <= 0.80) return { bg: '#FEF3C7', color: '#92400E', label: 'Khá' };
+  return { bg: '#DCFCE7', color: '#166534', label: 'Tốt nhất trong 5 tổ' };
+}
+
 function drawTeamReportCanvas(teamCode) {
   const team = TEAMS[teamCode];
   const t = state.computed.teams[teamCode];
   const members = (t.list || []).slice().sort(compareMaKv);
   // Xếp hạng màu luôn lấy toàn bộ nhân viên của Trung tâm, không chỉ riêng tổ đang xuất ảnh.
   const comparisonRanks = reportComparisonRanks(state.model.people || []);
+  const teamComparisonRanks = teamReportComparisonRanks();
   const width = 2600;
   const margin = 48;
   const contentWidth = width - margin * 2;
@@ -4450,7 +4580,12 @@ function drawTeamReportCanvas(teamCode) {
   const cardH = 126;
   const summaryTop = 164;
   const summaryH = cardH * 2 + 18;
-  const tableTop = summaryTop + summaryH + 42;
+  const teamCompareTop = summaryTop + summaryH + 24;
+  const teamCompareTitleH = 36;
+  const teamCompareHeaderH = 48;
+  const teamCompareRowH = 46;
+  const teamCompareHeight = teamCompareTitleH + teamCompareHeaderH + TEAM_ORDER.length * teamCompareRowH + 10;
+  const tableTop = teamCompareTop + teamCompareHeight + 52;
   const headerH = 66;
   const rowH = 190;
   const footerH = 78;
@@ -4474,18 +4609,59 @@ function drawTeamReportCanvas(teamCode) {
     const y = summaryTop + row * (cardH + 18);
     const v = t.metrics[m.key];
     const info = progressInfo(v, m);
-    const statusColor = v.status === 'bad' ? '#B91C1C' : v.status === 'warn' ? '#B45309' : '#15803D';
-    ctx.fillStyle = '#FFFFFF'; ctx.strokeStyle = '#D7E1EA'; ctx.lineWidth = 2;
+    const teamData = teamReportMetricData(teamCode, m);
+    const comparison = teamReportComparisonStyle(teamCode, m, teamComparisonRanks);
+    let statusColor = v.status === 'bad' ? '#B91C1C' : v.status === 'warn' ? '#B45309' : '#15803D';
+    ctx.fillStyle = comparison.bg; ctx.strokeStyle = '#D7E1EA'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.roundRect(x, y, cardW, cardH, 14); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#476176'; ctx.font = 'bold 22px Segoe UI, Arial';
+    ctx.fillStyle = comparison.color; ctx.font = 'bold 22px Segoe UI, Arial';
     ctx.fillText(m.label.toUpperCase(), x + 22, y + 34);
-    ctx.fillStyle = '#122B43'; ctx.font = 'bold 30px Segoe UI, Arial';
+    ctx.fillStyle = comparison.color; ctx.font = 'bold 30px Segoe UI, Arial';
     let main = fmtN(v.actual) + ' / ' + fmtN(v.target);
-    if (m.key === 'npsc') main = 'Ròng ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB';
-    if (m.key === 'cstc') main = 'Tồn ' + fmtN(v.actual) + ' phiếu';
+    let sub = info.monthPctText + ' · ' + info.monthRemainText;
+    if (m.key === 'npsc') { main = 'Fiber ' + (teamData.actual > 0 ? '+' : '') + fmtN(teamData.actual) + ' TB'; sub = teamData.detail; statusColor = teamData.actual < 0 ? '#B91C1C' : '#15803D'; }
+    if (m.key === 'dpsc') { main = 'Fiber ' + teamData.text; sub = teamData.detail; statusColor = teamData.pct > 100 ? '#B91C1C' : teamData.pct >= 90 ? '#B45309' : '#15803D'; }
+    if (m.key === 'cstc') { main = 'Tồn ' + fmtN(v.actual) + ' phiếu'; sub = info.monthPctText + ' · ' + info.monthRemainText; }
     ctx.fillText(main, x + 22, y + 74);
-    ctx.fillStyle = statusColor; ctx.font = 'bold 21px Segoe UI, Arial';
-    ctx.fillText(info.monthPctText + ' · ' + info.monthRemainText, x + 22, y + 108);
+    ctx.fillStyle = comparison.color; ctx.font = 'bold 20px Segoe UI, Arial';
+    canvasWrapText(ctx, sub, x + 22, y + 108, cardW - 42, 22, 1);
+    ctx.font = 'bold 14px Segoe UI, Arial';
+    ctx.fillText(comparison.label, x + cardW - 205, y + 31);
+  });
+
+  // Ma trận so sánh 5 tổ theo từng KPI; mỗi cột được xếp hạng độc lập.
+  const teamTableY = teamCompareTop + teamCompareTitleH;
+  ctx.fillStyle = '#17324D'; ctx.font = 'bold 24px Segoe UI, Arial';
+  ctx.fillText('SO SÁNH 5 TỔ THEO TỪNG CHỈ TIÊU', margin, teamCompareTop + 25);
+  ctx.fillStyle = '#64748B'; ctx.font = '16px Segoe UI, Arial';
+  ctx.fillText('Màu càng đậm = tổ càng yếu so với các tổ còn lại · NPSC/DPSC chỉ tính Fiber', margin + 600, teamCompareTop + 25);
+  const teamLabelW = 250;
+  const metricW = (contentWidth - teamLabelW) / METRICS.length;
+  ctx.fillStyle = '#123A5B'; ctx.fillRect(margin, teamTableY, contentWidth, teamCompareHeaderH);
+  ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 17px Segoe UI, Arial';
+  canvasWrapText(ctx, 'TỔ / NHÓM', margin + 10, teamTableY + 30, teamLabelW - 20, 20, 2);
+  METRICS.forEach((m, i) => canvasWrapText(ctx, m.key === 'npsc' ? 'NPSC FIBER' : m.key === 'dpsc' ? 'DPSC FIBER' : m.label.toUpperCase(), margin + teamLabelW + i * metricW + 8, teamTableY + 30, metricW - 16, 20, 2));
+  TEAM_ORDER.forEach((code, ri) => {
+    const y = teamTableY + teamCompareHeaderH + ri * teamCompareRowH;
+    ctx.fillStyle = code === teamCode ? '#E2E8F0' : (ri % 2 ? '#F8FBFD' : '#FFFFFF');
+    ctx.fillRect(margin, y, contentWidth, teamCompareRowH);
+    ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(margin, y + teamCompareRowH); ctx.lineTo(margin + contentWidth, y + teamCompareRowH); ctx.stroke();
+    ctx.fillStyle = '#17324D'; ctx.font = code === teamCode ? 'bold 18px Segoe UI, Arial' : '17px Segoe UI, Arial';
+    ctx.fillText((code === teamCode ? '▶ ' : '') + code + ' — ' + TEAMS[code].name, margin + 10, y + 29);
+    METRICS.forEach((m, i) => {
+      const data = teamReportMetricData(code, m);
+      const style = teamReportComparisonStyle(code, m, teamComparisonRanks);
+      const cx = margin + teamLabelW + i * metricW;
+      ctx.fillStyle = style.bg; ctx.fillRect(cx, y, metricW, teamCompareRowH);
+      ctx.strokeStyle = '#FFFFFF'; ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(cx, y + teamCompareRowH); ctx.stroke();
+      let label = data.text;
+      if (m.key !== 'npsc' && m.key !== 'dpsc' && m.key !== 'cstc') label += ' · ' + fmtPct(data.pct, 0);
+      if (m.key === 'npsc') label += ' · ' + fmtPct(data.pct, 2);
+      if (m.key === 'dpsc') label += ' · ' + fmtPct(data.pct, 0);
+      ctx.fillStyle = style.color; ctx.font = 'bold 16px Segoe UI, Arial';
+      canvasWrapText(ctx, label, cx + 8, y + 28, metricW - 16, 18, 1);
+    });
   });
 
   // Chú giải màu so sánh tương đối với toàn Trung tâm.
@@ -4524,7 +4700,7 @@ function drawTeamReportCanvas(teamCode) {
     const cells = [
       areaCodeOf(p) || 'CHƯA GÁN',
       p.name + '\n' + (p.roleLabel || 'Nhân viên'),
-      ...METRICS.map(m => metricCellText(p._m[m.key], m) + (m.key === 'tiepthi' ? '' : ''))
+      ...METRICS.map(m => reportImagePersonMetricText(p, m))
     ];
     x = margin;
     cells.forEach((value, ci) => {
@@ -4556,7 +4732,7 @@ function drawTeamReportCanvas(teamCode) {
     ctx.strokeStyle = '#E2E8F0'; ctx.beginPath(); ctx.moveTo(margin + contentWidth, y); ctx.lineTo(margin + contentWidth, y + rowH); ctx.stroke();
   });
   ctx.fillStyle = '#52677D'; ctx.font = '17px Segoe UI, Arial';
-  ctx.fillText('TTVT Tân An Hội · Báo cáo nội bộ · Mỗi dòng là một MA_KV · NPSC ≤ 0,53% · DPSC: TH phải ≤ KH, hạn mức ngày động · CSTC: theo số phiếu tồn', margin, height - 32);
+  ctx.fillText('TTVT Tân An Hội · Báo cáo nội bộ · Mỗi dòng là một MA_KV · NPSC/DPSC trong báo cáo so sánh chỉ hiển thị Fiber · DPSC: TH phải ≤ KH · CSTC: theo số phiếu tồn', margin, height - 32);
   return canvas;
 }
 
@@ -4708,7 +4884,9 @@ function metricLine(m, v) {
     return '• Gia hạn: Thành công <b>' + fmtN(v.actual) + '</b> / Tổng <b>' + fmtN(v.target) + '</b> hồ sơ · <b>' + info.monthPctText + '</b> (ngưỡng KPI 85%) · còn lại theo sheet <b>' + fmtN(v.remain) + '</b> hồ sơ · giao động ' + fmtN(v.daily) + '/ngày · ' + dayPrefix + deadline;
   }
   if (m.key === 'npsc') {
-    return '• NPSC: ròng Fiber + MyTV <b>' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB</b> · mục tiêu ≥ 0 · <b>' + info.monthPctText + '</b> · ' + info.monthRemainText + ' · ' + dayPrefix + deadline;
+    const fiberActual = Number(v.meta && v.meta.fiberActual !== undefined ? v.meta.fiberActual : v.actual);
+    const fiberPct = Number(v.meta && v.meta.fiberPct !== undefined ? v.meta.fiberPct : v.pct);
+    return '• NPSC Fiber: Thực tăng <b>' + (fiberActual > 0 ? '+' : '') + fmtN(fiberActual) + ' TB</b> · mục tiêu ≥ 0 · <b>%NPSC Fiber ' + fmtPct(fiberPct, 2) + '</b> · ' + (fiberActual < 0 ? 'Còn âm ' + fmtN(Math.abs(fiberActual)) + ' TB' : 'Đạt mốc 0') + deadline;
   }
   if (m.key === 'tiepthi') {
     const parts = v.meta && v.meta.parts ? v.meta.parts : {};
@@ -4722,9 +4900,14 @@ function metricLine(m, v) {
     return '• Bán kèm: thực hiện <b>' + fmtN(v.actual) + '</b> TB · nguồn chưa có cột kế hoạch Bán kèm riêng nên chưa tính %/giao động' + deadline;
   }
   if (m.key === 'dpsc') {
-    return '• DPSC: TH <b>' + fmtN(v.actual) + '</b>/KH <b>' + fmtN(v.target) + '</b> · <b>' + info.monthPctText + '</b> · ' +
-      (v.over > 0 ? '<b>vượt ' + fmtN(v.over) + ' TB tháng</b>' : 'trong định mức tháng') + ' · hạn mức phát sinh động ≤ ' + fmtQtyDecimal(info.dayTarget) + ' TB/ngày · ' +
-      (info.dayDone === null ? baselineText : 'phát sinh hôm nay ' + fmtN(info.dayDone) + ' TB · ' + info.dayPctText) + ' · TH phải ≤ KH' + deadline;
+    const fm = v.meta || {};
+    const fiberKh = Number(fm.fiberKh || 0), fiberTh = Number(fm.fiberTh || 0);
+    const fiberPct = Number(fm.fiberPct || 0), fiberOver = Number(fm.fiberOver || 0);
+    const fiberDayText = fm.fiberToday === null || fm.fiberToday === undefined
+      ? 'chưa có mốc Fiber đầu ngày để tính phát sinh'
+      : 'phát sinh Fiber hôm nay ' + fmtQtyDecimal(fm.fiberToday) + '/≤' + fmtQtyDecimal(Number(fm.fiberDailyLimit || 0) * (ctx ? ctx.factor : 1)) + ' TB';
+    return '• DPSC Fiber: TH <b>' + fmtN(fiberTh) + '</b>/KH <b>' + fmtN(fiberKh) + '</b> TB · <b>' + fmtPct(fiberPct, 1) + '</b> · ' +
+      (fiberOver > 0 ? '<b>vượt ' + fmtN(fiberOver) + ' TB</b>' : 'trong định mức Fiber') + ' · hạn mức Fiber ≤ ' + fmtQtyDecimal(Number(fm.fiberDailyLimit || 0)) + ' TB/ngày · ' + fiberDayText + ' · TH phải ≤ KH' + deadline;
   }
   return '• ' + m.label + ': KH tháng <b>' + fmtN(v.target) + '</b> · TH <b>' + fmtN(v.actual) + '</b> (' +
     '<b>' + info.monthPctText + '</b>) · còn tháng <b>' + fmtN(v.remain) + '</b> · ' + dayPrefix + deadline;
@@ -4762,12 +4945,19 @@ function tgTableRow(cells, widths, aligns) {
 }
 
 function telegramDayCell(v, m, info) {
+  if (m.key === 'dpsc') {
+    const ctx = state.computed && state.computed.ctx ? state.computed.ctx : null;
+    const fm = v.meta || {};
+    if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
+    if (fm.fiberToday === null || fm.fiberToday === undefined) return 'Chưa có mốc Fiber đầu ngày';
+    const allowed = Number(fm.fiberDailyLimit || 0) * (ctx ? ctx.factor : 1);
+    return fmtQtyDecimal(fm.fiberToday) + '/≤' + fmtQtyDecimal(allowed) + ' TB · ' + (fm.fiberToday > allowed ? 'VƯỢT' : 'trong mức');
+  }
   if (info.dayDone === null) {
     const ctx = state.computed && state.computed.ctx ? state.computed.ctx : null;
     if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
     return missingDayProgressText(info, m);
   }
-  if (m.key === 'dpsc') return fmtN(info.dayDone) + '/≤' + fmtQtyDecimal(info.dayTarget) + ' TB · ' + (info.dayDone > info.dayTarget ? 'VƯỢT' : 'trong mức');
   if (info.dayTarget > 0) {
     return fmtN(info.dayDone) + '/' + fmtN(info.dayTarget) + ' ' + info.dayPctText + '; thiếu ' + fmtN(info.dayRemain);
   }
@@ -4783,9 +4973,12 @@ function telegramMetricCells(p, m) {
     pct = fmtPct(v.pct, 2);
     remain = v.actual < 0 ? 'Chưa đạt mốc 0' : 'Đạt mốc 0';
   } else if (m.key === 'dpsc') {
-    actualTarget = fmtN(v.actual) + '/' + fmtN(v.target) + ' TB';
-    pct = fmtPct(v.pct, 1);
-    remain = v.over > 0 ? 'Vượt ' + fmtN(v.over) + ' TB' : 'Trong mức';
+    const fm = v.meta || {};
+    const fiberTh = Number(fm.fiberTh || 0), fiberKh = Number(fm.fiberKh || 0);
+    const fiberPct = Number(fm.fiberPct || 0), fiberOver = Number(fm.fiberOver || 0);
+    actualTarget = fmtN(fiberTh) + '/' + fmtN(fiberKh) + ' Fiber TB';
+    pct = fmtPct(fiberPct, 1);
+    remain = fiberOver > 0 ? 'Fiber vượt ' + fmtN(fiberOver) + ' TB' : 'Fiber trong mức';
   } else if (m.key === 'cstc') {
     actualTarget = 'Tồn ' + fmtN(v.actual) + ' phiếu';
     pct = 'K.A';
@@ -4878,9 +5071,11 @@ function telegramMetricNeedsAttention(p, key) {
   }
   if (key === 'npsc') return telegramNpscAlertValue(p) < 0;
   if (key === 'dpsc') {
-    const over = Number(v.over || Math.max(0, actual - target));
-    const overToday = Number(v.overToday || 0);
-    return over > 0 || overToday > 0 || v.status === 'warn';
+    const fm = v.meta || {};
+    const over = Number(fm.fiberOver || Math.max(0, Number(p.dpsc && p.dpsc.thFiber || 0) - Number(p.dpsc && p.dpsc.khFiber || 0)));
+    const pct = Number(fm.fiberPct || 0);
+    const overToday = fm.fiberToday === null || fm.fiberToday === undefined ? 0 : Math.max(0, Number(fm.fiberToday) - Number(fm.fiberDailyLimit || 0) * (state.computed.ctx ? state.computed.ctx.factor : 1));
+    return over > 0 || overToday > 0 || (Number(p.dpsc && p.dpsc.khFiber || 0) > 0 && pct >= 90);
   }
   if (key === 'cstc') return actual > 0;
   return v.status === 'bad' || v.status === 'warn';
@@ -4905,7 +5100,7 @@ function alertTextForMetric(p, m) {
     const actual = telegramNpscAlertValue(p);
     return actual < 0 ? 'Thực tăng ' + fmtN(actual) + ' TB' : '';
   }
-  if (m.key === 'dpsc') return v.over > 0 ? 'Vượt KH tháng ' + fmtN(v.over) + ' TB' : (v.overToday > 0 ? 'Vượt hạn mức ngày ' + fmtQtyDecimal(v.overToday) + ' TB' : 'Đã dùng ' + fmtPct(v.pct, 1) + ' KH');
+  if (m.key === 'dpsc') { const fm = v.meta || {}; const over = Number(fm.fiberOver || 0); const overToday = fm.fiberToday == null ? 0 : Math.max(0, Number(fm.fiberToday) - Number(fm.fiberDailyLimit || 0) * (state.computed.ctx ? state.computed.ctx.factor : 1)); return over > 0 ? 'Fiber vượt KH ' + fmtN(over) + ' TB' : (overToday > 0 ? 'Fiber vượt hạn mức ngày ' + fmtQtyDecimal(overToday) + ' TB' : 'Fiber đã dùng ' + fmtPct(fm.fiberPct || 0, 1) + ' KH'); }
   if (m.key === 'cstc') return 'Tồn ' + fmtN(v.actual) + ' phiếu';
   if (m.key === 'modem') return 'Còn ' + fmtN(Math.max(0, Number(v.target || 0) - Number(v.actual || 0))) + ' máy';
   if (m.key === 'bankem') return 'Còn ' + fmtN(Math.max(0, Number(v.target || 0) - Number(v.actual || 0))) + ' TB';
@@ -4924,7 +5119,7 @@ function compactAlertCell(p, m) {
       : 'Còn ' + fmtN(left) + ' hôm nay';
   }
   if (m.key === 'npsc') return fmtN(telegramNpscAlertValue(p));
-  if (m.key === 'dpsc') return v.over > 0 ? 'Vuot ' + fmtN(v.over) : (v.overToday > 0 ? 'Vuot ngay ' + fmtQtyDecimal(v.overToday) : 'Gan nguong');
+  if (m.key === 'dpsc') { const fm = v.meta || {}; const over = Number(fm.fiberOver || 0); const overToday = fm.fiberToday == null ? 0 : Math.max(0, Number(fm.fiberToday) - Number(fm.fiberDailyLimit || 0) * (state.computed.ctx ? state.computed.ctx.factor : 1)); return over > 0 ? 'Fiber vuot ' + fmtN(over) : (overToday > 0 ? 'Fiber vuot ngay ' + fmtQtyDecimal(overToday) : 'Fiber gan nguong'); }
   if (m.key === 'cstc') return v.actual > 0 ? 'Ton ' + fmtN(v.actual) : 'Da het';
   if (m.key === 'modem' || m.key === 'bankem') return 'Con ' + fmtN(Math.max(0, Number(v.target || 0) - Number(v.actual || 0)));
   return v.short > 0 ? 'Thieu ' + fmtN(v.short) : 'Can y';
@@ -4966,7 +5161,7 @@ function telegramMonthCell(p, m) {
   // Bỏ hậu tố Cxx (số còn lại) khỏi bảng Telegram để bảng gọn, dễ đọc.
   if (m.key === 'ghtt') return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 1) + ' (85%)';
   if (m.key === 'npsc') return 'Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + 'TB ' + tgShortPct(v.pct, 2);
-  if (m.key === 'dpsc') return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 0) + (v.over > 0 ? ' V' + fmtN(v.over) : '');
+  if (m.key === 'dpsc') { const kh = Number(p.dpsc && p.dpsc.khFiber || 0), th = Number(p.dpsc && p.dpsc.thFiber || 0); const pct = kh > 0 ? th / kh * 100 : (th > 0 ? 100 : 0); const over = Math.max(0, th - kh); return fmtN(th) + '/' + fmtN(kh) + ' ' + tgShortPct(pct, 0) + (over > 0 ? ' V' + fmtN(over) : ''); }
   if (m.key === 'cstc') return fmtN(v.actual) + ' ton';
   return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 1);
 }
@@ -4974,16 +5169,22 @@ function telegramMonthCell(p, m) {
 function telegramDayProgressCell(p, m) {
   const v = p._m[m.key];
   const info = progressInfo(v, m);
+  const ctx = state.computed && state.computed.ctx ? state.computed.ctx : null;
+  if (m.key === 'dpsc') {
+    const fm = v.meta || {};
+    if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
+    if (fm.fiberToday === null || fm.fiberToday === undefined) return 'Chưa có mốc DPSC Fiber đầu ngày';
+    const allowed = Number(fm.fiberDailyLimit || 0) * (ctx ? ctx.factor : 1);
+    return fmtQtyDecimal(fm.fiberToday) + '/≤' + fmtQtyDecimal(allowed) + (fm.fiberToday > allowed ? ' VUOT' : ' OK');
+  }
   if (info.dayDone === null) {
-    const ctx = state.computed && state.computed.ctx ? state.computed.ctx : null;
     if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
     return missingDayProgressText(info, m);
   }
-  if (m.key === 'dpsc') return fmtN(info.dayDone) + '/≤' + fmtQtyDecimal(info.dayTarget) + (info.dayDone > info.dayTarget ? ' VUOT' : ' OK');
   if (info.dayTarget > 0) {
     return fmtN(info.dayDone) + '/' + fmtN(info.dayTarget) + ' ' + tgShortPct(info.dayPct, 0);
   }
-  if (m.key === 'npsc') return (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' net';
+  if (m.key === 'npsc') return 'Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB';
   if (m.key === 'cstc') return fmtN(info.dayDone) + ' xu ly';
   return fmtN(info.dayDone) + ' · 0 KH';
 }
