@@ -439,6 +439,13 @@ footer.page-foot b{color:var(--muted)}
   animation:pop .18s ease-out;
 }
 .modal-sm{width:min(520px,100%)}
+.employee-photo-modal{width:min(640px,100%)}
+.employee-photo-body{display:flex;flex-direction:column;gap:10px}
+.employee-photo-select{height:auto;min-height:220px;padding:5px 7px;line-height:1.55;font-size:11px}
+.employee-photo-select option{padding:5px 7px}
+.employee-photo-select optgroup{font-weight:800;color:#17324D}
+.employee-photo-note{margin-top:0}
+@media(max-width:600px){.employee-photo-modal{max-height:94vh}.employee-photo-select{min-height:190px}}
 @keyframes pop{from{transform:scale(.97) translateY(6px);opacity:0}to{transform:none;opacity:1}}
 .modal-head{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--line);background:linear-gradient(100deg,#F8FBFE,#fff)}
 .modal-head .mi{width:30px;height:30px;border-radius:8px;background:#E0F2FE;color:var(--blue);display:grid;place-items:center;font-size:15px}
@@ -706,6 +713,9 @@ th.warn-cell{width:92px;min-width:92px}
     <button class="btn btn-dark" id="btnDownloadCenterImage" type="button" title="Tải ảnh tổng hợp Trung tâm, có phân tích điểm yếu">
       <svg class="icon"><use href="#i-image"/></svg><span>Ảnh Trung tâm</span>
     </button>
+    <button class="btn btn-dark" id="btnDownloadEmployeeImage" type="button" title="Chọn một nhân viên để tải ảnh báo cáo cá nhân">
+      <svg class="icon"><use href="#i-image"/></svg><span>Ảnh cá nhân</span>
+    </button>
     <button class="btn btn-primary" id="btnTelegram" type="button">
       <svg class="icon"><use href="#i-send"/></svg><span>Gửi báo cáo</span>
     </button>
@@ -877,6 +887,35 @@ th.warn-cell{width:92px;min-width:92px}
   </div>
   <div class="dr-body" id="drawerBody"></div>
 </aside>
+
+<div class="modal-backdrop hidden" id="employeeImageModal">
+  <div class="modal employee-photo-modal" role="dialog" aria-modal="true" aria-labelledby="employeeImageTitle">
+    <div class="modal-head">
+      <div class="mi"><svg class="icon"><use href="#i-image"/></svg></div>
+      <div><h3 id="employeeImageTitle">Tải ảnh báo cáo cá nhân</h3><p>Chọn một MA_KV để tạo ảnh riêng, dùng khi cần báo cáo chi tiết với lãnh đạo</p></div>
+      <button class="close" id="employeeImageClose" type="button" aria-label="Đóng"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body employee-photo-body">
+      <div class="field">
+        <label for="employeeImageSearch">Tìm nhân viên theo tên, MA_KV hoặc tổ</label>
+        <input class="input" id="employeeImageSearch" type="search" placeholder="Ví dụ: TAH016 hoặc Lê Văn Tuân" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="employeeImageSelect">Danh sách nhân viên</label>
+        <select class="input employee-photo-select" id="employeeImageSelect" size="9" aria-label="Chọn nhân viên"></select>
+      </div>
+      <div class="tg-note employee-photo-note" id="employeeImageInfo">
+        <svg class="icon"><use href="#i-warn"/></svg>
+        <div>Chọn một nhân viên trong danh sách. Ảnh sẽ gồm 8 KPI, chi tiết 4 dịch vụ Tiếp thị, mức so sánh với toàn Trung tâm và các điểm cần chú ý.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="employeeImageCancel" type="button">Đóng</button>
+      <span class="hint" id="employeeImageCount">—</span>
+      <button class="btn btn-primary" id="btnCreateEmployeeImage" type="button" disabled><svg class="icon"><use href="#i-download"/></svg><span>Tải ảnh PNG</span></button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-backdrop hidden" id="tgModal">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tgTitle">
@@ -3931,6 +3970,14 @@ function bindEvents() {
   $('#btnDownload').addEventListener('click', downloadReport);
   $('#btnDownloadImages').addEventListener('click', downloadTeamImages);
   $('#btnDownloadCenterImage').addEventListener('click', downloadCenterImage);
+  $('#btnDownloadEmployeeImage').addEventListener('click', openEmployeeImagePicker);
+
+  $('#employeeImageClose').addEventListener('click', closeEmployeeImagePicker);
+  $('#employeeImageCancel').addEventListener('click', closeEmployeeImagePicker);
+  $('#employeeImageModal').addEventListener('click', e => { if (e.target.id === 'employeeImageModal') closeEmployeeImagePicker(); });
+  $('#employeeImageSearch').addEventListener('input', renderEmployeeImageOptions);
+  $('#employeeImageSelect').addEventListener('change', updateEmployeeImageSelection);
+  $('#btnCreateEmployeeImage').addEventListener('click', downloadEmployeeImage);
 
   $('#teamChips').addEventListener('click', e => {
     const b = e.target.closest('.tchip');
@@ -5124,6 +5171,263 @@ async function downloadTeamImages() {
 }
 
 /* =====================================================================
+   6.56 TẢI ẢNH BÁO CÁO RIÊNG CHO MỘT NHÂN VIÊN / MA_KV
+   ===================================================================== */
+function employeeImagePeople() {
+  return (state.model && state.model.people ? state.model.people : []).slice().sort((a, b) => {
+    const ta = TEAM_ORDER.indexOf(a.team), tb = TEAM_ORDER.indexOf(b.team);
+    return (ta < 0 ? 99 : ta) - (tb < 0 ? 99 : tb) || compareMaKv(a, b) || a.name.localeCompare(b.name, 'vi');
+  });
+}
+
+function openEmployeeImagePicker() {
+  if (!state.computed || !state.model || !state.model.people || !state.model.people.length) {
+    toast('Dữ liệu nhân viên chưa tải xong', 'err');
+    return;
+  }
+  $('#employeeImageSearch').value = '';
+  renderEmployeeImageOptions();
+  $('#employeeImageModal').classList.remove('hidden');
+  $('#employeeImageSearch').focus();
+}
+
+function closeEmployeeImagePicker() {
+  $('#employeeImageModal').classList.add('hidden');
+}
+
+function renderEmployeeImageOptions() {
+  const select = $('#employeeImageSelect');
+  const previous = select.value;
+  const q = normName($('#employeeImageSearch').value || '');
+  const people = employeeImagePeople().filter(p => {
+    if (!q) return true;
+    const hay = normName([areaCodeOf(p), p.name, p.team, TEAMS[p.team] ? TEAMS[p.team].name : '', p.roleLabel].join(' '));
+    return hay.includes(q);
+  });
+  let html = '<option value="">— Chọn một nhân viên —</option>';
+  for (const code of TEAM_ORDER) {
+    const group = people.filter(p => p.team === code);
+    if (!group.length) continue;
+    html += '<optgroup label="' + escHtml(code + ' · ' + TEAMS[code].name) + '">';
+    html += group.map(p => {
+      const codeLabel = areaCodeOf(p) || 'CHƯA GÁN MA_KV';
+      return '<option value="' + escHtml(p.key) + '">' + escHtml(codeLabel + ' — ' + p.name + (p.roleLabel && p.roleLabel !== 'Nhân viên' ? ' · ' + p.roleLabel : '')) + '</option>';
+    }).join('');
+    html += '</optgroup>';
+  }
+  const ungrouped = people.filter(p => !TEAM_ORDER.includes(p.team));
+  if (ungrouped.length) {
+    html += '<optgroup label="Chưa phân tổ">' + ungrouped.map(p => '<option value="' + escHtml(p.key) + '">' + escHtml((areaCodeOf(p) || 'CHƯA GÁN MA_KV') + ' — ' + p.name) + '</option>').join('') + '</optgroup>';
+  }
+  select.innerHTML = html;
+  const stillExists = people.some(p => String(p.key) === previous);
+  select.value = stillExists ? previous : '';
+  $('#employeeImageCount').textContent = people.length + ' nhân viên phù hợp';
+  updateEmployeeImageSelection();
+}
+
+function updateEmployeeImageSelection() {
+  const key = $('#employeeImageSelect').value;
+  const person = employeeImagePeople().find(p => String(p.key) === key);
+  const button = $('#btnCreateEmployeeImage');
+  button.disabled = !person;
+  if (!person) {
+    $('#employeeImageInfo').innerHTML = '<svg class="icon"><use href="#i-warn"/></svg><div>Chọn một nhân viên trong danh sách. Ảnh sẽ gồm 8 KPI, chi tiết 4 dịch vụ Tiếp thị, mức so sánh với toàn Trung tâm và các điểm cần chú ý.</div>';
+    return;
+  }
+  const teamName = TEAMS[person.team] ? person.team + ' · ' + TEAMS[person.team].name : 'Chưa phân tổ';
+  $('#employeeImageInfo').innerHTML = '<svg class="icon"><use href="#i-check"/></svg><div><b>' + escHtml(areaCodeOf(person) || 'CHƯA GÁN MA_KV') + ' · ' + escHtml(person.name) + '</b><br>' + escHtml(teamName) + ' · ' + escHtml(person.roleLabel || 'Nhân viên') + '<br>Ảnh chỉ xuất đúng dòng MA_KV đã chọn, không cộng trùng các mã khác cùng tên.</div>';
+}
+
+function employeeMetricLines(person, metric) {
+  const v = person._m[metric.key];
+  const info = progressInfo(v, metric);
+  if (metric.key === 'npsc') {
+    const actual = Number(person.npsc && person.npsc.thucTangFiber || 0);
+    const pct = Number(person.npsc && person.npsc.pctFiber || 0);
+    return [
+      'Thực tăng Fiber: ' + (actual > 0 ? '+' : '') + fmtN(actual) + ' TB',
+      '%NPSC Fiber: ' + fmtPct(pct, 2),
+      actual < 0 ? 'Còn âm ' + fmtN(Math.abs(actual)) + ' TB · cần đưa về 0' : 'Đạt mốc 0'
+    ];
+  }
+  if (metric.key === 'dpsc') {
+    const kh = Number(person.dpsc && person.dpsc.khFiber || 0);
+    const th = Number(person.dpsc && person.dpsc.thFiber || 0);
+    const pct = kh > 0 ? th / kh * 100 : (th > 0 ? 100 : 0);
+    const over = Math.max(0, th - kh);
+    return [
+      'Fiber TH/KH: ' + fmtN(th) + '/' + fmtN(kh) + ' TB',
+      'Tỷ lệ: ' + fmtPct(pct, 1),
+      over > 0 ? 'Vượt định mức ' + fmtN(over) + ' TB' : 'Trong định mức Fiber'
+    ];
+  }
+  if (metric.key === 'cstc') {
+    return ['Phiếu tồn: ' + fmtN(v.actual), v.actual > 0 ? 'Cần xử lý ' + fmtN(v.actual) + ' phiếu' : 'Không còn phiếu tồn'];
+  }
+  const lines = [];
+  lines.push('Thực hiện / Kế hoạch: ' + fmtN(v.actual) + ' / ' + fmtN(v.target) + ' ' + metric.unit);
+  lines.push('Hoàn thành: ' + info.monthPctText);
+  if (metric.key === 'thucuoc') lines.push('Còn xử lý: ' + (info.monthRemainText || fmtN(v.remain)));
+  else lines.push('Còn thiếu: ' + fmtN(v.remain) + ' ' + metric.unit);
+  if (info.dayTarget > 0) {
+    lines.push('Giao bình quân: ' + fmtN(info.dayTarget) + '/' + metric.unit + '/ngày');
+    if (info.dayDone !== null && info.dayDone !== undefined) lines.push('Trong ngày: ' + info.dayDoneText + ' · còn ' + info.dayRemainText);
+  }
+  return lines;
+}
+
+function employeeReportAlertItems(person, ranks) {
+  const alerts = [];
+  for (const metric of METRICS) {
+    const v = person._m[metric.key];
+    if (!v || v.status === 'nodata') continue;
+    const style = reportComparisonStyle(person, metric, ranks);
+    const q = ranks && ranks.get(person) ? ranks.get(person)[metric.key] : null;
+    const statusRisk = v.status === 'bad' || v.status === 'warn';
+    const relativeRisk = q !== null && q !== undefined && q <= 0.20;
+    const specialRisk = metric.key === 'npsc' && Number(v.actual) < 0;
+    if (!statusRisk && !relativeRisk && !specialRisk) continue;
+    let detail = metric.key === 'npsc'
+      ? 'Thực tăng Fiber ' + fmtN(v.actual) + ' TB · mục tiêu 0'
+      : metric.key === 'dpsc'
+        ? 'DPSC Fiber TH/KH ' + fmtN(person.dpsc && person.dpsc.thFiber || 0) + '/' + fmtN(person.dpsc && person.dpsc.khFiber || 0) + ' TB'
+        : metric.key === 'cstc'
+          ? 'Còn tồn ' + fmtN(v.actual) + ' phiếu'
+          : (v.status === 'bad' ? 'Chưa đạt tiến độ chỉ tiêu' : 'Tiến độ thấp hơn nhóm tham chiếu');
+    alerts.push({ label: metric.label, detail, style, severity: specialRisk || v.status === 'bad' ? 0 : v.status === 'warn' ? 1 : 2 });
+  }
+  const services = marketingServiceStats(person.tiepthi && person.tiepthi.parts, person.tiepthi && person.tiepthi.targetParts);
+  const serviceWeak = services.filter(x => x.hasTarget && x.remain > 0).sort((a, b) => a.pct - b.pct || b.remain - a.remain)[0];
+  if (serviceWeak) alerts.push({ label: 'Tiếp thị ' + serviceWeak.label, detail: fmtN(serviceWeak.actual) + '/' + fmtN(serviceWeak.target) + ' · còn ' + fmtN(serviceWeak.remain) + ' (' + fmtPct(serviceWeak.pct, 1) + ')', style: marketingServiceHealthStyle(serviceWeak, serviceWeak.key), severity: serviceWeak.pct < 50 ? 0 : serviceWeak.pct < 70 ? 1 : 2 });
+  return alerts.sort((a, b) => a.severity - b.severity);
+}
+
+function drawEmployeeReportCanvas(person) {
+  const width = 2000, margin = 48, contentWidth = width - margin * 2;
+  const ranks = reportComparisonRanks(state.model.people || []);
+  const metricsTop = 292, metricGap = 16, metricW = (contentWidth - metricGap * 3) / 4, metricH = 178;
+  const servicesTop = metricsTop + metricH * 2 + 34;
+  const serviceTitleH = 42, serviceCardH = 142, serviceGap = 16, serviceW = (contentWidth - serviceGap * 3) / 4;
+  const alerts = employeeReportAlertItems(person, ranks);
+  const alertsTop = servicesTop + serviceTitleH + serviceCardH + 34;
+  const alertTitleH = 46, alertRowH = 64, alertRows = Math.max(1, Math.ceil(alerts.length / 2));
+  const footerTop = alertsTop + alertTitleH + alertRows * alertRowH + 30;
+  const height = footerTop + 76;
+  const canvas = document.createElement('canvas');
+  canvas.width = width; canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#F2F6FA'; ctx.fillRect(0, 0, width, height);
+
+  // Header: MA_KV and employee identity.
+  ctx.fillStyle = '#08233D'; ctx.fillRect(0, 0, width, 154);
+  ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 42px Segoe UI, Arial';
+  ctx.fillText('BÁO CÁO CHỈ TIÊU CÁ NHÂN', margin, 56);
+  ctx.font = 'bold 32px Segoe UI, Arial';
+  const identity = (areaCodeOf(person) || 'CHƯA GÁN MA_KV') + ' · ' + person.name;
+  ctx.fillText(identity, margin, 104);
+  ctx.fillStyle = '#C5D8E8'; ctx.font = '20px Segoe UI, Arial';
+  const teamLabel = TEAMS[person.team] ? person.team + ' · ' + TEAMS[person.team].name : 'Chưa phân tổ';
+  ctx.fillText(teamLabel + ' · ' + (person.roleLabel || 'Nhân viên') + ' · ' + vnDate(state.date) + ' · ' + STAGES[state.computed.ctx.stage].title + ' · Cập nhật ' + (state.lastUpdate ? timeOf(state.lastUpdate) : '—'), margin, 137);
+
+  // Eight KPI cards with relative whole-centre colouring.
+  METRICS.forEach((metric, i) => {
+    const col = i % 4, row = Math.floor(i / 4);
+    const x = margin + col * (metricW + metricGap), y = metricsTop + row * (metricH + 16);
+    const style = reportComparisonStyle(person, metric, ranks);
+    ctx.fillStyle = style.bg; ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(x, y, metricW, metricH, 13); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = style.color; ctx.font = 'bold 23px Segoe UI, Arial';
+    ctx.fillText(metric.label.toUpperCase(), x + 18, y + 33);
+    ctx.font = 'bold 15px Segoe UI, Arial';
+    canvasWrapText(ctx, style.label, x + metricW - 190, y + 31, 174, 18, 1);
+    ctx.fillStyle = style.color; ctx.font = '18px Segoe UI, Arial';
+    const lines = employeeMetricLines(person, metric);
+    let yy = y + 68;
+    for (const line of lines.slice(0, 4)) {
+      const count = canvasWrapText(ctx, line, x + 18, yy, metricW - 36, 23, 2);
+      yy += count * 25 + 2;
+      if (yy > y + metricH - 8) break;
+    }
+  });
+
+  // Four detailed marketing service cards.
+  const services = marketingServiceStats(person.tiepthi && person.tiepthi.parts, person.tiepthi && person.tiepthi.targetParts);
+  const eligible = services.filter(x => x.hasTarget);
+  const weakest = eligible.length ? eligible.slice().sort((a, b) => a.pct - b.pct || b.remain - a.remain)[0] : null;
+  ctx.fillStyle = '#17324D'; ctx.font = 'bold 25px Segoe UI, Arial';
+  ctx.fillText('TIẾP THỊ THEO TỪNG DỊCH VỤ', margin, servicesTop + 28);
+  if (weakest && weakest.remain > 0) {
+    ctx.fillStyle = '#B91C1C'; ctx.font = 'bold 18px Segoe UI, Arial';
+    ctx.fillText('YẾU NHẤT: ' + weakest.label.toUpperCase() + ' · CÒN ' + fmtN(weakest.remain), margin + 650, servicesTop + 28);
+  }
+  services.forEach((service, i) => {
+    const x = margin + i * (serviceW + serviceGap), y = servicesTop + serviceTitleH;
+    const serviceStyle = marketingServiceHealthStyle(service, weakest && weakest.key);
+    ctx.fillStyle = serviceStyle.bg; ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(x, y, serviceW, serviceCardH, 12); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = serviceStyle.color; ctx.font = 'bold 22px Segoe UI, Arial';
+    ctx.fillText(service.label.toUpperCase(), x + 18, y + 31);
+    ctx.font = 'bold 31px Segoe UI, Arial';
+    ctx.fillText(fmtN(service.actual) + ' / ' + (service.hasTarget ? fmtN(service.target) : '—'), x + 18, y + 72);
+    ctx.font = 'bold 18px Segoe UI, Arial';
+    ctx.fillText(service.hasTarget ? fmtPct(service.pct, 1) + ' · Còn ' + fmtN(service.remain) : 'Chưa có kế hoạch giao', x + 18, y + 105);
+    ctx.font = 'bold 15px Segoe UI, Arial';
+    ctx.fillText(serviceStyle.label, x + 18, y + 129);
+  });
+
+  // Weak points and coaching focus.
+  ctx.fillStyle = '#17324D'; ctx.font = 'bold 25px Segoe UI, Arial';
+  ctx.fillText('ĐIỂM CẦN CHÚ Ý / ƯU TIÊN XỬ LÝ', margin, alertsTop + 29);
+  if (!alerts.length) {
+    ctx.fillStyle = '#DCFCE7'; ctx.fillRect(margin, alertsTop + alertTitleH, contentWidth, alertRowH);
+    ctx.fillStyle = '#166534'; ctx.font = 'bold 20px Segoe UI, Arial';
+    ctx.fillText('Không có chỉ tiêu bị cảnh báo theo ngưỡng và mức so sánh hiện tại.', margin + 18, alertsTop + alertTitleH + 39);
+  } else {
+    alerts.forEach((alert, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const x = margin + col * (contentWidth / 2 + 10), y = alertsTop + alertTitleH + row * alertRowH;
+      const w = contentWidth / 2 - 10;
+      ctx.fillStyle = alert.style.bg; ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.roundRect(x, y, w, alertRowH - 8, 9); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = alert.style.color; ctx.font = 'bold 18px Segoe UI, Arial';
+      ctx.fillText(alert.label.toUpperCase(), x + 14, y + 24);
+      ctx.font = '16px Segoe UI, Arial';
+      canvasWrapText(ctx, alert.detail, x + 14, y + 47, w - 28, 18, 1);
+    });
+  }
+
+  ctx.fillStyle = '#52677D'; ctx.font = '16px Segoe UI, Arial';
+  ctx.fillText('TTVT Tân An Hội · Báo cáo nội bộ · Mỗi ảnh theo một MA_KV đã chọn · NPSC và DPSC chỉ tính Fiber · Màu KPI so sánh cá nhân với toàn Trung tâm', margin, height - 30);
+  return canvas;
+}
+
+async function downloadEmployeeImage() {
+  if (!state.computed || !state.model) { toast('Dữ liệu chưa tải xong', 'err'); return; }
+  const key = $('#employeeImageSelect').value;
+  const person = state.model.people.find(p => String(p.key) === key);
+  if (!person) { toast('Bạn chưa chọn nhân viên', 'err'); return; }
+  const button = $('#btnCreateEmployeeImage');
+  button.disabled = true;
+  try {
+    const canvas = drawEmployeeReportCanvas(person);
+    const blob = await canvasToBlob(canvas);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const slug = stripDiacritics(person.name).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    a.href = url;
+    a.download = 'bao_cao_ca_nhan_' + (areaCodeOf(person) || 'chua_gan') + '_' + (slug || 'nhan_vien') + '_' + state.date + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast('Đã tải ảnh báo cáo cá nhân: ' + (areaCodeOf(person) || 'CHƯA GÁN MA_KV') + ' · ' + person.name, 'ok');
+  } catch (e) {
+    toast('Tạo ảnh cá nhân chưa hoàn tất: ' + e.message, 'err');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+/* =====================================================================
    6.6 TOAST
    ===================================================================== */
 let toastTimer = null;
@@ -5304,17 +5608,17 @@ function telegramDayCell(v, m, info) {
     const ctx = state.computed && state.computed.ctx ? state.computed.ctx : null;
     const fm = v.meta || {};
     if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
-    if (fm.fiberToday === null || fm.fiberToday === undefined) return 'Chưa có mốc Fiber đầu ngày';
+    if (fm.fiberToday === null || fm.fiberToday === undefined) return 'Thiếu mốc';
     const allowed = Number(fm.fiberDailyLimit || 0) * (ctx ? ctx.factor : 1);
-    return fmtQtyDecimal(fm.fiberToday) + '/≤' + fmtQtyDecimal(allowed) + ' TB · ' + (fm.fiberToday > allowed ? 'VƯỢT' : 'trong mức');
+    return fm.fiberToday > allowed ? 'Vượt ' + fmtQtyDecimal(fm.fiberToday - allowed) : 'Trong mức';
   }
   if (info.dayDone === null) {
     const ctx = state.computed && state.computed.ctx ? state.computed.ctx : null;
-    if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
-    return missingDayProgressText(info, m);
+    if (ctx && ctx.stage === 'morning') return 'Mốc ĐN';
+    return 'Thiếu mốc';
   }
   if (info.dayTarget > 0) {
-    return fmtN(info.dayDone) + '/' + fmtN(info.dayTarget) + ' ' + info.dayPctText + '; thiếu ' + fmtN(info.dayRemain);
+    return info.dayRemain > 0 ? 'Còn ' + fmtN(info.dayRemain) : (info.dayRemain < 0 ? 'Vượt ' + fmtN(Math.abs(info.dayRemain)) : 'Đạt');
   }
   return info.dayDoneText + ' · không KH ngày';
 }
@@ -5347,14 +5651,14 @@ function telegramMetricCells(p, m) {
 }
 
 function personTelegramBlock(p) {
-  const widths = [9, 13, 9, 10, 19];
+  const widths = [7, 8, 5, 6, 6];
   const aligns = ['left', 'right', 'right', 'right', 'left'];
   const top = tgTableBorder(widths, '┌', '┬', '┐');
   const mid = tgTableBorder(widths, '├', '┼', '┤');
   const bottom = tgTableBorder(widths, '└', '┴', '┘');
   const rows = [
     top,
-    tgTableRow(['CHỈ TIÊU', 'TH/KH', '% THÁNG', 'CÒN THÁNG', 'TIẾN ĐỘ HÔM NAY'], widths, aligns),
+    tgTableRow(['KPI', 'TH/KH', '%', 'CÒN', 'NGÀY'], widths, aligns),
     mid
   ];
   for (const m of METRICS) rows.push(tgTableRow(telegramMetricCells(p, m), widths, aligns));
@@ -5448,8 +5752,8 @@ function alertTextForMetric(p, m) {
     if (!ctx || ctx.stage === 'morning') return 'Cần làm ' + fmtN(quota) + ' ' + m.unit + '/ngày';
     const left = telegramDailyLeft(v);
     return left === null
-      ? 'Cần ' + fmtN(telegramDailyDue(v)) + ' ' + m.unit + ' hôm nay · thiếu mốc đầu ngày'
-      : 'Còn ' + fmtN(left) + ' ' + m.unit + ' trong ngày';
+      ? 'Thiếu mốc · cần ' + fmtN(telegramDailyDue(v))
+      : 'Còn ' + fmtN(left);
   }
   if (m.key === 'npsc') {
     const actual = telegramNpscAlertValue(p);
@@ -5466,44 +5770,58 @@ function compactAlertCell(p, m) {
   const v = p._m[m.key];
   if (TELEGRAM_DAILY_QUOTA_KEYS.has(m.key)) {
     const ctx = state && state.computed ? state.computed.ctx : null;
-    const quota = telegramDailyQuota(v);
-    if (!ctx || ctx.stage === 'morning') return 'Giao ' + fmtN(quota) + '/ngày';
     const left = telegramDailyLeft(v);
-    return left === null
-      ? 'Cần ' + fmtN(telegramDailyDue(v)) + ' · thiếu mốc ĐN'
-      : 'Còn ' + fmtN(left) + ' hôm nay';
+    return left === null ? 'Thiếu mốc' : (left > 0 ? 'Còn ' + fmtN(left) : 'Đạt');
   }
   if (m.key === 'npsc') return fmtN(telegramNpscAlertValue(p));
-  if (m.key === 'dpsc') { const fm = v.meta || {}; const over = Number(fm.fiberOver || 0); const overToday = fm.fiberToday == null ? 0 : Math.max(0, Number(fm.fiberToday) - Number(fm.fiberDailyLimit || 0) * (state.computed.ctx ? state.computed.ctx.factor : 1)); return over > 0 ? 'Fiber vuot ' + fmtN(over) : (overToday > 0 ? 'Fiber vuot ngay ' + fmtQtyDecimal(overToday) : 'Fiber gan nguong'); }
-  if (m.key === 'cstc') return v.actual > 0 ? 'Ton ' + fmtN(v.actual) : 'Da het';
-  if (m.key === 'modem' || m.key === 'bankem') return 'Con ' + fmtN(Math.max(0, Number(v.target || 0) - Number(v.actual || 0)));
-  return v.short > 0 ? 'Thieu ' + fmtN(v.short) : 'Can y';
+  if (m.key === 'dpsc') {
+    const fm = v.meta || {};
+    const over = Number(fm.fiberOver || 0);
+    const ctx = state && state.computed ? state.computed.ctx : null;
+    const overToday = fm.fiberToday == null ? 0 : Math.max(0, Number(fm.fiberToday) - Number(fm.fiberDailyLimit || 0) * (ctx ? ctx.factor : 1));
+    return over > 0 ? 'Vượt ' + fmtN(over) : (overToday > 0 ? 'Vượt ' + fmtQtyDecimal(overToday) : 'Sát mức');
+  }
+  if (m.key === 'cstc') return v.actual > 0 ? 'Tồn ' + fmtN(v.actual) : 'Hết';
+  if (m.key === 'modem' || m.key === 'bankem') return 'Còn ' + fmtN(Math.max(0, Number(v.target || 0) - Number(v.actual || 0)));
+  return v.short > 0 ? 'Còn ' + fmtN(v.short) : 'Yếu';
 }
 
-// Render one row per MA_KV/person. Each KPI has its own column so a manager
-// can scan across a single row instead of reading the same person repeatedly.
+// Bảng cảnh báo được tách thành hai nhóm 4 KPI để vừa màn hình điện thoại.
+// Nội dung trong ô chỉ giữ số còn/vượt/tồn, không lặp từ "hôm nay" hay tên đơn vị.
 function buildAlertTableBlocks(members, heading) {
   const sorted = (members || []).slice().sort(compareMaKv);
-  const rows = [];
+  const groupDefs = [
+    { title: 'NHÓM 1 · GIA HẠN / THU / TIẾP THỊ / NPSC', keys: ['ghtt','thucuoc','tiepthi','npsc'], headers: ['MA_KV', 'NV', 'G.HẠN', 'THU', 'T.THI', 'NPSC'] },
+    { title: 'NHÓM 2 · DPSC / CSTC / MODEM / BÁN KÈM', keys: ['dpsc','cstc','modem','bankem'], headers: ['MA_KV', 'NV', 'DPSC', 'CSTC', 'MODEM', 'B.KÈM'] }
+  ];
+  const rowsByGroup = groupDefs.map(g => []);
   for (const p of sorted) {
-    // Đánh dấu đủ mọi KPI còn tồn/vượt ngưỡng; không phụ thuộc trạng thái
-    // giao việc theo ngày. NPSC là ngoại lệ: chỉ khi Thực tăng (cột I) âm.
-    const flagged = new Set(METRICS
-      .filter(m => telegramMetricNeedsAttention(p, m.key))
-      .map(m => m.label));
-    if (!flagged.size) continue;
-    const cells = [areaCodeOf(p) || 'CHUA GAN', p.name];
-    for (const m of METRICS) cells.push(flagged.has(m.label) ? compactAlertCell(p, m) : '—');
-    rows.push(cells);
+    const flagged = new Map(METRICS.map(m => [m.key, telegramMetricNeedsAttention(p, m.key)]));
+    for (let gi = 0; gi < groupDefs.length; gi++) {
+      const g = groupDefs[gi];
+      if (!g.keys.some(key => flagged.get(key))) continue;
+      const cells = [areaCodeOf(p) || 'CHUA GAN', p.name];
+      for (const key of g.keys) {
+        const metric = METRICS.find(m => m.key === key);
+        cells.push(flagged.get(key) ? compactAlertCell(p, metric) : '—');
+      }
+      rowsByGroup[gi].push(cells);
+    }
   }
-  if (!rows.length) return ['• Không có nhân viên bị cảnh báo.'];
-  return buildTelegramGridBlocks(
-    heading || 'BẢNG CẢNH BÁO NHÂN SỰ',
-    ['MA_KV', 'NHÂN VIÊN', 'GIA HẠN', 'THU CƯỚC', 'TIẾP THỊ', 'NPSC', 'DPSC', 'CSTC', 'MODEM', 'BÁN KÈM'],
-    rows,
-    ['left','left','left','left','left','left','left','left','left','left'],
-    2700
-  );
+  const result = [];
+  for (let gi = 0; gi < groupDefs.length; gi++) {
+    const g = groupDefs[gi];
+    const rows = rowsByGroup[gi];
+    if (!rows.length) continue;
+    result.push(...buildTelegramGridBlocks(
+      (heading || 'CẢNH BÁO NHÂN SỰ') + ' · ' + g.title,
+      g.headers,
+      rows,
+      ['left','left','left','left','left','left'],
+      2700
+    ));
+  }
+  return result.length ? result : ['• Không có nhân viên bị cảnh báo.'];
 }
 
 function tgShortPct(value, digits) {
@@ -5514,10 +5832,10 @@ function tgShortPct(value, digits) {
 function telegramMonthCell(p, m) {
   const v = p._m[m.key];
   // Bỏ hậu tố Cxx (số còn lại) khỏi bảng Telegram để bảng gọn, dễ đọc.
-  if (m.key === 'ghtt') return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 1) + ' (85%)';
-  if (m.key === 'npsc') return 'Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + 'TB ' + tgShortPct(v.pct, 2);
-  if (m.key === 'dpsc') { const kh = Number(p.dpsc && p.dpsc.khFiber || 0), th = Number(p.dpsc && p.dpsc.thFiber || 0); const pct = kh > 0 ? th / kh * 100 : (th > 0 ? 100 : 0); const over = Math.max(0, th - kh); return fmtN(th) + '/' + fmtN(kh) + ' ' + tgShortPct(pct, 0) + (over > 0 ? ' V' + fmtN(over) : ''); }
-  if (m.key === 'cstc') return fmtN(v.actual) + ' ton';
+  if (m.key === 'ghtt') return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 0);
+  if (m.key === 'npsc') return (v.actual > 0 ? '+' : '') + fmtN(telegramNpscAlertValue(p));
+  if (m.key === 'dpsc') { const kh = Number(p.dpsc && p.dpsc.khFiber || 0), th = Number(p.dpsc && p.dpsc.thFiber || 0); const pct = kh > 0 ? th / kh * 100 : (th > 0 ? 100 : 0); const over = Math.max(0, th - kh); return fmtN(th) + '/' + fmtN(kh) + (over > 0 ? ' V' + fmtN(over) : ''); }
+  if (m.key === 'cstc') return 'Tồn ' + fmtN(v.actual);
   return fmtN(v.actual) + '/' + fmtN(v.target) + ' ' + tgShortPct(v.pct, 1);
 }
 
@@ -5527,21 +5845,22 @@ function telegramDayProgressCell(p, m) {
   const ctx = state.computed && state.computed.ctx ? state.computed.ctx : null;
   if (m.key === 'dpsc') {
     const fm = v.meta || {};
-    if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
-    if (fm.fiberToday === null || fm.fiberToday === undefined) return 'Chưa có mốc DPSC Fiber đầu ngày';
+    if (ctx && ctx.stage === 'morning') return 'Mốc ĐN';
+    if (fm.fiberToday === null || fm.fiberToday === undefined) return 'Thiếu mốc';
     const allowed = Number(fm.fiberDailyLimit || 0) * (ctx ? ctx.factor : 1);
-    return fmtQtyDecimal(fm.fiberToday) + '/≤' + fmtQtyDecimal(allowed) + (fm.fiberToday > allowed ? ' VUOT' : ' OK');
+    const over = Math.max(0, Number(fm.fiberToday) - allowed);
+    return over > 0 ? 'Vượt ' + fmtQtyDecimal(over) : 'OK';
   }
   if (info.dayDone === null) {
-    if (ctx && ctx.stage === 'morning') return morningBaselineShortText();
-    return missingDayProgressText(info, m);
+    if (ctx && ctx.stage === 'morning') return 'Mốc ĐN';
+    return 'Thiếu mốc';
   }
   if (info.dayTarget > 0) {
-    return fmtN(info.dayDone) + '/' + fmtN(info.dayTarget) + ' ' + tgShortPct(info.dayPct, 0);
+    return info.dayRemain > 0 ? 'Còn ' + fmtN(info.dayRemain) : (info.dayRemain < 0 ? 'Vượt ' + fmtN(Math.abs(info.dayRemain)) : 'Đạt');
   }
-  if (m.key === 'npsc') return 'Fiber ' + (v.actual > 0 ? '+' : '') + fmtN(v.actual) + ' TB';
-  if (m.key === 'cstc') return fmtN(info.dayDone) + ' xu ly';
-  return fmtN(info.dayDone) + ' · 0 KH';
+  if (m.key === 'npsc') return (v.actual > 0 ? '+' : '') + fmtN(v.actual);
+  if (m.key === 'cstc') return 'Xử lý ' + fmtN(info.dayDone);
+  return fmtN(info.dayDone);
 }
 
 function telegramServiceCells(p) {
@@ -5589,22 +5908,32 @@ function buildTelegramGridBlocks(title, headers, dataRows, aligns, maxBlockChars
 
 function buildTeamProgressTableBlocks(members) {
   const identity = p => [areaCodeOf(p) || 'CHUA GAN', p.name];
-  const monthlyRows = members.map(p => identity(p).concat(METRICS.map(m => telegramMonthCell(p, m))));
-  const dailyRows = members.map(p => identity(p).concat(METRICS.map(m => telegramDayProgressCell(p, m))));
+  const groups = [
+    { title: 'NHÓM 1 · G.HẠN / THU / TIẾP THỊ / NPSC', metrics: METRICS.filter(m => ['ghtt','thucuoc','tiepthi','npsc'].includes(m.key)) },
+    { title: 'NHÓM 2 · DPSC / CSTC / MODEM / BÁN KÈM', metrics: METRICS.filter(m => ['dpsc','cstc','modem','bankem'].includes(m.key)) }
+  ];
   const serviceRows = members.map(p => identity(p).concat(telegramServiceCells(p)));
-  return []
-    .concat(buildTelegramGridBlocks('TIEN DO THANG · MOI MA_KV 1 DONG',
-      ['MA_KV','NHÂN VIÊN','G.HẠN','THU CƯỚC','TIẾP THỊ','NPSC','DPSC','CSTC','MODEM','BÁN KÈM'],
-      monthlyRows, ['left','left','right','right','right','right','right','right','right','right'], 2700))
-    .concat(buildTelegramGridBlocks(
-      state.computed && state.computed.ctx && state.computed.ctx.stage === 'morning'
-        ? 'MOC DAU NGAY · MA_KV 1 DONG'
-        : 'TIEN DO TRONG NGAY · MOI MA_KV 1 DONG',
-      ['MA_KV','NHÂN VIÊN','G.HẠN','THU CƯỚC','TIẾP THỊ','NPSC','DPSC','CSTC','MODEM','BÁN KÈM'],
-      dailyRows, ['left','left','right','right','right','right','right','right','right','right'], 2700))
-    .concat(buildTelegramGridBlocks('TIEP THI THEO DICH VU · TH/KH · MOI MA_KV 1 DONG',
-      ['MA_KV','NHÂN VIÊN','FIBER','MYTV','MESH','CAMERA','DỊCH VỤ YẾU'],
-      serviceRows, ['left','left','right','right','right','right','left'], 2700));
+  const blocks = [];
+  for (const group of groups) {
+    const headers = ['MA_KV','NV'].concat(group.metrics.map(m => ({ghtt:'G.HẠN',thucuoc:'THU',tiepthi:'T.THI',npsc:'NPSC',dpsc:'DPSC',cstc:'CSTC',modem:'MODEM',bankem:'B.KÈM'}[m.key])));
+    const monthlyRows = members.map(p => identity(p).concat(group.metrics.map(m => telegramMonthCell(p, m))));
+    const dailyRows = members.map(p => identity(p).concat(group.metrics.map(m => telegramDayProgressCell(p, m))));
+    const aligns = headers.map((_, i) => i < 2 ? 'left' : 'right');
+    blocks.push(...buildTelegramGridBlocks('TIEN DO THANG · ' + group.title, headers, monthlyRows, aligns, 2700));
+    // Không gửi bảng Mốc đầu ngày trong Telegram: đây là dữ liệu kỹ thuật
+    // dùng nội bộ để tính chênh lệch. Chỉ hiện bảng Tiến độ ngày từ buổi trưa/tối.
+    // Snapshot đầu ngày vẫn được lưu nguyên vẹn để tính phát sinh và số còn làm.
+    const currentStage = state.computed && state.computed.ctx && state.computed.ctx.stage;
+    if (currentStage !== 'morning') {
+      blocks.push(...buildTelegramGridBlocks(
+        'TIEN DO NGAY · ' + group.title,
+        headers, dailyRows, aligns, 2700));
+    }
+  }
+  blocks.push(...buildTelegramGridBlocks('TIEP THI THEO DICH VU · TH/KH · MOI MA_KV 1 DONG',
+    ['MA_KV','NV','FIBER','MYTV','MESH','CAM','D.VỤ YẾU'],
+    serviceRows, ['left','left','right','right','right','right','left'], 2700));
+  return blocks;
 }
 
 function buildCenterMessage() {
@@ -5700,7 +6029,7 @@ function buildTeamMessage(code) {
           if (noBaseCount) {
             lines.push('• ' + m.label + ': ' + item.members.length + ' NV · còn xác định được <b>' + fmtN(totalLeft) + ' ' + m.unit + '</b> · ' + noBaseCount + ' NV thiếu mốc đầu ngày');
           } else {
-            lines.push('• ' + m.label + ': ' + item.members.length + ' NV · còn <b>' + fmtN(totalLeft) + ' ' + m.unit + ' hôm nay</b>');
+            lines.push('• ' + m.label + ': ' + item.members.length + ' NV · còn <b>' + fmtN(totalLeft) + ' ' + m.unit + '</b>');
           }
         }
       } else {
