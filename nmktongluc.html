@@ -1713,11 +1713,18 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,var(--bg) 240px);color:var(--i
     document.body.classList.add('lock');
   }
 
+  // Chuẩn hoá số nhà để tránh Google Sheets tự bỏ số 0 ở đầu (VD: 07 thành 7).
+  // Cặp TÊN_NV + SỐ NHÀ cũng là khoá nhận diện khách được dùng ở bước chống trùng.
+  function normHouseNo(s) {
+    return norm(s).trim().replace(/\s+/g, '')
+      .replace(/(^|[\/.-])0+(?=\d)/g, '$1');
+  }
+
   function countCustomerMatches(rows, customer) {
+    var nvKey = norm(customer.nv).trim();
+    var soKey = normHouseNo(customer.so);
     return rows.filter(function (r) {
-      return norm(r.nv) === norm(customer.nv) &&
-        norm(r.so) === norm(customer.so) &&
-        norm(r.dc) === norm(customer.dc);
+      return norm(r.nv).trim() === nvKey && normHouseNo(r.so) === soKey;
     }).length;
   }
 
@@ -1750,7 +1757,8 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,var(--bg) 240px);color:var(--i
 
     // Không cho trùng khoá NV + Số nhà, vì ứng dụng dùng cặp này để nhận diện khách.
     var duplicate = state.rows.some(function (r) {
-      return norm(r.nv) === norm(customer.nv) && norm(r.so) === norm(customer.so);
+      return norm(r.nv).trim() === norm(customer.nv).trim() &&
+        normHouseNo(r.so) === normHouseNo(customer.so);
     });
     if (duplicate) err.push('Nhân viên này đã có Số nhà trên trong danh sách. Bạn hãy kiểm tra lại để tránh tạo trùng khách.');
 
