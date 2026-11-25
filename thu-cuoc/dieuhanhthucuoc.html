@@ -23,9 +23,48 @@
     .reason-layout{display:grid;grid-template-columns:minmax(300px,.8fr) minmax(0,1.2fr);gap:16px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-field{display:flex;flex-direction:column;gap:6px}.form-field.full{grid-column:1/-1}.form-field label{font-size:12px;font-weight:800;color:#536d7e}.form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 11px;background:#fff;outline:0;color:var(--ink)}.form-field textarea{min-height:95px;resize:vertical}.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:#5db5ce;box-shadow:0 0 0 3px rgba(17,169,181,.1)}.subscriber-info{padding:12px;border-radius:11px;background:#f1f8fa;border:1px solid #d8edf2;font-size:12px;line-height:1.7}.subscriber-info b{color:var(--navy)}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
     .statusbar{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px;margin-top:12px}.dot{width:8px;height:8px;border-radius:50%;background:#17a36f;display:inline-block}.dot.warn{background:#d99820}.toast{position:fixed;right:20px;bottom:20px;z-index:20;max-width:min(420px,calc(100vw - 40px));padding:13px 16px;border-radius:12px;background:#123e56;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.2);opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateY(0)}.toast.error{background:#9e3030}.loading{opacity:.58;pointer-events:none}.hidden{display:none!important}.section-caption{color:var(--muted);font-size:11px;line-height:1.6}.footer{color:#8ba0ad;text-align:center;font-size:11px;padding:12px}
     .auth-gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(140deg,#eaf3f8,#f3f7fa)}.auth-card{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px;box-shadow:var(--shadow);text-align:center}.auth-mark{width:56px;height:56px;border-radius:16px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:#e7f5f8;color:var(--blue);font-size:27px;font-weight:900}.auth-card h1{font-size:22px;margin:0 0 8px}.auth-card p{color:var(--muted);font-size:13px;line-height:1.65}.auth-google{display:flex;justify-content:center;margin:22px 0 12px;min-height:44px}.auth-message{min-height:20px;color:var(--red);font-size:12px}.auth-note{border-top:1px solid var(--line);padding-top:14px;margin-top:16px;font-size:11px!important}.user-chip{padding:8px 10px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;max-width:240px;overflow-wrap:anywhere}.hero-logout{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:8px 10px;font-weight:700;font-size:11px}.api-frame{display:none;width:0;height:0;border:0}
+    /* Readability refresh: stronger contrast, larger labels and natural capitalization. */
+    body{font-size:16px;line-height:1.5;color:#132f43}
+    .eyebrow{font-size:12px;letter-spacing:.7px;text-transform:none;opacity:1;color:rgba(255,255,255,.94)}
+    .hero h1{font-size:27px;line-height:1.25}
+    .hero p{font-size:15px;color:#f1f8fb;line-height:1.5}
+    .hero-chip{font-size:13px}
+    .tab{font-size:15px;color:#405a6c;padding:13px 18px}
+    .tab.active{color:#075f86}
+    .field-inline label{font-size:13px;color:#344f62}
+    .btn-small{font-size:13px}
+    .panel-title{font-size:17px}
+    .panel-sub{font-size:14px;color:#4d6577;line-height:1.5}
+    .snapshot-label{font-size:14px;color:#173f58}
+    .snapshot-status{font-size:12px;color:#455f71}
+    .snapshot-count{font-size:30px}
+    .snapshot-note{font-size:13px;color:#4e6678;line-height:1.45}
+    .kpi-label{font-size:13px;text-transform:none;letter-spacing:0;color:#425b6d;line-height:1.4}
+    .kpi-value{font-size:30px}
+    .kpi-foot{font-size:13px;color:#4e6678;line-height:1.4}
+    .kpi.highlight .kpi-label,.kpi.highlight .kpi-foot{color:#fff}
+    th{font-size:12px;text-transform:none;letter-spacing:0;color:#344f62;background:#edf3f7}
+    td{font-size:13px;color:#1b374a}
+    .pill{font-size:12px}
+    .muted{color:#4d6577}
+    .empty{font-size:13px;color:#4d6577}
+    .form-field label{font-size:13px;color:#344f62}
+    .subscriber-info{font-size:13px;color:#29475a;line-height:1.7}
+    .statusbar{font-size:13px;color:#4d6577}
+    .section-caption{font-size:13px;color:#4d6577;line-height:1.55}
+    .footer{font-size:12px;color:#526b7c;line-height:1.5}
+    .user-chip,.hero-logout{font-size:12px}
+    .lock-control-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px;padding:14px 15px;border:1px solid #cbdce6;border-radius:13px;background:#f4f9fc}
+    .lock-control-copy{display:flex;flex-direction:column;gap:4px;min-width:220px;flex:1}
+    .lock-control-copy strong{font-size:15px;color:#173e56}
+    .lock-control-copy span{font-size:13px;color:#465f71;line-height:1.45}
+    .lock-control-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+    .lock-date-field{padding:8px 10px;min-width:245px}
+    .lock-date-field input{font-size:14px;min-width:138px}
+    .lock-date-field input:focus{outline:2px solid #65b8d2;outline-offset:2px}
     @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media(max-width:900px){.content-grid,.reason-layout{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:600px){.app{padding:12px 12px 32px}.hero{padding:18px;border-radius:15px}.hero h1{font-size:20px}.nav{margin-top:12px}.tab{padding:11px 12px;font-size:12px}.snapshot-grid{grid-template-columns:1fr}.snapshot-card{padding:12px}.kpis{gap:8px}.kpi{padding:12px}.kpi-value{font-size:23px}.toolbar{align-items:stretch}.toolbar-left,.toolbar-right{width:100%}.toolbar-right .btn{flex:1}.field-inline{flex:1}.field-inline input{min-width:0;width:100%}.panel{padding:14px}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}th,td{padding:9px 8px}.hero-meta{width:100%}}
+    @media(max-width:600px){.app{padding:12px 12px 32px}.hero{padding:18px;border-radius:15px}.hero h1{font-size:21px}.hero p{font-size:14px}.nav{margin-top:12px}.tab{padding:11px 12px;font-size:14px}.snapshot-grid{grid-template-columns:1fr}.snapshot-card{padding:12px}.kpis{gap:8px}.kpi{padding:12px}.kpi-value{font-size:24px}.toolbar{align-items:stretch}.toolbar-left,.toolbar-right{width:100%}.toolbar-right .btn{flex:1}.field-inline{flex:1}.field-inline input{min-width:0;width:100%}.panel{padding:14px}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}th,td{padding:9px 8px}.hero-meta{width:100%}.lock-control-row{align-items:stretch;flex-direction:column}.lock-control-actions{justify-content:stretch}.lock-control-actions>*{width:100%}.lock-date-field{min-width:0}.lock-date-field input{width:100%}}
   </style>
 </head>
 <body>
@@ -56,8 +95,8 @@
     </header>
 
     <nav class="nav" aria-label="Các phân hệ">
-      <button class="tab active" id="tabDashboard" onclick="switchTab('dashboard')">TỔNG QUAN THU CƯỚC</button>
-      <button class="tab" id="tabReasons" onclick="switchTab('reasons')">LÝ DO TỒN</button>
+      <button class="tab active" id="tabDashboard" onclick="switchTab('dashboard')">Tổng quan thu cước</button>
+      <button class="tab" id="tabReasons" onclick="switchTab('reasons')">Lý do tồn</button>
     </nav>
 
     <main id="dashboardView">
@@ -75,22 +114,32 @@
       <section class="panel">
         <div class="panel-head">
           <div><h2 class="panel-title">Ghi nhận dữ liệu trong ngày</h2><p class="panel-sub">Mỗi lần bấm sẽ lưu một bản chụp danh sách thuê bao còn phải thu tại thời điểm đó.</p></div>
-          <div id="lockBadge" class="pill pill-amber">CHƯA KHÓA</div>
+          <div id="lockBadge" class="pill pill-amber">Chưa khóa</div>
         </div>
         <div class="snapshot-grid" id="snapshotCards">
-          <div class="snapshot-card"><div class="snapshot-label">SÁNG</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
-          <div class="snapshot-card"><div class="snapshot-label">TRƯA</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
-          <div class="snapshot-card"><div class="snapshot-label">CHIỀU</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
+          <div class="snapshot-card"><div class="snapshot-label">Sáng</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
+          <div class="snapshot-card"><div class="snapshot-label">Trưa</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
+          <div class="snapshot-card"><div class="snapshot-label">Chiều</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
         </div>
-        <div class="toolbar" style="margin:14px 0 0">
+        <div class="toolbar capture-toolbar" style="margin:14px 0 0">
           <div class="toolbar-left">
             <button class="btn btn-primary btn-small admin-only" id="captureMorning" onclick="capture('SÁNG')">＋ Chụp mốc sáng</button>
             <button class="btn btn-primary btn-small admin-only" id="captureNoon" onclick="capture('TRƯA')">＋ Chụp mốc trưa</button>
             <button class="btn btn-primary btn-small admin-only" id="captureEvening" onclick="capture('CHIỀU')">＋ Chụp mốc chiều</button>
           </div>
-          <div class="toolbar-right">
-            <button class="btn btn-danger btn-small admin-only" id="lockButton" onclick="changeLock(true)">▣ Khóa dữ liệu ngày</button>
-            <button class="btn btn-outline btn-small hidden admin-only" id="unlockButton" onclick="changeLock(false)">↻ Mở khóa để tính lại</button>
+        </div>
+        <div class="lock-control-row admin-only" id="lockControls">
+          <div class="lock-control-copy">
+            <strong>Chốt dữ liệu theo ngày</strong>
+            <span>Sang ngày mới, chọn ngày hôm trước để khóa kết quả đã chốt. Bạn có thể mở khóa ngày đó nếu cần tính lại.</span>
+          </div>
+          <div class="lock-control-actions">
+            <div class="field-inline lock-date-field">
+              <label for="lockDate">Ngày cần khóa / mở</label>
+              <input id="lockDate" type="date" aria-label="Chọn ngày cần khóa hoặc mở khóa">
+            </div>
+            <button class="btn btn-danger btn-small admin-only" id="lockButton" onclick="changeLock(true)">▣ Khóa ngày đã chọn</button>
+            <button class="btn btn-outline btn-small hidden admin-only" id="unlockButton" onclick="changeLock(false)">↻ Mở khóa ngày đã chọn</button>
           </div>
         </div>
         <div class="statusbar"><span class="dot" id="sourceDot"></span><span id="sourceStatus">Đang đọc dữ liệu nguồn…</span></div>
@@ -178,8 +227,24 @@
     const GOOGLE_CLIENT_ID = String(window.THUCUOC_CONFIG && window.THUCUOC_CONFIG.GOOGLE_CLIENT_ID || '').trim();
 
     document.addEventListener('DOMContentLoaded', () => {
-      $('reportDate').value = todayISO();
-      $('reportDate').addEventListener('change', reloadData);
+      const today = todayISO();
+      $('reportDate').value = today;
+      $('lockDate').value = today;
+      $('lockDate').max = today;
+      $('reportDate').addEventListener('change', () => {
+        const selected = $('reportDate').value || todayISO();
+        $('lockDate').value = selected;
+        reloadData();
+      });
+      $('lockDate').addEventListener('change', () => {
+        const selected = $('lockDate').value || todayISO();
+        if (selected > todayISO()) {
+          $('lockDate').value = todayISO();
+          return toast('Không thể khóa ngày trong tương lai.', true);
+        }
+        $('reportDate').value = selected;
+        reloadData();
+      });
       $('promiseDate').value = '';
       initGoogleLogin();
     });
@@ -250,6 +315,8 @@
         $('loginGate').classList.add('hidden');
         $('appRoot').classList.remove('hidden');
         $('reportDate').value = todayISO();
+        $('lockDate').value = todayISO();
+        $('lockDate').max = todayISO();
         reloadData();
       } catch (error) {
         APP.sessionToken = '';
@@ -360,8 +427,8 @@
       const date = $('reportDate').value || todayISO();
       runServer('getDashboardData', [date], data => {
         APP.data = data;
-        $('heroDate').textContent = 'BÁO CÁO NGÀY ' + date.split('-').reverse().join('/');
-        $('heroState').textContent = data.lock && data.lock.locked ? 'DỮ LIỆU ĐÃ KHÓA' : 'ĐANG THEO DÕI';
+        $('heroDate').textContent = 'Báo cáo ngày ' + date.split('-').reverse().join('/');
+        $('heroState').textContent = data.lock && data.lock.locked ? 'Dữ liệu đã khóa' : 'Đang theo dõi';
         $('sourceStatus').textContent = 'Nguồn: ' + data.sourceSheet + ' · ' + fmtNum(data.sourceCount) + ' thuê bao đang ở trạng thái Cần phải thu.';
         $('sourceDot').className = 'dot';
         renderSnapshotCards(); renderSummary(); renderOutstanding(); renderReasonModule();
@@ -376,12 +443,19 @@
     }
 
     function changeLock(shouldLock) {
-      const date = $('reportDate').value || todayISO();
+      const date = $('lockDate').value || $('reportDate').value || todayISO();
+      if (date > todayISO()) return toast('Không thể khóa ngày trong tương lai.', true);
+      const dateLabel = date.split('-').reverse().join('/');
       const message = shouldLock
-        ? 'Khóa dữ liệu ngày ' + date + '? Sau khi khóa, chương trình sẽ không cho chụp lại hoặc tự tính lại cho đến khi bạn chủ động mở khóa.'
-        : 'Mở khóa ngày ' + date + '? Bạn có thể chụp lại các mốc và cập nhật kết quả tính toán.';
+        ? 'Bạn đang khóa dữ liệu ngày ' + dateLabel + '. Sau khi khóa, chương trình sẽ giữ nguyên kết quả và không cho chụp lại cho đến khi chủ động mở khóa. Tiếp tục?'
+        : 'Bạn đang mở khóa dữ liệu ngày ' + dateLabel + '. Sau đó có thể chụp lại các mốc và tính toán lại. Tiếp tục?';
       if (!confirm(message)) return;
-      runServer('setDayLock', [date, shouldLock], result => { toast(result.message); reloadData(); });
+      runServer('setDayLock', [date, shouldLock], result => {
+        $('reportDate').value = date;
+        $('lockDate').value = date;
+        toast(result.message);
+        reloadData();
+      });
     }
 
     function renderSnapshotCards() {
@@ -390,10 +464,11 @@
       const order = ['SÁNG','TRƯA','CHIỀU'];
       $('snapshotCards').innerHTML = order.map(slot => {
         const s = bySlot[slot];
-        return `<div class="snapshot-card"><div class="snapshot-top"><span class="snapshot-label">${slot}</span><span class="snapshot-status">${s ? 'ĐÃ LƯU' : 'CHƯA CHỤP'}</span></div><div class="snapshot-count">${s ? fmtNum(s.count) : '—'}</div><div class="snapshot-note">${s ? 'Ghi nhận lúc ' + esc(s.time || 'Không rõ thời gian') : 'Chưa có dữ liệu tại mốc này'}</div></div>`;
+        const displaySlot = slot.charAt(0) + slot.slice(1).toLowerCase();
+        return `<div class="snapshot-card"><div class="snapshot-top"><span class="snapshot-label">${displaySlot}</span><span class="snapshot-status">${s ? 'Đã lưu' : 'Chưa chụp'}</span></div><div class="snapshot-count">${s ? fmtNum(s.count) : '—'}</div><div class="snapshot-note">${s ? 'Ghi nhận lúc ' + esc(s.time || 'Không rõ thời gian') : 'Chưa có dữ liệu tại mốc này'}</div></div>`;
       }).join('');
       const locked = !!(APP.data.lock && APP.data.lock.locked);
-      $('lockBadge').textContent = locked ? 'ĐÃ KHÓA DỮ LIỆU' : 'CHƯA KHÓA';
+      $('lockBadge').textContent = locked ? 'Đã khóa dữ liệu' : 'Chưa khóa';
       $('lockBadge').className = locked ? 'pill pill-green' : 'pill pill-amber';
       $('lockButton').classList.toggle('hidden', !APP.isAdmin || locked);
       $('unlockButton').classList.toggle('hidden', !APP.isAdmin || !locked);
@@ -414,7 +489,7 @@
       $('monthLabel').textContent = m.month || 'Chưa có tháng';
       $('dailyHistoryTable').innerHTML = (m.days || []).length ? m.days.map(d => `<tr><td><b>${esc(d.date.split('-').reverse().join('/'))}</b></td><td class="num">${fmtNum(d.baselineCount)}</td><td class="num">${fmtNum(d.totalDone)}</td><td class="num">${fmtNum(d.currentCount)}</td><td class="num">${fmtNum(d.deferredCount)}</td><td class="num"><b>${fmtPct(d.totalRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,d.totalRate*100))}%"></span></div></td><td>${d.locked ? '<span class="pill pill-green">Đã khóa</span>' : '<span class="pill pill-amber">Đang mở</span>'}</td></tr>`).join('') : '<tr><td colspan="7" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr>';
       $('overallNote').textContent = `Tỷ lệ tổng kỳ ${m.month || ''}: ${fmtNum(m.totalDone)} thuê bao đã xử lý / ${fmtNum(m.workloadCount)} thuê bao duy nhất đã xuất hiện trong các lần chụp; ${fmtNum(m.deferredCount)} thuê bao đang ở trạng thái Xử lý sau. Mốc dữ liệu cuối: ${m.lastCapturedAt || 'chưa có'}.`;
-      $('stageTable').innerHTML = (s.stages || []).length ? s.stages.map(x => `<tr><td><b>${esc(x.slot)}</b><div class="muted" style="font-size:10px">${esc(x.time)}</div></td><td class="num">${fmtNum(x.count)}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.removedSincePrevious) + '<div class="muted">+' + fmtPct(x.intervalRate) + '</div>'}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.movedToDeferred)}</td><td class="num">${fmtNum(x.cumulativeDone)}</td><td class="num"><b>${fmtPct(x.cumulativeRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.cumulativeRate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="6" class="empty">Chưa có dữ liệu chụp. Hãy lưu mốc sáng trước.</td></tr>';
+      $('stageTable').innerHTML = (s.stages || []).length ? s.stages.map(x => `<tr><td><b>${esc(x.slot.charAt(0) + x.slot.slice(1).toLowerCase())}</b><div class="muted" style="font-size:12px">${esc(x.time)}</div></td><td class="num">${fmtNum(x.count)}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.removedSincePrevious) + '<div class="muted">+' + fmtPct(x.intervalRate) + '</div>'}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.movedToDeferred)}</td><td class="num">${fmtNum(x.cumulativeDone)}</td><td class="num"><b>${fmtPct(x.cumulativeRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.cumulativeRate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="6" class="empty">Chưa có dữ liệu chụp. Hãy lưu mốc sáng trước.</td></tr>';
       $('teamTable').innerHTML = (s.byTeam || []).length ? s.byTeam.map(x => `<tr><td>${esc(x.team)}</td><td class="num">${fmtNum(x.done)} / ${fmtNum(x.baseline)}</td><td class="num"><b>${fmtPct(x.rate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.rate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="3" class="empty">Chưa có dữ liệu xử lý để phân tổ.</td></tr>';
       $('employeeTable').innerHTML = (s.byEmployee || []).length ? s.byEmployee.map(x => `<tr><td><b>${esc(x.employee)}</b>${x.rate < s.totalRate && x.remain > 0 ? ' <span class="pill pill-amber">Thấp hơn TB</span>' : ''}</td><td>${esc(x.team)}</td><td class="num">${fmtNum(x.baseline)}</td><td class="num">${fmtNum(x.done)}</td><td class="num">${fmtNum(x.remain)}</td><td class="num"><b>${fmtPct(x.rate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.rate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="6" class="empty">Chưa có dữ liệu.</td></tr>';
       $('staffCount').textContent = fmtNum((s.byEmployee || []).length) + ' nhân viên';
