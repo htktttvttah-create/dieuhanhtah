@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <title>Điều hành thu cước trước ngày khóa</title>
+  <script src="./config.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    :root{--navy:#0b3b57;--blue:#087eaf;--cyan:#11a9b5;--green:#15966b;--red:#c64242;--amber:#bd7a12;--ink:#183447;--muted:#6c8291;--line:#dce6ec;--bg:#f3f7fa;--card:#fff;--shadow:0 8px 24px rgba(14,55,78,.07)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Arial,sans-serif;font-size:14px}button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1440px;margin:0 auto;padding:22px 24px 48px}
+    .hero{background:linear-gradient(120deg,#0b3b57,#087eaf 62%,#11a9b5);color:#fff;border-radius:20px;padding:24px 26px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+    .eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;opacity:.78;font-weight:700}.hero h1{font-size:25px;margin:8px 0 6px;letter-spacing:-.4px}.hero p{margin:0;color:rgba(255,255,255,.82);font-size:13px}.hero-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.hero-chip{padding:9px 12px;border:1px solid rgba(255,255,255,.23);background:rgba(255,255,255,.12);border-radius:11px;font-weight:600;font-size:12px}
+    .nav{display:flex;gap:8px;margin:18px 0 16px;border-bottom:1px solid var(--line)}.tab{border:0;background:transparent;color:var(--muted);padding:12px 18px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1px}.tab.active{color:var(--blue);border-bottom-color:var(--cyan)}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.field-inline{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 10px}.field-inline label{font-size:12px;color:var(--muted);font-weight:700}.field-inline input{border:0;outline:0;color:var(--ink);font-weight:700;background:transparent}
+    .btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s;min-height:38px}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#066b95}.btn-soft{background:#e8f4f8;color:#126d8f}.btn-outline{border:1px solid var(--line);background:#fff;color:var(--ink)}.btn-danger{background:#fff0f0;color:var(--red)}.btn-green{background:#e6f6ef;color:#117b58}.btn-small{padding:8px 11px;min-height:34px;font-size:12px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.panel-title{margin:0;font-size:15px;font-weight:800;letter-spacing:-.1px}.panel-sub{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .snapshot-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.snapshot-card{border:1px solid var(--line);border-radius:13px;padding:15px;background:linear-gradient(180deg,#fff,#f9fcfd)}.snapshot-top{display:flex;justify-content:space-between;align-items:center}.snapshot-label{font-weight:800;color:var(--navy);font-size:13px}.snapshot-status{font-size:11px;color:var(--muted);background:#f0f4f6;padding:5px 8px;border-radius:20px}.snapshot-count{font-size:27px;letter-spacing:-.7px;font-weight:800;margin:12px 0 3px}.snapshot-note{font-size:11px;color:var(--muted);margin-bottom:12px}
+    .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:800}.kpi-value{font-size:28px;font-weight:850;letter-spacing:-.8px;margin:8px 0 4px}.kpi-foot{font-size:11px;color:var(--muted)}.kpi.highlight{background:linear-gradient(145deg,#0b4f71,#087eaf);color:#fff;border:0}.kpi.highlight .kpi-label,.kpi.highlight .kpi-foot{color:rgba(255,255,255,.78)}
+    .content-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:16px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px}table{width:100%;border-collapse:collapse;min-width:520px}th,td{text-align:left;padding:10px 11px;border-bottom:1px solid #edf1f4;font-size:12px;vertical-align:middle}th{background:#f6fafc;color:#627b8b;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}tbody tr:last-child td{border-bottom:0}.num{text-align:right;font-variant-numeric:tabular-nums}.pill{display:inline-flex;padding:4px 8px;border-radius:20px;background:#eaf5f8;color:#126d8f;font-size:11px;font-weight:800}.pill-green{background:#e7f6ef;color:#147b57}.pill-amber{background:#fff4df;color:#96610e}.muted{color:var(--muted)}.empty{padding:22px;text-align:center;color:var(--muted);font-size:12px}
+    .progress{height:7px;background:#edf2f5;border-radius:20px;overflow:hidden;min-width:76px}.progress>span{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#087eaf,#11a9b5)}
+    .reason-layout{display:grid;grid-template-columns:minmax(300px,.8fr) minmax(0,1.2fr);gap:16px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-field{display:flex;flex-direction:column;gap:6px}.form-field.full{grid-column:1/-1}.form-field label{font-size:12px;font-weight:800;color:#536d7e}.form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 11px;background:#fff;outline:0;color:var(--ink)}.form-field textarea{min-height:95px;resize:vertical}.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:#5db5ce;box-shadow:0 0 0 3px rgba(17,169,181,.1)}.subscriber-info{padding:12px;border-radius:11px;background:#f1f8fa;border:1px solid #d8edf2;font-size:12px;line-height:1.7}.subscriber-info b{color:var(--navy)}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+    .statusbar{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px;margin-top:12px}.dot{width:8px;height:8px;border-radius:50%;background:#17a36f;display:inline-block}.dot.warn{background:#d99820}.toast{position:fixed;right:20px;bottom:20px;z-index:20;max-width:min(420px,calc(100vw - 40px));padding:13px 16px;border-radius:12px;background:#123e56;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.2);opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateY(0)}.toast.error{background:#9e3030}.loading{opacity:.58;pointer-events:none}.hidden{display:none!important}.section-caption{color:var(--muted);font-size:11px;line-height:1.6}.footer{color:#8ba0ad;text-align:center;font-size:11px;padding:12px}
+    .auth-gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(140deg,#eaf3f8,#f3f7fa)}.auth-card{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px;box-shadow:var(--shadow);text-align:center}.auth-mark{width:56px;height:56px;border-radius:16px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:#e7f5f8;color:var(--blue);font-size:27px;font-weight:900}.auth-card h1{font-size:22px;margin:0 0 8px}.auth-card p{color:var(--muted);font-size:13px;line-height:1.65}.auth-google{display:flex;justify-content:center;margin:22px 0 12px;min-height:44px}.auth-message{min-height:20px;color:var(--red);font-size:12px}.auth-note{border-top:1px solid var(--line);padding-top:14px;margin-top:16px;font-size:11px!important}.user-chip{padding:8px 10px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;max-width:240px;overflow-wrap:anywhere}.hero-logout{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:8px 10px;font-weight:700;font-size:11px}.api-frame{display:none;width:0;height:0;border:0}
+    @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:900px){.content-grid,.reason-layout{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:600px){.app{padding:12px 12px 32px}.hero{padding:18px;border-radius:15px}.hero h1{font-size:20px}.nav{margin-top:12px}.tab{padding:11px 12px;font-size:12px}.snapshot-grid{grid-template-columns:1fr}.snapshot-card{padding:12px}.kpis{gap:8px}.kpi{padding:12px}.kpi-value{font-size:23px}.toolbar{align-items:stretch}.toolbar-left,.toolbar-right{width:100%}.toolbar-right .btn{flex:1}.field-inline{flex:1}.field-inline input{min-width:0;width:100%}.panel{padding:14px}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}th,td{padding:9px 8px}.hero-meta{width:100%}}
+  </style>
+</head>
+<body>
+  <section class="auth-gate" id="loginGate">
+    <div class="auth-card">
+      <div class="auth-mark">VN</div>
+      <h1>Đăng nhập hệ thống thu cước</h1>
+      <p>Chỉ tài khoản Google đã được người quản trị cấp quyền mới xem được dữ liệu thuê bao.</p>
+      <div class="auth-google" id="googleSignInButton"></div>
+      <div class="auth-message" id="authMessage">Đang khởi tạo xác thực Google…</div>
+      <p class="auth-note">Dữ liệu khách hàng được truy xuất từ Google Sheets sau khi xác thực ở máy chủ. Không lưu mã thuê bao hoặc thông tin khách hàng trên GitHub Pages.</p>
+    </div>
+  </section>
+  <iframe class="api-frame" id="apiTransportFrame" name="apiTransportFrame" title="Kênh gửi yêu cầu bảo mật"></iframe>
+  <div class="app hidden" id="appRoot">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Trung tâm Viễn thông Tân An Hội</div>
+        <h1>Điều hành thu cước trước ngày khóa</h1>
+        <p>Theo dõi chênh lệch thuê bao theo sáng – trưa – chiều, lưu lý do tồn và điều hành theo từng nhân viên.</p>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-chip" id="heroDate">Đang tải ngày…</div>
+        <div class="hero-chip" id="heroState">Đang kết nối dữ liệu</div>
+        <span class="user-chip" id="userEmailChip"></span>
+        <button class="hero-logout" id="logoutButton" onclick="logoutApp()">Đăng xuất</button>
+      </div>
+    </header>
+
+    <nav class="nav" aria-label="Các phân hệ">
+      <button class="tab active" id="tabDashboard" onclick="switchTab('dashboard')">TỔNG QUAN THU CƯỚC</button>
+      <button class="tab" id="tabReasons" onclick="switchTab('reasons')">LÝ DO TỒN</button>
+    </nav>
+
+    <main id="dashboardView">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="field-inline"><label for="reportDate">Ngày báo cáo</label><input id="reportDate" type="date"></div>
+          <button class="btn btn-outline btn-small" onclick="reloadData()">↻ Làm mới</button>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-green btn-small" onclick="exportImage()">▧ Xuất hình ảnh</button>
+          <button class="btn btn-soft btn-small admin-only" id="exportExcelButton" onclick="exportThreeDayExcel()">⇩ Excel chêm 3 ngày</button>
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div><h2 class="panel-title">Ghi nhận dữ liệu trong ngày</h2><p class="panel-sub">Mỗi lần bấm sẽ lưu một bản chụp danh sách thuê bao còn phải thu tại thời điểm đó.</p></div>
+          <div id="lockBadge" class="pill pill-amber">CHƯA KHÓA</div>
+        </div>
+        <div class="snapshot-grid" id="snapshotCards">
+          <div class="snapshot-card"><div class="snapshot-label">SÁNG</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
+          <div class="snapshot-card"><div class="snapshot-label">TRƯA</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
+          <div class="snapshot-card"><div class="snapshot-label">CHIỀU</div><div class="snapshot-count">—</div><div class="snapshot-note">Chưa có dữ liệu</div></div>
+        </div>
+        <div class="toolbar" style="margin:14px 0 0">
+          <div class="toolbar-left">
+            <button class="btn btn-primary btn-small admin-only" id="captureMorning" onclick="capture('SÁNG')">＋ Chụp mốc sáng</button>
+            <button class="btn btn-primary btn-small admin-only" id="captureNoon" onclick="capture('TRƯA')">＋ Chụp mốc trưa</button>
+            <button class="btn btn-primary btn-small admin-only" id="captureEvening" onclick="capture('CHIỀU')">＋ Chụp mốc chiều</button>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-danger btn-small admin-only" id="lockButton" onclick="changeLock(true)">▣ Khóa dữ liệu ngày</button>
+            <button class="btn btn-outline btn-small hidden admin-only" id="unlockButton" onclick="changeLock(false)">↻ Mở khóa để tính lại</button>
+          </div>
+        </div>
+        <div class="statusbar"><span class="dot" id="sourceDot"></span><span id="sourceStatus">Đang đọc dữ liệu nguồn…</span></div>
+      </section>
+
+      <section class="kpis">
+        <div class="kpi"><div class="kpi-label">Số thuê bao đầu ngày</div><div class="kpi-value" id="kpiBaseline">—</div><div class="kpi-foot" id="kpiBaselineFoot">Mốc sáng hoặc mốc đầu tiên</div></div>
+        <div class="kpi"><div class="kpi-label">Đã xử lý</div><div class="kpi-value" id="kpiDone">—</div><div class="kpi-foot">Thuê bao đầu ngày không còn trong danh sách tồn</div></div>
+        <div class="kpi"><div class="kpi-label">Còn phải thu</div><div class="kpi-value" id="kpiRemain">—</div><div class="kpi-foot">Theo lần chụp gần nhất trong ngày</div></div>
+        <div class="kpi highlight"><div class="kpi-label">Tỷ lệ xử lý trong ngày</div><div class="kpi-value" id="kpiRate">—</div><div class="kpi-foot" id="kpiRateFoot">Đã xử lý / đầu ngày</div></div>
+        <div class="kpi"><div class="kpi-label">Tỷ lệ tổng toàn kỳ</div><div class="kpi-value" id="kpiOverallRate">—</div><div class="kpi-foot" id="kpiOverallFoot">Từ lần chụp đầu kỳ đến hiện tại</div></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><h2 class="panel-title">Tổng hợp tỷ lệ theo từng ngày</h2><p class="panel-sub">Tỷ lệ từng ngày và tỷ lệ tổng toàn kỳ trong tháng được tính trên danh sách thuê bao đã ghi nhận.</p></div><span class="pill" id="monthLabel">—</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Ngày</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ ngày</th><th>Trạng thái</th></tr></thead><tbody id="dailyHistoryTable"><tr><td colspan="7" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr></tbody></table></div>
+        <p class="section-caption" id="overallNote" style="margin:10px 0 0">Tỷ lệ tổng kỳ = số thuê bao đã xử lý trong tập thuê bao ghi nhận trong tháng / tổng số thuê bao duy nhất đã xuất hiện trong các lần chụp.</p>
+      </section>
+
+      <section class="content-grid">
+        <div class="panel">
+          <div class="panel-head"><div><h2 class="panel-title">Tiến độ từng mốc</h2><p class="panel-sub">Tỷ lệ từng mốc đều lấy số đầu ngày làm mẫu số để so sánh cùng cơ sở.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Mốc</th><th class="num">Còn phải thu</th><th class="num">Giảm thêm</th><th class="num">Chuyển xử lý sau</th><th class="num">Lũy kế xử lý</th><th class="num">Tỷ lệ lũy kế</th></tr></thead><tbody id="stageTable"><tr><td colspan="6" class="empty">Chưa có dữ liệu chụp.</td></tr></tbody></table></div>
+          <p class="section-caption" id="summaryNote" style="margin:10px 0 0">Chụp dữ liệu sáng để thiết lập mẫu số đầu ngày. Dữ liệu mới phát sinh sẽ được thể hiện riêng, không tự tính thành thuê bao đã thu.</p>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2 class="panel-title">Kết quả theo tổ</h2><p class="panel-sub">Phân bổ thuê bao đầu ngày đã được xử lý.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Tổ kỹ thuật</th><th class="num">Đã xử lý</th><th class="num">Tỷ lệ</th></tr></thead><tbody id="teamTable"><tr><td colspan="3" class="empty">Chưa có dữ liệu.</td></tr></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><h2 class="panel-title">Theo dõi tiến độ từng nhân viên</h2><p class="panel-sub">Hiển thị cả nhân viên chưa phát sinh kết quả; sắp xếp tỷ lệ thấp lên trước để dễ điều hành.</p></div><span class="pill" id="staffCount">0 nhân viên</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Nhân viên</th><th>Tổ</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn tồn</th><th class="num">Tỷ lệ</th></tr></thead><tbody id="employeeTable"><tr><td colspan="6" class="empty">Chưa có dữ liệu.</td></tr></tbody></table></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><h2 class="panel-title">Danh sách thuê bao còn phải thu</h2><p class="panel-sub">Dữ liệu trực tiếp từ sheet THUCUOC, trạng thái “Cần phải thu”. Có thể chuyển nhanh sang phân hệ Lý do tồn.</p></div><span class="pill" id="outstandingCount">0 thuê bao</span></div>
+        <div class="toolbar" style="margin-bottom:10px"><div class="toolbar-left" style="flex:1"><input id="outstandingSearch" type="search" placeholder="Tìm mã thuê bao, tên khách hàng, nhân viên, địa chỉ…" style="width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:0" oninput="renderOutstanding()"></div></div>
+        <div class="table-wrap"><table><thead><tr><th>MA_TB</th><th>Khách hàng</th><th>Nhân viên</th><th>Tổ</th><th class="num">Nợ hiện tại</th><th>Lý do tồn gần nhất</th><th></th></tr></thead><tbody id="outstandingTable"><tr><td colspan="7" class="empty">Đang tải dữ liệu.</td></tr></tbody></table></div>
+      </section>
+    </main>
+
+    <main id="reasonsView" class="hidden">
+      <div class="toolbar">
+        <div><h2 class="panel-title" style="font-size:19px">Quản lý lý do tồn thuê bao</h2><p class="panel-sub">Phân hệ riêng, lưu lịch sử theo MA_TB qua nhiều tháng; không làm lẫn dữ liệu nguồn THUCUOC.</p></div>
+        <button class="btn btn-outline btn-small" onclick="reloadData()">↻ Làm mới dữ liệu</button>
+      </div>
+      <div class="reason-layout">
+        <section class="panel">
+          <div class="panel-head"><div><h2 class="panel-title">Ghi nhận nguyên nhân tồn</h2><p class="panel-sub">Mỗi lần lưu tạo một dòng lịch sử mới, không ghi đè lần trước.</p></div></div>
+          <div class="form-grid">
+            <div class="form-field full"><label for="reasonSearch">Tìm thuê bao</label><input id="reasonSearch" type="search" placeholder="Nhập MA_TB, tên khách hàng hoặc nhân viên…" oninput="filterReasonSubscribers()"></div>
+            <div class="form-field full"><label for="reasonSubscriber">Chọn thuê bao *</label><select id="reasonSubscriber" onchange="selectReasonSubscriber()"><option value="">Đang tải danh sách…</option></select></div>
+            <div class="form-field full"><div class="subscriber-info" id="subscriberInfo">Chọn một thuê bao để xem thông tin trước khi ghi nhận.</div></div>
+            <div class="form-field full"><label for="reasonCategory">Nhóm nguyên nhân *</label><select id="reasonCategory"><option value="">Chọn nguyên nhân</option></select></div>
+            <div class="form-field full"><label for="reasonDetail">Nội dung chi tiết *</label><textarea id="reasonDetail" placeholder="Ví dụ: Đã gọi lúc 10:15, khách hẹn thanh toán ngày 28/11 sau khi nhận lương…"></textarea></div>
+            <div class="form-field"><label for="promiseDate">Ngày hẹn thu lại</label><input id="promiseDate" type="date"></div>
+            <div class="form-field"><label for="reasonStatus">Trạng thái xử lý</label><select id="reasonStatus"><option>Đang tồn</option><option>Đã xử lý</option><option>Chờ phối hợp</option></select></div>
+          </div>
+          <div class="form-actions"><button class="btn btn-primary" id="saveReasonButton" onclick="saveReason()">✓ Lưu lý do tồn</button></div>
+          <div class="statusbar"><span class="dot"></span><span>Lịch sử được lưu tại sheet riêng <b>LY_DO_TON</b> trong cùng Google Sheets.</span></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2 class="panel-title">Lịch sử của thuê bao được chọn</h2><p class="panel-sub">Xem nguyên nhân các tháng trước và ngày hẹn thu.</p></div><span class="pill" id="historyCount">0 lần ghi nhận</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Ngày ghi</th><th>Nguyên nhân</th><th>Chi tiết</th><th>Ngày hẹn</th><th>Trạng thái</th></tr></thead><tbody id="subscriberHistory"><tr><td colspan="5" class="empty">Chưa chọn thuê bao.</td></tr></tbody></table></div>
+          <div class="panel-head" style="margin-top:22px"><div><h2 class="panel-title">Các lần ghi nhận gần đây</h2><p class="panel-sub">Theo dõi diễn biến lý do tồn trên toàn danh sách.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Ngày ghi</th><th>MA_TB</th><th>Nhân viên</th><th>Nguyên nhân</th><th>Trạng thái</th></tr></thead><tbody id="recentReasonTable"><tr><td colspan="5" class="empty">Chưa có lịch sử.</td></tr></tbody></table></div>
+        </section>
+      </div>
+    </main>
+
+    <div class="footer">Dữ liệu được xử lý tại Google Apps Script và lưu trong Google Sheets; GitHub Pages chỉ cung cấp giao diện · Công cụ hỗ trợ điều hành, kết quả phụ thuộc vào độ chính xác của dữ liệu nguồn.</div>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false };
+    const $ = id => document.getElementById(id);
+    const fmtNum = n => Number(n || 0).toLocaleString('vi-VN');
+    const fmtPct = n => (Number(n || 0) * 100).toLocaleString('vi-VN', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + '%';
+    const esc = value => String(value === null || value === undefined ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const todayISO = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+    const API_URL = String(window.THUCUOC_CONFIG && window.THUCUOC_CONFIG.API_URL || '').trim();
+    const GOOGLE_CLIENT_ID = String(window.THUCUOC_CONFIG && window.THUCUOC_CONFIG.GOOGLE_CLIENT_ID || '').trim();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      $('reportDate').value = todayISO();
+      $('reportDate').addEventListener('change', reloadData);
+      $('promiseDate').value = '';
+      initGoogleLogin();
+    });
+
+    function randomHex(bytes) {
+      const data = new Uint8Array(bytes); window.crypto.getRandomValues(data);
+      return Array.from(data, b => b.toString(16).padStart(2, '0')).join('');
+    }
+    let LOGIN_INITIALIZING = false;
+    function jsonpLoginNonce() {
+      return new Promise((resolve, reject) => {
+        const callback = '__thuCuocNonce_' + randomHex(8);
+        const script = document.createElement('script');
+        let finished = false;
+        const cleanup = () => { if (finished) return; finished = true; clearTimeout(timer); delete window[callback]; script.remove(); };
+        const timer = setTimeout(() => { cleanup(); reject(new Error('Không lấy được mã đăng nhập từ máy chủ.')); }, 18000);
+        window[callback] = data => { cleanup(); resolve(data); };
+        script.onerror = () => { cleanup(); reject(new Error('Không kết nối được API Apps Script.')); };
+        script.src = API_URL + '?action=nonce&callback=' + encodeURIComponent(callback) + '&_=' + Date.now();
+        document.head.appendChild(script);
+      });
+    }
+    async function initGoogleLogin(attempt) {
+      attempt = attempt || 0;
+      if (LOGIN_INITIALIZING) return;
+      if (!API_URL || !/^https:\/\/script\.google\.com\/macros\/s\//.test(API_URL)) {
+        $('authMessage').textContent = 'Bạn cần cấu hình API_URL trong config.js.'; return;
+      }
+      if (!GOOGLE_CLIENT_ID || !/^[0-9]+-[a-z0-9-]+\.apps\.googleusercontent\.com$/i.test(GOOGLE_CLIENT_ID)) {
+        $('authMessage').textContent = 'Bạn cần điền GOOGLE_CLIENT_ID trong config.js và Script Properties.'; return;
+      }
+      if (!window.google || !google.accounts || !google.accounts.id) {
+        if (attempt > 60) { $('authMessage').textContent = 'Không tải được thư viện đăng nhập Google. Hãy kiểm tra kết nối mạng.'; return; }
+        setTimeout(() => initGoogleLogin(attempt + 1), 250); return;
+      }
+      LOGIN_INITIALIZING = true;
+      $('authMessage').textContent = 'Đang tạo mã đăng nhập dùng một lần…';
+      try {
+        const challenge = await jsonpLoginNonce();
+        if (!challenge || !challenge.nonce) throw new Error('Máy chủ không cấp được mã đăng nhập.');
+        APP.authNonce = challenge.nonce;
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          nonce: APP.authNonce,
+          callback: handleGoogleCredential,
+          auto_select: false,
+          cancel_on_tap_outside: true
+        });
+        google.accounts.id.renderButton($('googleSignInButton'), { theme: 'outline', size: 'large', shape: 'rect', text: 'signin_with', width: 280 });
+        $('authMessage').textContent = 'Đăng nhập bằng email đã được quản trị viên cấp quyền.';
+      } catch (error) {
+        $('authMessage').textContent = error.message || 'Không khởi tạo được đăng nhập.';
+      } finally { LOGIN_INITIALIZING = false; }
+    }
+
+    async function handleGoogleCredential(response) {
+      if (!response || !response.credential) { $('authMessage').textContent = 'Google không trả về thông tin đăng nhập. Vui lòng thử lại.'; return; }
+      $('authMessage').textContent = 'Đang xác minh tài khoản…';
+      try {
+        const result = await apiRequest('login', [], { credential: response.credential, nonce: APP.authNonce });
+        if (!result || !result.success || !result.sessionToken) throw new Error((result && result.message) || 'Không tạo được phiên đăng nhập.');
+        APP.sessionToken = result.sessionToken;
+        APP.userEmail = result.email || '';
+        APP.isAdmin = result.isAdmin === true;
+        APP.authNonce = '';
+        $('userEmailChip').textContent = APP.userEmail + (APP.isAdmin ? ' · Quản trị' : ' · Nhân viên');
+        document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !APP.isAdmin));
+        $('loginGate').classList.add('hidden');
+        $('appRoot').classList.remove('hidden');
+        $('reportDate').value = todayISO();
+        reloadData();
+      } catch (error) {
+        APP.sessionToken = '';
+        $('authMessage').textContent = error.message || 'Đăng nhập thất bại.';
+        APP.authNonce = '';
+        initGoogleLogin();
+      }
+    }
+
+    function setBusy(busy) { $('appRoot').classList.toggle('loading', !!busy); }
+    function toast(message, isError) {
+      const el = $('toast'); el.textContent = message; el.classList.toggle('error', !!isError); el.classList.add('show');
+      clearTimeout(window.__toastTimer); window.__toastTimer = setTimeout(() => el.classList.remove('show'), 3600);
+    }
+    function makeRequestId() { return randomHex(20); }
+    function submitApiForm(requestId, payload) {
+      const form = document.createElement('form');
+      form.method = 'POST'; form.action = API_URL; form.target = 'apiTransportFrame';
+      form.acceptCharset = 'UTF-8'; form.style.display = 'none';
+      const fields = { requestId: requestId, payload: JSON.stringify(payload) };
+      Object.keys(fields).forEach(name => {
+        const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = fields[name]; form.appendChild(input);
+      });
+      document.body.appendChild(form); form.submit(); form.remove();
+    }
+    function jsonpRequest(requestId, part) {
+      return new Promise((resolve, reject) => {
+        const callback = '__thuCuoc_' + randomHex(8);
+        const script = document.createElement('script');
+        let finished = false;
+        const cleanup = () => { if (finished) return; finished = true; clearTimeout(timer); delete window[callback]; script.remove(); };
+        const timer = setTimeout(() => { cleanup(); reject(new Error('Máy chủ phản hồi quá thời gian.')); }, 18000);
+        window[callback] = data => { cleanup(); resolve(data); };
+        script.onerror = () => { cleanup(); reject(new Error('Không đọc được phản hồi từ Apps Script. Kiểm tra URL triển khai và quyền truy cập.')); };
+        const url = API_URL + '?op=' + encodeURIComponent(requestId) + '&part=' + encodeURIComponent(part) + '&callback=' + encodeURIComponent(callback) + '&_=' + Date.now();
+        script.src = url; document.head.appendChild(script);
+      });
+    }
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    async function collectApiResult(requestId) {
+      let meta = null;
+      for (let i = 0; i < 100; i++) {
+        meta = await jsonpRequest(requestId, 'meta');
+        if (meta && meta.ready) break;
+        if (meta && meta.expired) throw new Error('Yêu cầu đã hết hạn. Vui lòng thực hiện lại.');
+        await sleep(650);
+      }
+      if (!meta || !meta.ready) throw new Error('Apps Script chưa trả kết quả sau 65 giây. Hãy kiểm tra Nhật ký thực thi.');
+      const chunks = [];
+      for (let start = 0; start < meta.parts; start += 4) {
+        const batch = [];
+        for (let i = start; i < Math.min(start + 4, meta.parts); i++) batch.push(jsonpRequest(requestId, String(i)));
+        const received = await Promise.all(batch);
+        received.forEach(item => {
+          if (item && typeof item === 'object' && item.error) throw new Error(item.error);
+          if (typeof item !== 'string') throw new Error('Dữ liệu phản hồi không hợp lệ.');
+          chunks.push(item);
+        });
+      }
+      return JSON.parse(chunks.join(''));
+    }
+    async function apiRequest(action, args, extra) {
+      if (!API_URL) throw new Error('Chưa cấu hình API_URL.');
+      const requestId = makeRequestId();
+      const payload = Object.assign({ action: action, args: args || [], sessionToken: APP.sessionToken || '' }, extra || {});
+      submitApiForm(requestId, payload);
+      return collectApiResult(requestId);
+    }
+    async function runServer(method, args, success) {
+      setBusy(true);
+      try {
+        const result = await apiRequest(method, args || []);
+        setBusy(false);
+        if (result && result.success === false) {
+          if (result.code === 'AUTH_REQUIRED') showLoginAgain();
+          return toast(result.message || 'Có lỗi xảy ra.', true);
+        }
+        success(result);
+      } catch (err) {
+        setBusy(false);
+        const message = (err && err.message) || String(err);
+        if (/đăng nhập lại|phiên đăng nhập/i.test(message)) showLoginAgain();
+        toast(message, true);
+      }
+    }
+    function showLoginAgain() {
+      APP.sessionToken = ''; APP.userEmail = ''; APP.isAdmin = false; APP.data = null;
+      document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+      $('appRoot').classList.add('hidden'); $('loginGate').classList.remove('hidden');
+      $('authMessage').textContent = 'Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.';
+    }
+    async function logoutApp() {
+      try { if (APP.sessionToken) await apiRequest('logout', []); } catch (e) { /* Phiên có thể đã hết hạn */ }
+      showLoginAgain();
+      initGoogleLogin();
+    }
+
+    function switchTab(tab) {
+      APP.activeTab = tab;
+      $('dashboardView').classList.toggle('hidden', tab !== 'dashboard');
+      $('reasonsView').classList.toggle('hidden', tab !== 'reasons');
+      $('tabDashboard').classList.toggle('active', tab === 'dashboard');
+      $('tabReasons').classList.toggle('active', tab === 'reasons');
+      if (tab === 'reasons' && APP.data) renderReasonModule();
+    }
+
+    function reloadData() {
+      const date = $('reportDate').value || todayISO();
+      runServer('getDashboardData', [date], data => {
+        APP.data = data;
+        $('heroDate').textContent = 'BÁO CÁO NGÀY ' + date.split('-').reverse().join('/');
+        $('heroState').textContent = data.lock && data.lock.locked ? 'DỮ LIỆU ĐÃ KHÓA' : 'ĐANG THEO DÕI';
+        $('sourceStatus').textContent = 'Nguồn: ' + data.sourceSheet + ' · ' + fmtNum(data.sourceCount) + ' thuê bao đang ở trạng thái Cần phải thu.';
+        $('sourceDot').className = 'dot';
+        renderSnapshotCards(); renderSummary(); renderOutstanding(); renderReasonModule();
+      });
+    }
+
+    function capture(slot) {
+      const date = $('reportDate').value || todayISO();
+      const label = slot.toLowerCase();
+      if (!confirm('Chụp và lưu danh sách thuê bao còn phải thu tại mốc ' + label + ' ngày ' + date + '? Nếu đã chụp mốc này trước đó, bản chụp cũ sẽ được thay bằng dữ liệu mới.')) return;
+      runServer('captureSnapshot', [slot, date], result => { toast(result.message); reloadData(); });
+    }
+
+    function changeLock(shouldLock) {
+      const date = $('reportDate').value || todayISO();
+      const message = shouldLock
+        ? 'Khóa dữ liệu ngày ' + date + '? Sau khi khóa, chương trình sẽ không cho chụp lại hoặc tự tính lại cho đến khi bạn chủ động mở khóa.'
+        : 'Mở khóa ngày ' + date + '? Bạn có thể chụp lại các mốc và cập nhật kết quả tính toán.';
+      if (!confirm(message)) return;
+      runServer('setDayLock', [date, shouldLock], result => { toast(result.message); reloadData(); });
+    }
+
+    function renderSnapshotCards() {
+      const summary = APP.data.summary || {}; const bySlot = {};
+      (summary.stages || []).forEach(stage => bySlot[stage.slot] = stage);
+      const order = ['SÁNG','TRƯA','CHIỀU'];
+      $('snapshotCards').innerHTML = order.map(slot => {
+        const s = bySlot[slot];
+        return `<div class="snapshot-card"><div class="snapshot-top"><span class="snapshot-label">${slot}</span><span class="snapshot-status">${s ? 'ĐÃ LƯU' : 'CHƯA CHỤP'}</span></div><div class="snapshot-count">${s ? fmtNum(s.count) : '—'}</div><div class="snapshot-note">${s ? 'Ghi nhận lúc ' + esc(s.time || 'Không rõ thời gian') : 'Chưa có dữ liệu tại mốc này'}</div></div>`;
+      }).join('');
+      const locked = !!(APP.data.lock && APP.data.lock.locked);
+      $('lockBadge').textContent = locked ? 'ĐÃ KHÓA DỮ LIỆU' : 'CHƯA KHÓA';
+      $('lockBadge').className = locked ? 'pill pill-green' : 'pill pill-amber';
+      $('lockButton').classList.toggle('hidden', !APP.isAdmin || locked);
+      $('unlockButton').classList.toggle('hidden', !APP.isAdmin || !locked);
+      ['captureMorning','captureNoon','captureEvening'].forEach(id => { $(id).classList.toggle('hidden', !APP.isAdmin); $(id).disabled = locked || !APP.isAdmin; });
+    }
+
+    function renderSummary() {
+      const s = APP.data.summary || {};
+      $('kpiBaseline').textContent = fmtNum(s.baselineCount);
+      $('kpiDone').textContent = fmtNum(s.totalDone);
+      $('kpiRemain').textContent = fmtNum(s.currentCount);
+      $('kpiRate').textContent = fmtPct(s.totalRate);
+      $('kpiBaselineFoot').textContent = s.baselineSlot ? 'Mẫu số lấy từ mốc ' + s.baselineSlot.toLowerCase() : 'Chưa có bản chụp đầu ngày';
+      $('kpiRateFoot').textContent = fmtNum(s.totalDone) + ' / ' + fmtNum(s.baselineCount) + ' thuê bao';
+      const m = APP.data.monthSummary || {};
+      $('kpiOverallRate').textContent = fmtPct(m.totalRate);
+      $('kpiOverallFoot').textContent = fmtNum(m.totalDone) + ' / ' + fmtNum(m.workloadCount) + ' thuê bao duy nhất';
+      $('monthLabel').textContent = m.month || 'Chưa có tháng';
+      $('dailyHistoryTable').innerHTML = (m.days || []).length ? m.days.map(d => `<tr><td><b>${esc(d.date.split('-').reverse().join('/'))}</b></td><td class="num">${fmtNum(d.baselineCount)}</td><td class="num">${fmtNum(d.totalDone)}</td><td class="num">${fmtNum(d.currentCount)}</td><td class="num">${fmtNum(d.deferredCount)}</td><td class="num"><b>${fmtPct(d.totalRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,d.totalRate*100))}%"></span></div></td><td>${d.locked ? '<span class="pill pill-green">Đã khóa</span>' : '<span class="pill pill-amber">Đang mở</span>'}</td></tr>`).join('') : '<tr><td colspan="7" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr>';
+      $('overallNote').textContent = `Tỷ lệ tổng kỳ ${m.month || ''}: ${fmtNum(m.totalDone)} thuê bao đã xử lý / ${fmtNum(m.workloadCount)} thuê bao duy nhất đã xuất hiện trong các lần chụp; ${fmtNum(m.deferredCount)} thuê bao đang ở trạng thái Xử lý sau. Mốc dữ liệu cuối: ${m.lastCapturedAt || 'chưa có'}.`;
+      $('stageTable').innerHTML = (s.stages || []).length ? s.stages.map(x => `<tr><td><b>${esc(x.slot)}</b><div class="muted" style="font-size:10px">${esc(x.time)}</div></td><td class="num">${fmtNum(x.count)}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.removedSincePrevious) + '<div class="muted">+' + fmtPct(x.intervalRate) + '</div>'}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.movedToDeferred)}</td><td class="num">${fmtNum(x.cumulativeDone)}</td><td class="num"><b>${fmtPct(x.cumulativeRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.cumulativeRate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="6" class="empty">Chưa có dữ liệu chụp. Hãy lưu mốc sáng trước.</td></tr>';
+      $('teamTable').innerHTML = (s.byTeam || []).length ? s.byTeam.map(x => `<tr><td>${esc(x.team)}</td><td class="num">${fmtNum(x.done)} / ${fmtNum(x.baseline)}</td><td class="num"><b>${fmtPct(x.rate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.rate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="3" class="empty">Chưa có dữ liệu xử lý để phân tổ.</td></tr>';
+      $('employeeTable').innerHTML = (s.byEmployee || []).length ? s.byEmployee.map(x => `<tr><td><b>${esc(x.employee)}</b>${x.rate < s.totalRate && x.remain > 0 ? ' <span class="pill pill-amber">Thấp hơn TB</span>' : ''}</td><td>${esc(x.team)}</td><td class="num">${fmtNum(x.baseline)}</td><td class="num">${fmtNum(x.done)}</td><td class="num">${fmtNum(x.remain)}</td><td class="num"><b>${fmtPct(x.rate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.rate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="6" class="empty">Chưa có dữ liệu.</td></tr>';
+      $('staffCount').textContent = fmtNum((s.byEmployee || []).length) + ' nhân viên';
+      $('summaryNote').textContent = [s.note || '', s.addedAtLastSnapshot ? 'Có ' + fmtNum(s.addedAtLastSnapshot) + ' thuê bao phát sinh mới ngoài danh sách đầu ngày; không cộng vào số đã xử lý.' : '', s.deferredAtLastSnapshot ? fmtNum(s.deferredAtLastSnapshot) + ' thuê bao đầu ngày đang ở trạng thái Xử lý sau; không tính là đã thu.' : '', 'Quy tắc: chỉ tính đã xử lý khi thuê bao đầu ngày không còn trong danh sách Cần phải thu và không chuyển sang Xử lý sau.'].filter(Boolean).join(' ');
+    }
+
+    function renderOutstanding() {
+      if (!APP.data) return;
+      const q = ($('outstandingSearch').value || '').toLowerCase().trim();
+      const rows = (APP.data.subscribers || []).filter(r => !q || [r.maTb,r.maTt,r.customer,r.employee,r.team,r.address].join(' ').toLowerCase().includes(q));
+      $('outstandingCount').textContent = fmtNum(rows.length) + ' thuê bao';
+      $('outstandingTable').innerHTML = rows.slice(0,250).map(r => `<tr><td><b>${esc(r.maTb)}</b></td><td>${esc(r.customer)}</td><td>${esc(r.employee)}</td><td>${esc(shortTeam(r.team))}</td><td class="num">${fmtNum(r.debt)}</td><td>${r.latestReason ? `<span class="pill">${esc(r.latestReason.reason)}</span>` : '<span class="muted">Chưa ghi nhận</span>'}</td><td><button class="btn btn-soft btn-small" data-open-reason="${esc(r.maTb)}">Nhập lý do</button></td></tr>`).join('') || '<tr><td colspan="7" class="empty">Không tìm thấy thuê bao phù hợp.</td></tr>';
+      $('outstandingTable').querySelectorAll('[data-open-reason]').forEach(button => button.addEventListener('click', () => openReasonFor(button.dataset.openReason)));
+      if (rows.length > 250) $('outstandingTable').insertAdjacentHTML('beforeend', `<tr><td colspan="7" class="empty">Đang hiển thị 250/${fmtNum(rows.length)} thuê bao. Hãy nhập từ khóa để lọc thêm.</td></tr>`);
+    }
+    function shortTeam(team) { return String(team || '').replace('Tổ Kỹ thuật Địa bàn ', ''); }
+
+    function renderReasonModule() {
+      if (!APP.data) return;
+      const cats = APP.data.categories || [];
+      const currentCat = $('reasonCategory').value;
+      $('reasonCategory').innerHTML = '<option value="">Chọn nguyên nhân</option>' + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+      if (currentCat) $('reasonCategory').value = currentCat;
+      filterReasonSubscribers();
+      const recent = APP.data.reasonHistory || [];
+      $('recentReasonTable').innerHTML = recent.length ? recent.map(r => `<tr><td>${esc(r.date)}</td><td><b>${esc(r.maTb)}</b></td><td>${esc(r.employee)}</td><td>${esc(r.reason)}</td><td><span class="pill ${r.status === 'Đã xử lý' ? 'pill-green' : 'pill-amber'}">${esc(r.status)}</span></td></tr>`).join('') : '<tr><td colspan="5" class="empty">Chưa có lần ghi nhận nào.</td></tr>';
+    }
+
+    function filterReasonSubscribers() {
+      if (!APP.data) return;
+      const q = ($('reasonSearch').value || '').toLowerCase().trim();
+      const all = APP.data.subscribers || [];
+      const filtered = all.filter(r => !q || [r.maTb,r.maTt,r.customer,r.employee,r.team,r.address].join(' ').toLowerCase().includes(q)).slice(0,400);
+      const select = $('reasonSubscriber'); const old = select.value;
+      select.innerHTML = '<option value="">-- Chọn thuê bao (' + fmtNum(filtered.length) + ') --</option>' + filtered.map(r => `<option value="${esc(r.maTb)}">${esc(r.maTb)} — ${esc(r.customer)} — ${esc(r.employee)}</option>`).join('');
+      if (filtered.some(r => r.maTb === old)) select.value = old;
+      APP.filteredSubscribers = filtered;
+      if (select.value) selectReasonSubscriber();
+      else { APP.selectedSubscriber = null; selectReasonSubscriber(); }
+    }
+
+    function selectReasonSubscriber() {
+      const key = $('reasonSubscriber').value;
+      const row = (APP.data.subscribers || []).find(r => r.maTb === key);
+      APP.selectedSubscriber = row || null;
+      if (!row) {
+        $('subscriberInfo').textContent = 'Chọn một thuê bao để xem thông tin trước khi ghi nhận.';
+        $('subscriberHistory').innerHTML = '<tr><td colspan="5" class="empty">Chưa chọn thuê bao.</td></tr>';
+        $('historyCount').textContent = '0 lần ghi nhận';
+        return;
+      }
+      $('subscriberInfo').innerHTML = `<b>${esc(row.maTb)}</b> · ${esc(row.customer)}<br>Nhân viên: <b>${esc(row.employee)}</b> · Tổ: ${esc(row.team)}<br>Địa chỉ: ${esc(row.address)}<br>Nợ hiện tại: <b>${fmtNum(row.debt)} đ</b>`;
+      loadSubscriberHistory(key);
+    }
+
+    function loadSubscriberHistory(maTb) {
+      runServer('getSubscriberReasonHistory', [maTb], history => renderSubscriberHistory(history || []));
+    }
+    function renderSubscriberHistory(history) {
+      $('historyCount').textContent = fmtNum(history.length) + ' lần ghi nhận';
+      $('subscriberHistory').innerHTML = history.length ? history.map(r => `<tr><td>${esc(r.date)}</td><td><b>${esc(r.reason)}</b></td><td>${esc(r.detail)}</td><td>${esc(r.promiseDate || '—')}</td><td><span class="pill ${r.status === 'Đã xử lý' ? 'pill-green' : 'pill-amber'}">${esc(r.status)}</span></td></tr>`).join('') : '<tr><td colspan="5" class="empty">Thuê bao này chưa có lịch sử lý do tồn.</td></tr>';
+    }
+
+    function openReasonFor(encodedKey) {
+      switchTab('reasons');
+      const key = decodeURIComponent(encodedKey);
+      $('reasonSearch').value = key;
+      filterReasonSubscribers();
+      $('reasonSubscriber').value = key;
+      selectReasonSubscriber();
+      $('reasonCategory').focus();
+    }
+
+    function saveReason() {
+      const row = APP.selectedSubscriber;
+      if (!row) return toast('Vui lòng chọn thuê bao.', true);
+      const payload = {
+        maTb: row.maTb, reason: $('reasonCategory').value, detail: $('reasonDetail').value.trim(),
+        promiseDate: $('promiseDate').value, status: $('reasonStatus').value, date: $('reportDate').value || todayISO(),
+        maTt: row.maTt, customer: row.customer, maKv: row.maKv, employee: row.employee, team: row.team
+      };
+      if (!payload.reason || !payload.detail) return toast('Vui lòng chọn nhóm nguyên nhân và nhập nội dung chi tiết.', true);
+      $('saveReasonButton').disabled = true;
+      runServer('saveReason', [payload], result => {
+        $('saveReasonButton').disabled = false;
+        toast(result.message);
+        $('reasonDetail').value = '';
+        renderSubscriberHistory(result.history || []);
+        reloadData();
+      });
+    }
+
+    function exportThreeDayExcel() {
+      const date = $('reportDate').value || todayISO();
+      runServer('getThreeDayExcel', [date], result => {
+        try {
+          const binary = atob(result.base64); const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          const blob = new Blob([bytes], {type: result.mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+          const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = result.filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+          const counts = (result.counts || []).map(x => x.label + ': ' + x.count).join(' · ');
+          toast('Đã xuất Excel. ' + counts);
+        } catch (e) { toast('Không tạo được file tải xuống: ' + e.message, true); }
+      });
+    }
+
+    function exportImage() {
+      const s = APP.data && APP.data.summary ? APP.data.summary : {};
+      const date = $('reportDate').value || todayISO();
+      const canvas = document.createElement('canvas'); canvas.width = 1500; canvas.height = 920;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#f3f7fa'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      const grad = ctx.createLinearGradient(0,0,canvas.width,0); grad.addColorStop(0,'#0b3b57'); grad.addColorStop(.65,'#087eaf'); grad.addColorStop(1,'#11a9b5');
+      ctx.fillStyle = grad; roundRect(ctx,36,30,1428,160,24,true,false);
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 23px Arial'; ctx.fillText('TRUNG TÂM VIỄN THÔNG TÂN AN HỘI',70,78);
+      ctx.font = 'bold 38px Arial'; ctx.fillText('BÁO CÁO TIẾN ĐỘ THU CƯỚC',70,129);
+      ctx.font = '18px Arial'; ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('Ngày ' + date.split('-').reverse().join('/'),70,163);
+      const cards = [
+        ['ĐẦU NGÀY',fmtNum(s.baselineCount)],['ĐÃ XỬ LÝ',fmtNum(s.totalDone)],['CÒN PHẢI THU',fmtNum(s.currentCount)],['TỶ LỆ XỬ LÝ',fmtPct(s.totalRate)]
+      ];
+      cards.forEach((c,i) => { const x=36+i*360; ctx.fillStyle='#fff'; roundRect(ctx,x,220,336,145,18,true,false); ctx.fillStyle='#688091'; ctx.font='bold 15px Arial'; ctx.fillText(c[0],x+22,260); ctx.fillStyle=i===3?'#087eaf':'#183447'; ctx.font='bold 42px Arial'; ctx.fillText(c[1],x+22,322); });
+      ctx.fillStyle='#183447'; ctx.font='bold 23px Arial'; ctx.fillText('TIẾN ĐỘ THEO MỐC',45,430);
+      const stageRows = s.stages || [];
+      ctx.fillStyle='#fff'; roundRect(ctx,36,455,1428,stageRows.length*72+64,16,true,false);
+      stageRows.forEach((r,i) => { const y=505+i*72; ctx.fillStyle='#183447'; ctx.font='bold 20px Arial'; ctx.fillText(r.slot,65,y); ctx.font='18px Arial'; ctx.fillStyle='#486273'; ctx.fillText('Còn: '+fmtNum(r.count),260,y); ctx.fillText('Giảm thêm: '+fmtNum(r.removedSincePrevious),520,y); ctx.fillText('Lũy kế: '+fmtNum(r.cumulativeDone),840,y); ctx.fillStyle='#087eaf'; ctx.font='bold 20px Arial'; ctx.fillText(fmtPct(r.cumulativeRate),1190,y); ctx.fillStyle='#edf2f5'; roundRect(ctx,260,y+14,850,9,5,true,false); ctx.fillStyle='#11a9b5'; roundRect(ctx,260,y+14,850*Math.max(0,Math.min(1,r.cumulativeRate)),9,5,true,false); });
+      ctx.fillStyle='#6c8291'; ctx.font='14px Arial'; ctx.fillText('Nguồn: Google Sheets · Tỷ lệ tính trên mẫu số đầu ngày · Thuê bao mới phát sinh không tính là đã thu',45,880);
+      canvas.toBlob(blob => { const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='BAO_CAO_THU_CUOC_'+date+'.png'; a.click(); URL.revokeObjectURL(url); toast('Đã xuất hình ảnh báo cáo.'); },'image/png');
+    }
+    function roundRect(ctx,x,y,w,h,r,fill,stroke){if(w<2*r)r=w/2;if(h<2*r)r=h/2;ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();if(fill)ctx.fill();if(stroke)ctx.stroke();}
+  </script>
+</body>
+</html>
