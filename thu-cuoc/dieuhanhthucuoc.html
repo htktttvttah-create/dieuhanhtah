@@ -13,6 +13,15 @@
     .hero{background:linear-gradient(120deg,#0b3b57,#087eaf 62%,#11a9b5);color:#fff;border-radius:20px;padding:24px 26px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
     .eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;opacity:.78;font-weight:700}.hero h1{font-size:25px;margin:8px 0 6px;letter-spacing:-.4px}.hero p{margin:0;color:rgba(255,255,255,.82);font-size:13px}.hero-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.hero-chip{padding:9px 12px;border:1px solid rgba(255,255,255,.23);background:rgba(255,255,255,.12);border-radius:11px;font-weight:600;font-size:12px}
     .nav{display:flex;gap:8px;margin:18px 0 16px;border-bottom:1px solid var(--line)}.tab{border:0;background:transparent;color:var(--muted);padding:12px 18px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1px}.tab.active{color:var(--blue);border-bottom-color:var(--cyan)}
+    .date-range-export{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 16px;padding:15px 17px;border:1px solid #c9dce7;border-radius:14px;background:linear-gradient(115deg,#f2f8fb,#f8fbfd);box-shadow:0 4px 14px rgba(14,55,78,.04)}
+    .date-range-export-copy{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1}
+    .date-range-export-copy strong{font-size:15px;color:#153f58}
+    .date-range-export-copy span{font-size:13px;line-height:1.45;color:#496477}
+    .date-range-export-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .date-range-export-controls .field-inline{min-height:40px}
+    .date-range-export-controls input{font-size:14px;min-width:135px}
+    .date-range-export-note{width:100%;font-size:12px;color:#526d7f;line-height:1.45}
+    @media(max-width:760px){.date-range-export{align-items:stretch}.date-range-export-copy{min-width:100%}.date-range-export-controls{width:100%}.date-range-export-controls .field-inline{flex:1;min-width:180px}.date-range-export-controls input{width:100%;min-width:0}.date-range-export-controls .btn{width:100%}}
     .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.field-inline{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 10px}.field-inline label{font-size:12px;color:var(--muted);font-weight:700}.field-inline input{border:0;outline:0;color:var(--ink);font-weight:700;background:transparent}
     .btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s;min-height:38px}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#066b95}.btn-soft{background:#e8f4f8;color:#126d8f}.btn-outline{border:1px solid var(--line);background:#fff;color:var(--ink)}.btn-danger{background:#fff0f0;color:var(--red)}.btn-green{background:#e6f6ef;color:#117b58}.btn-small{padding:8px 11px;min-height:34px;font-size:12px}
     .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.panel-title{margin:0;font-size:15px;font-weight:800;letter-spacing:-.1px}.panel-sub{margin:4px 0 0;color:var(--muted);font-size:12px}
@@ -71,6 +80,12 @@
     .outstanding-filter-actions{display:flex;align-items:end}
     .outstanding-filter-actions .btn{min-height:42px;white-space:nowrap}
     .outstanding-filter-summary{font-size:13px;color:#37566a;font-weight:700;margin:6px 2px 10px}
+    .outstanding-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 2px 2px;margin-top:8px;border-top:1px solid #e6edf2}
+    .outstanding-page-info{font-size:13px;font-weight:700;color:#36566b}
+    .outstanding-page-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .outstanding-page-actions .btn{min-width:40px;min-height:38px;padding:8px 11px}
+    .outstanding-page-current{min-width:92px;text-align:center;font-size:13px;font-weight:800;color:#173f58;padding:8px 10px;background:#edf5f8;border-radius:9px}
+    @media(max-width:600px){.outstanding-pagination{align-items:stretch}.outstanding-page-info{width:100%}.outstanding-page-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}.outstanding-page-actions .btn{width:100%;min-width:0}}
     @media(max-width:1000px){.outstanding-filter-grid{grid-template-columns:1fr 1fr}.outstanding-filter-grid .outstanding-filter-field:nth-child(4){grid-column:1/-1}}
     @media(max-width:600px){.outstanding-filter-grid{grid-template-columns:1fr;padding:11px}.outstanding-filter-grid .outstanding-filter-field:nth-child(4){grid-column:auto}.outstanding-filter-actions .btn{width:100%}}
     @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -150,9 +165,21 @@
         </div>
         <div class="toolbar-right">
           <button class="btn btn-green btn-small" onclick="exportImage()">▧ Xuất hình ảnh</button>
-          <button class="btn btn-soft btn-small admin-only" id="exportExcelButton" onclick="exportThreeDayExcel()">⇩ Excel chêm 3 ngày</button>
         </div>
       </div>
+
+      <section class="date-range-export admin-only" id="dueDateExportPanel" aria-label="Xuất danh sách theo khoảng ngày khóa">
+        <div class="date-range-export-copy">
+          <strong>Xuất danh sách thuê bao theo khoảng ngày khóa</strong>
+          <span>Chủ động chọn ngày bắt đầu và ngày kết thúc; Excel sẽ gom thuê bao có ngày khóa nằm trong khoảng đã chọn.</span>
+        </div>
+        <div class="date-range-export-controls">
+          <div class="field-inline"><label for="dueExportFrom">Từ ngày</label><input id="dueExportFrom" type="date" aria-label="Ngày bắt đầu xuất danh sách"></div>
+          <div class="field-inline"><label for="dueExportTo">Đến ngày</label><input id="dueExportTo" type="date" aria-label="Ngày kết thúc xuất danh sách"></div>
+          <button class="btn btn-primary btn-small" id="exportDueRangeButton" type="button" onclick="exportDueDateRangeExcel()">⇩ Tải Excel theo khoảng ngày</button>
+        </div>
+        <div class="date-range-export-note">Gợi ý: có thể chọn một ngày hoặc nhiều ngày liên tiếp. Mỗi thuê bao chỉ được đưa vào một ngày phù hợp đầu tiên trong khoảng đã chọn.</div>
+      </section>
 
       <section class="panel">
         <div class="panel-head">
@@ -281,13 +308,23 @@
         <div class="panel-head"><div><h2 class="panel-title">Danh sách thuê bao còn phải thu</h2><p class="panel-sub">Dữ liệu trực tiếp từ sheet THUCUOC, trạng thái “Cần phải thu”. Có thể chuyển nhanh sang phân hệ Lý do tồn.</p></div><span class="pill" id="outstandingCount">0 thuê bao</span></div>
         <div class="outstanding-filter-grid" aria-label="Bộ lọc danh sách thuê bao còn phải thu">
           <div class="outstanding-filter-field"><label for="outstandingKvFilter">Mã khu vực (MA_KV)</label><select id="outstandingKvFilter" onchange="onOutstandingKvFilterChange()"><option value="">Tất cả MA_KV</option></select></div>
-          <div class="outstanding-filter-field"><label for="outstandingEmployeeFilter">Tên nhân viên</label><select id="outstandingEmployeeFilter" onchange="renderOutstanding()"><option value="">Tất cả nhân viên</option></select></div>
+          <div class="outstanding-filter-field"><label for="outstandingEmployeeFilter">Tên nhân viên</label><select id="outstandingEmployeeFilter" onchange="APP.outstandingPage=1;renderOutstanding()"><option value="">Tất cả nhân viên</option></select></div>
           <div class="outstanding-filter-field"><label for="outstandingLockDayFilter">Ngày khóa thuê bao</label><select id="outstandingLockDayFilter" onchange="onOutstandingLockDayFilterChange()"><option value="">Tất cả ngày khóa</option></select></div>
-          <div class="outstanding-filter-field"><label for="outstandingSearch">Tìm nhanh thuê bao</label><input id="outstandingSearch" type="search" placeholder="Mã thuê bao, khách hàng, nhân viên, địa chỉ…" oninput="renderOutstanding()"></div>
+          <div class="outstanding-filter-field"><label for="outstandingSearch">Tìm nhanh thuê bao</label><input id="outstandingSearch" type="search" placeholder="Mã thuê bao, khách hàng, nhân viên, địa chỉ…" oninput="APP.outstandingPage=1;renderOutstanding()"></div>
           <div class="outstanding-filter-actions"><button class="btn btn-outline btn-small" type="button" onclick="clearOutstandingFilters()">↺ Xóa lọc</button></div>
         </div>
         <div class="outstanding-filter-summary" id="outstandingFilterSummary">Đang hiển thị tất cả thuê bao còn phải thu.</div>
         <div class="table-wrap"><table><thead><tr><th>MA_TB</th><th>MA_KV</th><th>Ngày khóa</th><th>Khách hàng</th><th>Nhân viên</th><th>Tổ</th><th class="num">Nợ hiện tại</th><th>Lý do tồn gần nhất</th><th></th></tr></thead><tbody id="outstandingTable"><tr><td colspan="9" class="empty">Đang tải dữ liệu.</td></tr></tbody></table></div>
+        <div class="outstanding-pagination" id="outstandingPagination" aria-label="Phân trang danh sách thuê bao">
+          <div class="outstanding-page-info" id="outstandingPageInfo">Mỗi trang hiển thị tối đa 30 thuê bao.</div>
+          <div class="outstanding-page-actions">
+            <button class="btn btn-outline btn-small" id="outstandingFirstPage" type="button" onclick="changeOutstandingPage(1)" aria-label="Trang đầu">« Đầu</button>
+            <button class="btn btn-outline btn-small" id="outstandingPrevPage" type="button" onclick="changeOutstandingPage(APP.outstandingPage-1)" aria-label="Trang trước">‹ Trước</button>
+            <span class="outstanding-page-current" id="outstandingPageCurrent">Trang 1/1</span>
+            <button class="btn btn-outline btn-small" id="outstandingNextPage" type="button" onclick="changeOutstandingPage(APP.outstandingPage+1)" aria-label="Trang sau">Sau ›</button>
+            <button class="btn btn-outline btn-small" id="outstandingLastPage" type="button" onclick="changeOutstandingPage(APP.outstandingPageCount)" aria-label="Trang cuối">Cuối »</button>
+          </div>
+        </div>
       </section>
     </main>
 
@@ -325,7 +362,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false, employeeFilters: { maKv: '', employee: '', lockDay: '' }, employeeReportMode: 'daily' };
+    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false, employeeFilters: { maKv: '', employee: '', lockDay: '' }, employeeReportMode: 'daily', outstandingPage: 1, outstandingPageSize: 30, outstandingPageCount: 1 };
     const $ = id => document.getElementById(id);
     const fmtNum = n => Number(n || 0).toLocaleString('vi-VN');
     const fmtPct = n => (Number(n || 0) * 100).toLocaleString('vi-VN', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + '%';
@@ -341,6 +378,8 @@
       $('reportDate').value = today;
       $('lockDate').value = today;
       $('lockDate').max = today;
+      $('dueExportFrom').value = today;
+      $('dueExportTo').value = today;
       $('reportDate').addEventListener('change', () => {
         const selected = $('reportDate').value || todayISO();
         $('lockDate').value = selected;
@@ -541,7 +580,7 @@
         $('heroState').textContent = data.lock && data.lock.locked ? 'Dữ liệu đã khóa' : 'Đang theo dõi';
         $('sourceStatus').textContent = 'Nguồn: ' + data.sourceSheet + ' · ' + fmtNum(data.sourceCount) + ' thuê bao đang ở trạng thái Cần phải thu.';
         $('sourceDot').className = 'dot';
-        renderSnapshotCards(); renderSummary(); renderOutstandingFilters(); renderOutstanding(); renderReasonModule();
+        APP.outstandingPage = 1; renderSnapshotCards(); renderSummary(); renderOutstandingFilters(); renderOutstanding(); if (APP.activeTab === 'reasons') renderReasonModule();
       });
     }
 
@@ -752,22 +791,33 @@
     }
 
     function onOutstandingKvFilterChange() {
+      APP.outstandingPage = 1;
       updateOutstandingEmployeeFilterOptions(false);
       renderOutstanding();
     }
 
     function onOutstandingLockDayFilterChange() {
+      APP.outstandingPage = 1;
       updateOutstandingEmployeeFilterOptions(false);
       renderOutstanding();
     }
 
     function clearOutstandingFilters() {
+      APP.outstandingPage = 1;
       $('outstandingKvFilter').value = '';
       $('outstandingLockDayFilter').value = '';
       $('outstandingSearch').value = '';
       updateOutstandingEmployeeFilterOptions(false);
       $('outstandingEmployeeFilter').value = '';
       renderOutstanding();
+    }
+
+    function changeOutstandingPage(nextPage) {
+      const page = Number(nextPage || 1);
+      APP.outstandingPage = Math.max(1, Math.min(APP.outstandingPageCount || 1, Number.isFinite(page) ? Math.floor(page) : 1));
+      renderOutstanding();
+      const table = document.querySelector('#outstandingTable');
+      if (table) table.closest('.table-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function renderOutstanding() {
@@ -798,9 +848,27 @@
       $('outstandingFilterSummary').textContent = filterActive
         ? `Đang lọc ${fmtNum(rows.length)} / ${fmtNum(all.length)} thuê bao · ${labels.join(' · ')}`
         : `Đang hiển thị toàn bộ ${fmtNum(all.length)} thuê bao còn phải thu.`;
-      $('outstandingTable').innerHTML = rows.slice(0,250).map(r => `<tr><td><b>${esc(r.maTb)}</b></td><td><span class="pill">${esc(r.maKv || 'Chưa gán')}</span></td><td>${esc(lockDayLabel(r.lockDay))}</td><td>${esc(r.customer)}</td><td>${esc(r.employee)}</td><td>${esc(shortTeam(r.team))}</td><td class="num">${fmtNum(r.debt)}</td><td>${r.latestReason ? `<span class="pill">${esc(r.latestReason.reason)}</span>` : '<span class="muted">Chưa ghi nhận</span>'}</td><td><button class="btn btn-soft btn-small" data-open-reason="${esc(r.maTb)}">Nhập lý do</button></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Không tìm thấy thuê bao phù hợp với bộ lọc.</td></tr>';
+
+      const pageSize = APP.outstandingPageSize || 30;
+      const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+      APP.outstandingPageCount = pageCount;
+      APP.outstandingPage = Math.max(1, Math.min(APP.outstandingPage || 1, pageCount));
+      const startIndex = (APP.outstandingPage - 1) * pageSize;
+      const pageRows = rows.slice(startIndex, startIndex + pageSize);
+      const endIndex = Math.min(startIndex + pageRows.length, rows.length);
+
+      $('outstandingTable').innerHTML = pageRows.map(r => `<tr><td><b>${esc(r.maTb)}</b></td><td><span class="pill">${esc(r.maKv || 'Chưa gán')}</span></td><td>${esc(lockDayLabel(r.lockDay))}</td><td>${esc(r.customer)}</td><td>${esc(r.employee)}</td><td>${esc(shortTeam(r.team))}</td><td class="num">${fmtNum(r.debt)}</td><td>${r.latestReason ? `<span class="pill">${esc(r.latestReason.reason)}</span>` : '<span class="muted">Chưa ghi nhận</span>'}</td><td><button class="btn btn-soft btn-small" data-open-reason="${esc(r.maTb)}">Nhập lý do</button></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Không tìm thấy thuê bao phù hợp với bộ lọc.</td></tr>';
       $('outstandingTable').querySelectorAll('[data-open-reason]').forEach(button => button.addEventListener('click', () => openReasonFor(button.dataset.openReason)));
-      if (rows.length > 250) $('outstandingTable').insertAdjacentHTML('beforeend', `<tr><td colspan="9" class="empty">Đang hiển thị 250/${fmtNum(rows.length)} thuê bao. Hãy thu hẹp bộ lọc hoặc nhập từ khóa để tìm thêm.</td></tr>`);
+
+      const rangeText = rows.length
+        ? `Đang xem ${fmtNum(startIndex + 1)}–${fmtNum(endIndex)} / ${fmtNum(rows.length)} thuê bao · 30 thuê bao/trang.`
+        : 'Không có thuê bao phù hợp · 0 thuê bao/trang.';
+      $('outstandingPageInfo').textContent = rangeText;
+      $('outstandingPageCurrent').textContent = `Trang ${fmtNum(APP.outstandingPage)}/${fmtNum(pageCount)}`;
+      $('outstandingFirstPage').disabled = APP.outstandingPage <= 1;
+      $('outstandingPrevPage').disabled = APP.outstandingPage <= 1;
+      $('outstandingNextPage').disabled = APP.outstandingPage >= pageCount;
+      $('outstandingLastPage').disabled = APP.outstandingPage >= pageCount;
     }
     function shortTeam(team) { return String(team || '').replace('Tổ Kỹ thuật Địa bàn ', ''); }
 
@@ -984,17 +1052,22 @@
       }, 'image/png');
     }
 
-    function exportThreeDayExcel() {
-      const date = $('reportDate').value || todayISO();
-      runServer('getThreeDayExcel', [date], result => {
+    function exportDueDateRangeExcel() {
+      const fromDate = $('dueExportFrom').value;
+      const toDate = $('dueExportTo').value;
+      if (!fromDate || !toDate) return toast('Vui lòng chọn đầy đủ Từ ngày và Đến ngày.', true);
+      if (fromDate > toDate) return toast('Ngày bắt đầu không được lớn hơn ngày kết thúc.', true);
+      const from = new Date(fromDate + 'T00:00:00');
+      const to = new Date(toDate + 'T00:00:00');
+      const dayCount = Math.round((Date.UTC(to.getFullYear(), to.getMonth(), to.getDate()) - Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())) / 86400000) + 1;
+      if (dayCount > 92) return toast('Mỗi lần xuất tối đa 92 ngày để tránh file quá lớn. Bạn hãy chia thành các khoảng ngắn hơn.', true);
+      runServer('getDueDateRangeExcel', [fromDate, toDate], result => {
         try {
-          const binary = atob(result.base64); const bytes = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-          const blob = new Blob([bytes], {type: result.mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-          const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = result.filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-          const counts = (result.counts || []).map(x => x.label + ': ' + x.count).join(' · ');
-          toast('Đã xuất Excel. ' + counts);
-        } catch (e) { toast('Không tạo được file tải xuống: ' + e.message, true); }
+          if (!result || !result.base64) throw new Error((result && result.message) || 'Backend không trả về file Excel.');
+          downloadBase64File(result, 'DS_THU_CUOC_' + fromDate + '_' + toDate + '.xlsx');
+          const counts = (result.counts || []).map(x => x.date.split('-').reverse().join('/') + ': ' + x.count).join(' · ');
+          toast('Đã xuất ' + fmtNum(result.totalCount || 0) + ' thuê bao từ ' + fromDate.split('-').reverse().join('/') + ' đến ' + toDate.split('-').reverse().join('/') + (counts ? '. ' + counts : '.'));
+        } catch (e) { toast('Không tạo được file Excel: ' + e.message, true); }
       });
     }
 
