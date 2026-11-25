@@ -63,7 +63,7 @@
     .lock-date-field input{font-size:14px;min-width:138px}
     .lock-date-field input:focus{outline:2px solid #65b8d2;outline-offset:2px}
 
-    .outstanding-filter-grid{display:grid;grid-template-columns:minmax(170px,.85fr) minmax(190px,1fr) minmax(260px,1.45fr) auto;gap:10px;align-items:end;margin:4px 0 8px;padding:13px;background:#f4f9fc;border:1px solid #d8e6ee;border-radius:12px}
+    .outstanding-filter-grid{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(150px,.8fr) minmax(180px,1fr) minmax(230px,1.35fr) auto;gap:10px;align-items:end;margin:4px 0 8px;padding:13px;background:#f4f9fc;border:1px solid #d8e6ee;border-radius:12px}
     .outstanding-filter-field{display:flex;flex-direction:column;gap:6px;min-width:0}
     .outstanding-filter-field label{font-size:13px;font-weight:800;color:#24475d}
     .outstanding-filter-field select,.outstanding-filter-field input{width:100%;min-height:42px;border:1px solid #b9cbd7;border-radius:9px;padding:9px 11px;background:#fff;color:#17384e;font-size:14px;font-weight:600;outline:0}
@@ -71,8 +71,8 @@
     .outstanding-filter-actions{display:flex;align-items:end}
     .outstanding-filter-actions .btn{min-height:42px;white-space:nowrap}
     .outstanding-filter-summary{font-size:13px;color:#37566a;font-weight:700;margin:6px 2px 10px}
-    @media(max-width:1000px){.outstanding-filter-grid{grid-template-columns:1fr 1fr}.outstanding-filter-grid .outstanding-filter-field:nth-child(3){grid-column:1/-1}}
-    @media(max-width:600px){.outstanding-filter-grid{grid-template-columns:1fr;padding:11px}.outstanding-filter-grid .outstanding-filter-field:nth-child(3){grid-column:auto}.outstanding-filter-actions .btn{width:100%}}
+    @media(max-width:1000px){.outstanding-filter-grid{grid-template-columns:1fr 1fr}.outstanding-filter-grid .outstanding-filter-field:nth-child(4){grid-column:1/-1}}
+    @media(max-width:600px){.outstanding-filter-grid{grid-template-columns:1fr;padding:11px}.outstanding-filter-grid .outstanding-filter-field:nth-child(4){grid-column:auto}.outstanding-filter-actions .btn{width:100%}}
     @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media(max-width:900px){.content-grid,.reason-layout{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:600px){.app{padding:12px 12px 32px}.hero{padding:18px;border-radius:15px}.hero h1{font-size:21px}.hero p{font-size:14px}.nav{margin-top:12px}.tab{padding:11px 12px;font-size:14px}.snapshot-grid{grid-template-columns:1fr}.snapshot-card{padding:12px}.kpis{gap:8px}.kpi{padding:12px}.kpi-value{font-size:24px}.toolbar{align-items:stretch}.toolbar-left,.toolbar-right{width:100%}.toolbar-right .btn{flex:1}.field-inline{flex:1}.field-inline input{min-width:0;width:100%}.panel{padding:14px}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}th,td{padding:9px 8px}.hero-meta{width:100%}.lock-control-row{align-items:stretch;flex-direction:column}.lock-control-actions{justify-content:stretch}.lock-control-actions>*{width:100%}.lock-date-field{min-width:0}.lock-date-field input{width:100%}}
@@ -80,7 +80,7 @@
     /* Employee report: clear hierarchy, readable controls and comfortable spacing. */
     .employee-report-panel{padding:22px;background:#fff}
     .employee-filter-box{padding:16px;border:1px solid #cfdee8;background:#f5f9fc;border-radius:14px;margin-bottom:16px}
-    .employee-filter-grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:14px}
+    .employee-filter-grid{display:grid;grid-template-columns:repeat(3,minmax(190px,1fr));gap:14px}
     .employee-filter-grid .form-field label{font-size:14px;color:#203f55;font-weight:800}
     .employee-filter-grid select{min-height:46px;font-size:15px;font-weight:600;color:#183447;border:1px solid #b9cbd8;border-radius:10px;background:#fff;padding:10px 12px}
     .employee-filter-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:13px}
@@ -104,8 +104,10 @@
     .employee-report-table .rate-cell{font-weight:850;color:#075f86;white-space:nowrap}
     .employee-report-table .rate-low{color:#9a5b08}
     .employee-report-note{margin-top:12px;color:#40596b;font-size:13px}
+    .employee-report-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .employee-report-tools .btn{font-size:13px;min-height:40px}
     @media(max-width:900px){.employee-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:600px){.employee-filter-grid{grid-template-columns:1fr}.employee-filter-actions{align-items:stretch}.employee-filter-actions .btn{width:100%}.employee-filter-hint{width:100%;margin:2px 0 0}.employee-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.employee-kpi{padding:12px;min-height:88px}.employee-kpi strong{font-size:23px}.employee-report-tabs{display:grid;grid-template-columns:1fr 1fr}.employee-report-tab{padding:10px 8px;font-size:13px}}
+    @media(max-width:600px){.employee-filter-grid{grid-template-columns:1fr}.employee-report-tools{width:100%}.employee-report-tools .btn{flex:1}.employee-filter-actions{align-items:stretch}.employee-filter-actions .btn{width:100%}.employee-filter-hint{width:100%;margin:2px 0 0}.employee-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.employee-kpi{padding:12px;min-height:88px}.employee-kpi strong{font-size:23px}.employee-report-tabs{display:grid;grid-template-columns:1fr 1fr}.employee-report-tab{padding:10px 8px;font-size:13px}}
   </style>
 </head>
 <body>
@@ -218,7 +220,11 @@
             <h2 class="panel-title">Báo cáo thu cước theo MA_KV và nhân viên</h2>
             <p class="panel-sub">Xem tỷ lệ từng ngày của từng nhân viên và tỷ lệ lũy kế tháng. Có thể lọc theo mã khu vực và tên nhân viên.</p>
           </div>
-          <span class="pill" id="employeeReportCount">0 nhân viên</span>
+          <div class="employee-report-tools">
+            <span class="pill" id="employeeReportCount">0 nhân viên</span>
+            <button class="btn btn-soft btn-small admin-only" type="button" onclick="exportEmployeeRateExcel()">⇩ Excel tỷ lệ ngày</button>
+            <button class="btn btn-green btn-small admin-only" type="button" onclick="shareEmployeeReportImage()">↗ Gửi hình báo cáo</button>
+          </div>
         </div>
         <div class="employee-filter-box">
           <div class="employee-filter-grid">
@@ -229,6 +235,10 @@
             <div class="form-field">
               <label for="employeeNameFilter">Tên nhân viên</label>
               <select id="employeeNameFilter"><option value="">Tất cả nhân viên</option></select>
+            </div>
+            <div class="form-field">
+              <label for="employeeLockDayFilter">Ngày khóa thuê bao</label>
+              <select id="employeeLockDayFilter" onchange="updateEmployeeNameFilterOptions()"><option value="">Tất cả ngày khóa</option></select>
             </div>
           </div>
           <div class="employee-filter-actions">
@@ -250,8 +260,8 @@
         <div id="employeeDailyReportPanel">
           <div class="table-wrap employee-report-table-wrap">
             <table class="employee-report-table">
-              <thead><tr><th>Ngày</th><th>MA_KV</th><th>Tên nhân viên</th><th>Tổ</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ ngày</th></tr></thead>
-              <tbody id="employeeDailyReportTable"><tr><td colspan="9" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr></tbody>
+              <thead><tr><th>Ngày ghi nhận</th><th>MA_KV</th><th>Ngày khóa</th><th>Tên nhân viên</th><th>Tổ</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ ngày</th></tr></thead>
+              <tbody id="employeeDailyReportTable"><tr><td colspan="10" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr></tbody>
             </table>
           </div>
           <p class="section-caption employee-report-note">Tỷ lệ ngày = số thuê bao đầu ngày đã xử lý / số thuê bao đầu ngày được giao cho nhân viên. Thuê bao chuyển sang “Xử lý sau” không tính là đã thu.</p>
@@ -259,8 +269,8 @@
         <div id="employeeMonthlyReportPanel" class="hidden">
           <div class="table-wrap employee-report-table-wrap">
             <table class="employee-report-table">
-              <thead><tr><th>MA_KV</th><th>Tên nhân viên</th><th>Tổ</th><th class="num">Thuê bao đầu kỳ</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ tổng</th></tr></thead>
-              <tbody id="employeeMonthlyReportTable"><tr><td colspan="8" class="empty">Chưa có dữ liệu lũy kế tháng.</td></tr></tbody>
+              <thead><tr><th>MA_KV</th><th>Ngày khóa</th><th>Tên nhân viên</th><th>Tổ</th><th class="num">Thuê bao đầu kỳ</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ tổng</th></tr></thead>
+              <tbody id="employeeMonthlyReportTable"><tr><td colspan="9" class="empty">Chưa có dữ liệu lũy kế tháng.</td></tr></tbody>
             </table>
           </div>
           <p class="section-caption employee-report-note" id="employeeMonthlyNote">Mỗi MA_TB được tính một lần trong kỳ và phân bổ theo MA_KV, nhân viên ghi nhận ở lần chụp đầu tiên.</p>
@@ -272,11 +282,12 @@
         <div class="outstanding-filter-grid" aria-label="Bộ lọc danh sách thuê bao còn phải thu">
           <div class="outstanding-filter-field"><label for="outstandingKvFilter">Mã khu vực (MA_KV)</label><select id="outstandingKvFilter" onchange="onOutstandingKvFilterChange()"><option value="">Tất cả MA_KV</option></select></div>
           <div class="outstanding-filter-field"><label for="outstandingEmployeeFilter">Tên nhân viên</label><select id="outstandingEmployeeFilter" onchange="renderOutstanding()"><option value="">Tất cả nhân viên</option></select></div>
+          <div class="outstanding-filter-field"><label for="outstandingLockDayFilter">Ngày khóa thuê bao</label><select id="outstandingLockDayFilter" onchange="onOutstandingLockDayFilterChange()"><option value="">Tất cả ngày khóa</option></select></div>
           <div class="outstanding-filter-field"><label for="outstandingSearch">Tìm nhanh thuê bao</label><input id="outstandingSearch" type="search" placeholder="Mã thuê bao, khách hàng, nhân viên, địa chỉ…" oninput="renderOutstanding()"></div>
           <div class="outstanding-filter-actions"><button class="btn btn-outline btn-small" type="button" onclick="clearOutstandingFilters()">↺ Xóa lọc</button></div>
         </div>
         <div class="outstanding-filter-summary" id="outstandingFilterSummary">Đang hiển thị tất cả thuê bao còn phải thu.</div>
-        <div class="table-wrap"><table><thead><tr><th>MA_TB</th><th>MA_KV</th><th>Khách hàng</th><th>Nhân viên</th><th>Tổ</th><th class="num">Nợ hiện tại</th><th>Lý do tồn gần nhất</th><th></th></tr></thead><tbody id="outstandingTable"><tr><td colspan="8" class="empty">Đang tải dữ liệu.</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>MA_TB</th><th>MA_KV</th><th>Ngày khóa</th><th>Khách hàng</th><th>Nhân viên</th><th>Tổ</th><th class="num">Nợ hiện tại</th><th>Lý do tồn gần nhất</th><th></th></tr></thead><tbody id="outstandingTable"><tr><td colspan="9" class="empty">Đang tải dữ liệu.</td></tr></tbody></table></div>
       </section>
     </main>
 
@@ -314,12 +325,14 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false, employeeFilters: { maKv: '', employee: '' }, employeeReportMode: 'daily' };
+    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false, employeeFilters: { maKv: '', employee: '', lockDay: '' }, employeeReportMode: 'daily' };
     const $ = id => document.getElementById(id);
     const fmtNum = n => Number(n || 0).toLocaleString('vi-VN');
     const fmtPct = n => (Number(n || 0) * 100).toLocaleString('vi-VN', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + '%';
     const esc = value => String(value === null || value === undefined ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const todayISO = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+    function normalizeLockDay(value) { const s = String(value === null || value === undefined ? '' : value).trim(); if (!s) return ''; if (/^\d{1,2}$/.test(s)) return String(Number(s)); let m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/); if (m) return String(Number(m[3])); m=s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/); if (m) return String(Number(m[1])); return s; }
+    function lockDayLabel(value) { const k=normalizeLockDay(value); if (!k) return 'Chưa có ngày khóa'; return /^\d+$/.test(k) ? 'Ngày ' + k : k; }
     const API_URL = String(window.THUCUOC_CONFIG && window.THUCUOC_CONFIG.API_URL || '').trim();
     const GOOGLE_CLIENT_ID = String(window.THUCUOC_CONFIG && window.THUCUOC_CONFIG.GOOGLE_CLIENT_ID || '').trim();
 
@@ -604,10 +617,11 @@
     function updateEmployeeNameFilterOptions() {
       if (!APP.data) return;
       const kv = $('employeeKvFilter').value || '';
+      const lockDay = $('employeeLockDayFilter').value || '';
       const data = getEmployeeReportData();
       const combined = data.monthly.concat(data.daily);
       const current = $('employeeNameFilter').value || '';
-      const names = [...new Set(combined.filter(x => !kv || String(x.maKv || '') === kv).map(x => String(x.employee || 'Chưa phân công')))].sort((a,b) => a.localeCompare(b, 'vi'));
+      const names = [...new Set(combined.filter(x => (!kv || String(x.maKv || '') === kv) && (!lockDay || normalizeLockDay(x.lockDay) === lockDay)).map(x => String(x.employee || 'Chưa phân công')))].sort((a,b) => a.localeCompare(b, 'vi'));
       $('employeeNameFilter').innerHTML = '<option value="">Tất cả nhân viên</option>' + names.map(name => `<option value="${esc(name)}">${esc(name)}</option>`).join('');
       if (names.includes(current)) $('employeeNameFilter').value = current;
     }
@@ -616,28 +630,40 @@
       const data = getEmployeeReportData();
       const combined = data.monthly.concat(data.daily);
       const sourceRows = APP.data && APP.data.subscribers ? APP.data.subscribers : [];
-      const kvs = [...new Set(combined.concat(sourceRows).map(x => String(x.maKv || 'Chưa gán MA_KV')))].sort((a,b) => a.localeCompare(b, 'vi'));
+      const kvs = [...new Set(combined.concat(sourceRows).map(x => String(x.maKv || 'Chưa gán MA_KV')))].sort((a,b) => a.localeCompare(b, 'vi', {numeric:true, sensitivity:'base'}));
       const selectedKv = $('employeeKvFilter').value || APP.employeeFilters.maKv || '';
       $('employeeKvFilter').innerHTML = '<option value="">Tất cả MA_KV</option>' + kvs.map(kv => `<option value="${esc(kv)}">${esc(kv)}</option>`).join('');
       if (kvs.includes(selectedKv)) $('employeeKvFilter').value = selectedKv;
+
+      const lockDays = [...new Set(combined.concat(sourceRows).map(x => normalizeLockDay(x.lockDay)).filter(Boolean))]
+        .sort((a,b) => Number(a)-Number(b) || a.localeCompare(b, 'vi'));
+      const selectedLockDay = $('employeeLockDayFilter').value || APP.employeeFilters.lockDay || '';
+      $('employeeLockDayFilter').innerHTML = '<option value="">Tất cả ngày khóa</option>' + lockDays.map(v => `<option value="${esc(v)}">${esc(lockDayLabel(v))}</option>`).join('');
+      if (lockDays.includes(selectedLockDay)) $('employeeLockDayFilter').value = selectedLockDay;
+
       updateEmployeeNameFilterOptions();
       const selectedEmployee = $('employeeNameFilter').value || APP.employeeFilters.employee || '';
       if (selectedEmployee) $('employeeNameFilter').value = selectedEmployee;
     }
 
     function applyEmployeeFilters() {
-      APP.employeeFilters = { maKv: $('employeeKvFilter').value || '', employee: $('employeeNameFilter').value || '' };
+      APP.employeeFilters = {
+        maKv: $('employeeKvFilter').value || '',
+        employee: $('employeeNameFilter').value || '',
+        lockDay: $('employeeLockDayFilter').value || ''
+      };
       renderEmployeeReport();
-      toast('Đã lọc báo cáo theo MA_KV và nhân viên.');
+      toast('Đã lọc báo cáo theo MA_KV, nhân viên và ngày khóa.');
     }
 
     function resetEmployeeFilters() {
-      APP.employeeFilters = { maKv: '', employee: '' };
+      APP.employeeFilters = { maKv: '', employee: '', lockDay: '' };
       $('employeeKvFilter').value = '';
+      $('employeeLockDayFilter').value = '';
       updateEmployeeNameFilterOptions();
       $('employeeNameFilter').value = '';
       renderEmployeeReport();
-      toast('Đã xóa bộ lọc nhân viên.');
+      toast('Đã xóa bộ lọc báo cáo nhân viên.');
     }
 
     function setEmployeeReportMode(mode) {
@@ -652,8 +678,11 @@
       if (!APP.data) return;
       populateEmployeeReportFilters();
       const data = getEmployeeReportData();
-      const filters = APP.employeeFilters || { maKv: '', employee: '' };
-      const matches = row => (!filters.maKv || String(row.maKv || '') === filters.maKv) && (!filters.employee || String(row.employee || 'Chưa phân công') === filters.employee);
+      const filters = APP.employeeFilters || { maKv: '', employee: '', lockDay: '' };
+      const matches = row =>
+        (!filters.maKv || String(row.maKv || '') === filters.maKv) &&
+        (!filters.employee || String(row.employee || 'Chưa phân công') === filters.employee) &&
+        (!filters.lockDay || normalizeLockDay(row.lockDay) === filters.lockDay);
       const daily = data.daily.filter(matches).sort((a,b) => String(b.date).localeCompare(String(a.date)) || Number(a.rate || 0) - Number(b.rate || 0) || String(a.maKv).localeCompare(String(b.maKv), 'vi'));
       const monthly = data.monthly.filter(matches).sort((a,b) => Number(a.rate || 0) - Number(b.rate || 0) || Number(b.remain || 0) - Number(a.remain || 0) || String(a.maKv).localeCompare(String(b.maKv), 'vi'));
       const totals = monthly.reduce((sum, row) => {
@@ -671,19 +700,20 @@
       const filterLabels = [];
       if (filters.maKv) filterLabels.push('MA_KV: ' + filters.maKv);
       if (filters.employee) filterLabels.push('Nhân viên: ' + filters.employee);
+      if (filters.lockDay) filterLabels.push('Ngày khóa: ' + lockDayLabel(filters.lockDay));
       $('employeeFilterHint').textContent = filterLabels.length ? 'Đang lọc: ' + filterLabels.join(' · ') : 'Đang hiển thị toàn bộ nhân viên.';
       const employeeCount = new Set(monthly.map(x => String(x.maKv || '') + '¦' + String(x.employee || ''))).size;
       $('employeeReportCount').textContent = fmtNum(employeeCount) + ' nhân viên · ' + (data.month || 'chưa có tháng');
       $('employeeDailyReportTable').innerHTML = daily.length ? daily.map(x => `<tr>
         <td><b>${esc((x.date || '').split('-').reverse().join('/'))}</b>${x.locked ? '<div><span class="pill pill-green">Đã khóa</span></div>' : ''}</td>
-        <td><b>${esc(x.maKv || 'Chưa gán')}</b></td><td><b>${esc(x.employee || 'Chưa phân công')}</b></td><td>${esc(x.team || 'Chưa phân tổ')}</td>
+        <td><b>${esc(x.maKv || 'Chưa gán')}</b></td><td>${esc(lockDayLabel(x.lockDay))}</td><td><b>${esc(x.employee || 'Chưa phân công')}</b></td><td>${esc(x.team || 'Chưa phân tổ')}</td>
         <td class="num">${fmtNum(x.baseline)}</td><td class="num">${fmtNum(x.done)}</td><td class="num">${fmtNum(x.remain)}</td><td class="num">${fmtNum(x.deferred)}</td>
-        <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td></tr>`).join('') : '<tr><td colspan="9" class="empty">Không có kết quả theo ngày phù hợp với bộ lọc. Hãy kiểm tra ngày chụp hoặc chọn lại bộ lọc.</td></tr>';
+        <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td></tr>`).join('') : '<tr><td colspan="10" class="empty">Không có kết quả theo ngày phù hợp với bộ lọc. Hãy kiểm tra ngày chụp hoặc chọn lại bộ lọc.</td></tr>';
       $('employeeMonthlyReportTable').innerHTML = monthly.length ? monthly.map(x => `<tr>
-        <td><b>${esc(x.maKv || 'Chưa gán')}</b></td><td><b>${esc(x.employee || 'Chưa phân công')}</b></td><td>${esc(x.team || 'Chưa phân tổ')}</td>
+        <td><b>${esc(x.maKv || 'Chưa gán')}</b></td><td>${esc(lockDayLabel(x.lockDay))}</td><td><b>${esc(x.employee || 'Chưa phân công')}</b></td><td>${esc(x.team || 'Chưa phân tổ')}</td>
         <td class="num">${fmtNum(x.baseline)}</td><td class="num">${fmtNum(x.done)}</td><td class="num">${fmtNum(x.remain)}</td><td class="num">${fmtNum(x.deferred)}</td>
-        <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td></tr>`).join('') : '<tr><td colspan="8" class="empty">Chưa có kết quả lũy kế tháng phù hợp với bộ lọc.</td></tr>';
-      $('employeeMonthlyNote').textContent = `Tháng ${data.month || ''}: mỗi MA_TB được tính một lần, phân bổ theo MA_KV và nhân viên ở lần chụp đầu tiên. Tỷ lệ tổng trong phạm vi lọc = ${fmtNum(totals.done)} đã xử lý / ${fmtNum(totals.baseline)} thuê bao đầu kỳ = ${fmtPct(totalRate)}. ${fmtNum(totals.deferred)} thuê bao đang ở trạng thái Xử lý sau, không tính là đã thu.`;
+        <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td></tr>`).join('') : '<tr><td colspan="9" class="empty">Chưa có kết quả lũy kế tháng phù hợp với bộ lọc.</td></tr>';
+      $('employeeMonthlyNote').textContent = `Tháng ${data.month || ''}: mỗi MA_TB được tính một lần, phân bổ theo MA_KV, nhân viên và ngày khóa tại lần chụp đầu tiên. Tỷ lệ tổng trong phạm vi lọc = ${fmtNum(totals.done)} đã xử lý / ${fmtNum(totals.baseline)} thuê bao đầu kỳ = ${fmtPct(totalRate)}. ${fmtNum(totals.deferred)} thuê bao đang ở trạng thái Xử lý sau, không tính là đã thu.`;
       setEmployeeReportMode(APP.employeeReportMode || 'daily');
     }
 
@@ -696,15 +726,25 @@
         .sort((a,b) => a.localeCompare(b, 'vi', {numeric:true, sensitivity:'base'}));
       kvSelect.innerHTML = '<option value="">Tất cả MA_KV</option>' + kvs.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
       if (kvs.includes(previousKv)) kvSelect.value = previousKv;
+
+      const lockDaySelect = $('outstandingLockDayFilter');
+      const previousLockDay = lockDaySelect.value;
+      const lockDays = [...new Set(all.map(r => normalizeLockDay(r.lockDay)).filter(Boolean))]
+        .sort((a,b) => Number(a)-Number(b) || a.localeCompare(b, 'vi'));
+      lockDaySelect.innerHTML = '<option value="">Tất cả ngày khóa</option>' + lockDays.map(v => `<option value="${esc(v)}">${esc(lockDayLabel(v))}</option>`).join('');
+      if (lockDays.includes(previousLockDay)) lockDaySelect.value = previousLockDay;
       updateOutstandingEmployeeFilterOptions(true);
     }
 
     function updateOutstandingEmployeeFilterOptions(preserveCurrent) {
       if (!APP.data) return;
       const kv = $('outstandingKvFilter').value || '';
+      const lockDay = $('outstandingLockDayFilter').value || '';
       const select = $('outstandingEmployeeFilter');
       const previous = preserveCurrent ? select.value : '';
-      const rows = (APP.data.subscribers || []).filter(r => !kv || String(r.maKv || 'Chưa gán MA_KV').trim() === kv);
+      const rows = (APP.data.subscribers || []).filter(r =>
+        (!kv || String(r.maKv || 'Chưa gán MA_KV').trim() === kv) &&
+        (!lockDay || normalizeLockDay(r.lockDay) === lockDay));
       const names = [...new Set(rows.map(r => String(r.employee || 'Chưa phân công').trim() || 'Chưa phân công'))]
         .sort((a,b) => a.localeCompare(b, 'vi', {numeric:true, sensitivity:'base'}));
       select.innerHTML = '<option value="">Tất cả nhân viên</option>' + names.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
@@ -716,8 +756,14 @@
       renderOutstanding();
     }
 
+    function onOutstandingLockDayFilterChange() {
+      updateOutstandingEmployeeFilterOptions(false);
+      renderOutstanding();
+    }
+
     function clearOutstandingFilters() {
       $('outstandingKvFilter').value = '';
+      $('outstandingLockDayFilter').value = '';
       $('outstandingSearch').value = '';
       updateOutstandingEmployeeFilterOptions(false);
       $('outstandingEmployeeFilter').value = '';
@@ -729,29 +775,32 @@
       const q = ($('outstandingSearch').value || '').toLowerCase().trim();
       const selectedKv = $('outstandingKvFilter').value || '';
       const selectedEmployee = $('outstandingEmployeeFilter').value || '';
+      const selectedLockDay = $('outstandingLockDayFilter').value || '';
       const all = APP.data.subscribers || [];
       const rows = all.filter(r => {
         const kv = String(r.maKv || 'Chưa gán MA_KV').trim() || 'Chưa gán MA_KV';
         const employee = String(r.employee || 'Chưa phân công').trim() || 'Chưa phân công';
         const matchesKv = !selectedKv || kv === selectedKv;
         const matchesEmployee = !selectedEmployee || employee === selectedEmployee;
-        const matchesSearch = !q || [r.maTb,r.maTt,r.maKv,r.customer,r.employee,r.team,r.address].join(' ').toLowerCase().includes(q);
-        return matchesKv && matchesEmployee && matchesSearch;
+        const matchesLockDay = !selectedLockDay || normalizeLockDay(r.lockDay) === selectedLockDay;
+        const matchesSearch = !q || [r.maTb,r.maTt,r.maKv,r.customer,r.employee,r.team,r.address,r.lockDay].join(' ').toLowerCase().includes(q);
+        return matchesKv && matchesEmployee && matchesLockDay && matchesSearch;
       });
-      const filterActive = Boolean(selectedKv || selectedEmployee || q);
+      const filterActive = Boolean(selectedKv || selectedEmployee || selectedLockDay || q);
       $('outstandingCount').textContent = filterActive
         ? `${fmtNum(rows.length)} / ${fmtNum(all.length)} thuê bao`
         : `${fmtNum(rows.length)} thuê bao`;
       const labels = [];
       if (selectedKv) labels.push('MA_KV: ' + selectedKv);
       if (selectedEmployee) labels.push('Nhân viên: ' + selectedEmployee);
+      if (selectedLockDay) labels.push('Ngày khóa: ' + lockDayLabel(selectedLockDay));
       if (q) labels.push('Từ khóa: ' + q);
       $('outstandingFilterSummary').textContent = filterActive
         ? `Đang lọc ${fmtNum(rows.length)} / ${fmtNum(all.length)} thuê bao · ${labels.join(' · ')}`
         : `Đang hiển thị toàn bộ ${fmtNum(all.length)} thuê bao còn phải thu.`;
-      $('outstandingTable').innerHTML = rows.slice(0,250).map(r => `<tr><td><b>${esc(r.maTb)}</b></td><td><span class="pill">${esc(r.maKv || 'Chưa gán')}</span></td><td>${esc(r.customer)}</td><td>${esc(r.employee)}</td><td>${esc(shortTeam(r.team))}</td><td class="num">${fmtNum(r.debt)}</td><td>${r.latestReason ? `<span class="pill">${esc(r.latestReason.reason)}</span>` : '<span class="muted">Chưa ghi nhận</span>'}</td><td><button class="btn btn-soft btn-small" data-open-reason="${esc(r.maTb)}">Nhập lý do</button></td></tr>`).join('') || '<tr><td colspan="8" class="empty">Không tìm thấy thuê bao phù hợp với bộ lọc.</td></tr>';
+      $('outstandingTable').innerHTML = rows.slice(0,250).map(r => `<tr><td><b>${esc(r.maTb)}</b></td><td><span class="pill">${esc(r.maKv || 'Chưa gán')}</span></td><td>${esc(lockDayLabel(r.lockDay))}</td><td>${esc(r.customer)}</td><td>${esc(r.employee)}</td><td>${esc(shortTeam(r.team))}</td><td class="num">${fmtNum(r.debt)}</td><td>${r.latestReason ? `<span class="pill">${esc(r.latestReason.reason)}</span>` : '<span class="muted">Chưa ghi nhận</span>'}</td><td><button class="btn btn-soft btn-small" data-open-reason="${esc(r.maTb)}">Nhập lý do</button></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Không tìm thấy thuê bao phù hợp với bộ lọc.</td></tr>';
       $('outstandingTable').querySelectorAll('[data-open-reason]').forEach(button => button.addEventListener('click', () => openReasonFor(button.dataset.openReason)));
-      if (rows.length > 250) $('outstandingTable').insertAdjacentHTML('beforeend', `<tr><td colspan="8" class="empty">Đang hiển thị 250/${fmtNum(rows.length)} thuê bao. Hãy thu hẹp bộ lọc hoặc nhập từ khóa để tìm thêm.</td></tr>`);
+      if (rows.length > 250) $('outstandingTable').insertAdjacentHTML('beforeend', `<tr><td colspan="9" class="empty">Đang hiển thị 250/${fmtNum(rows.length)} thuê bao. Hãy thu hẹp bộ lọc hoặc nhập từ khóa để tìm thêm.</td></tr>`);
     }
     function shortTeam(team) { return String(team || '').replace('Tổ Kỹ thuật Địa bàn ', ''); }
 
@@ -828,6 +877,111 @@
         renderSubscriberHistory(result.history || []);
         reloadData();
       });
+    }
+
+    function currentEmployeeReportFilters() {
+      return {
+        maKv: $('employeeKvFilter').value || '',
+        employee: $('employeeNameFilter').value || '',
+        lockDay: $('employeeLockDayFilter').value || ''
+      };
+    }
+
+    function downloadBase64File(result, fallbackName) {
+      const binary = atob(result.base64); const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], {type: result.mimeType || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = result.filename || fallbackName;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function exportEmployeeRateExcel() {
+      const date = $('reportDate').value || todayISO();
+      const filters = currentEmployeeReportFilters();
+      runServer('getEmployeeRateExcel', [date, filters], result => {
+        try {
+          downloadBase64File(result, 'BAO_CAO_TY_LE_THU_NHAN_VIEN_' + date.substring(0,7) + '.xlsx');
+          toast('Đã xuất Excel tỷ lệ thu theo từng ngày và tỷ lệ tổng lũy kế.');
+        } catch (e) { toast('Không tạo được file Excel báo cáo: ' + e.message, true); }
+      });
+    }
+
+    function shareEmployeeReportImage() {
+      if (!APP.data) return toast('Chưa có dữ liệu báo cáo để tạo hình.', true);
+      const data = getEmployeeReportData();
+      const filters = currentEmployeeReportFilters();
+      const matches = row => (!filters.maKv || String(row.maKv || '') === filters.maKv) &&
+        (!filters.employee || String(row.employee || 'Chưa phân công') === filters.employee) &&
+        (!filters.lockDay || normalizeLockDay(row.lockDay) === filters.lockDay);
+      const monthlyMode = APP.employeeReportMode === 'monthly';
+      const rows = (monthlyMode ? data.monthly.filter(matches) : data.daily.filter(matches)).slice(0, 45);
+      if (!rows.length) return toast('Không có dòng báo cáo nào phù hợp với bộ lọc.', true);
+      const title = monthlyMode ? 'BÁO CÁO LŨY KẾ THÁNG THEO NHÂN VIÊN' : 'BÁO CÁO TỶ LỆ THU TỪNG NGÀY THEO NHÂN VIÊN';
+      const headers = monthlyMode
+        ? ['MA_KV','NGÀY KHÓA','TÊN NHÂN VIÊN','TỔ','ĐẦU KỲ','ĐÃ XỬ LÝ','CÒN PHẢI THU','XỬ LÝ SAU','TỶ LỆ TỔNG']
+        : ['NGÀY','MA_KV','NGÀY KHÓA','TÊN NHÂN VIÊN','TỔ','ĐẦU NGÀY','ĐÃ XỬ LÝ','CÒN PHẢI THU','XỬ LÝ SAU','TỶ LỆ NGÀY'];
+      const matrix = rows.map(x => monthlyMode
+        ? [x.maKv || 'Chưa gán', lockDayLabel(x.lockDay), x.employee || 'Chưa phân công', x.team || 'Chưa phân tổ', fmtNum(x.baseline), fmtNum(x.done), fmtNum(x.remain), fmtNum(x.deferred), fmtPct(x.rate)]
+        : [(x.date || '').split('-').reverse().join('/'), x.maKv || 'Chưa gán', lockDayLabel(x.lockDay), x.employee || 'Chưa phân công', x.team || 'Chưa phân tổ', fmtNum(x.baseline), fmtNum(x.done), fmtNum(x.remain), fmtNum(x.deferred), fmtPct(x.rate)]);
+      const rowH = 44, left = 42, top = 260, headerH = 48;
+      const widths = monthlyMode ? [145,130,280,270,130,130,150,130,150] : [125,130,120,260,260,125,125,145,125,140];
+      const width = widths.reduce((a,b)=>a+b,0) + left*2;
+      const height = top + headerH + matrix.length*rowH + 90;
+      const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#f2f6f9'; ctx.fillRect(0,0,width,height);
+      const gradient = ctx.createLinearGradient(0,0,width,0); gradient.addColorStop(0,'#0b3b57'); gradient.addColorStop(1,'#0b91ad');
+      ctx.fillStyle = gradient; roundRect(ctx,left,24,width-left*2,175,22,true,false);
+      ctx.fillStyle = '#eaf5fa'; ctx.font = 'bold 18px Arial'; ctx.fillText('TRUNG TÂM VIỄN THÔNG TÂN AN HỘI',left+26,62);
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 30px Arial'; ctx.fillText(title,left+26,112);
+      ctx.font = '16px Arial'; ctx.fillStyle = '#eaf5fa';
+      const monthText = 'Tháng ' + (data.month || '') + ' · ' + fmtNum(rows.length) + ' dòng';
+      ctx.fillText(monthText,left+26,148);
+      const labels = [];
+      if (filters.maKv) labels.push('MA_KV: '+filters.maKv);
+      if (filters.employee) labels.push('Nhân viên: '+filters.employee);
+      if (filters.lockDay) labels.push('Ngày khóa: '+lockDayLabel(filters.lockDay));
+      ctx.font = '14px Arial'; ctx.fillText(labels.length ? labels.join(' · ') : 'Phạm vi: tất cả MA_KV, nhân viên và ngày khóa',left+26,176);
+      let x=left;
+      ctx.fillStyle='#e5eef4'; ctx.fillRect(left,top,width-left*2,headerH);
+      ctx.font='bold 13px Arial'; ctx.fillStyle='#173b52';
+      headers.forEach((h,i)=>{ctx.fillText(h,x+9,top+29);x+=widths[i];});
+      matrix.forEach((row,ri)=>{
+        const y=top+headerH+ri*rowH;
+        ctx.fillStyle=ri%2===0?'#fff':'#f8fbfd';ctx.fillRect(left,y,width-left*2,rowH);
+        let xx=left;
+        row.forEach((v,i)=>{
+          ctx.fillStyle = i=== (monthlyMode?8:9) ? '#075f86' : '#223e50';
+          ctx.font = (i=== (monthlyMode?8:9) ? 'bold 14px Arial' : '13px Arial');
+          let text=String(v);
+          const maxWidth=widths[i]-16;
+          while (ctx.measureText(text).width>maxWidth && text.length>3) text=text.slice(0,-2)+'…';
+          ctx.fillText(text,xx+9,y+27);xx+=widths[i];
+        });
+        ctx.strokeStyle='#e5edf2';ctx.beginPath();ctx.moveTo(left,y+rowH);ctx.lineTo(width-left,y+rowH);ctx.stroke();
+      });
+      ctx.fillStyle='#526c7d';ctx.font='13px Arial';
+      ctx.fillText('Tỷ lệ ngày = số thuê bao đầu ngày đã xử lý / đầu ngày. Xử lý sau không tính là đã thu.',left,height-34);
+      if ((monthlyMode ? data.monthly : data.daily).filter(matches).length > rows.length) ctx.fillText('Ảnh hiển thị 45 dòng đầu; dùng Excel để xem toàn bộ kết quả.',left,height-15);
+      canvas.toBlob(async blob => {
+        if (!blob) return toast('Không tạo được hình báo cáo.', true);
+        const date = $('reportDate').value || todayISO();
+        const filename = 'BAO_CAO_NHAN_VIEN_' + date.substring(0,7) + '.png';
+        const file = new File([blob], filename, {type:'image/png'});
+        try {
+          if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
+            await navigator.share({files:[file], title:'Báo cáo thu cước nhân viên', text:'Báo cáo thu cước Tân An Hội'});
+            toast('Đã mở chức năng chia sẻ hình báo cáo.');
+          } else {
+            const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+            toast('Trình duyệt chưa hỗ trợ gửi hình trực tiếp; đã tải hình PNG để bạn gửi qua Zalo hoặc email.');
+          }
+        } catch (e) {
+          if (e && e.name === 'AbortError') return;
+          const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+          toast('Không mở được hộp thoại chia sẻ; đã tải hình PNG thay thế.');
+        }
+      }, 'image/png');
     }
 
     function exportThreeDayExcel() {
