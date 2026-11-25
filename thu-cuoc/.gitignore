@@ -1,0 +1,10 @@
+# Do not publish source data or server-side code
+*.xlsx
+*.xls
+*.csv
+*.gs
+appsscript.json
+Code.gs
+DS THU CƯỚC*
+thu-cuoc-apps-script-backend-private*
+apps-script-private/
