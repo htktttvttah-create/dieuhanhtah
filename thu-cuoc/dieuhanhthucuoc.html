@@ -21,6 +21,9 @@
     .date-range-export-controls .field-inline{min-height:40px}
     .date-range-export-controls input{font-size:14px;min-width:135px}
     .date-range-export-note{width:100%;font-size:12px;color:#526d7f;line-height:1.45}
+    .month-reset-panel{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 16px;padding:14px 17px;border:1px solid #efd5bd;border-radius:14px;background:#fff9f3}
+    .month-reset-copy{display:flex;flex-direction:column;gap:4px;min-width:240px;flex:1}.month-reset-copy strong{font-size:15px;color:#75431e}.month-reset-copy span{font-size:13px;color:#684e3b}.month-reset-copy small{font-size:12px;line-height:1.45;color:#725f50}.month-reset-panel .btn{white-space:nowrap}
+    @media(max-width:760px){.month-reset-panel{align-items:stretch}.month-reset-panel .btn{width:100%}}
     @media(max-width:760px){.date-range-export{align-items:stretch}.date-range-export-copy{min-width:100%}.date-range-export-controls{width:100%}.date-range-export-controls .field-inline{flex:1;min-width:180px}.date-range-export-controls input{width:100%;min-width:0}.date-range-export-controls .btn{width:100%}}
     .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.field-inline{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 10px}.field-inline label{font-size:12px;color:var(--muted);font-weight:700}.field-inline input{border:0;outline:0;color:var(--ink);font-weight:700;background:transparent}
     .btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s;min-height:38px}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#066b95}.btn-soft{background:#e8f4f8;color:#126d8f}.btn-outline{border:1px solid var(--line);background:#fff;color:var(--ink)}.btn-danger{background:#fff0f0;color:var(--red)}.btn-green{background:#e6f6ef;color:#117b58}.btn-small{padding:8px 11px;min-height:34px;font-size:12px}
@@ -167,6 +170,15 @@
           <button class="btn btn-green btn-small" onclick="exportImage()">▧ Xuất hình ảnh</button>
         </div>
       </div>
+
+      <section class="month-reset-panel admin-only" id="monthResetPanel" aria-label="Chốt tháng và mở kỳ mới">
+        <div class="month-reset-copy">
+          <strong>Chốt kỳ báo cáo và mở tháng mới</strong>
+          <span id="monthResetStatus">Đang kiểm tra kỳ báo cáo...</span>
+          <small>Chỉ chốt sau khi đã khóa tất cả ngày có dữ liệu. Kỳ cũ được lưu trữ, không xóa lịch sử chụp, ngày khóa hay lý do tồn.</small>
+        </div>
+        <button class="btn btn-danger btn-small admin-only" id="startNewMonthButton" type="button" onclick="startNewReportingMonth()">↻ Reset kỳ mới (chốt tháng cũ)</button>
+      </section>
 
       <section class="date-range-export admin-only" id="dueDateExportPanel" aria-label="Xuất danh sách theo khoảng ngày khóa">
         <div class="date-range-export-copy">
@@ -362,7 +374,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false, employeeFilters: { maKv: '', employee: '', lockDay: '' }, employeeReportMode: 'daily', outstandingPage: 1, outstandingPageSize: 30, outstandingPageCount: 1 };
+    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false, employeeFilters: { maKv: '', employee: '', lockDay: '' }, employeeReportMode: 'daily', activeReportMonth: '', outstandingPage: 1, outstandingPageSize: 30, outstandingPageCount: 1 };
     const $ = id => document.getElementById(id);
     const fmtNum = n => Number(n || 0).toLocaleString('vi-VN');
     const fmtPct = n => (Number(n || 0) * 100).toLocaleString('vi-VN', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + '%';
@@ -576,11 +588,51 @@
       const date = $('reportDate').value || todayISO();
       runServer('getDashboardData', [date], data => {
         APP.data = data;
+        APP.activeReportMonth = data.activeReportMonth || (data.selectedDate || date).substring(0,7);
+        renderMonthResetControl();
         $('heroDate').textContent = 'Báo cáo ngày ' + date.split('-').reverse().join('/');
         $('heroState').textContent = data.lock && data.lock.locked ? 'Dữ liệu đã khóa' : 'Đang theo dõi';
         $('sourceStatus').textContent = 'Nguồn: ' + data.sourceSheet + ' · ' + fmtNum(data.sourceCount) + ' thuê bao đang ở trạng thái Cần phải thu.';
         $('sourceDot').className = 'dot';
         APP.outstandingPage = 1; renderSnapshotCards(); renderSummary(); renderOutstandingFilters(); renderOutstanding(); if (APP.activeTab === 'reasons') renderReasonModule();
+      });
+    }
+
+    function nextReportMonthKey(month) {
+      const parts = String(month || '').split('-').map(Number);
+      const d = new Date(parts[0], parts[1], 1);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    }
+
+    function renderMonthResetControl() {
+      const active = APP.data && APP.data.activeReportMonth ? APP.data.activeReportMonth : APP.activeReportMonth;
+      const status = $('monthResetStatus');
+      const button = $('startNewMonthButton');
+      if (!active || !status || !button) return;
+      const next = nextReportMonthKey(active);
+      const currentCalendarMonth = (APP.data && APP.data.today ? APP.data.today : todayISO()).substring(0, 7);
+      const alreadyArchived = !!(APP.data && APP.data.selectedMonthArchived && (APP.data.monthSummary || {}).month === active);
+      const canStart = next <= currentCalendarMonth && !alreadyArchived;
+      status.textContent = 'Kỳ đang hoạt động: ' + active + ' · Kỳ kế tiếp: ' + next + '. ' + (canStart ? 'Đã sang tháng mới, có thể chốt kỳ cũ.' : 'Nút reset sẽ mở khi lịch sang tháng ' + next + '.') + ' Kỳ đã chốt sẽ không bị tính lại.';
+      button.textContent = '↻ Reset sang ' + next;
+      button.disabled = !canStart;
+    }
+
+    function startNewReportingMonth() {
+      if (!APP.isAdmin) return toast('Chỉ quản trị viên mới được chốt tháng và mở kỳ mới.', true);
+      const active = APP.data && APP.data.activeReportMonth ? APP.data.activeReportMonth : APP.activeReportMonth;
+      if (!active) return toast('Chưa xác định được kỳ báo cáo đang hoạt động.', true);
+      const next = nextReportMonthKey(active);
+      const phrase = 'MO ' + next;
+      const typed = prompt('Thao tác này sẽ chốt kỳ ' + active + ' và mở kỳ mới ' + next + '.\n\nDữ liệu cũ được lưu trữ, KHÔNG xóa. Tất cả ngày đã chụp trong kỳ hiện tại phải được khóa trước.\n\nĐể xác nhận, nhập chính xác: ' + phrase);
+      if (typed === null) return;
+      if (typed.trim() !== phrase) return toast('Nội dung xác nhận chưa đúng. Chưa thay đổi dữ liệu.', true);
+      runServer('startNewMonth', [next], result => {
+        toast(result.message || ('Đã mở kỳ ' + next + '.'));
+        const firstDay = next + '-01';
+        $('reportDate').value = firstDay;
+        $('lockDate').value = firstDay;
+        reloadData();
       });
     }
 
@@ -617,11 +669,13 @@
         return `<div class="snapshot-card"><div class="snapshot-top"><span class="snapshot-label">${displaySlot}</span><span class="snapshot-status">${s ? 'Đã lưu' : 'Chưa chụp'}</span></div><div class="snapshot-count">${s ? fmtNum(s.count) : '—'}</div><div class="snapshot-note">${s ? 'Ghi nhận lúc ' + esc(s.time || 'Không rõ thời gian') : 'Chưa có dữ liệu tại mốc này'}</div></div>`;
       }).join('');
       const locked = !!(APP.data.lock && APP.data.lock.locked);
-      $('lockBadge').textContent = locked ? 'Đã khóa dữ liệu' : 'Chưa khóa';
-      $('lockBadge').className = locked ? 'pill pill-green' : 'pill pill-amber';
+      const archived = !!APP.data.selectedMonthArchived;
+      $('lockBadge').textContent = archived ? 'Kỳ đã lưu trữ' : (locked ? 'Đã khóa dữ liệu' : 'Chưa khóa');
+      $('lockBadge').className = (locked || archived) ? 'pill pill-green' : 'pill pill-amber';
       $('lockButton').classList.toggle('hidden', !APP.isAdmin || locked);
       $('unlockButton').classList.toggle('hidden', !APP.isAdmin || !locked);
-      ['captureMorning','captureNoon','captureEvening'].forEach(id => { $(id).classList.toggle('hidden', !APP.isAdmin); $(id).disabled = locked || !APP.isAdmin; });
+      ['captureMorning','captureNoon','captureEvening'].forEach(id => { $(id).classList.toggle('hidden', !APP.isAdmin); $(id).disabled = locked || archived || !APP.isAdmin; });
+      $('lockButton').disabled = archived; $('unlockButton').disabled = archived;
     }
 
     function renderSummary() {
@@ -633,11 +687,12 @@
       $('kpiBaselineFoot').textContent = s.baselineSlot ? 'Mẫu số lấy từ mốc ' + s.baselineSlot.toLowerCase() : 'Chưa có bản chụp đầu ngày';
       $('kpiRateFoot').textContent = fmtNum(s.totalDone) + ' / ' + fmtNum(s.baselineCount) + ' thuê bao';
       const m = APP.data.monthSummary || {};
+      if (m.archived) $('overallNote').textContent = 'Kỳ ' + (m.month || '') + ' đã chốt và lưu trữ lúc ' + (m.archivedAt || '') + '. Báo cáo giữ nguyên số liệu đã chốt.';
       $('kpiOverallRate').textContent = fmtPct(m.totalRate);
       $('kpiOverallFoot').textContent = fmtNum(m.totalDone) + ' / ' + fmtNum(m.workloadCount) + ' thuê bao duy nhất';
       $('monthLabel').textContent = m.month || 'Chưa có tháng';
       $('dailyHistoryTable').innerHTML = (m.days || []).length ? m.days.map(d => `<tr><td><b>${esc(d.date.split('-').reverse().join('/'))}</b></td><td class="num">${fmtNum(d.baselineCount)}</td><td class="num">${fmtNum(d.totalDone)}</td><td class="num">${fmtNum(d.currentCount)}</td><td class="num">${fmtNum(d.deferredCount)}</td><td class="num"><b>${fmtPct(d.totalRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,d.totalRate*100))}%"></span></div></td><td>${d.locked ? '<span class="pill pill-green">Đã khóa</span>' : '<span class="pill pill-amber">Đang mở</span>'}</td></tr>`).join('') : '<tr><td colspan="7" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr>';
-      $('overallNote').textContent = `Tỷ lệ tổng kỳ ${m.month || ''}: ${fmtNum(m.totalDone)} thuê bao đã xử lý / ${fmtNum(m.workloadCount)} thuê bao duy nhất đã xuất hiện trong các lần chụp; ${fmtNum(m.deferredCount)} thuê bao đang ở trạng thái Xử lý sau. Mốc dữ liệu cuối: ${m.lastCapturedAt || 'chưa có'}.`;
+      $('overallNote').textContent = m.archived ? ('Kỳ ' + (m.month || '') + ' đã chốt và lưu trữ lúc ' + (m.archivedAt || '') + '. Báo cáo giữ nguyên số liệu đã chốt.') : `Tỷ lệ tổng kỳ ${m.month || ''}: ${fmtNum(m.totalDone)} thuê bao đã xử lý / ${fmtNum(m.workloadCount)} thuê bao duy nhất đã xuất hiện trong các lần chụp; ${fmtNum(m.deferredCount)} thuê bao đang ở trạng thái Xử lý sau. Mốc dữ liệu cuối: ${m.lastCapturedAt || 'chưa có'}.`;
       $('stageTable').innerHTML = (s.stages || []).length ? s.stages.map(x => `<tr><td><b>${esc(x.slot.charAt(0) + x.slot.slice(1).toLowerCase())}</b><div class="muted" style="font-size:12px">${esc(x.time)}</div></td><td class="num">${fmtNum(x.count)}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.removedSincePrevious) + '<div class="muted">+' + fmtPct(x.intervalRate) + '</div>'}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.movedToDeferred)}</td><td class="num">${fmtNum(x.cumulativeDone)}</td><td class="num"><b>${fmtPct(x.cumulativeRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.cumulativeRate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="6" class="empty">Chưa có dữ liệu chụp. Hãy lưu mốc sáng trước.</td></tr>';
       $('teamTable').innerHTML = (s.byTeam || []).length ? s.byTeam.map(x => `<tr><td>${esc(x.team)}</td><td class="num">${fmtNum(x.done)} / ${fmtNum(x.baseline)}</td><td class="num"><b>${fmtPct(x.rate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.rate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="3" class="empty">Chưa có dữ liệu xử lý để phân tổ.</td></tr>';
       renderEmployeeReport();
