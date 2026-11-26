@@ -221,6 +221,7 @@
               <input id="lockDate" type="date" aria-label="Chọn ngày cần khóa hoặc mở khóa">
             </div>
             <button class="btn btn-danger btn-small admin-only" id="lockButton" onclick="changeLock(true)">▣ Khóa ngày đã chọn</button>
+            <button class="btn btn-danger btn-small admin-only" id="lockAllDaysButton" type="button" onclick="lockAllDaysThroughSelectedDate()">▣ Khóa tất cả ngày đến ngày đã chọn</button>
             <button class="btn btn-outline btn-small hidden admin-only" id="unlockButton" onclick="changeLock(false)">↻ Mở khóa ngày đã chọn</button>
             <button class="btn btn-outline btn-small admin-only" id="unlockAllDaysButton" type="button" onclick="unlockAllDaysThroughSelectedDate()">↻ Mở khóa tất cả ngày đến ngày đã chọn</button>
           </div>
@@ -547,13 +548,14 @@
       submitApiForm(requestId, payload);
       return collectApiResult(requestId);
     }
-    async function runServer(method, args, success) {
+    async function runServer(method, args, success, errorCallback) {
       setBusy(true);
       try {
         const result = await apiRequest(method, args || []);
         setBusy(false);
         if (result && result.success === false) {
           if (result.code === 'AUTH_REQUIRED') showLoginAgain();
+          if (typeof errorCallback === 'function') errorCallback(result);
           return toast(result.message || 'Có lỗi xảy ra.', true);
         }
         success(result);
@@ -561,6 +563,7 @@
         setBusy(false);
         const message = (err && err.message) || String(err);
         if (/đăng nhập lại|phiên đăng nhập/i.test(message)) showLoginAgain();
+        if (typeof errorCallback === 'function') errorCallback(err);
         toast(message, true);
       }
     }
@@ -660,6 +663,40 @@
       });
     }
 
+    function lockAllDaysThroughSelectedDate() {
+      if (!APP.isAdmin) return toast('Chỉ quản trị viên mới được khóa hàng loạt.', true);
+      const throughDate = $('lockDate').value || $('reportDate').value || todayISO();
+      const activeMonth = APP.data && APP.data.activeReportMonth ? APP.data.activeReportMonth : APP.activeReportMonth;
+      if (!activeMonth) return toast('Chưa xác định được kỳ báo cáo đang hoạt động.', true);
+      if (throughDate > todayISO()) return toast('Không thể khóa đến ngày trong tương lai.', true);
+      if (throughDate.substring(0, 7) !== activeMonth) {
+        return toast('Chỉ khóa hàng loạt trong kỳ đang hoạt động ' + activeMonth + '. Hãy chọn ngày thuộc kỳ này.', true);
+      }
+      if (APP.data && APP.data.selectedMonthArchived) return toast('Kỳ này đã lưu trữ, không thể khóa lại.', true);
+
+      const dateLabel = throughDate.split('-').reverse().join('/');
+      const phrase = 'KHOA TAT CA NGAY ' + activeMonth;
+      const typed = prompt(
+        'Bạn đang yêu cầu KHÓA TẤT CẢ các ngày đã có dữ liệu chụp trong kỳ ' + activeMonth + ' từ đầu tháng đến hết ngày ' + dateLabel + '.\n\n' +
+        'Mỗi ngày sẽ được chốt theo các mốc chụp hợp lệ đã lưu cho chính ngày đó. Những ngày đã khóa sẽ được giữ nguyên và bỏ qua; ngày chưa có mốc chụp sẽ không được khóa. Thao tác không xóa hoặc ghi đè lịch sử chụp.\n\n' +
+        'Để xác nhận, nhập chính xác: ' + phrase
+      );
+      if (typed === null) return;
+      if (typed.trim() !== phrase) return toast('Nội dung xác nhận chưa đúng. Không có ngày nào được khóa.', true);
+
+      const button = $('lockAllDaysButton');
+      if (button) button.disabled = true;
+      runServer('lockAllDays', [throughDate], result => {
+        const count = Number(result && result.lockedCount || 0);
+        toast(result.message || ('Đã khóa ' + count + ' ngày có dữ liệu chụp.'));
+        $('reportDate').value = throughDate;
+        $('lockDate').value = throughDate;
+        reloadData();
+      }, error => {
+        if (button) button.disabled = false;
+      });
+    }
+
     function unlockAllDaysThroughSelectedDate() {
       if (!APP.isAdmin) return toast('Chỉ quản trị viên mới được mở khóa hàng loạt.', true);
       const throughDate = $('lockDate').value || $('reportDate').value || todayISO();
@@ -707,6 +744,11 @@
       $('unlockButton').classList.toggle('hidden', !APP.isAdmin || !locked);
       ['captureMorning','captureNoon','captureEvening'].forEach(id => { $(id).classList.toggle('hidden', !APP.isAdmin); $(id).disabled = locked || archived || !APP.isAdmin; });
       $('lockButton').disabled = archived; $('unlockButton').disabled = archived;
+      const bulkLockButton = $('lockAllDaysButton');
+      if (bulkLockButton) {
+        bulkLockButton.disabled = archived || !APP.isAdmin;
+        bulkLockButton.title = 'Khóa tất cả ngày đã có dữ liệu chụp trong kỳ ' + (APP.data.activeReportMonth || APP.activeReportMonth || '') + ' đến ngày được chọn. Ngày đã khóa được giữ nguyên.';
+      }
       const bulkUnlockButton = $('unlockAllDaysButton');
       if (bulkUnlockButton) {
         bulkUnlockButton.disabled = archived || !APP.isAdmin;
