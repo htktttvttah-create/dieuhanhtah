@@ -4393,7 +4393,13 @@ function exportCsv() {
    DPSC và CSTC là chỉ tiêu ngược; NPSC chỉ cảnh báo âm. */
 function reportComparisonScore(person, metric) {
   const v = person && person._m ? person._m[metric.key] : null;
-  if (!v || v.status === 'nodata') return null;
+  if (!v) return null;
+  // Với KPI thông thường, trạng thái "nodata" có thể chỉ là thiếu mốc đầu ngày/trưa
+  // để tính phát sinh. Nếu vẫn có KH tháng và số TH tháng thì vẫn phải được đưa vào
+  // bình quân Trung tâm để tô màu cảnh báo cá nhân.
+  const normalKpi = ['ghtt', 'thucuoc', 'tiepthi', 'modem', 'bankem'].includes(metric.key);
+  if (!normalKpi && v.status === 'nodata') return null;
+  if (normalKpi && !(Number(v.target) > 0 && Number.isFinite(Number(v.actual)))) return null;
   const num = x => Number.isFinite(Number(x)) ? Number(x) : null;
   if (metric.key === 'npsc') {
     const actual = num(v.actual);
@@ -4501,7 +4507,14 @@ function reportMetricTargetReached(person, metric, v) {
 
 function reportComparisonStyle(person, metric, ranks) {
   const v = person && person._m ? person._m[metric.key] : null;
-  if (!v || v.status === 'nodata') return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa có số' };
+  if (!v) return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa có số' };
+  const normalKpi = ['ghtt', 'thucuoc', 'tiepthi', 'modem', 'bankem'].includes(metric.key);
+  // Không dùng trạng thái ngày để kết luận thiếu dữ liệu KPI tháng. Ví dụ thiếu
+  // mốc đầu ngày làm out.status="nodata" nhưng TH/KH tháng vẫn đầy đủ và phải tô màu.
+  if (normalKpi && !(Number(v.target) > 0 && Number.isFinite(Number(v.actual)))) {
+    return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa có kế hoạch / số tháng' };
+  }
+  if (!normalKpi && v.status === 'nodata') return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa có số' };
 
   // Quy tắc đặc thù giữ nguyên: NPSC Fiber âm cảnh báo; DPSC TH/KH cao và CSTC tồn nhiều là yếu.
   if (metric.key === 'npsc' && Number(v.actual) >= 0) return { bg: '#DCFCE7', color: '#166534', label: 'Thực tăng không âm' };
@@ -4552,7 +4565,7 @@ function reportComparisonLegendHtml() {
   ];
   return '<p style="margin:8px 0;padding:7px 9px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:8.5pt"><b>MÀU SO SÁNH TỪNG CÁ NHÂN VỚI BÌNH QUÂN TOÀN TRUNG TÂM:</b> ' +
     items.map(x => '<span style="display:inline-block;margin:2px 5px;padding:3px 7px;border-radius:3px;background:' + x[0] + ';color:' + x[1] + ';font-weight:bold">' + x[2] + '</span>').join('') +
-    '<br><span style="color:#475569">Các KPI thông thường: đạt ngưỡng KPI thì xanh đậm; chưa đạt sẽ cảnh báo theo khoảng cách tới ngưỡng và mức thấp hơn bình quân Trung tâm, càng yếu càng đỏ đậm. Trên bình quân nhưng chưa đạt được tô vàng nhạt để không nhầm là đã đạt. NPSC giữ quy tắc Thực tăng Fiber âm mới cảnh báo; DPSC giữ quy tắc TH/KH càng cao càng yếu; CSTC giữ quy tắc phiếu tồn càng nhiều càng yếu.</span></p>';
+    '<br><span style="color:#475569">Các KPI thông thường: có KH và số TH tháng vẫn được so màu kể cả khi thiếu mốc chênh lệch trong ngày; đạt ngưỡng KPI thì xanh đậm, chưa đạt được cảnh báo theo khoảng cách tới ngưỡng và mức thấp hơn bình quân Trung tâm, càng yếu càng đỏ đậm. Trên bình quân nhưng chưa đạt được tô vàng nhạt để không nhầm là đã đạt. NPSC giữ quy tắc Thực tăng Fiber âm mới cảnh báo; DPSC giữ quy tắc TH/KH càng cao càng yếu; CSTC giữ quy tắc phiếu tồn càng nhiều càng yếu.</span></p>';
 }
 
 /* Báo cáo Excel (.xls dạng HTML để mở trực tiếp bằng Excel/LibreOffice) */
@@ -4739,7 +4752,7 @@ function teamReportComparisonStyle(teamCode, metric, ranks) {
   if (metric.key === 'ghtt' && data.target > 0 && data.actual >= Math.ceil(data.target * 0.85)) {
     return { bg: '#DCFCE7', color: '#166534', label: 'Đạt KPI 85%' };
   }
-  if (metric.key === 'thucuoc' && data.target > 0 && data.actual >= data.target) {
+  if (metric.key === 'thucuoc' && Number(data.pct || 0) >= 99.5) {
     return { bg: '#DCFCE7', color: '#166534', label: 'Đạt KPI 99,5%' };
   }
   if ((metric.key === 'tiepthi' || metric.key === 'modem' || metric.key === 'bankem') && data.target > 0 && data.actual >= data.target) {
@@ -4752,7 +4765,9 @@ function teamReportComparisonStyle(teamCode, metric, ranks) {
   if (q <= 0.40) return { bg: '#FECACA', color: '#7F1D1D', label: 'Yếu hơn' };
   if (q <= 0.60) return { bg: '#FED7AA', color: '#9A3412', label: 'Trung bình' };
   if (q <= 0.80) return { bg: '#FEF3C7', color: '#92400E', label: 'Khá' };
-  return { bg: '#DCFCE7', color: '#166534', label: 'Tốt nhất trong 5 tổ' };
+  // Đứng đầu tương đối nhưng còn thiếu ngưỡng KPI chỉ được sáng vàng;
+  // màu xanh đậm chỉ dành cho tổ đã đạt mục tiêu tuyệt đối ở phía trên.
+  return { bg: '#FEF3C7', color: '#92400E', label: 'Tốt tương đối · chưa đạt KPI' };
 }
 
 const MARKETING_SERVICE_META = [
