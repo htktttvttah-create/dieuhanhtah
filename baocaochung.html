@@ -4420,12 +4420,26 @@ function reportComparisonOwnerKey(person, metricKey) {
   return owner || (person && person.key) || (person && person.code) || (person && person.name);
 }
 
+function reportPersonIdentity(person) {
+  // Dùng khóa ổn định để ảnh báo cáo theo tổ và ảnh cá nhân tra được cùng bộ màu,
+  // kể cả khi danh sách nhân viên được tạo thành object tham chiếu khác.
+  const code = String(person && (person.code || (person.codes && person.codes[0])) || '').trim().toUpperCase();
+  return code || String(person && (person.key || person.name) || '');
+}
+
+function reportRanksForPerson(ranks, person) {
+  if (!ranks || !person) return null;
+  return ranks.get(person) || ranks.get('id:' + reportPersonIdentity(person)) || null;
+}
+
 function reportComparisonRanks(people) {
   const result = new Map();
-  for (const person of people || []) result.set(person, {});
+  for (const person of people || []) {
+    result.set(person, {});
+    result.set('id:' + reportPersonIdentity(person), {});
+  }
   for (const metric of METRICS) {
-    // Một nhân viên có nhiều MA_KV có thể hiển thị nhiều dòng nhưng chỉ tính
-    // một lần vào mức bình quân để không làm lệch chuẩn so sánh toàn Trung tâm.
+    // Một nhân viên có nhiều MA_KV chỉ được tính một lần vào bình quân Trung tâm.
     const groups = new Map();
     for (const person of people || []) {
       if (person.areaUnassigned) continue;
@@ -4448,7 +4462,15 @@ function reportComparisonRanks(people) {
       const q = entries.length === 1 ? 0.5 : ((i + j) / 2) / (entries.length - 1);
       const stat = { score: entries[i].score, mean, sd, count: entries.length, q };
       for (let k = i; k <= j; k++) {
-        for (const person of entries[k].people) result.get(person)[metric.key] = stat;
+        for (const person of entries[k].people) {
+          const byObject = result.get(person) || {};
+          byObject[metric.key] = stat;
+          result.set(person, byObject);
+          const idKey = 'id:' + reportPersonIdentity(person);
+          const byIdentity = result.get(idKey) || {};
+          byIdentity[metric.key] = stat;
+          result.set(idKey, byIdentity);
+        }
       }
       i = j + 1;
     }
@@ -4456,8 +4478,14 @@ function reportComparisonRanks(people) {
   return result;
 }
 
-// Đạt ngưỡng KPI thì luôn xanh, không để xếp hạng tương đối tô đỏ nhầm.
-// Các KPI chưa đạt vẫn tiếp tục dùng màu so sánh tương đối trong toàn Trung tâm.
+function reportMetricGoalPercent(metric) {
+  if (!metric) return null;
+  if (metric.key === 'ghtt') return 85;
+  if (metric.key === 'thucuoc') return 99.5;
+  if (['tiepthi', 'modem', 'bankem'].includes(metric.key)) return 100;
+  return null;
+}
+
 function reportMetricTargetReached(person, metric, v) {
   if (!v) return false;
   const actual = Number(v.actual || 0);
@@ -4467,22 +4495,19 @@ function reportMetricTargetReached(person, metric, v) {
     return target > 0 && actual >= goal;
   }
   if (metric.key === 'thucuoc') return Number(v.pct || 0) >= 99.5;
-  if (metric.key === 'tiepthi' || metric.key === 'modem' || metric.key === 'bankem') {
-    return target > 0 && actual >= target;
-  }
-  // Giữ nguyên quy tắc riêng của NPSC, DPSC và CSTC.
+  if (['tiepthi', 'modem', 'bankem'].includes(metric.key)) return target > 0 && actual >= target;
   return false;
 }
 
 function reportComparisonStyle(person, metric, ranks) {
   const v = person && person._m ? person._m[metric.key] : null;
   if (!v || v.status === 'nodata') return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa có số' };
-  // NPSC chỉ tô cảnh báo khi Thực tăng Fiber âm; số 0/dương luôn xanh.
+
+  // Quy tắc đặc thù giữ nguyên: NPSC Fiber âm cảnh báo; DPSC TH/KH cao và CSTC tồn nhiều là yếu.
   if (metric.key === 'npsc' && Number(v.actual) >= 0) return { bg: '#DCFCE7', color: '#166534', label: 'Thực tăng không âm' };
-  // DPSC và CSTC giữ nguyên thang cảnh báo đặc thù đã thống nhất:
-  // DPSC TH/KH càng cao càng yếu; CSTC phiếu tồn càng nhiều càng yếu.
   if (['dpsc', 'cstc', 'npsc'].includes(metric.key)) {
-    const stat = ranks && ranks.get(person) ? ranks.get(person)[metric.key] : null;
+    const stats = reportRanksForPerson(ranks, person);
+    const stat = stats ? stats[metric.key] : null;
     const q = stat && typeof stat === 'object' ? stat.q : stat;
     if (q === null || q === undefined) return { bg: '#F8FAFC', color: '#475569', label: 'Chưa đủ dữ liệu so sánh' };
     if (q <= 0.20) return { bg: '#B91C1C', color: '#FFFFFF', label: 'Nhóm yếu nhất 20%' };
@@ -4491,23 +4516,30 @@ function reportComparisonStyle(person, metric, ranks) {
     if (q <= 0.80) return { bg: '#FEF3C7', color: '#92400E', label: 'Nhóm 60–80%' };
     return { bg: '#DCFCE7', color: '#166534', label: 'Nhóm tốt nhất 20%' };
   }
-  // Đạt ngưỡng KPI thì luôn xanh đẹp, không phụ thuộc bình quân.
+
+  // KPI thông thường: đạt ngưỡng là xanh; chưa đạt thì luôn có cảnh báo theo
+  // khoảng cách tới mục tiêu và vị trí so với bình quân toàn Trung tâm.
   if (reportMetricTargetReached(person, metric, v)) return { bg: '#BBF7D0', color: '#14532D', label: 'Đã đạt ngưỡng KPI' };
-  const stat = ranks && ranks.get(person) ? ranks.get(person)[metric.key] : null;
-  if (!stat || typeof stat !== 'object' || !Number.isFinite(Number(stat.mean)) || !Number.isFinite(Number(stat.score))) {
+  const stats = reportRanksForPerson(ranks, person);
+  const stat = stats ? stats[metric.key] : null;
+  const score = Number(v.pct);
+  const goal = reportMetricGoalPercent(metric);
+  if (!Number.isFinite(score) || goal === null || goal <= 0) {
     return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa đủ dữ liệu so sánh' };
   }
-  const diff = Number(stat.mean) - Number(stat.score); // dương = thấp hơn bình quân
-  if (diff < -0.01) return { bg: '#E8F5E9', color: '#166534', label: 'Trên bình quân Trung tâm' };
-  if (Math.abs(diff) <= 0.01) return { bg: '#FEF3C7', color: '#92400E', label: 'Xấp xỉ bình quân Trung tâm' };
-  // Chuẩn hóa theo độ phân tán thực tế để chênh lệch càng xa bình quân
-  // thì màu đỏ càng đậm; có ngưỡng sàn 3 điểm % để tránh quá nhạy khi dữ liệu sát nhau.
-  const spread = Math.max(Number(stat.sd) || 0, 3);
-  const severity = diff / spread;
-  if (severity <= 0.5) return { bg: '#FEF3C7', color: '#92400E', label: 'Thấp hơn bình quân nhẹ' };
-  if (severity <= 1.0) return { bg: '#FED7AA', color: '#9A3412', label: 'Thấp hơn bình quân' };
-  if (severity <= 1.5) return { bg: '#FECACA', color: '#7F1D1D', label: 'Thấp hơn bình quân nhiều' };
-  return { bg: '#B91C1C', color: '#FFFFFF', label: 'Thấp hơn bình quân rất nhiều' };
+
+  const mean = stat && Number.isFinite(Number(stat.mean)) ? Number(stat.mean) : null;
+  const sd = stat && Number.isFinite(Number(stat.sd)) ? Math.max(Number(stat.sd), 3) : 3;
+  // Mức thiếu so với KPI có trọng số rõ rệt để trường hợp 37%/85% vẫn đỏ,
+  // kể cả khi bình quân trung tâm đang thấp. Dưới bình quân thêm mức phạt màu.
+  const targetGap = Math.max(0, goal - score) / goal;
+  const belowMean = mean === null ? 0 : Math.max(0, mean - score) / sd;
+  const severity = Math.max(targetGap * 2.4, belowMean);
+
+  if (severity >= 1.0) return { bg: '#B91C1C', color: '#FFFFFF', label: 'Yếu nhiều · còn xa ngưỡng KPI' };
+  if (severity >= 0.55) return { bg: '#FECACA', color: '#7F1D1D', label: 'Cần ưu tiên · dưới KPI' };
+  if (severity >= 0.25) return { bg: '#FED7AA', color: '#9A3412', label: 'Cần chú ý · chưa đạt KPI' };
+  return { bg: '#FEF3C7', color: '#92400E', label: mean !== null && score > mean ? 'Trên bình quân nhưng chưa đạt KPI' : 'Gần ngưỡng KPI · cần cải thiện' };
 }
 
 function reportComparisonLegendHtml() {
@@ -4520,7 +4552,7 @@ function reportComparisonLegendHtml() {
   ];
   return '<p style="margin:8px 0;padding:7px 9px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:8.5pt"><b>MÀU SO SÁNH TỪNG CÁ NHÂN VỚI BÌNH QUÂN TOÀN TRUNG TÂM:</b> ' +
     items.map(x => '<span style="display:inline-block;margin:2px 5px;padding:3px 7px;border-radius:3px;background:' + x[0] + ';color:' + x[1] + ';font-weight:bold">' + x[2] + '</span>').join('') +
-    '<br><span style="color:#475569">Các KPI thông thường: càng thấp hơn bình quân càng đỏ đậm; trên bình quân xanh nhạt; đạt ngưỡng KPI (Gia hạn 85%, Thu cước 99,5%, Tiếp thị/Modem/Bán kèm 100%) xanh đậm. NPSC giữ quy tắc Thực tăng Fiber âm mới cảnh báo; DPSC giữ quy tắc TH/KH càng cao càng yếu; CSTC giữ quy tắc phiếu tồn càng nhiều càng yếu.</span></p>';
+    '<br><span style="color:#475569">Các KPI thông thường: đạt ngưỡng KPI thì xanh đậm; chưa đạt sẽ cảnh báo theo khoảng cách tới ngưỡng và mức thấp hơn bình quân Trung tâm, càng yếu càng đỏ đậm. Trên bình quân nhưng chưa đạt được tô vàng nhạt để không nhầm là đã đạt. NPSC giữ quy tắc Thực tăng Fiber âm mới cảnh báo; DPSC giữ quy tắc TH/KH càng cao càng yếu; CSTC giữ quy tắc phiếu tồn càng nhiều càng yếu.</span></p>';
 }
 
 /* Báo cáo Excel (.xls dạng HTML để mở trực tiếp bằng Excel/LibreOffice) */
@@ -5379,11 +5411,15 @@ function employeeReportAlertItems(person, ranks) {
     const v = person._m[metric.key];
     if (!v || v.status === 'nodata') continue;
     const style = reportComparisonStyle(person, metric, ranks);
-    const q = ranks && ranks.get(person) ? ranks.get(person)[metric.key] : null;
+    const stats = reportRanksForPerson(ranks, person);
+    const stat = stats ? stats[metric.key] : null;
+    const q = stat && typeof stat === 'object' ? stat.q : stat;
     const statusRisk = v.status === 'bad' || v.status === 'warn';
     const relativeRisk = q !== null && q !== undefined && q <= 0.20;
     const specialRisk = metric.key === 'npsc' && Number(v.actual) < 0;
-    if (!statusRisk && !relativeRisk && !specialRisk) continue;
+    const normalKpiMiss = !['npsc', 'dpsc', 'cstc'].includes(metric.key) &&
+      reportMetricGoalPercent(metric) !== null && !reportMetricTargetReached(person, metric, v);
+    if (!statusRisk && !relativeRisk && !specialRisk && !normalKpiMiss) continue;
     let detail = metric.key === 'npsc'
       ? 'Thực tăng Fiber ' + fmtN(v.actual) + ' TB · mục tiêu 0'
       : metric.key === 'dpsc'
@@ -5391,7 +5427,7 @@ function employeeReportAlertItems(person, ranks) {
         : metric.key === 'cstc'
           ? 'Còn tồn ' + fmtN(v.actual) + ' phiếu'
           : (v.status === 'bad' ? 'Chưa đạt tiến độ chỉ tiêu' : 'Tiến độ thấp hơn nhóm tham chiếu');
-    alerts.push({ label: metric.label, detail, style, severity: specialRisk || v.status === 'bad' ? 0 : v.status === 'warn' ? 1 : 2 });
+    alerts.push({ label: metric.label, detail, style, severity: specialRisk || style.bg === '#B91C1C' || v.status === 'bad' ? 0 : style.bg === '#FECACA' || v.status === 'warn' ? 1 : 2 });
   }
   const services = marketingServiceStats(person.tiepthi && person.tiepthi.parts, person.tiepthi && person.tiepthi.targetParts);
   const serviceWeak = services.filter(x => x.hasTarget && x.remain > 0).sort((a, b) => a.pct - b.pct || b.remain - a.remain)[0];
