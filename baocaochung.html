@@ -4412,11 +4412,31 @@ function reportComparisonRanks(people) {
   return result;
 }
 
+// Đạt ngưỡng KPI thì luôn xanh, không để xếp hạng tương đối tô đỏ nhầm.
+// Các KPI chưa đạt vẫn tiếp tục dùng màu so sánh tương đối trong toàn Trung tâm.
+function reportMetricTargetReached(person, metric, v) {
+  if (!v) return false;
+  const actual = Number(v.actual || 0);
+  const target = Number(v.target || 0);
+  if (metric.key === 'ghtt') {
+    const goal = Number((v.meta && v.meta.requiredSuccess) || (person && person.ghtt && person.ghtt.goal) || Math.ceil(target * 0.85));
+    return target > 0 && actual >= goal;
+  }
+  if (metric.key === 'thucuoc') return Number(v.pct || 0) >= 99.5;
+  if (metric.key === 'tiepthi' || metric.key === 'modem' || metric.key === 'bankem') {
+    return target > 0 && actual >= target;
+  }
+  // Giữ nguyên quy tắc riêng của NPSC, DPSC và CSTC.
+  return false;
+}
+
 function reportComparisonStyle(person, metric, ranks) {
   const v = person && person._m ? person._m[metric.key] : null;
   if (!v || v.status === 'nodata') return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa có số' };
-  // NPSC chỉ tô cảnh báo khi Thực tăng âm; số 0/dương luôn giữ sắc xanh.
+  // NPSC chỉ tô cảnh báo khi Thực tăng Fiber âm; số 0/dương luôn xanh.
   if (metric.key === 'npsc' && Number(v.actual) >= 0) return { bg: '#DCFCE7', color: '#166534', label: 'Thực tăng không âm' };
+  // Gia hạn đạt 85%, Thu cước đạt 99,5%, các KPI số lượng đạt 100%: luôn xanh.
+  if (reportMetricTargetReached(person, metric, v)) return { bg: '#DCFCE7', color: '#166534', label: 'Đã đạt ngưỡng KPI' };
   const q = ranks && ranks.get(person) ? ranks.get(person)[metric.key] : null;
   if (q === null || q === undefined) return { bg: '#F8FAFC', color: '#475569', label: 'Chưa đủ dữ liệu so sánh' };
   if (q <= 0.20) return { bg: '#B91C1C', color: '#FFFFFF', label: 'Nhóm yếu nhất 20%' };
@@ -4436,7 +4456,7 @@ function reportComparisonLegendHtml() {
   ];
   return '<p style="margin:8px 0;padding:7px 9px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:8.5pt"><b>MÀU SO SÁNH THEO TỪNG CHỈ TIÊU TRONG TOÀN TRUNG TÂM:</b> ' +
     items.map(x => '<span style="display:inline-block;margin:2px 5px;padding:3px 7px;border-radius:3px;background:' + x[0] + ';color:' + x[1] + ';font-weight:bold">' + x[2] + '</span>').join('') +
-    '<br><span style="color:#475569">Đỏ đậm là nhóm yếu hơn, màu nhạt dần là tiến bộ hơn. DPSC Fiber: TH/KH càng cao càng yếu; CSTC: phiếu tồn càng nhiều càng yếu; NPSC chỉ cảnh báo khi Thực tăng âm. Màu là so sánh tương đối, không thay thế ngưỡng KPI.</span></p>';
+    '<br><span style="color:#475569">Đỏ đậm là nhóm yếu hơn, màu nhạt dần là tiến bộ hơn. Khi đã đạt ngưỡng KPI (Gia hạn 85%, Thu cước 99,5%, Tiếp thị/Modem/Bán kèm 100%) ô luôn xanh. DPSC Fiber: TH/KH càng cao càng yếu; CSTC: phiếu tồn càng nhiều càng yếu; NPSC chỉ cảnh báo khi Thực tăng Fiber âm.</span></p>';
 }
 
 /* Báo cáo Excel (.xls dạng HTML để mở trực tiếp bằng Excel/LibreOffice) */
@@ -4618,6 +4638,18 @@ function teamReportComparisonRanks() {
 }
 
 function teamReportComparisonStyle(teamCode, metric, ranks) {
+  const data = teamReportMetricData(teamCode, metric);
+  // Nếu cả tổ đã đạt ngưỡng KPI thì luôn thể hiện xanh, dù thứ hạng tương đối không cao.
+  if (metric.key === 'ghtt' && data.target > 0 && data.actual >= Math.ceil(data.target * 0.85)) {
+    return { bg: '#DCFCE7', color: '#166534', label: 'Đạt KPI 85%' };
+  }
+  if (metric.key === 'thucuoc' && data.target > 0 && data.actual >= data.target) {
+    return { bg: '#DCFCE7', color: '#166534', label: 'Đạt KPI 99,5%' };
+  }
+  if ((metric.key === 'tiepthi' || metric.key === 'modem' || metric.key === 'bankem') && data.target > 0 && data.actual >= data.target) {
+    return { bg: '#DCFCE7', color: '#166534', label: 'Đạt 100% kế hoạch' };
+  }
+  // Không thay đổi hướng đánh giá NPSC, DPSC Fiber và CSTC.
   const q = ranks && ranks[teamCode] ? ranks[teamCode][metric.key] : null;
   if (q === null || q === undefined) return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa đủ dữ liệu' };
   if (q <= 0.20) return { bg: '#B91C1C', color: '#FFFFFF', label: 'Yếu nhất trong 5 tổ' };
