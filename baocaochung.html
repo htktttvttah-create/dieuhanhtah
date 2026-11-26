@@ -1183,6 +1183,22 @@ function findEmployeeNameIndex(cols, fallback) {
   );
   return i >= 0 ? i : (fallback === undefined ? -1 : fallback);
 }
+function invalidMaKvCodesInRow(row) {
+  const invalid = [];
+  for (const value of (row || []).map(text)) {
+    const re = /TAH\s*[-_ ]?\s*(\d+)/ig;
+    let m;
+    while ((m = re.exec(value))) {
+      // MA_KV của TTVT đang theo định dạng TAH001, TAH002...; mã 4 chữ số
+      // như TAH1983 là mã lạ, không được tự tạo thêm nhân viên/MA_KV.
+      if (String(m[1]).length > 3) {
+        const code = 'TAH' + m[1];
+        if (!invalid.includes(code)) invalid.push(code);
+      }
+    }
+  }
+  return invalid;
+}
 function codesInRow(row, codeIndex) {
   const values = [];
   if (codeIndex >= 0 && codeIndex < (row || []).length) values.push(text(row[codeIndex]));
@@ -1193,6 +1209,8 @@ function codesInRow(row, codeIndex) {
     const re = /TAH\s*[-_ ]?\s*(\d+)/ig;
     let m;
     while ((m = re.exec(value))) {
+      // Chỉ chấp nhận 1–3 chữ số; mã dài hơn bị loại ở resolveRowIdentity.
+      if (String(m[1]).length > 3) continue;
       const code = 'TAH' + String(Number(m[1])).padStart(3, '0');
       if (!found.includes(code)) found.push(code);
     }
@@ -1210,6 +1228,7 @@ function isLikelyEmployeeName(value) {
   return words.length >= 2 && /[A-Za-zÀ-ỹĐđ]/.test(v) && !/[0-9]/.test(v);
 }
 function resolveRowIdentity(row, cols, preferredNameIndex, codeIndex, teamIndex) {
+  const invalidCodes = invalidMaKvCodesInRow(row);
   const codes = codesInRow(row, codeIndex);
   let name = text(row && row[preferredNameIndex]);
   if (!isLikelyEmployeeName(name)) {
@@ -1231,7 +1250,10 @@ function resolveRowIdentity(row, cols, preferredNameIndex, codeIndex, teamIndex)
       if (team) break;
     }
   }
-  return { name: cleanName(name), team, codes };
+  // Bỏ toàn bộ dòng mang MA_KV sai định dạng để không ghép nhầm vào một
+  // nhân viên cùng tên hoặc tạo thêm dòng ma giả trong báo cáo.
+  if (invalidCodes.length) return { name: '', team, codes: [], invalidCodes };
+  return { name: cleanName(name), team, codes, invalidCodes: [] };
 }
 function sourceTargets(row, codeIndex, name, team, sourceLabel) {
   const codes = codesInRow(row, codeIndex);
@@ -1796,7 +1818,7 @@ async function loadAll(onProgress) {
    4. CHUẨN HÓA DỮ LIỆU
    ===================================================================== */
 function emptyPerson(code, name, team) {
-  const cleanCode = /^TAH\d+$/i.test(String(code || '').trim()) ? String(code).trim().toUpperCase() : '';
+  const cleanCode = /^TAH\d{3}$/i.test(String(code || '').trim()) ? String(code).trim().toUpperCase() : '';
   return {
     key: cleanCode || ('name:' + normName(name) + (team ? ':' + team : '')), name: cleanName(name), codes: cleanCode ? [cleanCode] : [], code: cleanCode,
     team: team || '', role: 'staff', roleLabel: 'Nhân viên',
@@ -1832,7 +1854,7 @@ function buildModel(raw, selectedDate) {
       p.roleLabel = 'Chưa xác định mã khu vực';
     }
     // Code-based records are keyed by MA_KV, not by employee name.
-    if (code && /^TAH\d+/i.test(code)) {
+    if (code && /^TAH\d{3}$/i.test(code)) {
       p.key = String(code).trim().toUpperCase();
       p.code = p.key;
       p.codes = [p.key];
@@ -1848,7 +1870,7 @@ function buildModel(raw, selectedDate) {
     const nm = cleanName(name);
     if (!nm) return null;
     const codeText = String(code || '').trim().toUpperCase();
-    if (/^TAH\d+$/i.test(codeText)) {
+    if (/^TAH\d{3}$/i.test(codeText)) {
       let p = byCode.get(codeText);
       if (!p) p = createPerson(codeText, nm, team, false);
       if (!p.team && team) p.team = team;
@@ -2399,7 +2421,7 @@ function buildModel(raw, selectedDate) {
       const code = text(r[cCode]);
       const name = text(r[cName]);
       const codeKey = String(code || '').trim().toUpperCase();
-      const p = (/^TAH\d+$/.test(codeKey) && byCode.get(codeKey)) || findExistingByName(name, cTeam >= 0 ? teamFromText(r[cTeam]) : '');
+      const p = (/^TAH\d{3}$/.test(codeKey) && byCode.get(codeKey)) || findExistingByName(name, cTeam >= 0 ? teamFromText(r[cTeam]) : '');
       if (p) {
         if (!plan.byPerson[p.key]) plan.byPerson[p.key] = { modem: 0, thu: 0, tiepthi: 0, bancheo: 0, ghtt: 0 };
         const bp = plan.byPerson[p.key];
@@ -2622,7 +2644,7 @@ function missingMorningBaselineCodes(model, snaps, date) {
   const dailyKeys = METRICS.map(m => m.key).filter(key => key !== 'dpsc' && key !== 'npsc');
   return model.people.filter(p => {
     const code = (p.code || (p.codes && p.codes.length === 1 ? p.codes[0] : '') || '').toUpperCase();
-    if (!/^TAH\d+$/.test(code)) return false;
+    if (!/^TAH\d{3}$/.test(code)) return false;
     if (!base || !base.values) return true;
     return dailyKeys.some(key => {
       const value = base.values[p.key + '|' + key];
@@ -3049,7 +3071,7 @@ function compareMaKv(a, b) {
   return ca.localeCompare(cb, 'vi') || a.name.localeCompare(b.name, 'vi');
 }
 function realAreaCount(list) {
-  return (list || []).filter(p => /^TAH\d+$/.test(areaCodeOf(p))).length;
+  return (list || []).filter(p => /^TAH\d{3}$/.test(areaCodeOf(p))).length;
 }
 function unassignedAreaCount(list) {
   return (list || []).length - realAreaCount(list);
@@ -4392,20 +4414,42 @@ function reportComparisonScore(person, metric) {
   return null;
 }
 
+function reportComparisonOwnerKey(person, metricKey) {
+  const source = metricKey === 'bankem' ? (person && person.modem) : (person && person[metricKey]);
+  const owner = source && (metricKey === 'bankem' ? (source.bankemOwnerKey || source.ownerKey) : source.ownerKey);
+  return owner || (person && person.key) || (person && person.code) || (person && person.name);
+}
+
 function reportComparisonRanks(people) {
   const result = new Map();
   for (const person of people || []) result.set(person, {});
   for (const metric of METRICS) {
-    const entries = (people || []).map(person => ({ person, score: reportComparisonScore(person, metric) }))
-      .filter(x => x.score !== null && Number.isFinite(x.score))
-      .sort((a, b) => a.score - b.score);
+    // Một nhân viên có nhiều MA_KV có thể hiển thị nhiều dòng nhưng chỉ tính
+    // một lần vào mức bình quân để không làm lệch chuẩn so sánh toàn Trung tâm.
+    const groups = new Map();
+    for (const person of people || []) {
+      if (person.areaUnassigned) continue;
+      const score = reportComparisonScore(person, metric);
+      if (score === null || !Number.isFinite(score)) continue;
+      const ownerKey = reportComparisonOwnerKey(person, metric.key);
+      if (!groups.has(ownerKey)) groups.set(ownerKey, { ownerKey, score, people: [] });
+      groups.get(ownerKey).people.push(person);
+    }
+    const entries = Array.from(groups.values());
     if (!entries.length) continue;
+    entries.sort((a, b) => a.score - b.score);
+    const mean = entries.reduce((sum, x) => sum + x.score, 0) / entries.length;
+    const variance = entries.reduce((sum, x) => sum + Math.pow(x.score - mean, 2), 0) / entries.length;
+    const sd = Math.sqrt(variance);
     let i = 0;
     while (i < entries.length) {
       let j = i;
       while (j + 1 < entries.length && Math.abs(entries[j + 1].score - entries[i].score) < 1e-9) j++;
       const q = entries.length === 1 ? 0.5 : ((i + j) / 2) / (entries.length - 1);
-      for (let k = i; k <= j; k++) result.get(entries[k].person)[metric.key] = q;
+      const stat = { score: entries[i].score, mean, sd, count: entries.length, q };
+      for (let k = i; k <= j; k++) {
+        for (const person of entries[k].people) result.get(person)[metric.key] = stat;
+      }
       i = j + 1;
     }
   }
@@ -4435,28 +4479,48 @@ function reportComparisonStyle(person, metric, ranks) {
   if (!v || v.status === 'nodata') return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa có số' };
   // NPSC chỉ tô cảnh báo khi Thực tăng Fiber âm; số 0/dương luôn xanh.
   if (metric.key === 'npsc' && Number(v.actual) >= 0) return { bg: '#DCFCE7', color: '#166534', label: 'Thực tăng không âm' };
-  // Gia hạn đạt 85%, Thu cước đạt 99,5%, các KPI số lượng đạt 100%: luôn xanh.
-  if (reportMetricTargetReached(person, metric, v)) return { bg: '#DCFCE7', color: '#166534', label: 'Đã đạt ngưỡng KPI' };
-  const q = ranks && ranks.get(person) ? ranks.get(person)[metric.key] : null;
-  if (q === null || q === undefined) return { bg: '#F8FAFC', color: '#475569', label: 'Chưa đủ dữ liệu so sánh' };
-  if (q <= 0.20) return { bg: '#B91C1C', color: '#FFFFFF', label: 'Nhóm yếu nhất 20%' };
-  if (q <= 0.40) return { bg: '#FECACA', color: '#7F1D1D', label: 'Nhóm 20–40%' };
-  if (q <= 0.60) return { bg: '#FED7AA', color: '#9A3412', label: 'Nhóm 40–60%' };
-  if (q <= 0.80) return { bg: '#FEF3C7', color: '#92400E', label: 'Nhóm 60–80%' };
-  return { bg: '#DCFCE7', color: '#166534', label: 'Nhóm tốt nhất 20%' };
+  // DPSC và CSTC giữ nguyên thang cảnh báo đặc thù đã thống nhất:
+  // DPSC TH/KH càng cao càng yếu; CSTC phiếu tồn càng nhiều càng yếu.
+  if (['dpsc', 'cstc', 'npsc'].includes(metric.key)) {
+    const stat = ranks && ranks.get(person) ? ranks.get(person)[metric.key] : null;
+    const q = stat && typeof stat === 'object' ? stat.q : stat;
+    if (q === null || q === undefined) return { bg: '#F8FAFC', color: '#475569', label: 'Chưa đủ dữ liệu so sánh' };
+    if (q <= 0.20) return { bg: '#B91C1C', color: '#FFFFFF', label: 'Nhóm yếu nhất 20%' };
+    if (q <= 0.40) return { bg: '#FECACA', color: '#7F1D1D', label: 'Nhóm 20–40%' };
+    if (q <= 0.60) return { bg: '#FED7AA', color: '#9A3412', label: 'Nhóm 40–60%' };
+    if (q <= 0.80) return { bg: '#FEF3C7', color: '#92400E', label: 'Nhóm 60–80%' };
+    return { bg: '#DCFCE7', color: '#166534', label: 'Nhóm tốt nhất 20%' };
+  }
+  // Đạt ngưỡng KPI thì luôn xanh đẹp, không phụ thuộc bình quân.
+  if (reportMetricTargetReached(person, metric, v)) return { bg: '#BBF7D0', color: '#14532D', label: 'Đã đạt ngưỡng KPI' };
+  const stat = ranks && ranks.get(person) ? ranks.get(person)[metric.key] : null;
+  if (!stat || typeof stat !== 'object' || !Number.isFinite(Number(stat.mean)) || !Number.isFinite(Number(stat.score))) {
+    return { bg: '#F1F5F9', color: '#64748B', label: 'Chưa đủ dữ liệu so sánh' };
+  }
+  const diff = Number(stat.mean) - Number(stat.score); // dương = thấp hơn bình quân
+  if (diff < -0.01) return { bg: '#E8F5E9', color: '#166534', label: 'Trên bình quân Trung tâm' };
+  if (Math.abs(diff) <= 0.01) return { bg: '#FEF3C7', color: '#92400E', label: 'Xấp xỉ bình quân Trung tâm' };
+  // Chuẩn hóa theo độ phân tán thực tế để chênh lệch càng xa bình quân
+  // thì màu đỏ càng đậm; có ngưỡng sàn 3 điểm % để tránh quá nhạy khi dữ liệu sát nhau.
+  const spread = Math.max(Number(stat.sd) || 0, 3);
+  const severity = diff / spread;
+  if (severity <= 0.5) return { bg: '#FEF3C7', color: '#92400E', label: 'Thấp hơn bình quân nhẹ' };
+  if (severity <= 1.0) return { bg: '#FED7AA', color: '#9A3412', label: 'Thấp hơn bình quân' };
+  if (severity <= 1.5) return { bg: '#FECACA', color: '#7F1D1D', label: 'Thấp hơn bình quân nhiều' };
+  return { bg: '#B91C1C', color: '#FFFFFF', label: 'Thấp hơn bình quân rất nhiều' };
 }
 
 function reportComparisonLegendHtml() {
   const items = [
-    ['#B91C1C', '#FFFFFF', 'Yếu nhất 20%'],
-    ['#FECACA', '#7F1D1D', '20–40%'],
-    ['#FED7AA', '#9A3412', '40–60%'],
-    ['#FEF3C7', '#92400E', '60–80%'],
-    ['#DCFCE7', '#166534', 'Tốt nhất 20%']
+    ['#B91C1C', '#FFFFFF', 'Thấp hơn bình quân rất nhiều'],
+    ['#FECACA', '#7F1D1D', 'Thấp hơn bình quân'],
+    ['#FEF3C7', '#92400E', 'Xấp xỉ bình quân'],
+    ['#E8F5E9', '#166534', 'Trên bình quân'],
+    ['#BBF7D0', '#14532D', 'Đạt ngưỡng KPI']
   ];
-  return '<p style="margin:8px 0;padding:7px 9px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:8.5pt"><b>MÀU SO SÁNH THEO TỪNG CHỈ TIÊU TRONG TOÀN TRUNG TÂM:</b> ' +
+  return '<p style="margin:8px 0;padding:7px 9px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:8.5pt"><b>MÀU SO SÁNH TỪNG CÁ NHÂN VỚI BÌNH QUÂN TOÀN TRUNG TÂM:</b> ' +
     items.map(x => '<span style="display:inline-block;margin:2px 5px;padding:3px 7px;border-radius:3px;background:' + x[0] + ';color:' + x[1] + ';font-weight:bold">' + x[2] + '</span>').join('') +
-    '<br><span style="color:#475569">Đỏ đậm là nhóm yếu hơn, màu nhạt dần là tiến bộ hơn. Khi đã đạt ngưỡng KPI (Gia hạn 85%, Thu cước 99,5%, Tiếp thị/Modem/Bán kèm 100%) ô luôn xanh. DPSC Fiber: TH/KH càng cao càng yếu; CSTC: phiếu tồn càng nhiều càng yếu; NPSC chỉ cảnh báo khi Thực tăng Fiber âm.</span></p>';
+    '<br><span style="color:#475569">Các KPI thông thường: càng thấp hơn bình quân càng đỏ đậm; trên bình quân xanh nhạt; đạt ngưỡng KPI (Gia hạn 85%, Thu cước 99,5%, Tiếp thị/Modem/Bán kèm 100%) xanh đậm. NPSC giữ quy tắc Thực tăng Fiber âm mới cảnh báo; DPSC giữ quy tắc TH/KH càng cao càng yếu; CSTC giữ quy tắc phiếu tồn càng nhiều càng yếu.</span></p>';
 }
 
 /* Báo cáo Excel (.xls dạng HTML để mở trực tiếp bằng Excel/LibreOffice) */
