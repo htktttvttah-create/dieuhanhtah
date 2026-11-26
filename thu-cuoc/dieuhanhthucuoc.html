@@ -213,7 +213,7 @@
         <div class="lock-control-row admin-only" id="lockControls">
           <div class="lock-control-copy">
             <strong>Chốt dữ liệu theo ngày</strong>
-            <span>Sang ngày mới, chọn ngày hôm trước để khóa kết quả đã chốt. Bạn có thể mở khóa ngày đó nếu cần tính lại.</span>
+            <span>Sang ngày mới, chọn ngày hôm trước để khóa kết quả đã chốt. Có thể mở khóa riêng hoặc mở tất cả. Mở khóa không làm mất bản chốt cũ; báo cáo vẫn dùng bản chốt đó cho đến khi bạn chụp lại. Ngày chụp lại sẽ ở trạng thái chờ chốt và tạm ra khỏi báo cáo tổng đến khi khóa lại.</span>
           </div>
           <div class="lock-control-actions">
             <div class="field-inline lock-date-field">
@@ -222,6 +222,7 @@
             </div>
             <button class="btn btn-danger btn-small admin-only" id="lockButton" onclick="changeLock(true)">▣ Khóa ngày đã chọn</button>
             <button class="btn btn-outline btn-small hidden admin-only" id="unlockButton" onclick="changeLock(false)">↻ Mở khóa ngày đã chọn</button>
+            <button class="btn btn-outline btn-small admin-only" id="unlockAllDaysButton" type="button" onclick="unlockAllDaysThroughSelectedDate()">↻ Mở khóa tất cả ngày đến ngày đã chọn</button>
           </div>
         </div>
         <div class="statusbar"><span class="dot" id="sourceDot"></span><span id="sourceStatus">Đang đọc dữ liệu nguồn…</span></div>
@@ -232,13 +233,13 @@
         <div class="kpi"><div class="kpi-label">Đã xử lý</div><div class="kpi-value" id="kpiDone">—</div><div class="kpi-foot">Thuê bao đầu ngày không còn trong danh sách tồn</div></div>
         <div class="kpi"><div class="kpi-label">Còn phải thu</div><div class="kpi-value" id="kpiRemain">—</div><div class="kpi-foot">Theo lần chụp gần nhất trong ngày</div></div>
         <div class="kpi highlight"><div class="kpi-label">Tỷ lệ xử lý trong ngày</div><div class="kpi-value" id="kpiRate">—</div><div class="kpi-foot" id="kpiRateFoot">Đã xử lý / đầu ngày</div></div>
-        <div class="kpi"><div class="kpi-label">Tỷ lệ tổng toàn kỳ</div><div class="kpi-value" id="kpiOverallRate">—</div><div class="kpi-foot" id="kpiOverallFoot">Từ lần chụp đầu kỳ đến hiện tại</div></div>
+        <div class="kpi"><div class="kpi-label">Tỷ lệ tổng các ngày đã chốt</div><div class="kpi-value" id="kpiOverallRate">—</div><div class="kpi-foot" id="kpiOverallFoot">Chỉ tính các ngày có bản chốt hợp lệ</div></div>
       </section>
 
       <section class="panel">
-        <div class="panel-head"><div><h2 class="panel-title">Tổng hợp tỷ lệ theo từng ngày</h2><p class="panel-sub">Tỷ lệ từng ngày và tỷ lệ tổng toàn kỳ trong tháng được tính trên danh sách thuê bao đã ghi nhận.</p></div><span class="pill" id="monthLabel">—</span></div>
+        <div class="panel-head"><div><h2 class="panel-title">Tổng hợp tỷ lệ theo từng ngày</h2><p class="panel-sub">Tỷ lệ ngày được đóng băng khi chốt. Báo cáo tổng chỉ cộng các ngày đã có bản chốt hợp lệ.</p></div><span class="pill" id="monthLabel">—</span></div>
         <div class="table-wrap"><table><thead><tr><th>Ngày</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ ngày</th><th>Trạng thái</th></tr></thead><tbody id="dailyHistoryTable"><tr><td colspan="7" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr></tbody></table></div>
-        <p class="section-caption" id="overallNote" style="margin:10px 0 0">Tỷ lệ tổng kỳ = số thuê bao đã xử lý trong tập thuê bao ghi nhận trong tháng / tổng số thuê bao duy nhất đã xuất hiện trong các lần chụp.</p>
+        <p class="section-caption" id="overallNote" style="margin:10px 0 0">Tỷ lệ tổng các ngày đã chốt = tổng số đã xử lý của các ngày đã chốt / tổng số đầu ngày của chính các ngày đã chốt.</p>
       </section>
 
       <section class="content-grid">
@@ -299,11 +300,11 @@
         <div id="employeeDailyReportPanel">
           <div class="table-wrap employee-report-table-wrap">
             <table class="employee-report-table">
-              <thead><tr><th>Ngày ghi nhận</th><th>MA_KV</th><th>Ngày khóa</th><th>Tên nhân viên</th><th>Tổ</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ ngày</th></tr></thead>
-              <tbody id="employeeDailyReportTable"><tr><td colspan="10" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr></tbody>
+              <thead><tr><th>Ngày ghi nhận</th><th>MA_KV</th><th>Ngày khóa</th><th>Tên nhân viên</th><th>Tổ</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ ngày</th><th>Trạng thái chốt</th></tr></thead>
+              <tbody id="employeeDailyReportTable"><tr><td colspan="11" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr></tbody>
             </table>
           </div>
-          <p class="section-caption employee-report-note">Tỷ lệ ngày = số thuê bao đầu ngày đã xử lý / số thuê bao đầu ngày được giao cho nhân viên. Thuê bao chuyển sang “Xử lý sau” không tính là đã thu.</p>
+          <p class="section-caption employee-report-note">Tỷ lệ từng ngày lấy từ bản chụp của ngày đó. Ngày chưa chốt chỉ là tạm tính; mở khóa không làm thay đổi bản chốt cũ, còn chụp lại thì phải khóa lại để cập nhật báo cáo chính thức.</p>
         </div>
         <div id="employeeMonthlyReportPanel" class="hidden">
           <div class="table-wrap employee-report-table-wrap">
@@ -624,7 +625,7 @@
       if (!active) return toast('Chưa xác định được kỳ báo cáo đang hoạt động.', true);
       const next = nextReportMonthKey(active);
       const phrase = 'MO ' + next;
-      const typed = prompt('Thao tác này sẽ chốt kỳ ' + active + ' và mở kỳ mới ' + next + '.\n\nDữ liệu cũ được lưu trữ, KHÔNG xóa. Tất cả ngày đã chụp trong kỳ hiện tại phải được khóa trước.\n\nĐể xác nhận, nhập chính xác: ' + phrase);
+      const typed = prompt('Thao tác này sẽ chốt kỳ ' + active + ' và mở kỳ mới ' + next + '.\n\nDữ liệu cũ được lưu trữ, KHÔNG xóa. Tất cả ngày đã chụp trong kỳ hiện tại phải có bản chốt hợp lệ. Ngày đã mở khóa nhưng chưa chụp lại vẫn giữ bản chốt cũ.\n\nĐể xác nhận, nhập chính xác: ' + phrase);
       if (typed === null) return;
       if (typed.trim() !== phrase) return toast('Nội dung xác nhận chưa đúng. Chưa thay đổi dữ liệu.', true);
       runServer('startNewMonth', [next], result => {
@@ -639,7 +640,7 @@
     function capture(slot) {
       const date = $('reportDate').value || todayISO();
       const label = slot.toLowerCase();
-      if (!confirm('Chụp và lưu danh sách thuê bao còn phải thu tại mốc ' + label + ' ngày ' + date + '? Nếu đã chụp mốc này trước đó, bản chụp cũ sẽ được thay bằng dữ liệu mới.')) return;
+      if (!confirm('Chụp và lưu danh sách thuê bao còn phải thu tại mốc ' + label + ' ngày ' + date + '? Bản chụp cũ vẫn được giữ trong lịch sử; bản mới sẽ dùng để tính lại ngày này. Nếu ngày từng được chốt, sau khi chụp lại bạn cần khóa lại để đưa kết quả mới vào báo cáo chính thức.')) return;
       runServer('captureSnapshot', [slot, date], result => { toast(result.message); reloadData(); });
     }
 
@@ -649,12 +650,42 @@
       const dateLabel = date.split('-').reverse().join('/');
       const message = shouldLock
         ? 'Bạn đang khóa dữ liệu ngày ' + dateLabel + '. Sau khi khóa, chương trình sẽ giữ nguyên kết quả và không cho chụp lại cho đến khi chủ động mở khóa. Tiếp tục?'
-        : 'Bạn đang mở khóa dữ liệu ngày ' + dateLabel + '. Sau đó có thể chụp lại các mốc và tính toán lại. Tiếp tục?';
+        : 'Bạn đang mở khóa dữ liệu ngày ' + dateLabel + '. Bản số liệu đã chốt vẫn được giữ để xuất báo cáo. Nếu chụp lại ngày này, trạng thái sẽ chuyển sang CHỜ CHỐT LẠI và cần khóa lại để tính số liệu mới. Tiếp tục?';
       if (!confirm(message)) return;
       runServer('setDayLock', [date, shouldLock], result => {
         $('reportDate').value = date;
         $('lockDate').value = date;
         toast(result.message);
+        reloadData();
+      });
+    }
+
+    function unlockAllDaysThroughSelectedDate() {
+      if (!APP.isAdmin) return toast('Chỉ quản trị viên mới được mở khóa hàng loạt.', true);
+      const throughDate = $('lockDate').value || $('reportDate').value || todayISO();
+      const activeMonth = APP.data && APP.data.activeReportMonth ? APP.data.activeReportMonth : APP.activeReportMonth;
+      if (!activeMonth) return toast('Chưa xác định được kỳ báo cáo đang hoạt động.', true);
+      if (throughDate > todayISO()) return toast('Không thể mở khóa đến ngày trong tương lai.', true);
+      if (throughDate.substring(0, 7) !== activeMonth) {
+        return toast('Chỉ mở khóa hàng loạt trong kỳ đang hoạt động ' + activeMonth + '. Hãy chọn ngày thuộc kỳ này.', true);
+      }
+      if (APP.data && APP.data.selectedMonthArchived) return toast('Kỳ này đã lưu trữ, không thể mở khóa.', true);
+
+      const dateLabel = throughDate.split('-').reverse().join('/');
+      const phrase = 'MO HET NGAY ' + activeMonth;
+      const typed = prompt(
+        'Bạn đang yêu cầu mở khóa TẤT CẢ ngày đã khóa trong kỳ ' + activeMonth + ' từ đầu tháng đến hết ngày ' + dateLabel + '.\n\n' +
+        'Thao tác chỉ mở khóa để cho phép điều chỉnh; KHÔNG xóa bản chụp, lịch sử hoặc JSON kết quả đã chốt. Báo cáo vẫn dùng bản chốt cũ cho đến khi một ngày được chụp lại; ngày chụp lại phải khóa lại mới được tính vào báo cáo chính thức.\n\n' +
+        'Lưu ý: Ngày mở khóa nhưng chưa chụp lại vẫn giữ bản chốt cũ. Ngày đã chụp lại phải khóa lại trước khi reset.\n\n' +
+        'Để xác nhận, nhập chính xác: ' + phrase
+      );
+      if (typed === null) return;
+      if (typed.trim() !== phrase) return toast('Nội dung xác nhận chưa đúng. Không có ngày nào được mở khóa.', true);
+
+      runServer('unlockAllDays', [throughDate], result => {
+        const count = Number(result && result.openedCount || 0);
+        toast(result.message || ('Đã mở khóa ' + count + ' ngày.'));
+        $('reportDate').value = throughDate;
         reloadData();
       });
     }
@@ -676,6 +707,11 @@
       $('unlockButton').classList.toggle('hidden', !APP.isAdmin || !locked);
       ['captureMorning','captureNoon','captureEvening'].forEach(id => { $(id).classList.toggle('hidden', !APP.isAdmin); $(id).disabled = locked || archived || !APP.isAdmin; });
       $('lockButton').disabled = archived; $('unlockButton').disabled = archived;
+      const bulkUnlockButton = $('unlockAllDaysButton');
+      if (bulkUnlockButton) {
+        bulkUnlockButton.disabled = archived || !APP.isAdmin;
+        bulkUnlockButton.title = 'Mở khóa các ngày đã khóa trong kỳ ' + (APP.data.activeReportMonth || APP.activeReportMonth || '') + ' đến ngày được chọn. Không xóa bản chụp.';
+      }
     }
 
     function renderSummary() {
@@ -689,10 +725,10 @@
       const m = APP.data.monthSummary || {};
       if (m.archived) $('overallNote').textContent = 'Kỳ ' + (m.month || '') + ' đã chốt và lưu trữ lúc ' + (m.archivedAt || '') + '. Báo cáo giữ nguyên số liệu đã chốt.';
       $('kpiOverallRate').textContent = fmtPct(m.totalRate);
-      $('kpiOverallFoot').textContent = fmtNum(m.totalDone) + ' / ' + fmtNum(m.workloadCount) + ' thuê bao duy nhất';
+      $('kpiOverallFoot').textContent = fmtNum(m.totalDone) + ' / ' + fmtNum(m.workloadCount) + ' lượt thuê bao đầu ngày · ' + fmtNum(m.frozenDayCount || 0) + ' ngày đã chốt';
       $('monthLabel').textContent = m.month || 'Chưa có tháng';
-      $('dailyHistoryTable').innerHTML = (m.days || []).length ? m.days.map(d => `<tr><td><b>${esc(d.date.split('-').reverse().join('/'))}</b></td><td class="num">${fmtNum(d.baselineCount)}</td><td class="num">${fmtNum(d.totalDone)}</td><td class="num">${fmtNum(d.currentCount)}</td><td class="num">${fmtNum(d.deferredCount)}</td><td class="num"><b>${fmtPct(d.totalRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,d.totalRate*100))}%"></span></div></td><td>${d.locked ? '<span class="pill pill-green">Đã khóa</span>' : '<span class="pill pill-amber">Đang mở</span>'}</td></tr>`).join('') : '<tr><td colspan="7" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr>';
-      $('overallNote').textContent = m.archived ? ('Kỳ ' + (m.month || '') + ' đã chốt và lưu trữ lúc ' + (m.archivedAt || '') + '. Báo cáo giữ nguyên số liệu đã chốt.') : `Tỷ lệ tổng kỳ ${m.month || ''}: ${fmtNum(m.totalDone)} thuê bao đã xử lý / ${fmtNum(m.workloadCount)} thuê bao duy nhất đã xuất hiện trong các lần chụp; ${fmtNum(m.deferredCount)} thuê bao đang ở trạng thái Xử lý sau. Mốc dữ liệu cuối: ${m.lastCapturedAt || 'chưa có'}.`;
+      $('dailyHistoryTable').innerHTML = (m.days || []).length ? m.days.map(d => `<tr><td><b>${esc(d.date.split('-').reverse().join('/'))}</b></td><td class="num">${fmtNum(d.baselineCount)}</td><td class="num">${fmtNum(d.totalDone)}</td><td class="num">${fmtNum(d.currentCount)}</td><td class="num">${fmtNum(d.deferredCount)}</td><td class="num"><b>${fmtPct(d.totalRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,d.totalRate*100))}%"></span></div></td><td>${d.frozen ? (d.locked ? '<span class="pill pill-green">Đã khóa · giữ nguyên</span>' : '<span class="pill pill-blue">Đã chốt · đang mở</span>') : '<span class="pill pill-amber">Chưa chốt · tạm tính</span>'}</td></tr>`).join('') : '<tr><td colspan="7" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr>';
+      $('overallNote').textContent = m.archived ? ('Kỳ ' + (m.month || '') + ' đã chốt và lưu trữ lúc ' + (m.archivedAt || '') + '. Báo cáo giữ nguyên số liệu đã chốt.') : `Tỷ lệ gộp các ngày đã chốt ${m.month || ''}: ${fmtNum(m.totalDone)} đã xử lý / ${fmtNum(m.workloadCount)} lượt thuê bao đầu ngày = ${fmtPct(m.totalRate)}. Có ${fmtNum(m.frozenDayCount || 0)} ngày đã chốt; ${fmtNum(m.pendingDayCount || 0)} ngày chưa chốt/chờ chốt lại không được cộng vào tỷ lệ tổng. ${fmtNum(m.deferredCount)} lượt chuyển xử lý sau không tính là đã thu.`;
       $('stageTable').innerHTML = (s.stages || []).length ? s.stages.map(x => `<tr><td><b>${esc(x.slot.charAt(0) + x.slot.slice(1).toLowerCase())}</b><div class="muted" style="font-size:12px">${esc(x.time)}</div></td><td class="num">${fmtNum(x.count)}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.removedSincePrevious) + '<div class="muted">+' + fmtPct(x.intervalRate) + '</div>'}</td><td class="num">${x.slot === s.baselineSlot ? '—' : fmtNum(x.movedToDeferred)}</td><td class="num">${fmtNum(x.cumulativeDone)}</td><td class="num"><b>${fmtPct(x.cumulativeRate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.cumulativeRate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="6" class="empty">Chưa có dữ liệu chụp. Hãy lưu mốc sáng trước.</td></tr>';
       $('teamTable').innerHTML = (s.byTeam || []).length ? s.byTeam.map(x => `<tr><td>${esc(x.team)}</td><td class="num">${fmtNum(x.done)} / ${fmtNum(x.baseline)}</td><td class="num"><b>${fmtPct(x.rate)}</b><div class="progress"><span style="width:${Math.max(0,Math.min(100,x.rate*100))}%"></span></div></td></tr>`).join('') : '<tr><td colspan="3" class="empty">Chưa có dữ liệu xử lý để phân tổ.</td></tr>';
       renderEmployeeReport();
@@ -703,7 +739,7 @@
       const m = APP.data && APP.data.monthSummary ? APP.data.monthSummary : {};
       const daily = [];
       (m.days || []).forEach(day => {
-        (day.byEmployee || []).forEach(row => daily.push(Object.assign({}, row, { date: day.date, locked: day.locked })));
+        (day.byEmployee || []).forEach(row => daily.push(Object.assign({}, row, { date: day.date, locked: day.locked, frozen: !!day.frozen, statusLabel: day.statusLabel || '' }))); 
       });
       return { month: m.month || '', daily: daily, monthly: m.byEmployee || [] };
     }
@@ -789,7 +825,7 @@
         ['Đầu kỳ trong phạm vi lọc', fmtNum(totals.baseline)],
         ['Đã xử lý', fmtNum(totals.done)],
         ['Còn phải thu', fmtNum(totals.remain) + (totals.deferred ? ' · ' + fmtNum(totals.deferred) + ' xử lý sau' : '')],
-        ['Tỷ lệ tổng lũy kế tháng', fmtPct(totalRate)]
+        ['Tỷ lệ tổng các ngày đã chốt', fmtPct(totalRate)]
       ].map((x,i) => `<div class="employee-kpi ${i===3?'employee-kpi-accent':''}"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join('');
       const filterLabels = [];
       if (filters.maKv) filterLabels.push('MA_KV: ' + filters.maKv);
@@ -799,15 +835,15 @@
       const employeeCount = new Set(monthly.map(x => String(x.maKv || '') + '¦' + String(x.employee || ''))).size;
       $('employeeReportCount').textContent = fmtNum(employeeCount) + ' nhân viên · ' + (data.month || 'chưa có tháng');
       $('employeeDailyReportTable').innerHTML = daily.length ? daily.map(x => `<tr>
-        <td><b>${esc((x.date || '').split('-').reverse().join('/'))}</b>${x.locked ? '<div><span class="pill pill-green">Đã khóa</span></div>' : ''}</td>
+        <td><b>${esc((x.date || '').split('-').reverse().join('/'))}</b>${x.frozen ? (x.locked ? '<div><span class="pill pill-green">Đã khóa · giữ nguyên</span></div>' : '<div><span class="pill pill-blue">Đã chốt · đang mở</span></div>') : '<div><span class="pill pill-amber">Chưa chốt · tạm tính</span></div>'}</td>
         <td><b>${esc(x.maKv || 'Chưa gán')}</b></td><td>${esc(lockDayLabel(x.lockDay))}</td><td><b>${esc(x.employee || 'Chưa phân công')}</b></td><td>${esc(x.team || 'Chưa phân tổ')}</td>
         <td class="num">${fmtNum(x.baseline)}</td><td class="num">${fmtNum(x.done)}</td><td class="num">${fmtNum(x.remain)}</td><td class="num">${fmtNum(x.deferred)}</td>
-        <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td></tr>`).join('') : '<tr><td colspan="10" class="empty">Không có kết quả theo ngày phù hợp với bộ lọc. Hãy kiểm tra ngày chụp hoặc chọn lại bộ lọc.</td></tr>';
+        <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td><td>${x.frozen ? (x.locked ? '<span class="pill pill-green">Đã khóa</span>' : '<span class="pill pill-blue">Đã chốt, đang mở</span>') : '<span class="pill pill-amber">Chưa chốt</span>'}</td></tr>`).join('') : '<tr><td colspan="11" class="empty">Không có kết quả theo ngày phù hợp với bộ lọc. Hãy kiểm tra ngày chụp hoặc chọn lại bộ lọc.</td></tr>';
       $('employeeMonthlyReportTable').innerHTML = monthly.length ? monthly.map(x => `<tr>
         <td><b>${esc(x.maKv || 'Chưa gán')}</b></td><td>${esc(lockDayLabel(x.lockDay))}</td><td><b>${esc(x.employee || 'Chưa phân công')}</b></td><td>${esc(x.team || 'Chưa phân tổ')}</td>
         <td class="num">${fmtNum(x.baseline)}</td><td class="num">${fmtNum(x.done)}</td><td class="num">${fmtNum(x.remain)}</td><td class="num">${fmtNum(x.deferred)}</td>
         <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td></tr>`).join('') : '<tr><td colspan="9" class="empty">Chưa có kết quả lũy kế tháng phù hợp với bộ lọc.</td></tr>';
-      $('employeeMonthlyNote').textContent = `Tháng ${data.month || ''}: mỗi MA_TB được tính một lần, phân bổ theo MA_KV, nhân viên và ngày khóa tại lần chụp đầu tiên. Tỷ lệ tổng trong phạm vi lọc = ${fmtNum(totals.done)} đã xử lý / ${fmtNum(totals.baseline)} thuê bao đầu kỳ = ${fmtPct(totalRate)}. ${fmtNum(totals.deferred)} thuê bao đang ở trạng thái Xử lý sau, không tính là đã thu.`;
+      $('employeeMonthlyNote').textContent = `Tháng ${data.month || ''}: chỉ tổng hợp các ngày có bản chốt hợp lệ. Tỷ lệ tổng trong phạm vi lọc = ${fmtNum(totals.done)} đã xử lý / ${fmtNum(totals.baseline)} lượt thuê bao đầu ngày của các ngày đã chốt = ${fmtPct(totalRate)}. Thuê bao còn tồn được tính vào mẫu số của từng ngày mà thuê bao còn nằm trong danh sách; đây là tỷ lệ gộp theo khối lượng từng ngày, không phải tỷ lệ khách hàng duy nhất cả tháng.`;
       setEmployeeReportMode(APP.employeeReportMode || 'daily');
     }
 
@@ -1084,7 +1120,7 @@
         ctx.strokeStyle='#e5edf2';ctx.beginPath();ctx.moveTo(left,y+rowH);ctx.lineTo(width-left,y+rowH);ctx.stroke();
       });
       ctx.fillStyle='#526c7d';ctx.font='13px Arial';
-      ctx.fillText('Tỷ lệ ngày = số thuê bao đầu ngày đã xử lý / đầu ngày. Xử lý sau không tính là đã thu.',left,height-34);
+      ctx.fillText('Báo cáo tổng chỉ cộng ngày đã chốt; mở khóa vẫn giữ bản chốt cũ, chụp lại thì phải khóa lại.',left,height-34);
       if ((monthlyMode ? data.monthly : data.daily).filter(matches).length > rows.length) ctx.fillText('Ảnh hiển thị 45 dòng đầu; dùng Excel để xem toàn bộ kết quả.',left,height-15);
       canvas.toBlob(async blob => {
         if (!blob) return toast('Không tạo được hình báo cáo.', true);
