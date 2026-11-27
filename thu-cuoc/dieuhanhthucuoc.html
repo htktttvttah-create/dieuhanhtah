@@ -1322,8 +1322,9 @@
       const renderCell = (value,index,decrease) => {
         if (countColumns.includes(index)) {
           const style = `background:${matrixRankColor(value,heatValues[index] || [])};color:${Number(value||0)>0?'#254333':'#64748B'};font-weight:800`;
-          const decreaseHtml = decrease === '' || decrease === null || decrease === undefined
-            ? '' : `<span class="matrix-inline-decrease">↓ ${esc(fmtNum(decrease))}</span>`;
+          // Chỉ hiện mũi tên khi thực sự có số thuê bao Fiber giảm (> 0).
+          const decreaseHtml = Number(decrease) > 0
+            ? `<span class="matrix-inline-decrease">↓ ${esc(fmtNum(decrease))}</span>` : '';
           return `<td style="${style}"><span>${esc(fmtNum(value))}</span>${decreaseHtml}</td>`;
         }
         // MA_KV, tên nhân viên và tổ là dữ liệu chữ; không đưa qua fmtNum() để tránh hiển thị NaN.
@@ -1445,7 +1446,7 @@
               const countText = fmtNum(value);
               ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
               const dec = (decreaseRows[rowIndex] || [])[colIndex];
-              if (dec === '' || dec === null || dec === undefined) {
+              if (!(Number(dec) > 0)) {
                 ctx.fillText(countText,xx+cellWidth/2,y+24,cellWidth-8);
               } else {
                 const suffix = '↓ ' + fmtNum(dec);
@@ -1475,7 +1476,7 @@
             const countText = fmtNum(value);
             const dec = totalDecrease[colIndex];
             ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
-            if (dec === '' || dec === null || dec === undefined) {
+            if (!(Number(dec) > 0)) {
               ctx.fillStyle = '#0B3B57'; ctx.fillText(countText,tx+cellWidth/2,totalY+28,cellWidth-8);
             } else {
               const suffix = '↓ ' + fmtNum(dec);
