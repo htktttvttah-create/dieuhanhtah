@@ -114,7 +114,14 @@
     .employee-report-tab{border:1px solid #cbd9e2;background:#fff;color:#345267;border-radius:10px;padding:10px 15px;font-weight:800;font-size:14px}
     .employee-report-tab.active{background:#0b6f98;border-color:#0b6f98;color:#fff}
     .employee-report-table-wrap{border-color:#cbd9e2;max-height:540px}
-    .employee-report-table{min-width:1050px}
+    .employee-report-table{min-width:1260px}
+    .employee-session-deltas{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;min-width:185px}
+    .employee-session-delta{display:inline-flex;flex-direction:column;gap:1px;min-width:82px;padding:5px 7px;border:1px solid #cfe8d8;border-radius:8px;background:#f2fbf5;line-height:1.25}
+    .employee-session-delta .session-delta-count{font-size:16px;font-weight:900;color:#16834b;white-space:nowrap;font-variant-numeric:tabular-nums}
+    .employee-session-delta .session-delta-count.zero{font-size:14px;color:#718096}
+    .employee-session-delta .session-delta-label{font-size:11px;color:#456453;white-space:nowrap}
+    .employee-session-delta .session-delta-deferred{font-size:10px;color:#a16207;font-weight:800;white-space:nowrap}
+    .employee-session-delta.no-data{border-color:#dce6ec;background:#f7fafc;color:#65798a;min-width:90px;justify-content:center;font-size:12px}
     .employee-report-table th{position:sticky;top:0;z-index:1;background:#eaf1f5;color:#203f55;font-size:13px;padding:13px 12px}
     .employee-report-table td{font-size:14px;color:#20394b;padding:12px;line-height:1.45}
     .employee-report-table tbody tr:nth-child(even){background:#f8fbfd}
@@ -188,10 +195,9 @@
         <div class="date-range-export-controls">
           <div class="field-inline"><label for="dueExportFrom">Từ ngày</label><input id="dueExportFrom" type="date" aria-label="Ngày bắt đầu xuất danh sách"></div>
           <div class="field-inline"><label for="dueExportTo">Đến ngày</label><input id="dueExportTo" type="date" aria-label="Ngày kết thúc xuất danh sách"></div>
-          <button class="btn btn-primary btn-small" id="exportDueRangeButton" type="button" onclick="exportDueDateRangeExcel()">⇩ Tải danh sách chi tiết</button>
-          <button class="btn btn-soft btn-small" id="exportFiberPivotButton" type="button" onclick="exportFiberLockDayPivotExcel()">▦ Báo cáo ma trận Fiber</button>
+          <button class="btn btn-primary btn-small" id="exportDueRangeButton" type="button" onclick="exportDueDateRangeExcel()">⇩ Tải Excel theo khoảng ngày</button>
         </div>
-        <div class="date-range-export-note">Danh sách chi tiết xuất theo khoảng ngày đã chọn. Báo cáo ma trận Fiber có dạng mỗi MA_KV/nhân viên một dòng, mỗi ngày khóa một cột và Grand Total ở cuối; chỉ đếm các dòng có LOAIHINH_TB = Fiber (không cộng MyTV hoặc loại hình khác). Vì cột NGÀY KHÓA trong nguồn lưu số ngày trong tháng, khoảng báo cáo ma trận phải nằm trong cùng một tháng.</div>
+        <div class="date-range-export-note">Gợi ý: có thể chọn một ngày hoặc nhiều ngày liên tiếp. Mỗi thuê bao chỉ được đưa vào một ngày phù hợp đầu tiên trong khoảng đã chọn.</div>
       </section>
 
       <section class="panel">
@@ -302,11 +308,11 @@
         <div id="employeeDailyReportPanel">
           <div class="table-wrap employee-report-table-wrap">
             <table class="employee-report-table">
-              <thead><tr><th>Ngày ghi nhận</th><th>MA_KV</th><th>Ngày khóa</th><th>Tên nhân viên</th><th>Tổ</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ ngày</th><th>Trạng thái chốt</th></tr></thead>
-              <tbody id="employeeDailyReportTable"><tr><td colspan="11" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr></tbody>
+              <thead><tr><th>Ngày ghi nhận</th><th>MA_KV</th><th>Ngày khóa</th><th>Tên nhân viên</th><th>Tổ</th><th>Giảm giữa các buổi</th><th class="num">Đầu ngày</th><th class="num">Đã xử lý</th><th class="num">Còn phải thu</th><th class="num">Xử lý sau</th><th class="num">Tỷ lệ ngày</th><th>Trạng thái chốt</th></tr></thead>
+              <tbody id="employeeDailyReportTable"><tr><td colspan="12" class="empty">Chưa có dữ liệu chụp trong tháng.</td></tr></tbody>
             </table>
           </div>
-          <p class="section-caption employee-report-note">Tỷ lệ từng ngày lấy từ bản chụp của ngày đó. Ngày chưa chốt chỉ là tạm tính; mở khóa không làm thay đổi bản chốt cũ, còn chụp lại thì phải khóa lại để cập nhật báo cáo chính thức.</p>
+          <p class="section-caption employee-report-note">Tỷ lệ từng ngày lấy từ bản chụp của ngày đó. <b style="color:#16834b">↓ màu xanh</b> là số thuê bao giảm khỏi danh sách Cần phải thu giữa hai mốc liên tiếp; <b style="color:#a16207">↪ màu cam</b> là thuê bao chuyển sang Xử lý sau, không tính là đã thu. Ngày chưa chốt chỉ là tạm tính; mở khóa không làm thay đổi bản chốt cũ.</p>
         </div>
         <div id="employeeMonthlyReportPanel" class="hidden">
           <div class="table-wrap employee-report-table-wrap">
@@ -847,6 +853,38 @@
       $('employeeMonthlyTab').classList.toggle('active', APP.employeeReportMode === 'monthly');
     }
 
+    function employeeSessionSlotLabel(slot) {
+      const labels = { 'SÁNG': 'Sáng', 'TRƯA': 'Trưa', 'CHIỀU': 'Chiều' };
+      return labels[String(slot || '').toUpperCase()] || String(slot || '');
+    }
+
+    function renderEmployeeSessionDeltaCell(row) {
+      const deltas = Array.isArray(row && row.sessionDeltas) ? row.sessionDeltas : [];
+      if (!deltas.length) return '<span class="employee-session-delta no-data">Chưa đủ mốc chụp</span>';
+      return '<div class="employee-session-deltas">' + deltas.map(item => {
+        const reduced = Number(item.reduced || 0);
+        const deferred = Number(item.deferred || 0);
+        const label = employeeSessionSlotLabel(item.fromSlot) + ' → ' + employeeSessionSlotLabel(item.toSlot);
+        return '<span class="employee-session-delta" title="Số thuê bao rời danh sách Cần phải thu ở khoảng ' + esc(label) + '. Thuê bao chuyển Xử lý sau được tách riêng.">' +
+          '<span class="session-delta-count ' + (reduced > 0 ? '' : 'zero') + '">' + (reduced > 0 ? '↓ ' : '') + fmtNum(reduced) + '</span>' +
+          '<span class="session-delta-label">' + esc(label) + '</span>' +
+          (deferred > 0 ? '<span class="session-delta-deferred">↪ ' + fmtNum(deferred) + ' xử lý sau</span>' : '') +
+          '</span>';
+      }).join('') + '</div>';
+    }
+
+    function employeeSessionDeltaText(row) {
+      const deltas = Array.isArray(row && row.sessionDeltas) ? row.sessionDeltas : [];
+      if (!deltas.length) return 'Chưa đủ mốc chụp';
+      return deltas.map(item => {
+        const reduced = Number(item.reduced || 0);
+        const deferred = Number(item.deferred || 0);
+        let text = (reduced > 0 ? '↓ ' : '') + fmtNum(reduced) + ' ' + employeeSessionSlotLabel(item.fromSlot) + '→' + employeeSessionSlotLabel(item.toSlot);
+        if (deferred > 0) text += ' · ↪ ' + fmtNum(deferred) + ' sau';
+        return text;
+      }).join(' | ');
+    }
+
     function renderEmployeeReport() {
       if (!APP.data) return;
       populateEmployeeReportFilters();
@@ -880,8 +918,9 @@
       $('employeeDailyReportTable').innerHTML = daily.length ? daily.map(x => `<tr>
         <td><b>${esc((x.date || '').split('-').reverse().join('/'))}</b>${x.frozen ? (x.locked ? '<div><span class="pill pill-green">Đã khóa · giữ nguyên</span></div>' : '<div><span class="pill pill-blue">Đã chốt · đang mở</span></div>') : '<div><span class="pill pill-amber">Chưa chốt · tạm tính</span></div>'}</td>
         <td><b>${esc(x.maKv || 'Chưa gán')}</b></td><td>${esc(lockDayLabel(x.lockDay))}</td><td><b>${esc(x.employee || 'Chưa phân công')}</b></td><td>${esc(x.team || 'Chưa phân tổ')}</td>
+        <td>${renderEmployeeSessionDeltaCell(x)}</td>
         <td class="num">${fmtNum(x.baseline)}</td><td class="num">${fmtNum(x.done)}</td><td class="num">${fmtNum(x.remain)}</td><td class="num">${fmtNum(x.deferred)}</td>
-        <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td><td>${x.frozen ? (x.locked ? '<span class="pill pill-green">Đã khóa</span>' : '<span class="pill pill-blue">Đã chốt, đang mở</span>') : '<span class="pill pill-amber">Chưa chốt</span>'}</td></tr>`).join('') : '<tr><td colspan="11" class="empty">Không có kết quả theo ngày phù hợp với bộ lọc. Hãy kiểm tra ngày chụp hoặc chọn lại bộ lọc.</td></tr>';
+        <td class="num rate-cell ${Number(x.rate||0)<0.5?'rate-low':''}">${fmtPct(x.rate)}</td><td>${x.frozen ? (x.locked ? '<span class="pill pill-green">Đã khóa</span>' : '<span class="pill pill-blue">Đã chốt, đang mở</span>') : '<span class="pill pill-amber">Chưa chốt</span>'}</td></tr>`).join('') : '<tr><td colspan="12" class="empty">Không có kết quả theo ngày phù hợp với bộ lọc. Hãy kiểm tra ngày chụp hoặc chọn lại bộ lọc.</td></tr>';
       $('employeeMonthlyReportTable').innerHTML = monthly.length ? monthly.map(x => `<tr>
         <td><b>${esc(x.maKv || 'Chưa gán')}</b></td><td>${esc(lockDayLabel(x.lockDay))}</td><td><b>${esc(x.employee || 'Chưa phân công')}</b></td><td>${esc(x.team || 'Chưa phân tổ')}</td>
         <td class="num">${fmtNum(x.baseline)}</td><td class="num">${fmtNum(x.done)}</td><td class="num">${fmtNum(x.remain)}</td><td class="num">${fmtNum(x.deferred)}</td>
@@ -1121,12 +1160,12 @@
       const title = monthlyMode ? 'BÁO CÁO LŨY KẾ THÁNG THEO NHÂN VIÊN' : 'BÁO CÁO TỶ LỆ THU TỪNG NGÀY THEO NHÂN VIÊN';
       const headers = monthlyMode
         ? ['MA_KV','NGÀY KHÓA','TÊN NHÂN VIÊN','TỔ','ĐẦU KỲ','ĐÃ XỬ LÝ','CÒN PHẢI THU','XỬ LÝ SAU','TỶ LỆ TỔNG']
-        : ['NGÀY','MA_KV','NGÀY KHÓA','TÊN NHÂN VIÊN','TỔ','ĐẦU NGÀY','ĐÃ XỬ LÝ','CÒN PHẢI THU','XỬ LÝ SAU','TỶ LỆ NGÀY'];
+        : ['NGÀY','MA_KV','NGÀY KHÓA','TÊN NHÂN VIÊN','TỔ','GIẢM THEO BUỔI','ĐẦU NGÀY','ĐÃ XỬ LÝ','CÒN PHẢI THU','XỬ LÝ SAU','TỶ LỆ NGÀY'];
       const matrix = rows.map(x => monthlyMode
         ? [x.maKv || 'Chưa gán', lockDayLabel(x.lockDay), x.employee || 'Chưa phân công', x.team || 'Chưa phân tổ', fmtNum(x.baseline), fmtNum(x.done), fmtNum(x.remain), fmtNum(x.deferred), fmtPct(x.rate)]
-        : [(x.date || '').split('-').reverse().join('/'), x.maKv || 'Chưa gán', lockDayLabel(x.lockDay), x.employee || 'Chưa phân công', x.team || 'Chưa phân tổ', fmtNum(x.baseline), fmtNum(x.done), fmtNum(x.remain), fmtNum(x.deferred), fmtPct(x.rate)]);
+        : [(x.date || '').split('-').reverse().join('/'), x.maKv || 'Chưa gán', lockDayLabel(x.lockDay), x.employee || 'Chưa phân công', x.team || 'Chưa phân tổ', employeeSessionDeltaText(x), fmtNum(x.baseline), fmtNum(x.done), fmtNum(x.remain), fmtNum(x.deferred), fmtPct(x.rate)]);
       const rowH = 44, left = 42, top = 260, headerH = 48;
-      const widths = monthlyMode ? [145,130,280,270,130,130,150,130,150] : [125,130,120,260,260,125,125,145,125,140];
+      const widths = monthlyMode ? [145,130,280,270,130,130,150,130,150] : [125,130,120,250,240,220,115,115,135,115,130];
       const width = widths.reduce((a,b)=>a+b,0) + left*2;
       const height = top + headerH + matrix.length*rowH + 90;
       const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
@@ -1153,9 +1192,10 @@
         ctx.fillStyle=ri%2===0?'#fff':'#f8fbfd';ctx.fillRect(left,y,width-left*2,rowH);
         let xx=left;
         row.forEach((v,i)=>{
-          ctx.fillStyle = i=== (monthlyMode?8:9) ? '#075f86' : '#223e50';
-          ctx.font = (i=== (monthlyMode?8:9) ? 'bold 14px Arial' : '13px Arial');
           let text=String(v);
+          const isSessionDelta = !monthlyMode && i===5;
+          ctx.fillStyle = isSessionDelta && text.indexOf('↓') >= 0 ? '#16834b' : (i=== (monthlyMode?8:10) ? '#075f86' : '#223e50');
+          ctx.font = isSessionDelta ? 'bold 12px Arial' : (i=== (monthlyMode?8:10) ? 'bold 14px Arial' : '13px Arial');
           const maxWidth=widths[i]-16;
           while (ctx.measureText(text).width>maxWidth && text.length>3) text=text.slice(0,-2)+'…';
           ctx.fillText(text,xx+9,y+27);xx+=widths[i];
@@ -1202,24 +1242,6 @@
           const counts = (result.counts || []).map(x => x.date.split('-').reverse().join('/') + ': ' + x.count).join(' · ');
           toast('Đã xuất ' + fmtNum(result.totalCount || 0) + ' thuê bao từ ' + fromDate.split('-').reverse().join('/') + ' đến ' + toDate.split('-').reverse().join('/') + (counts ? '. ' + counts : '.'));
         } catch (e) { toast('Không tạo được file Excel: ' + e.message, true); }
-      });
-    }
-
-    function exportFiberLockDayPivotExcel() {
-      const fromDate = $('dueExportFrom').value;
-      const toDate = $('dueExportTo').value;
-      if (!fromDate || !toDate) return toast('Vui lòng chọn đầy đủ Từ ngày và Đến ngày.', true);
-      if (fromDate > toDate) return toast('Ngày bắt đầu không được lớn hơn ngày kết thúc.', true);
-      if (fromDate.substring(0, 7) !== toDate.substring(0, 7)) {
-        return toast('Báo cáo ma trận hiện cần chọn khoảng ngày trong cùng một tháng vì nguồn NGÀY KHÓA chỉ lưu số ngày.', true);
-      }
-      runServer('getFiberLockDayPivotExcel', [fromDate, toDate], result => {
-        try {
-          if (!result || !result.base64) throw new Error((result && result.message) || 'Backend không trả về file báo cáo Fiber.');
-          downloadBase64File(result, 'BAO_CAO_MA_TRAN_FIBER_' + fromDate + '_' + toDate + '.xlsx');
-          const days = (result.lockDayColumns || []).join(', ') || 'không có ngày khóa phù hợp';
-          toast('Đã xuất ' + fmtNum(result.totalFiberCount || 0) + ' thuê bao Fiber / ' + fmtNum(result.employeeCount || 0) + ' nhân viên. Cột ngày khóa: ' + days + '.');
-        } catch (e) { toast('Không tạo được báo cáo ma trận Fiber: ' + e.message, true); }
       });
     }
 
