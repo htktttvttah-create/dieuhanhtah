@@ -188,9 +188,10 @@
         <div class="date-range-export-controls">
           <div class="field-inline"><label for="dueExportFrom">Từ ngày</label><input id="dueExportFrom" type="date" aria-label="Ngày bắt đầu xuất danh sách"></div>
           <div class="field-inline"><label for="dueExportTo">Đến ngày</label><input id="dueExportTo" type="date" aria-label="Ngày kết thúc xuất danh sách"></div>
-          <button class="btn btn-primary btn-small" id="exportDueRangeButton" type="button" onclick="exportDueDateRangeExcel()">⇩ Tải Excel theo khoảng ngày</button>
+          <button class="btn btn-primary btn-small" id="exportDueRangeButton" type="button" onclick="exportDueDateRangeExcel()">⇩ Tải danh sách chi tiết</button>
+          <button class="btn btn-soft btn-small" id="exportFiberPivotButton" type="button" onclick="exportFiberLockDayPivotExcel()">▦ Báo cáo ma trận Fiber</button>
         </div>
-        <div class="date-range-export-note">Gợi ý: có thể chọn một ngày hoặc nhiều ngày liên tiếp. Mỗi thuê bao chỉ được đưa vào một ngày phù hợp đầu tiên trong khoảng đã chọn.</div>
+        <div class="date-range-export-note">Danh sách chi tiết xuất theo khoảng ngày đã chọn. Báo cáo ma trận Fiber có dạng mỗi MA_KV/nhân viên một dòng, mỗi ngày khóa một cột và Grand Total ở cuối; chỉ đếm các dòng có LOAIHINH_TB = Fiber (không cộng MyTV hoặc loại hình khác). Vì cột NGÀY KHÓA trong nguồn lưu số ngày trong tháng, khoảng báo cáo ma trận phải nằm trong cùng một tháng.</div>
       </section>
 
       <section class="panel">
@@ -1201,6 +1202,24 @@
           const counts = (result.counts || []).map(x => x.date.split('-').reverse().join('/') + ': ' + x.count).join(' · ');
           toast('Đã xuất ' + fmtNum(result.totalCount || 0) + ' thuê bao từ ' + fromDate.split('-').reverse().join('/') + ' đến ' + toDate.split('-').reverse().join('/') + (counts ? '. ' + counts : '.'));
         } catch (e) { toast('Không tạo được file Excel: ' + e.message, true); }
+      });
+    }
+
+    function exportFiberLockDayPivotExcel() {
+      const fromDate = $('dueExportFrom').value;
+      const toDate = $('dueExportTo').value;
+      if (!fromDate || !toDate) return toast('Vui lòng chọn đầy đủ Từ ngày và Đến ngày.', true);
+      if (fromDate > toDate) return toast('Ngày bắt đầu không được lớn hơn ngày kết thúc.', true);
+      if (fromDate.substring(0, 7) !== toDate.substring(0, 7)) {
+        return toast('Báo cáo ma trận hiện cần chọn khoảng ngày trong cùng một tháng vì nguồn NGÀY KHÓA chỉ lưu số ngày.', true);
+      }
+      runServer('getFiberLockDayPivotExcel', [fromDate, toDate], result => {
+        try {
+          if (!result || !result.base64) throw new Error((result && result.message) || 'Backend không trả về file báo cáo Fiber.');
+          downloadBase64File(result, 'BAO_CAO_MA_TRAN_FIBER_' + fromDate + '_' + toDate + '.xlsx');
+          const days = (result.lockDayColumns || []).join(', ') || 'không có ngày khóa phù hợp';
+          toast('Đã xuất ' + fmtNum(result.totalFiberCount || 0) + ' thuê bao Fiber / ' + fmtNum(result.employeeCount || 0) + ' nhân viên. Cột ngày khóa: ' + days + '.');
+        } catch (e) { toast('Không tạo được báo cáo ma trận Fiber: ' + e.message, true); }
       });
     }
 
