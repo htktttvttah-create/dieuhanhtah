@@ -106,10 +106,13 @@
     .fiber-matrix-table-wrap{max-height:580px;overflow:auto;border:1px solid #cbd9e2;border-radius:10px}
     .fiber-matrix-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
     .fiber-matrix-table th{position:sticky;top:0;z-index:3;background:#087E8B;color:#fff;padding:10px 11px;text-align:center;white-space:nowrap;border-bottom:1px solid #d7e2e9}
+    .fiber-matrix-table thead tr:first-child th{top:0;z-index:4;background:#075f78}
+    .fiber-matrix-table thead tr:nth-child(2) th{top:38px;z-index:3;background:#087E8B}
     .fiber-matrix-table td{padding:9px 11px;border-bottom:1px solid #e5edf2;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
     .fiber-matrix-table td:nth-child(-n+3){text-align:left}
     .fiber-matrix-table tbody tr:nth-child(even) td{background-color:#f8fbfd}
     .fiber-matrix-table .matrix-delta{font-weight:900;color:#16834b}
+    .fiber-matrix-table .matrix-decrease{font-weight:900;color:#16834b;background:#F0F8F2}
     .fiber-matrix-table .matrix-deferred{font-weight:800;color:#a16207}
     .fiber-matrix-table tfoot td{background:#e6f3f8;font-weight:900;color:#0b3b57;border-top:2px solid #9fc2d2}
     .fiber-matrix-note{font-size:12px;color:#40596b;line-height:1.5;margin-top:10px}
@@ -350,7 +353,7 @@
         <div class="panel-head">
           <div>
             <h2 class="panel-title">Báo cáo ma trận Fiber theo ngày khóa</h2>
-            <p class="panel-sub">Mỗi nhân viên một dòng; có số Fiber theo từng ngày khóa và số giảm giữa các buổi. Nút chụp hình tạo ảnh toàn bộ bảng, không cắt còn vài dòng.</p>
+            <p class="panel-sub">Mỗi nhân viên một dòng; trong từng ngày khóa hiển thị số Fiber và số giảm giữa các lần chụp Sáng→Trưa, Trưa→Chiều. Chụp hình tải thẳng PNG về máy.</p>
           </div>
           <div class="fiber-matrix-tools">
             <span class="pill" id="fiberMatrixCount">Chưa tải báo cáo</span>
@@ -367,12 +370,12 @@
         <div class="fiber-matrix-status" id="fiberMatrixStatus">Chọn khoảng ngày rồi bấm Xem báo cáo ma trận. Báo cáo chỉ lấy LOAIHINH_TB = Fiber.</div>
         <div class="fiber-matrix-table-wrap">
           <table class="fiber-matrix-table" id="fiberMatrixPreviewTable">
-            <thead><tr><th>MA_KV</th><th>NV</th><th>TỔ</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th><th>↪ Xử lý sau S→T</th><th>↪ Xử lý sau T→C</th><th>Ngày khóa</th><th>Grand Total</th></tr></thead>
+            <thead><tr><th rowspan="2">MA_KV</th><th rowspan="2">NV</th><th rowspan="2">TỔ</th><th colspan="3">Ngày khóa</th><th colspan="3">Grand Total</th></tr><tr><th>SL Fiber</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th><th>SL Fiber</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th></tr></thead>
             <tbody id="fiberMatrixPreviewBody"><tr><td colspan="9" style="text-align:center;color:#667b8a;padding:24px">Chưa tải dữ liệu ma trận.</td></tr></tbody>
             <tfoot id="fiberMatrixPreviewFoot"></tfoot>
           </table>
         </div>
-        <p class="fiber-matrix-note" id="fiberMatrixNote">Hai cột mũi tên xanh là thuê bao Fiber giảm khỏi danh sách Cần phải thu giữa các mốc chụp trong khoảng ngày. Thuê bao chuyển Xử lý sau được tách riêng, không tính là đã thu. Ảnh báo cáo sẽ bao gồm toàn bộ nhân viên và các cột ngày khóa.</p>
+        <p class="fiber-matrix-note" id="fiberMatrixNote">Mỗi ngày khóa có 3 cột: SL Fiber, ↓ giảm Sáng→Trưa và ↓ giảm Trưa→Chiều. Số giảm được tính bằng đối chiếu MA_TB Fiber giữa hai lần chụp; thuê bao chuyển Xử lý sau không tính là giảm/đã thu. Nút Chụp hình tải PNG trực tiếp về máy, bao gồm toàn bộ nhân viên và các ngày trong khoảng chọn.</p>
       </section>
 
       <section class="panel">
@@ -1302,27 +1305,42 @@
       const headers = data.headers || [];
       const rows = data.rows || [];
       const total = data.totalRow || [];
-      const lockStart = Number(data.lockDayStartIndex || 7);
-      const grandIndex = Number(data.grandTotalIndex || (headers.length-1));
-      const lockColumns = [];
-      for (let i=lockStart;i<grandIndex;i++) lockColumns.push(i);
+      const dayGroups = data.dayColumnGroups || [];
+      const grand = data.grandTotalGroup || {};
+      const countColumns = data.countColumnIndexes || [];
+      const decreaseColumns = data.decreaseColumnIndexes || [];
       const heatValues = {};
-      lockColumns.concat([grandIndex]).forEach(i=>heatValues[i]=rows.map(r=>Number(r[i]||0)));
-      $('fiberMatrixPreviewTable').querySelector('thead').innerHTML = '<tr>' + headers.map((h,i)=>`<th>${esc(h)}</th>`).join('') + '</tr>';
-      $('fiberMatrixPreviewBody').innerHTML = rows.map(row => '<tr>' + row.map((v,i)=>{
-        let cls=''; let style=''; let text=fmtNum(v);
-        if(i===3 || i===4){cls='matrix-delta';text=Number(v||0)>0?'↓ '+fmtNum(v):'0';}
-        else if(i===5 || i===6){cls='matrix-deferred';text=Number(v||0)>0?'↪ '+fmtNum(v):'0';}
-        if (lockColumns.includes(i) || i===grandIndex) style=`background:${matrixRankColor(v,heatValues[i])};color:${Number(v||0)>0?'#294434':'#64748B'};font-weight:800`;
+      countColumns.forEach(i => heatValues[i] = rows.map(r => Number(r[i] || 0)));
+
+      const firstHead = '<tr><th rowspan="2">MA_KV</th><th rowspan="2">NV</th><th rowspan="2">TỔ</th>' +
+        dayGroups.map(g => `<th colspan="3">${esc(g.label)}</th>`).join('') +
+        `<th colspan="3">${esc(grand.label || 'Grand Total')}</th></tr>`;
+      const secondHead = '<tr>' + dayGroups.map(() => '<th>SL Fiber</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th>').join('') +
+        '<th>SL Fiber</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th></tr>';
+      $('fiberMatrixPreviewTable').querySelector('thead').innerHTML = firstHead + secondHead;
+
+      const renderCell = (value,index) => {
+        const isCount = countColumns.includes(index);
+        const isDecrease = decreaseColumns.includes(index);
+        let text = value === '' || value === null || value === undefined ? '—' : fmtNum(value);
+        let cls = '';
+        let style = '';
+        if (isDecrease) {
+          cls = 'matrix-decrease';
+          if (value !== '' && Number(value || 0) > 0) text = '↓ ' + fmtNum(value);
+          else if (value !== '') text = '0';
+        } else if (isCount) {
+          style = `background:${matrixRankColor(value,heatValues[index] || [])};color:${Number(value || 0)>0?'#254333':'#64748B'};font-weight:800`;
+        }
         return `<td class="${cls}" style="${style}">${esc(text)}</td>`;
-      }).join('') + '</tr>').join('') || `<tr><td colspan="${headers.length}" style="text-align:center;padding:24px;color:#667b8a">Không có thuê bao Fiber phù hợp trong khoảng ngày.</td></tr>`;
-      $('fiberMatrixPreviewFoot').innerHTML = total.length ? '<tr>' + total.map((v,i)=>{
-        let cls=''; let text=fmtNum(v); if(i===3||i===4){cls='matrix-delta';text=Number(v||0)>0?'↓ '+fmtNum(v):'0';} else if(i===5||i===6){cls='matrix-deferred';text=Number(v||0)>0?'↪ '+fmtNum(v):'0';}
-        return `<td class="${cls}">${esc(text)}</td>`;
-      }).join('') + '</tr>' : '';
+      };
+
+      $('fiberMatrixPreviewBody').innerHTML = rows.map(row => '<tr>' + row.map((v,i)=>renderCell(v,i)).join('') + '</tr>').join('') ||
+        `<tr><td colspan="${headers.length || 9}" style="text-align:center;padding:24px;color:#667b8a">Không có thuê bao Fiber phù hợp trong khoảng ngày.</td></tr>`;
+      $('fiberMatrixPreviewFoot').innerHTML = total.length ? '<tr>' + total.map((v,i)=>renderCell(v,i)).join('') + '</tr>' : '';
       $('fiberMatrixCount').textContent = fmtNum(data.employeeCount||0) + ' nhân viên · ' + fmtNum(data.totalFiberCount||0) + ' thuê bao Fiber';
-      $('fiberMatrixStatus').textContent = `Khoảng ${data.range.from.split('-').reverse().join('/')} đến ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.deltaCaptureDays||0)} ngày có chụp đủ mốc để tính chênh lệch.`;
-      $('fiberMatrixNote').textContent = (data.deltaNote || '') + ' Báo cáo ma trận, Excel và ảnh đều dùng chung một bộ dữ liệu để tránh lệch số.';
+      $('fiberMatrixStatus').textContent = `Khoảng ${data.range.from.split('-').reverse().join('/')} đến ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.deltaCaptureDays||0)} ngày có đủ cặp lần chụp để tính giảm.`;
+      $('fiberMatrixNote').textContent = (data.deltaNote || '') + ' Các cột mũi tên chỉ tính thuê bao Fiber giảm giữa các lần chụp, không tính loại hình khác.';
     }
 
     function requestFiberMatrixData(success) {
@@ -1358,63 +1376,143 @@
     }
 
     function captureFiberMatrixImage() {
-      requestFiberMatrixData(data=>{
-        const headers=data.headers||[], rows=data.rows||[], total=data.totalRow||[];
-        if(!headers.length) return toast('Không có dữ liệu ma trận để chụp hình.',true);
-        const left=34, top=190, headH=42, rowH=34, footH=40;
-        const lockStart=Number(data.lockDayStartIndex||7), grandIndex=Number(data.grandTotalIndex||headers.length-1);
-        const widths=headers.map((_,i)=> i===0?90 : i===1?205 : i===2?235 : i===3||i===4?112 : i===5||i===6?130 : (i===grandIndex?110:74));
-        const width=left*2+widths.reduce((a,b)=>a+b,0);
-        const height=top+headH+rows.length*rowH+footH+64;
-        if(height>30000 || width>12000) return toast('Báo cáo quá lớn để tạo một ảnh duy nhất. Hãy xuất Excel để xem toàn bộ.',true);
-        const canvas=document.createElement('canvas'); canvas.width=width; canvas.height=height;
-        const ctx=canvas.getContext('2d');
-        ctx.fillStyle='#f2f6f9';ctx.fillRect(0,0,width,height);
-        const grad=ctx.createLinearGradient(0,0,width,0);grad.addColorStop(0,'#0b3b57');grad.addColorStop(1,'#0b91ad');
-        ctx.fillStyle=grad;ctx.fillRect(left,22,width-left*2,125);
-        ctx.fillStyle='#eaf5fa';ctx.font='bold 17px Arial';ctx.fillText('TRUNG TÂM VIỄN THÔNG TÂN AN HỘI',left+22,52);
-        ctx.fillStyle='#fff';ctx.font='bold 27px Arial';ctx.fillText('BÁO CÁO MA TRẬN FIBER THEO NGÀY KHÓA',left+22,91);
-        ctx.font='14px Arial';ctx.fillText(`Khoảng ngày: ${data.range.from.split('-').reverse().join('/')} – ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.totalFiberCount)} thuê bao Fiber · ${fmtNum(data.employeeCount)} nhân viên`,left+22,122);
-        ctx.fillStyle='#16834b';ctx.font='bold 13px Arial';ctx.fillText('↓ Sáng → Trưa / Trưa → Chiều: số Fiber giảm khỏi danh sách Cần phải thu',left,top-26);
-        ctx.fillStyle='#a16207';ctx.font='12px Arial';ctx.fillText('↪ Xử lý sau được thống kê riêng, không tính là đã thu. Thang màu ngày khóa: xanh thấp → vàng → đỏ cao.',left,top-7);
-        const lockCols=[];for(let i=lockStart;i<grandIndex;i++)lockCols.push(i);
-        const heatValues={};lockCols.concat([grandIndex]).forEach(i=>heatValues[i]=rows.map(r=>Number(r[i]||0)));
-        let x=left;ctx.fillStyle='#087e8b';ctx.fillRect(left,top,width-left*2,headH);
-        headers.forEach((h,i)=>{ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.fillText(String(h),x+7,top+25);x+=widths[i];});
-        rows.forEach((row,ri)=>{
-          const y=top+headH+ri*rowH;ctx.fillStyle=ri%2===0?'#fff':'#f8fbfd';ctx.fillRect(left,y,width-left*2,rowH);
-          let xx=left;
-          row.forEach((v,i)=>{
-            const cellW=widths[i];let text=String(v==null?'':v);
-            if(i===3||i===4){text=Number(v||0)>0?'↓ '+fmtNum(v):'0';ctx.fillStyle=Number(v||0)>0?'#16834b':'#718096';ctx.font='bold 12px Arial';}
-            else if(i===5||i===6){text=Number(v||0)>0?'↪ '+fmtNum(v):'0';ctx.fillStyle=Number(v||0)>0?'#a16207':'#718096';ctx.font='bold 12px Arial';}
-            else if(lockCols.includes(i)||i===grandIndex){ctx.fillStyle=matrixRankColor(v,heatValues[i]);ctx.fillRect(xx,y,cellW,rowH);ctx.fillStyle=Number(v||0)>0?'#294434':'#64748b';ctx.font='bold 12px Arial';}
-            else {ctx.fillStyle='#20394b';ctx.font='12px Arial';}
-            while(ctx.measureText(text).width>cellW-12&&text.length>3) text=text.slice(0,-2)+'…';
-            ctx.fillText(text,xx+6,y+22);xx+=cellW;
-          });
-          ctx.strokeStyle='#e5edf2';ctx.beginPath();ctx.moveTo(left,y+rowH);ctx.lineTo(width-left,y+rowH);ctx.stroke();
+      requestFiberMatrixData(data => {
+        const headers = data.headers || [];
+        const rows = data.rows || [];
+        const total = data.totalRow || [];
+        const dayGroups = data.dayColumnGroups || [];
+        const grand = data.grandTotalGroup || {};
+        const countColumns = data.countColumnIndexes || [];
+        const decreaseColumns = data.decreaseColumnIndexes || [];
+        if (!headers.length) return toast('Không có dữ liệu ma trận để chụp hình.', true);
+
+        const left = 32, top = 185, groupHeadH = 32, subHeadH = 38, rowH = 36, footH = 44;
+        const widths = [100,220,230];
+        dayGroups.forEach(() => widths.push(88,100,108));
+        widths.push(100,110,118);
+        const width = left * 2 + widths.reduce((sum,v)=>sum+v,0);
+        const height = top + groupHeadH + subHeadH + rows.length*rowH + footH + 70;
+        if (height > 30000 || width > 16000) return toast('Ma trận quá lớn để tạo một ảnh duy nhất. Vui lòng xuất Excel để xem đầy đủ.', true);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return toast('Trình duyệt không tạo được ảnh báo cáo.', true);
+        ctx.fillStyle = '#F2F6F9'; ctx.fillRect(0,0,width,height);
+        const grad = ctx.createLinearGradient(0,0,width,0);
+        grad.addColorStop(0,'#0B3B57'); grad.addColorStop(1,'#0B91AD');
+        ctx.fillStyle = grad; ctx.fillRect(left,20,width-left*2,125);
+        ctx.fillStyle = '#EAF5FA'; ctx.font = 'bold 17px Arial';
+        ctx.fillText('TRUNG TÂM VIỄN THÔNG TÂN AN HỘI',left+22,50);
+        ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 27px Arial';
+        ctx.fillText('BÁO CÁO MA TRẬN FIBER THEO NGÀY KHÓA',left+22,88);
+        ctx.font = '14px Arial';
+        ctx.fillText(`Khoảng ngày: ${data.range.from.split('-').reverse().join('/')} – ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.totalFiberCount)} thuê bao Fiber · ${fmtNum(data.employeeCount)} nhân viên`,left+22,119);
+        ctx.fillStyle = '#16834B'; ctx.font = 'bold 13px Arial';
+        ctx.fillText('↓ Sáng → Trưa / Trưa → Chiều: số thuê bao Fiber giảm giữa hai lần chụp số liệu',left,top-25);
+        ctx.fillStyle = '#526C7D'; ctx.font = '12px Arial';
+        ctx.fillText('Chỉ tính LOAIHINH_TB = Fiber. Số giảm được đối chiếu theo MA_TB; thuê bao chuyển Xử lý sau không tính là đã thu.',left,top-6);
+
+        const groupHeaders = [{label:'THÔNG TIN NHÂN VIÊN',start:0,span:3,staff:true}]
+          .concat(dayGroups.map(g=>({label:g.label,start:g.startIndex,span:3})))
+          .concat([{label:grand.label || 'Grand Total',start:grand.startIndex,span:3}]);
+        let x = left;
+        // Ba cột thông tin nhân viên gộp qua hai hàng tiêu đề.
+        ['MA_KV','NHÂN VIÊN','TỔ'].forEach((label,i)=>{
+          ctx.fillStyle = '#075F78'; ctx.fillRect(x,top,widths[i],groupHeadH+subHeadH);
+          ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+          ctx.fillText(label,x+widths[i]/2,top+groupHeadH+subHeadH/2+4);
+          x += widths[i];
         });
-        const totalY=top+headH+rows.length*rowH;ctx.fillStyle='#e6f3f8';ctx.fillRect(left,totalY,width-left*2,footH);
-        let tx=left;total.forEach((v,i)=>{let text=String(v==null?'':v);ctx.fillStyle=(i===3||i===4)?'#16834b':((i===5||i===6)?'#a16207':'#0b3b57');ctx.font='bold 12px Arial';if(i===3||i===4)text=Number(v||0)>0?'↓ '+fmtNum(v):'0';else if(i===5||i===6)text=Number(v||0)>0?'↪ '+fmtNum(v):'0';while(ctx.measureText(text).width>widths[i]-12&&text.length>3)text=text.slice(0,-2)+'…';ctx.fillText(text,tx+6,totalY+24);tx+=widths[i];});
-        ctx.fillStyle='#526c7d';ctx.font='12px Arial';ctx.fillText(data.deltaNote||'',left,height-28,width-left*2);
-        canvas.toBlob(async blob=>{
-          if(!blob)return toast('Không tạo được ảnh ma trận Fiber.',true);
-          const filename='BAO_CAO_MA_TRAN_FIBER_'+data.range.from+'_DEN_'+data.range.to+'.png';
-          const file=new File([blob],filename,{type:'image/png'});
-          try{
-            if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-              await navigator.share({files:[file],title:'Báo cáo ma trận Fiber',text:'Báo cáo Fiber theo ngày khóa và chênh lệch theo buổi'});
-              toast('Đã mở chức năng chia sẻ ảnh ma trận Fiber.');
-            }else{
-              const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-              toast('Đã tạo ảnh đầy đủ toàn bộ ma trận Fiber để gửi Zalo hoặc email.');
+        ctx.textAlign = 'left';
+        const dayLabels = ['SL Fiber','↓ Sáng → Trưa','↓ Trưa → Chiều'];
+        const dataStartCol = 3;
+        groupHeaders.slice(1).forEach((group,groupIndex)=>{
+          const colStart = dataStartCol + groupIndex*3;
+          const groupWidth = widths[colStart] + widths[colStart+1] + widths[colStart+2];
+          ctx.fillStyle = '#075F78'; ctx.fillRect(x,top,groupWidth,groupHeadH);
+          ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+          ctx.fillText(group.label,x+groupWidth/2,top+21);
+          let subX = x;
+          dayLabels.forEach((label,j)=>{
+            ctx.fillStyle = j===0 ? '#087E8B' : '#0C806A';
+            ctx.fillRect(subX,top+groupHeadH,widths[colStart+j],subHeadH);
+            ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 11px Arial';
+            ctx.fillText(label,subX+widths[colStart+j]/2,top+groupHeadH+23);
+            subX += widths[colStart+j];
+          });
+          x += groupWidth;
+        });
+        ctx.textAlign = 'left';
+
+        const heatValues = {};
+        countColumns.forEach(index=>heatValues[index]=rows.map(row=>Number(row[index]||0)));
+        rows.forEach((row,rowIndex)=>{
+          const y = top+groupHeadH+subHeadH+rowIndex*rowH;
+          ctx.fillStyle = rowIndex%2===0 ? '#FFFFFF' : '#F8FBFD';
+          ctx.fillRect(left,y,width-left*2,rowH);
+          let xx = left;
+          row.forEach((value,colIndex)=>{
+            const cellWidth = widths[colIndex];
+            const isCount = countColumns.includes(colIndex);
+            const isDecrease = decreaseColumns.includes(colIndex);
+            let text = value === '' || value === null || value === undefined ? '—' : fmtNum(value);
+            if (isCount) {
+              ctx.fillStyle = matrixRankColor(value,heatValues[colIndex]||[]);
+              ctx.fillRect(xx,y,cellWidth,rowH);
+              ctx.fillStyle = Number(value||0)>0 ? '#254333' : '#64748B';
+              ctx.font = 'bold 12px Arial';
+            } else if (isDecrease) {
+              if (value !== '' && Number(value||0)>0) text = '↓ ' + fmtNum(value);
+              else if (value !== '') text = '0';
+              ctx.fillStyle = '#16834B'; ctx.font = 'bold 12px Arial';
+            } else {
+              ctx.fillStyle = '#20394B'; ctx.font = '12px Arial';
             }
-          }catch(e){
-            if(e&&e.name==='AbortError')return;
-            const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-            toast('Không mở được hộp thoại chia sẻ; đã tải ảnh ma trận PNG.');
-          }
+            ctx.textAlign = 'center';
+            ctx.fillText(text,xx+cellWidth/2,y+23,cellWidth-8);
+            ctx.textAlign = 'left';
+            xx += cellWidth;
+          });
+          ctx.strokeStyle = '#E5EDF2'; ctx.beginPath();
+          ctx.moveTo(left,y+rowH); ctx.lineTo(width-left,y+rowH); ctx.stroke();
+        });
+
+        const totalY = top+groupHeadH+subHeadH+rows.length*rowH;
+        ctx.fillStyle = '#E6F3F8'; ctx.fillRect(left,totalY,width-left*2,footH);
+        let tx = left;
+        total.forEach((value,colIndex)=>{
+          const cellWidth = widths[colIndex];
+          const isDecrease = decreaseColumns.includes(colIndex);
+          let text = value === '' || value === null || value === undefined ? '—' : fmtNum(value);
+          if (isDecrease) {
+            if (value !== '' && Number(value||0)>0) text = '↓ ' + fmtNum(value);
+            else if (value !== '') text = '0';
+            ctx.fillStyle = '#16834B';
+          } else ctx.fillStyle = '#0B3B57';
+          ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+          ctx.fillText(text,tx+cellWidth/2,totalY+27,cellWidth-8);
+          tx += cellWidth;
+        });
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#526C7D'; ctx.font = '12px Arial';
+        ctx.fillText(data.deltaNote || '',left,height-30,width-left*2);
+
+        // Yêu cầu của người dùng: tải ảnh PNG thẳng về máy, không mở hộp thoại Share.
+        canvas.toBlob(blob=>{
+          if (!blob) return toast('Không tạo được ảnh ma trận Fiber.',true);
+          const filename = 'BAO_CAO_MA_TRAN_FIBER_' + data.range.from + '_DEN_' + data.range.to + '.png';
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = filename;
+          anchor.style.display = 'none';
+          document.body.appendChild(anchor);
+          anchor.click();
+          anchor.remove();
+          setTimeout(()=>URL.revokeObjectURL(url),10000);
+          toast('Đã tải hình PNG toàn bộ ma trận Fiber về máy.');
         },'image/png');
       });
     }
