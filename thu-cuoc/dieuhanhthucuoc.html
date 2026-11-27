@@ -95,6 +95,27 @@
     @media(max-width:900px){.content-grid,.reason-layout{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:600px){.app{padding:12px 12px 32px}.hero{padding:18px;border-radius:15px}.hero h1{font-size:21px}.hero p{font-size:14px}.nav{margin-top:12px}.tab{padding:11px 12px;font-size:14px}.snapshot-grid{grid-template-columns:1fr}.snapshot-card{padding:12px}.kpis{gap:8px}.kpi{padding:12px}.kpi-value{font-size:24px}.toolbar{align-items:stretch}.toolbar-left,.toolbar-right{width:100%}.toolbar-right .btn{flex:1}.field-inline{flex:1}.field-inline input{min-width:0;width:100%}.panel{padding:14px}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}th,td{padding:9px 8px}.hero-meta{width:100%}.lock-control-row{align-items:stretch;flex-direction:column}.lock-control-actions{justify-content:stretch}.lock-control-actions>*{width:100%}.lock-date-field{min-width:0}.lock-date-field input{width:100%}}
 
+    /* Fiber matrix report: one complete, shareable report block. */
+    .fiber-matrix-panel{padding:22px;background:#fff;margin-top:16px}
+    .fiber-matrix-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .fiber-matrix-tools .btn{min-height:40px;font-size:13px}
+    .fiber-matrix-filter{display:grid;grid-template-columns:repeat(2,minmax(180px,230px)) auto;gap:10px;align-items:end;padding:14px;border:1px solid #cfdee8;background:#f5f9fc;border-radius:13px;margin:12px 0}
+    .fiber-matrix-filter label{display:block;font-size:13px;color:#203f55;font-weight:800;margin-bottom:5px}
+    .fiber-matrix-filter input{height:42px;width:100%;border:1px solid #b9cbd8;border-radius:9px;padding:8px 10px;background:#fff;color:#183447;font-weight:600}
+    .fiber-matrix-status{font-size:13px;color:#40596b;margin:7px 0 10px;font-weight:650}
+    .fiber-matrix-table-wrap{max-height:580px;overflow:auto;border:1px solid #cbd9e2;border-radius:10px}
+    .fiber-matrix-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+    .fiber-matrix-table th{position:sticky;top:0;z-index:3;background:#087E8B;color:#fff;padding:10px 11px;text-align:center;white-space:nowrap;border-bottom:1px solid #d7e2e9}
+    .fiber-matrix-table td{padding:9px 11px;border-bottom:1px solid #e5edf2;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+    .fiber-matrix-table td:nth-child(-n+3){text-align:left}
+    .fiber-matrix-table tbody tr:nth-child(even) td{background-color:#f8fbfd}
+    .fiber-matrix-table .matrix-delta{font-weight:900;color:#16834b}
+    .fiber-matrix-table .matrix-deferred{font-weight:800;color:#a16207}
+    .fiber-matrix-table tfoot td{background:#e6f3f8;font-weight:900;color:#0b3b57;border-top:2px solid #9fc2d2}
+    .fiber-matrix-note{font-size:12px;color:#40596b;line-height:1.5;margin-top:10px}
+    @media(max-width:800px){.fiber-matrix-filter{grid-template-columns:1fr 1fr}.fiber-matrix-filter .btn{grid-column:1/-1;width:100%}.fiber-matrix-tools{width:100%}.fiber-matrix-tools .btn{flex:1}}
+    @media(max-width:560px){.fiber-matrix-filter{grid-template-columns:1fr}.fiber-matrix-filter .btn{grid-column:auto}}
+
     /* Employee report: clear hierarchy, readable controls and comfortable spacing. */
     .employee-report-panel{padding:22px;background:#fff}
     .employee-filter-box{padding:16px;border:1px solid #cfdee8;background:#f5f9fc;border-radius:14px;margin-bottom:16px}
@@ -325,6 +346,35 @@
         </div>
       </section>
 
+      <section class="panel fiber-matrix-panel admin-only" id="fiberMatrixReportSection">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Báo cáo ma trận Fiber theo ngày khóa</h2>
+            <p class="panel-sub">Mỗi nhân viên một dòng; có số Fiber theo từng ngày khóa và số giảm giữa các buổi. Nút chụp hình tạo ảnh toàn bộ bảng, không cắt còn vài dòng.</p>
+          </div>
+          <div class="fiber-matrix-tools">
+            <span class="pill" id="fiberMatrixCount">Chưa tải báo cáo</span>
+            <button class="btn btn-outline btn-small" type="button" onclick="loadFiberMatrixPreview()">↻ Xem ma trận</button>
+            <button class="btn btn-soft btn-small" type="button" onclick="exportFiberMatrixExcel()">⇩ Excel ma trận</button>
+            <button class="btn btn-green btn-small" type="button" onclick="captureFiberMatrixImage()">▧ Chụp hình báo cáo</button>
+          </div>
+        </div>
+        <div class="fiber-matrix-filter">
+          <div><label for="fiberMatrixFrom">Từ ngày</label><input id="fiberMatrixFrom" type="date"></div>
+          <div><label for="fiberMatrixTo">Đến ngày</label><input id="fiberMatrixTo" type="date"></div>
+          <button class="btn btn-primary" type="button" onclick="loadFiberMatrixPreview()">⌕ Xem báo cáo ma trận</button>
+        </div>
+        <div class="fiber-matrix-status" id="fiberMatrixStatus">Chọn khoảng ngày rồi bấm Xem báo cáo ma trận. Báo cáo chỉ lấy LOAIHINH_TB = Fiber.</div>
+        <div class="fiber-matrix-table-wrap">
+          <table class="fiber-matrix-table" id="fiberMatrixPreviewTable">
+            <thead><tr><th>MA_KV</th><th>NV</th><th>TỔ</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th><th>↪ Xử lý sau S→T</th><th>↪ Xử lý sau T→C</th><th>Ngày khóa</th><th>Grand Total</th></tr></thead>
+            <tbody id="fiberMatrixPreviewBody"><tr><td colspan="9" style="text-align:center;color:#667b8a;padding:24px">Chưa tải dữ liệu ma trận.</td></tr></tbody>
+            <tfoot id="fiberMatrixPreviewFoot"></tfoot>
+          </table>
+        </div>
+        <p class="fiber-matrix-note" id="fiberMatrixNote">Hai cột mũi tên xanh là thuê bao Fiber giảm khỏi danh sách Cần phải thu giữa các mốc chụp trong khoảng ngày. Thuê bao chuyển Xử lý sau được tách riêng, không tính là đã thu. Ảnh báo cáo sẽ bao gồm toàn bộ nhân viên và các cột ngày khóa.</p>
+      </section>
+
       <section class="panel">
         <div class="panel-head"><div><h2 class="panel-title">Danh sách thuê bao còn phải thu</h2><p class="panel-sub">Dữ liệu trực tiếp từ sheet THUCUOC, trạng thái “Cần phải thu”. Có thể chuyển nhanh sang phân hệ Lý do tồn.</p></div><span class="pill" id="outstandingCount">0 thuê bao</span></div>
         <div class="outstanding-filter-grid" aria-label="Bộ lọc danh sách thuê bao còn phải thu">
@@ -383,7 +433,7 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false, employeeFilters: { maKv: '', employee: '', lockDay: '' }, employeeReportMode: 'daily', activeReportMonth: '', outstandingPage: 1, outstandingPageSize: 30, outstandingPageCount: 1 };
+    let APP = { data: null, activeTab: 'dashboard', selectedSubscriber: null, filteredSubscribers: [], sessionToken: '', userEmail: '', authNonce: '', isAdmin: false, employeeFilters: { maKv: '', employee: '', lockDay: '' }, employeeReportMode: 'daily', activeReportMonth: '', outstandingPage: 1, outstandingPageSize: 30, outstandingPageCount: 1, fiberMatrixData: null, fiberMatrixRange: '' };
     const $ = id => document.getElementById(id);
     const fmtNum = n => Number(n || 0).toLocaleString('vi-VN');
     const fmtPct = n => (Number(n || 0) * 100).toLocaleString('vi-VN', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + '%';
@@ -401,6 +451,9 @@
       $('lockDate').max = today;
       $('dueExportFrom').value = today;
       $('dueExportTo').value = today;
+      const monthStart = today.substring(0, 8) + '01';
+      $('fiberMatrixFrom').value = monthStart;
+      $('fiberMatrixTo').value = today;
       $('reportDate').addEventListener('change', () => {
         const selected = $('reportDate').value || todayISO();
         $('lockDate').value = selected;
@@ -1224,6 +1277,146 @@
           toast('Không mở được hộp thoại chia sẻ; đã tải hình PNG thay thế.');
         }
       }, 'image/png');
+    }
+
+    function getFiberMatrixRange() {
+      const fromDate = $('fiberMatrixFrom').value;
+      const toDate = $('fiberMatrixTo').value;
+      if (!fromDate || !toDate) throw new Error('Vui lòng chọn đầy đủ Từ ngày và Đến ngày cho báo cáo ma trận Fiber.');
+      if (fromDate > toDate) throw new Error('Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+      if (fromDate.substring(0,7) !== toDate.substring(0,7)) throw new Error('Báo cáo ma trận hiện yêu cầu Từ ngày và Đến ngày trong cùng một tháng.');
+      return {from:fromDate,to:toDate,key:fromDate+'|'+toDate};
+    }
+
+    function matrixRankColor(value, values) {
+      const n = Math.max(0, Number(value) || 0);
+      if (!n) return '#F8FAFC';
+      const unique = [...new Set(values.map(v=>Math.max(0,Number(v)||0)).filter(v=>v>0))].sort((a,b)=>a-b);
+      const rank = unique.indexOf(n);
+      const ratio = unique.length <= 1 ? 0.25 : rank / (unique.length - 1);
+      const palette = ['#E2F0D9','#A9D18E','#FFE699','#F4B183','#C00000'];
+      return palette[Math.min(palette.length-1,Math.max(0,Math.round(ratio*(palette.length-1))))];
+    }
+
+    function renderFiberMatrixPreview(data) {
+      const headers = data.headers || [];
+      const rows = data.rows || [];
+      const total = data.totalRow || [];
+      const lockStart = Number(data.lockDayStartIndex || 7);
+      const grandIndex = Number(data.grandTotalIndex || (headers.length-1));
+      const lockColumns = [];
+      for (let i=lockStart;i<grandIndex;i++) lockColumns.push(i);
+      const heatValues = {};
+      lockColumns.concat([grandIndex]).forEach(i=>heatValues[i]=rows.map(r=>Number(r[i]||0)));
+      $('fiberMatrixPreviewTable').querySelector('thead').innerHTML = '<tr>' + headers.map((h,i)=>`<th>${esc(h)}</th>`).join('') + '</tr>';
+      $('fiberMatrixPreviewBody').innerHTML = rows.map(row => '<tr>' + row.map((v,i)=>{
+        let cls=''; let style=''; let text=fmtNum(v);
+        if(i===3 || i===4){cls='matrix-delta';text=Number(v||0)>0?'↓ '+fmtNum(v):'0';}
+        else if(i===5 || i===6){cls='matrix-deferred';text=Number(v||0)>0?'↪ '+fmtNum(v):'0';}
+        if (lockColumns.includes(i) || i===grandIndex) style=`background:${matrixRankColor(v,heatValues[i])};color:${Number(v||0)>0?'#294434':'#64748B'};font-weight:800`;
+        return `<td class="${cls}" style="${style}">${esc(text)}</td>`;
+      }).join('') + '</tr>').join('') || `<tr><td colspan="${headers.length}" style="text-align:center;padding:24px;color:#667b8a">Không có thuê bao Fiber phù hợp trong khoảng ngày.</td></tr>`;
+      $('fiberMatrixPreviewFoot').innerHTML = total.length ? '<tr>' + total.map((v,i)=>{
+        let cls=''; let text=fmtNum(v); if(i===3||i===4){cls='matrix-delta';text=Number(v||0)>0?'↓ '+fmtNum(v):'0';} else if(i===5||i===6){cls='matrix-deferred';text=Number(v||0)>0?'↪ '+fmtNum(v):'0';}
+        return `<td class="${cls}">${esc(text)}</td>`;
+      }).join('') + '</tr>' : '';
+      $('fiberMatrixCount').textContent = fmtNum(data.employeeCount||0) + ' nhân viên · ' + fmtNum(data.totalFiberCount||0) + ' thuê bao Fiber';
+      $('fiberMatrixStatus').textContent = `Khoảng ${data.range.from.split('-').reverse().join('/')} đến ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.deltaCaptureDays||0)} ngày có chụp đủ mốc để tính chênh lệch.`;
+      $('fiberMatrixNote').textContent = (data.deltaNote || '') + ' Báo cáo ma trận, Excel và ảnh đều dùng chung một bộ dữ liệu để tránh lệch số.';
+    }
+
+    function requestFiberMatrixData(success) {
+      let range;
+      try { range = getFiberMatrixRange(); } catch(e) { return toast(e.message,true); }
+      if (APP.fiberMatrixData && APP.fiberMatrixRange === range.key) { success(APP.fiberMatrixData); return; }
+      runServer('getFiberLockDayPivotData',[range.from,range.to],data=>{
+        APP.fiberMatrixData=data; APP.fiberMatrixRange=range.key;
+        renderFiberMatrixPreview(data);
+        success(data);
+      });
+    }
+
+    function loadFiberMatrixPreview() {
+      let range;
+      try { range=getFiberMatrixRange(); } catch(e) { return toast(e.message,true); }
+      APP.fiberMatrixData=null; APP.fiberMatrixRange='';
+      $('fiberMatrixStatus').textContent='Đang tổng hợp ma trận Fiber và chênh lệch theo buổi…';
+      runServer('getFiberLockDayPivotData',[range.from,range.to],data=>{
+        APP.fiberMatrixData=data; APP.fiberMatrixRange=range.key; renderFiberMatrixPreview(data);
+        toast('Đã tải báo cáo ma trận Fiber, bao gồm số giảm theo từng buổi.');
+      });
+    }
+
+    function exportFiberMatrixExcel() {
+      let range;
+      try { range=getFiberMatrixRange(); } catch(e) { return toast(e.message,true); }
+      runServer('getFiberLockDayPivotExcel',[range.from,range.to],result=>{
+        try { downloadBase64File(result,'BAO_CAO_MA_TRAN_FIBER_'+range.from+'_DEN_'+range.to+'.xlsx');
+          toast('Đã xuất Excel ma trận Fiber và chênh lệch theo buổi.');
+        } catch(e) { toast('Không tải được Excel ma trận: '+e.message,true); }
+      });
+    }
+
+    function captureFiberMatrixImage() {
+      requestFiberMatrixData(data=>{
+        const headers=data.headers||[], rows=data.rows||[], total=data.totalRow||[];
+        if(!headers.length) return toast('Không có dữ liệu ma trận để chụp hình.',true);
+        const left=34, top=190, headH=42, rowH=34, footH=40;
+        const lockStart=Number(data.lockDayStartIndex||7), grandIndex=Number(data.grandTotalIndex||headers.length-1);
+        const widths=headers.map((_,i)=> i===0?90 : i===1?205 : i===2?235 : i===3||i===4?112 : i===5||i===6?130 : (i===grandIndex?110:74));
+        const width=left*2+widths.reduce((a,b)=>a+b,0);
+        const height=top+headH+rows.length*rowH+footH+64;
+        if(height>30000 || width>12000) return toast('Báo cáo quá lớn để tạo một ảnh duy nhất. Hãy xuất Excel để xem toàn bộ.',true);
+        const canvas=document.createElement('canvas'); canvas.width=width; canvas.height=height;
+        const ctx=canvas.getContext('2d');
+        ctx.fillStyle='#f2f6f9';ctx.fillRect(0,0,width,height);
+        const grad=ctx.createLinearGradient(0,0,width,0);grad.addColorStop(0,'#0b3b57');grad.addColorStop(1,'#0b91ad');
+        ctx.fillStyle=grad;ctx.fillRect(left,22,width-left*2,125);
+        ctx.fillStyle='#eaf5fa';ctx.font='bold 17px Arial';ctx.fillText('TRUNG TÂM VIỄN THÔNG TÂN AN HỘI',left+22,52);
+        ctx.fillStyle='#fff';ctx.font='bold 27px Arial';ctx.fillText('BÁO CÁO MA TRẬN FIBER THEO NGÀY KHÓA',left+22,91);
+        ctx.font='14px Arial';ctx.fillText(`Khoảng ngày: ${data.range.from.split('-').reverse().join('/')} – ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.totalFiberCount)} thuê bao Fiber · ${fmtNum(data.employeeCount)} nhân viên`,left+22,122);
+        ctx.fillStyle='#16834b';ctx.font='bold 13px Arial';ctx.fillText('↓ Sáng → Trưa / Trưa → Chiều: số Fiber giảm khỏi danh sách Cần phải thu',left,top-26);
+        ctx.fillStyle='#a16207';ctx.font='12px Arial';ctx.fillText('↪ Xử lý sau được thống kê riêng, không tính là đã thu. Thang màu ngày khóa: xanh thấp → vàng → đỏ cao.',left,top-7);
+        const lockCols=[];for(let i=lockStart;i<grandIndex;i++)lockCols.push(i);
+        const heatValues={};lockCols.concat([grandIndex]).forEach(i=>heatValues[i]=rows.map(r=>Number(r[i]||0)));
+        let x=left;ctx.fillStyle='#087e8b';ctx.fillRect(left,top,width-left*2,headH);
+        headers.forEach((h,i)=>{ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.fillText(String(h),x+7,top+25);x+=widths[i];});
+        rows.forEach((row,ri)=>{
+          const y=top+headH+ri*rowH;ctx.fillStyle=ri%2===0?'#fff':'#f8fbfd';ctx.fillRect(left,y,width-left*2,rowH);
+          let xx=left;
+          row.forEach((v,i)=>{
+            const cellW=widths[i];let text=String(v==null?'':v);
+            if(i===3||i===4){text=Number(v||0)>0?'↓ '+fmtNum(v):'0';ctx.fillStyle=Number(v||0)>0?'#16834b':'#718096';ctx.font='bold 12px Arial';}
+            else if(i===5||i===6){text=Number(v||0)>0?'↪ '+fmtNum(v):'0';ctx.fillStyle=Number(v||0)>0?'#a16207':'#718096';ctx.font='bold 12px Arial';}
+            else if(lockCols.includes(i)||i===grandIndex){ctx.fillStyle=matrixRankColor(v,heatValues[i]);ctx.fillRect(xx,y,cellW,rowH);ctx.fillStyle=Number(v||0)>0?'#294434':'#64748b';ctx.font='bold 12px Arial';}
+            else {ctx.fillStyle='#20394b';ctx.font='12px Arial';}
+            while(ctx.measureText(text).width>cellW-12&&text.length>3) text=text.slice(0,-2)+'…';
+            ctx.fillText(text,xx+6,y+22);xx+=cellW;
+          });
+          ctx.strokeStyle='#e5edf2';ctx.beginPath();ctx.moveTo(left,y+rowH);ctx.lineTo(width-left,y+rowH);ctx.stroke();
+        });
+        const totalY=top+headH+rows.length*rowH;ctx.fillStyle='#e6f3f8';ctx.fillRect(left,totalY,width-left*2,footH);
+        let tx=left;total.forEach((v,i)=>{let text=String(v==null?'':v);ctx.fillStyle=(i===3||i===4)?'#16834b':((i===5||i===6)?'#a16207':'#0b3b57');ctx.font='bold 12px Arial';if(i===3||i===4)text=Number(v||0)>0?'↓ '+fmtNum(v):'0';else if(i===5||i===6)text=Number(v||0)>0?'↪ '+fmtNum(v):'0';while(ctx.measureText(text).width>widths[i]-12&&text.length>3)text=text.slice(0,-2)+'…';ctx.fillText(text,tx+6,totalY+24);tx+=widths[i];});
+        ctx.fillStyle='#526c7d';ctx.font='12px Arial';ctx.fillText(data.deltaNote||'',left,height-28,width-left*2);
+        canvas.toBlob(async blob=>{
+          if(!blob)return toast('Không tạo được ảnh ma trận Fiber.',true);
+          const filename='BAO_CAO_MA_TRAN_FIBER_'+data.range.from+'_DEN_'+data.range.to+'.png';
+          const file=new File([blob],filename,{type:'image/png'});
+          try{
+            if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+              await navigator.share({files:[file],title:'Báo cáo ma trận Fiber',text:'Báo cáo Fiber theo ngày khóa và chênh lệch theo buổi'});
+              toast('Đã mở chức năng chia sẻ ảnh ma trận Fiber.');
+            }else{
+              const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+              toast('Đã tạo ảnh đầy đủ toàn bộ ma trận Fiber để gửi Zalo hoặc email.');
+            }
+          }catch(e){
+            if(e&&e.name==='AbortError')return;
+            const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+            toast('Không mở được hộp thoại chia sẻ; đã tải ảnh ma trận PNG.');
+          }
+        },'image/png');
+      });
     }
 
     function exportDueDateRangeExcel() {
