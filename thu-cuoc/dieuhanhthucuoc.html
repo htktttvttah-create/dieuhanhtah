@@ -113,6 +113,7 @@
     .fiber-matrix-table tbody tr:nth-child(even) td{background-color:#f8fbfd}
     .fiber-matrix-table .matrix-delta{font-weight:900;color:#16834b}
     .fiber-matrix-table .matrix-decrease{font-weight:900;color:#16834b;background:#F0F8F2}
+    .fiber-matrix-table .matrix-inline-decrease{display:inline-block;margin-left:6px;color:#16834b;font-weight:900;font-size:12px}
     .fiber-matrix-table .matrix-deferred{font-weight:800;color:#a16207}
     .fiber-matrix-table tfoot td{background:#e6f3f8;font-weight:900;color:#0b3b57;border-top:2px solid #9fc2d2}
     .fiber-matrix-note{font-size:12px;color:#40596b;line-height:1.5;margin-top:10px}
@@ -353,7 +354,7 @@
         <div class="panel-head">
           <div>
             <h2 class="panel-title">Báo cáo ma trận Fiber theo ngày khóa</h2>
-            <p class="panel-sub">Mỗi nhân viên một dòng; trong từng ngày khóa hiển thị số Fiber và số giảm giữa các lần chụp Sáng→Trưa, Trưa→Chiều. Chụp hình tải thẳng PNG về máy.</p>
+            <p class="panel-sub">Mỗi nhân viên một dòng; trong cùng một ô ngày hiển thị SL Fiber kèm số giảm trong ngày. Chụp hình tải thẳng PNG về máy.</p>
           </div>
           <div class="fiber-matrix-tools">
             <span class="pill" id="fiberMatrixCount">Chưa tải báo cáo</span>
@@ -370,8 +371,8 @@
         <div class="fiber-matrix-status" id="fiberMatrixStatus">Chọn khoảng ngày rồi bấm Xem báo cáo ma trận. Báo cáo chỉ lấy LOAIHINH_TB = Fiber.</div>
         <div class="fiber-matrix-table-wrap">
           <table class="fiber-matrix-table" id="fiberMatrixPreviewTable">
-            <thead><tr><th rowspan="2">MA_KV</th><th rowspan="2">NV</th><th rowspan="2">TỔ</th><th colspan="3">Ngày khóa</th><th colspan="3">Grand Total</th></tr><tr><th>SL Fiber</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th><th>SL Fiber</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th></tr></thead>
-            <tbody id="fiberMatrixPreviewBody"><tr><td colspan="9" style="text-align:center;color:#667b8a;padding:24px">Chưa tải dữ liệu ma trận.</td></tr></tbody>
+            <thead><tr><th>MA_KV</th><th>NHÂN VIÊN</th><th>TỔ</th><th>Ngày khóa</th><th>Grand Total</th></tr></thead>
+            <tbody id="fiberMatrixPreviewBody"><tr><td colspan="5" style="text-align:center;color:#667b8a;padding:24px">Chưa tải dữ liệu ma trận.</td></tr></tbody>
             <tfoot id="fiberMatrixPreviewFoot"></tfoot>
           </table>
         </div>
@@ -1305,42 +1306,40 @@
       const headers = data.headers || [];
       const rows = data.rows || [];
       const total = data.totalRow || [];
+      const decreaseRows = data.decreaseRows || [];
+      const totalDecrease = data.totalDecreaseRow || [];
       const dayGroups = data.dayColumnGroups || [];
       const grand = data.grandTotalGroup || {};
       const countColumns = data.countColumnIndexes || [];
-      const decreaseColumns = data.decreaseColumnIndexes || [];
       const heatValues = {};
       countColumns.forEach(i => heatValues[i] = rows.map(r => Number(r[i] || 0)));
 
-      const firstHead = '<tr><th rowspan="2">MA_KV</th><th rowspan="2">NV</th><th rowspan="2">TỔ</th>' +
-        dayGroups.map(g => `<th colspan="3">${esc(g.label)}</th>`).join('') +
-        `<th colspan="3">${esc(grand.label || 'Grand Total')}</th></tr>`;
-      const secondHead = '<tr>' + dayGroups.map(() => '<th>SL Fiber</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th>').join('') +
-        '<th>SL Fiber</th><th>↓ Sáng → Trưa</th><th>↓ Trưa → Chiều</th></tr>';
-      $('fiberMatrixPreviewTable').querySelector('thead').innerHTML = firstHead + secondHead;
+      const headerCells = ['<th>MA_KV</th>','<th>NHÂN VIÊN</th>','<th>TỔ</th>']
+        .concat(dayGroups.map(g => `<th>${esc(g.label)}<br><span style="font-weight:600">SL Fiber · ↓ giảm</span></th>`))
+        .concat([`<th>${esc(grand.label || 'Grand Total')}<br><span style="font-weight:600">SL Fiber · ↓ giảm</span></th>`]);
+      $('fiberMatrixPreviewTable').querySelector('thead').innerHTML = '<tr>' + headerCells.join('') + '</tr>';
 
-      const renderCell = (value,index) => {
-        const isCount = countColumns.includes(index);
-        const isDecrease = decreaseColumns.includes(index);
-        let text = value === '' || value === null || value === undefined ? '—' : fmtNum(value);
-        let cls = '';
-        let style = '';
-        if (isDecrease) {
-          cls = 'matrix-decrease';
-          if (value !== '' && Number(value || 0) > 0) text = '↓ ' + fmtNum(value);
-          else if (value !== '') text = '0';
-        } else if (isCount) {
-          style = `background:${matrixRankColor(value,heatValues[index] || [])};color:${Number(value || 0)>0?'#254333':'#64748B'};font-weight:800`;
+      const renderCell = (value,index,decrease) => {
+        if (countColumns.includes(index)) {
+          const style = `background:${matrixRankColor(value,heatValues[index] || [])};color:${Number(value||0)>0?'#254333':'#64748B'};font-weight:800`;
+          const decreaseHtml = decrease === '' || decrease === null || decrease === undefined
+            ? '' : `<span class="matrix-inline-decrease">↓ ${esc(fmtNum(decrease))}</span>`;
+          return `<td style="${style}"><span>${esc(fmtNum(value))}</span>${decreaseHtml}</td>`;
         }
-        return `<td class="${cls}" style="${style}">${esc(text)}</td>`;
+        // MA_KV, tên nhân viên và tổ là dữ liệu chữ; không đưa qua fmtNum() để tránh hiển thị NaN.
+        return `<td>${esc(value === null || value === undefined ? '' : String(value))}</td>`;
       };
 
-      $('fiberMatrixPreviewBody').innerHTML = rows.map(row => '<tr>' + row.map((v,i)=>renderCell(v,i)).join('') + '</tr>').join('') ||
-        `<tr><td colspan="${headers.length || 9}" style="text-align:center;padding:24px;color:#667b8a">Không có thuê bao Fiber phù hợp trong khoảng ngày.</td></tr>`;
-      $('fiberMatrixPreviewFoot').innerHTML = total.length ? '<tr>' + total.map((v,i)=>renderCell(v,i)).join('') + '</tr>' : '';
+      $('fiberMatrixPreviewBody').innerHTML = rows.map((row,rowIndex) => '<tr>' + row.map((value,index) =>
+        renderCell(value,index,(decreaseRows[rowIndex] || [])[index])
+      ).join('') + '</tr>').join('') ||
+        `<tr><td colspan="${headers.length || 5}" style="text-align:center;padding:24px;color:#667b8a">Không có thuê bao Fiber phù hợp trong khoảng ngày.</td></tr>`;
+      $('fiberMatrixPreviewFoot').innerHTML = total.length ? '<tr>' + total.map((value,index) =>
+        renderCell(value,index,totalDecrease[index])
+      ).join('') + '</tr>' : '';
       $('fiberMatrixCount').textContent = fmtNum(data.employeeCount||0) + ' nhân viên · ' + fmtNum(data.totalFiberCount||0) + ' thuê bao Fiber';
       $('fiberMatrixStatus').textContent = `Khoảng ${data.range.from.split('-').reverse().join('/')} đến ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.deltaCaptureDays||0)} ngày có đủ cặp lần chụp để tính giảm.`;
-      $('fiberMatrixNote').textContent = (data.deltaNote || '') + ' Các cột mũi tên chỉ tính thuê bao Fiber giảm giữa các lần chụp, không tính loại hình khác.';
+      $('fiberMatrixNote').textContent = (data.deltaNote || '') + ' Ví dụ: 12 ↓ 3 nghĩa là còn 12 thuê bao Fiber và đã giảm 3 thuê bao trong ngày.';
     }
 
     function requestFiberMatrixData(success) {
@@ -1380,18 +1379,19 @@
         const headers = data.headers || [];
         const rows = data.rows || [];
         const total = data.totalRow || [];
+        const decreaseRows = data.decreaseRows || [];
+        const totalDecrease = data.totalDecreaseRow || [];
         const dayGroups = data.dayColumnGroups || [];
         const grand = data.grandTotalGroup || {};
         const countColumns = data.countColumnIndexes || [];
-        const decreaseColumns = data.decreaseColumnIndexes || [];
         if (!headers.length) return toast('Không có dữ liệu ma trận để chụp hình.', true);
 
-        const left = 32, top = 185, groupHeadH = 32, subHeadH = 38, rowH = 36, footH = 44;
-        const widths = [100,220,230];
-        dayGroups.forEach(() => widths.push(88,100,108));
-        widths.push(100,110,118);
+        const left = 32, top = 185, groupHeadH = 34, rowH = 38, footH = 46;
+        const widths = [108,240,155];
+        dayGroups.forEach(() => widths.push(142));
+        widths.push(150);
         const width = left * 2 + widths.reduce((sum,v)=>sum+v,0);
-        const height = top + groupHeadH + subHeadH + rows.length*rowH + footH + 70;
+        const height = top + groupHeadH + rows.length*rowH + footH + 70;
         if (height > 30000 || width > 16000) return toast('Ma trận quá lớn để tạo một ảnh duy nhất. Vui lòng xuất Excel để xem đầy đủ.', true);
 
         const canvas = document.createElement('canvas');
@@ -1410,68 +1410,55 @@
         ctx.font = '14px Arial';
         ctx.fillText(`Khoảng ngày: ${data.range.from.split('-').reverse().join('/')} – ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.totalFiberCount)} thuê bao Fiber · ${fmtNum(data.employeeCount)} nhân viên`,left+22,119);
         ctx.fillStyle = '#16834B'; ctx.font = 'bold 13px Arial';
-        ctx.fillText('↓ Sáng → Trưa / Trưa → Chiều: số thuê bao Fiber giảm giữa hai lần chụp số liệu',left,top-25);
+        ctx.fillText('SL Fiber kèm ↓ số lượng giảm trong ngày giữa các lần chụp số liệu',left,top-25);
         ctx.fillStyle = '#526C7D'; ctx.font = '12px Arial';
         ctx.fillText('Chỉ tính LOAIHINH_TB = Fiber. Số giảm được đối chiếu theo MA_TB; thuê bao chuyển Xử lý sau không tính là đã thu.',left,top-6);
 
-        const groupHeaders = [{label:'THÔNG TIN NHÂN VIÊN',start:0,span:3,staff:true}]
-          .concat(dayGroups.map(g=>({label:g.label,start:g.startIndex,span:3})))
-          .concat([{label:grand.label || 'Grand Total',start:grand.startIndex,span:3}]);
+        const labels = ['MA_KV','NHÂN VIÊN','TỔ']
+          .concat(dayGroups.map(g => g.label + '  |  SL Fiber · ↓ giảm'))
+          .concat([(grand.label || 'Grand Total') + '  |  SL Fiber · ↓ giảm']);
         let x = left;
-        // Ba cột thông tin nhân viên gộp qua hai hàng tiêu đề.
-        ['MA_KV','NHÂN VIÊN','TỔ'].forEach((label,i)=>{
-          ctx.fillStyle = '#075F78'; ctx.fillRect(x,top,widths[i],groupHeadH+subHeadH);
+        labels.forEach((label,i)=>{
+          const cellWidth = widths[i];
+          ctx.fillStyle = i<3 ? '#075F78' : '#087E8B';
+          ctx.fillRect(x,top,cellWidth,groupHeadH);
           ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
-          ctx.fillText(label,x+widths[i]/2,top+groupHeadH+subHeadH/2+4);
-          x += widths[i];
+          ctx.fillText(label,x+cellWidth/2,top+22,cellWidth-8);
+          x += cellWidth;
         });
-        ctx.textAlign = 'left';
-        const dayLabels = ['SL Fiber','↓ Sáng → Trưa','↓ Trưa → Chiều'];
-        const dataStartCol = 3;
-        groupHeaders.slice(1).forEach((group,groupIndex)=>{
-          const colStart = dataStartCol + groupIndex*3;
-          const groupWidth = widths[colStart] + widths[colStart+1] + widths[colStart+2];
-          ctx.fillStyle = '#075F78'; ctx.fillRect(x,top,groupWidth,groupHeadH);
-          ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
-          ctx.fillText(group.label,x+groupWidth/2,top+21);
-          let subX = x;
-          dayLabels.forEach((label,j)=>{
-            ctx.fillStyle = j===0 ? '#087E8B' : '#0C806A';
-            ctx.fillRect(subX,top+groupHeadH,widths[colStart+j],subHeadH);
-            ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 11px Arial';
-            ctx.fillText(label,subX+widths[colStart+j]/2,top+groupHeadH+23);
-            subX += widths[colStart+j];
-          });
-          x += groupWidth;
-        });
-        ctx.textAlign = 'left';
 
         const heatValues = {};
         countColumns.forEach(index=>heatValues[index]=rows.map(row=>Number(row[index]||0)));
         rows.forEach((row,rowIndex)=>{
-          const y = top+groupHeadH+subHeadH+rowIndex*rowH;
+          const y = top+groupHeadH+rowIndex*rowH;
           ctx.fillStyle = rowIndex%2===0 ? '#FFFFFF' : '#F8FBFD';
           ctx.fillRect(left,y,width-left*2,rowH);
           let xx = left;
           row.forEach((value,colIndex)=>{
             const cellWidth = widths[colIndex];
             const isCount = countColumns.includes(colIndex);
-            const isDecrease = decreaseColumns.includes(colIndex);
-            let text = value === '' || value === null || value === undefined ? '—' : fmtNum(value);
+            let text = value === '' || value === null || value === undefined ? '—' : String(value);
             if (isCount) {
               ctx.fillStyle = matrixRankColor(value,heatValues[colIndex]||[]);
               ctx.fillRect(xx,y,cellWidth,rowH);
               ctx.fillStyle = Number(value||0)>0 ? '#254333' : '#64748B';
-              ctx.font = 'bold 12px Arial';
-            } else if (isDecrease) {
-              if (value !== '' && Number(value||0)>0) text = '↓ ' + fmtNum(value);
-              else if (value !== '') text = '0';
-              ctx.fillStyle = '#16834B'; ctx.font = 'bold 12px Arial';
+              const countText = fmtNum(value);
+              ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
+              const dec = (decreaseRows[rowIndex] || [])[colIndex];
+              if (dec === '' || dec === null || dec === undefined) {
+                ctx.fillText(countText,xx+cellWidth/2,y+24,cellWidth-8);
+              } else {
+                const suffix = '↓ ' + fmtNum(dec);
+                ctx.fillStyle = '#254333';
+                const combinedWidth = ctx.measureText(countText + '   ' + suffix).width;
+                const startX = xx + Math.max(5,(cellWidth-combinedWidth)/2);
+                ctx.textAlign = 'left'; ctx.fillText(countText,startX,y+24);
+                ctx.fillStyle = '#16834B'; ctx.fillText(suffix,startX+ctx.measureText(countText+'   ').width,y+24);
+              }
             } else {
-              ctx.fillStyle = '#20394B'; ctx.font = '12px Arial';
+              ctx.fillStyle = '#20394B'; ctx.font = '12px Arial'; ctx.textAlign = 'center';
+              ctx.fillText(text,xx+cellWidth/2,y+24,cellWidth-8);
             }
-            ctx.textAlign = 'center';
-            ctx.fillText(text,xx+cellWidth/2,y+23,cellWidth-8);
             ctx.textAlign = 'left';
             xx += cellWidth;
           });
@@ -1479,27 +1466,35 @@
           ctx.moveTo(left,y+rowH); ctx.lineTo(width-left,y+rowH); ctx.stroke();
         });
 
-        const totalY = top+groupHeadH+subHeadH+rows.length*rowH;
+        const totalY = top+groupHeadH+rows.length*rowH;
         ctx.fillStyle = '#E6F3F8'; ctx.fillRect(left,totalY,width-left*2,footH);
         let tx = left;
         total.forEach((value,colIndex)=>{
           const cellWidth = widths[colIndex];
-          const isDecrease = decreaseColumns.includes(colIndex);
-          let text = value === '' || value === null || value === undefined ? '—' : fmtNum(value);
-          if (isDecrease) {
-            if (value !== '' && Number(value||0)>0) text = '↓ ' + fmtNum(value);
-            else if (value !== '') text = '0';
-            ctx.fillStyle = '#16834B';
-          } else ctx.fillStyle = '#0B3B57';
-          ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
-          ctx.fillText(text,tx+cellWidth/2,totalY+27,cellWidth-8);
+          if (countColumns.includes(colIndex)) {
+            const countText = fmtNum(value);
+            const dec = totalDecrease[colIndex];
+            ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
+            if (dec === '' || dec === null || dec === undefined) {
+              ctx.fillStyle = '#0B3B57'; ctx.fillText(countText,tx+cellWidth/2,totalY+28,cellWidth-8);
+            } else {
+              const suffix = '↓ ' + fmtNum(dec);
+              const combinedWidth = ctx.measureText(countText + '   ' + suffix).width;
+              const startX = tx + Math.max(5,(cellWidth-combinedWidth)/2);
+              ctx.textAlign = 'left'; ctx.fillStyle = '#0B3B57'; ctx.fillText(countText,startX,totalY+28);
+              ctx.fillStyle = '#16834B'; ctx.fillText(suffix,startX+ctx.measureText(countText+'   ').width,totalY+28);
+            }
+          } else {
+            ctx.fillStyle = '#0B3B57'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+            ctx.fillText(String(value ?? ''),tx+cellWidth/2,totalY+28,cellWidth-8);
+          }
           tx += cellWidth;
         });
         ctx.textAlign = 'left';
         ctx.fillStyle = '#526C7D'; ctx.font = '12px Arial';
         ctx.fillText(data.deltaNote || '',left,height-30,width-left*2);
 
-        // Yêu cầu của người dùng: tải ảnh PNG thẳng về máy, không mở hộp thoại Share.
+        // Tải PNG trực tiếp về máy, không mở hộp thoại chia sẻ.
         canvas.toBlob(blob=>{
           if (!blob) return toast('Không tạo được ảnh ma trận Fiber.',true);
           const filename = 'BAO_CAO_MA_TRAN_FIBER_' + data.range.from + '_DEN_' + data.range.to + '.png';
