@@ -376,7 +376,7 @@
             <tfoot id="fiberMatrixPreviewFoot"></tfoot>
           </table>
         </div>
-        <p class="fiber-matrix-note" id="fiberMatrixNote">Đầu ngày đối chiếu với snapshot cuối ngày hôm trước; trưa so với đầu ngày; chiều so với trưa. Số giảm là chênh lệch MA_TB Fiber giữa hai snapshot, phân bổ theo MA_KV, nhân viên và tổ trong snapshot trước. Thuê bao mới không tính là giảm. Nếu thiếu snapshot cuối ngày hôm trước, không thể tính hồi tố chính xác số giảm đầu ngày.</p>
+        <p class="fiber-matrix-note" id="fiberMatrixNote">Mỗi lần chụp được so với snapshot gần nhất ngay trước nó theo thời gian thực. Chỉ tính chênh lệch số lượng Fiber, phân bổ theo MA_KV, nhân viên và tổ trong snapshot trước. Thuê bao mới không tính là giảm.</p>
       </section>
 
       <section class="panel">
@@ -1339,7 +1339,7 @@
         renderCell(value,index,totalDecrease[index])
       ).join('') + '</tr>' : '';
       $('fiberMatrixCount').textContent = fmtNum(data.employeeCount||0) + ' nhân viên · ' + fmtNum(data.totalFiberCount||0) + ' thuê bao Fiber';
-      const warning = data.missingFirstDayPreviousSnapshot ? ' · Thiếu snapshot cuối ngày hôm trước nên không thể tính hồi tố chính xác số giảm đầu ngày.' : '';
+      const warning = data.missingFirstDayPreviousSnapshot ? ' · Thiếu snapshot trước mốc đầu tiên trong khoảng chọn nên không thể tính chênh lệch mốc đó.' : '';
       $('fiberMatrixStatus').textContent = `Khoảng ${data.range.from.split('-').reverse().join('/')} đến ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.deltaCaptureDays||0)} ngày có đủ cặp lần chụp để tính giảm.${warning}`;
       $('fiberMatrixNote').textContent = (data.deltaNote || '') + ' Ví dụ: 12 ↓ 3 nghĩa là còn 12 thuê bao Fiber và đã giảm 3 thuê bao trong ngày.';
     }
@@ -1414,7 +1414,7 @@
         ctx.fillStyle = '#16834B'; ctx.font = 'bold 13px Arial';
         ctx.fillText('SL Fiber kèm ↓ số lượng giảm trong ngày giữa các lần chụp số liệu',left,top-25);
         ctx.fillStyle = '#526C7D'; ctx.font = '12px Arial';
-        ctx.fillText('Đầu ngày so với snapshot cuối ngày trước; trưa so với đầu ngày; chiều so với trưa. Thuê bao mới không tính là giảm.',left,top-6);
+        ctx.fillText('Đối chiếu từng lần chụp với snapshot gần nhất trước đó. Chỉ tính chênh lệch số lượng Fiber; thuê bao mới không tính là giảm.',left,top-6);
 
         const labels = ['MA_KV','NHÂN VIÊN','TỔ']
           .concat(dayGroups.map(g => g.label + '  |  SL Fiber · ↓ giảm'))
