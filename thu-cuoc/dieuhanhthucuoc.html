@@ -376,7 +376,7 @@
             <tfoot id="fiberMatrixPreviewFoot"></tfoot>
           </table>
         </div>
-        <p class="fiber-matrix-note" id="fiberMatrixNote">Đầu ngày đối chiếu với snapshot cuối ngày hôm trước; trưa so với đầu ngày; chiều so với trưa. Chỉ đếm MA_TB Fiber rời danh sách Cần phải thu, loại trừ Xử lý sau và thuê bao mới. Số giảm được phân bổ theo MA_KV, nhân viên và tổ trong snapshot trước khi giảm. Nếu thiếu snapshot cuối ngày hôm trước, không thể tính hồi tố chính xác số giảm đầu ngày.</p>
+        <p class="fiber-matrix-note" id="fiberMatrixNote">Đầu ngày đối chiếu với snapshot cuối ngày hôm trước; trưa so với đầu ngày; chiều so với trưa. Số giảm là chênh lệch MA_TB Fiber giữa hai snapshot, phân bổ theo MA_KV, nhân viên và tổ trong snapshot trước. Thuê bao mới không tính là giảm. Nếu thiếu snapshot cuối ngày hôm trước, không thể tính hồi tố chính xác số giảm đầu ngày.</p>
       </section>
 
       <section class="panel">
@@ -1414,7 +1414,7 @@
         ctx.fillStyle = '#16834B'; ctx.font = 'bold 13px Arial';
         ctx.fillText('SL Fiber kèm ↓ số lượng giảm trong ngày giữa các lần chụp số liệu',left,top-25);
         ctx.fillStyle = '#526C7D'; ctx.font = '12px Arial';
-        ctx.fillText('Đầu ngày so với snapshot cuối ngày trước; trưa so với đầu ngày; chiều so với trưa. Xử lý sau và thuê bao mới không tính.',left,top-6);
+        ctx.fillText('Đầu ngày so với snapshot cuối ngày trước; trưa so với đầu ngày; chiều so với trưa. Thuê bao mới không tính là giảm.',left,top-6);
 
         const labels = ['MA_KV','NHÂN VIÊN','TỔ']
           .concat(dayGroups.map(g => g.label + '  |  SL Fiber · ↓ giảm'))
