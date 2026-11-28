@@ -376,7 +376,7 @@
             <tfoot id="fiberMatrixPreviewFoot"></tfoot>
           </table>
         </div>
-        <p class="fiber-matrix-note" id="fiberMatrixNote">Mỗi lần chụp được so với snapshot gần nhất ngay trước nó theo thời gian thực. Chỉ tính chênh lệch số lượng Fiber, phân bổ theo MA_KV, nhân viên và tổ trong snapshot trước. Thuê bao mới không tính là giảm.</p>
+        <p class="fiber-matrix-note" id="fiberMatrixNote">Ma trận chỉ hiện mức giảm của ngày chụp mới nhất, bắt đầu từ mốc Sáng; mỗi lần chụp tiếp theo so với snapshot gần nhất trước đó. Chỉ tính số lượng Fiber, phân bổ theo nhân viên ở snapshot trước.</p>
       </section>
 
       <section class="panel">
@@ -1414,7 +1414,7 @@
         ctx.fillStyle = '#16834B'; ctx.font = 'bold 13px Arial';
         ctx.fillText('SL Fiber kèm ↓ số lượng giảm trong ngày giữa các lần chụp số liệu',left,top-25);
         ctx.fillStyle = '#526C7D'; ctx.font = '12px Arial';
-        ctx.fillText('Đối chiếu từng lần chụp với snapshot gần nhất trước đó. Chỉ tính chênh lệch số lượng Fiber; thuê bao mới không tính là giảm.',left,top-6);
+        ctx.fillText('Chỉ hiện mức giảm của ngày chụp mới nhất từ mốc Sáng. Mỗi lần chụp so với snapshot gần nhất trước đó; chỉ tính Fiber.',left,top-6);
 
         const labels = ['MA_KV','NHÂN VIÊN','TỔ']
           .concat(dayGroups.map(g => g.label + '  |  SL Fiber · ↓ giảm'))
