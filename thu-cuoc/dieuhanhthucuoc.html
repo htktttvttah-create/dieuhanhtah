@@ -376,7 +376,7 @@
             <tfoot id="fiberMatrixPreviewFoot"></tfoot>
           </table>
         </div>
-        <p class="fiber-matrix-note" id="fiberMatrixNote">Mỗi ngày khóa có 3 cột: SL Fiber, ↓ giảm Sáng→Trưa và ↓ giảm Trưa→Chiều. Số giảm được tính bằng đối chiếu MA_TB Fiber giữa hai lần chụp; thuê bao chuyển Xử lý sau không tính là giảm/đã thu. Nút Chụp hình tải PNG trực tiếp về máy, bao gồm toàn bộ nhân viên và các ngày trong khoảng chọn.</p>
+        <p class="fiber-matrix-note" id="fiberMatrixNote">Đầu ngày đối chiếu với snapshot cuối ngày hôm trước; trưa so với đầu ngày; chiều so với trưa. Chỉ đếm MA_TB Fiber rời danh sách Cần phải thu, loại trừ Xử lý sau và thuê bao mới. Số giảm được phân bổ theo MA_KV, nhân viên và tổ trong snapshot trước khi giảm. Nếu thiếu snapshot cuối ngày hôm trước, không thể tính hồi tố chính xác số giảm đầu ngày.</p>
       </section>
 
       <section class="panel">
@@ -1339,7 +1339,8 @@
         renderCell(value,index,totalDecrease[index])
       ).join('') + '</tr>' : '';
       $('fiberMatrixCount').textContent = fmtNum(data.employeeCount||0) + ' nhân viên · ' + fmtNum(data.totalFiberCount||0) + ' thuê bao Fiber';
-      $('fiberMatrixStatus').textContent = `Khoảng ${data.range.from.split('-').reverse().join('/')} đến ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.deltaCaptureDays||0)} ngày có đủ cặp lần chụp để tính giảm.`;
+      const warning = data.missingFirstDayPreviousSnapshot ? ' · Thiếu snapshot cuối ngày hôm trước nên không thể tính hồi tố chính xác số giảm đầu ngày.' : '';
+      $('fiberMatrixStatus').textContent = `Khoảng ${data.range.from.split('-').reverse().join('/')} đến ${data.range.to.split('-').reverse().join('/')} · ${fmtNum(data.deltaCaptureDays||0)} ngày có đủ cặp lần chụp để tính giảm.${warning}`;
       $('fiberMatrixNote').textContent = (data.deltaNote || '') + ' Ví dụ: 12 ↓ 3 nghĩa là còn 12 thuê bao Fiber và đã giảm 3 thuê bao trong ngày.';
     }
 
@@ -1413,7 +1414,7 @@
         ctx.fillStyle = '#16834B'; ctx.font = 'bold 13px Arial';
         ctx.fillText('SL Fiber kèm ↓ số lượng giảm trong ngày giữa các lần chụp số liệu',left,top-25);
         ctx.fillStyle = '#526C7D'; ctx.font = '12px Arial';
-        ctx.fillText('Chỉ tính LOAIHINH_TB = Fiber. Số giảm được đối chiếu theo MA_TB; thuê bao chuyển Xử lý sau không tính là đã thu.',left,top-6);
+        ctx.fillText('Đầu ngày so với snapshot cuối ngày trước; trưa so với đầu ngày; chiều so với trưa. Xử lý sau và thuê bao mới không tính.',left,top-6);
 
         const labels = ['MA_KV','NHÂN VIÊN','TỔ']
           .concat(dayGroups.map(g => g.label + '  |  SL Fiber · ↓ giảm'))
